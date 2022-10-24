@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
-using System;
-using System.Reflection;
+using ModFixerOne.Mods;
 
 namespace ModFixerOne
 {
@@ -14,7 +13,6 @@ namespace ModFixerOne
             Plugin.Instance.Harmony.PatchAll(typeof(Fixer_Patch));
 #if DEBUG
             Init();
-            OnUIGameInit(UIRoot.instance.uiGame);
 #endif
         }
 
@@ -24,33 +22,25 @@ namespace ModFixerOne
         {
             if (initialized) return;
 
-            //Harmony harmony = Plugin.Instance.Harmony;
+            Harmony harmony = Plugin.Instance.Harmony;
+
+            var fieldInfo = typeof(UIGame).GetField("inventory");
+            if (fieldInfo != null)
+            {
+                LongArm.Init(harmony);
+                PersonalLogistics.Init(harmony);
+            }
+            else
+            {
+                ErrorMessage = "Can't find UIGame.inventory! Please check if the preloader is installed correctly.";
+            }
+
             if (ErrorMessage != "")
             {
                 ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
                 UIMessageBox.Show("Mod Fixer One Error", ErrorMessage, "确定".Translate(), 3);
             }
             initialized = true;
-            Plugin.Log.LogDebug($"Version: {Plugin.VERSION}");
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIGame), nameof(UIGame._OnInit))]
-        public static void OnUIGameInit(UIGame __instance)
-        {
-            if (initialized) return;
-
-            try
-            {
-                Plugin.Log.LogDebug(typeof(UIGame).GetField("inventory"));
-                AccessTools.Field(typeof(UIGame), "inventory").SetValue(__instance, (ManualBehaviour)__instance.inventoryWindow);
-            }
-            catch (Exception e)
-            {
-                ErrorMessage = "Can't patch UIGame.inventory!\nCheck if the preloader is installed correctly";
-                ErrorMessage += e.ToString();
-                Plugin.Log.LogError(ErrorMessage);
-            }
         }
     }
 }

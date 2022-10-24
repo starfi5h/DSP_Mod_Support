@@ -10,7 +10,7 @@ namespace ModFixerOne
     {
         public const string GUID = "starfi5h.plugin.ModFixerOne";
         public const string NAME = "ModFixerOne";
-        public const string VERSION = "0.1.0";
+        public const string VERSION = "1.0.0";
 
         public static Plugin Instance { get; private set; }
         public Harmony Harmony { get; private set; }
@@ -32,11 +32,6 @@ namespace ModFixerOne
         {
             Harmony.UnpatchSelf();
             Harmony = null;
-        }
-
-        public bool CheckVersion(string hostVersion, string clientVersion)
-        {
-            return hostVersion.Equals(clientVersion);
         }
     }
 }
