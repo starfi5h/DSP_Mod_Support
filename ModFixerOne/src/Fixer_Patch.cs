@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using ModFixerOne.Mods;
 
 namespace ModFixerOne
@@ -7,6 +8,7 @@ namespace ModFixerOne
     {
         public static string ErrorMessage = "";
         public static bool initialized = false;
+        public static bool flag = false;
 
         public static void OnAwake()
         {
@@ -24,16 +26,18 @@ namespace ModFixerOne
 
             Harmony harmony = Plugin.Instance.Harmony;
 
-            var fieldInfo = typeof(UIGame).GetField("inventory");
-            if (fieldInfo != null)
+            if (typeof(UIGame).GetField("inventory") == null || typeof(PlanetTransport).GetMethod("RefreshTraffic") == null)
             {
-                LongArm.Init(harmony);
-                PersonalLogistics.Init(harmony);
+                ErrorMessage = "Can't find added fields or methods!\n Please check ModFixerOnePreloader.dll is installed correctly.";                
+                Plugin.Log.LogWarning(ErrorMessage);
+                UIMessageBox.Show("Mod Fixer One Preloader Error", ErrorMessage, "确定".Translate(), 3);
+                initialized = true;
+                return;
             }
-            else
-            {
-                ErrorMessage = "Can't find UIGame.inventory! Please check if the preloader is installed correctly.";
-            }
+
+            LongArm.Init(harmony);
+            PersonalLogistics.Init(harmony);
+            AutoStationConfig.Init(harmony);
 
             if (ErrorMessage != "")
             {
