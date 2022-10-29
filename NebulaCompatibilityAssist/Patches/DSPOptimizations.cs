@@ -9,7 +9,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "DSPOptimizations";
         public const string GUID = "com.Selsion.DSPOptimizations";
-        public const string VERSION = "1.1.11";
+        public const string VERSION = "1.1.12";
 
         private static Action<GameData> InitFactoryInfo;
 

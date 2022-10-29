@@ -11,7 +11,7 @@ namespace NebulaCompatibilityAssist.Patches
 
         public static void Init(Harmony harmony)
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var _))
                 return;
 
             try
