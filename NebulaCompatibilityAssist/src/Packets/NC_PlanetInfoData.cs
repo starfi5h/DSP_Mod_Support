@@ -39,7 +39,7 @@ namespace NebulaCompatibilityAssist.Packets
         {
             if (IsHost) return;
 
-            PlanetFinder.OnReceive(packet);
+            PlanetFinder_Patch.OnReceive(packet);
         }
     }
 }

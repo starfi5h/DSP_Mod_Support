@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>NebulaCompatibilityAssist</AssemblyName>
-    <Description>Plugin to improve compatibility of Nebula with other mods</Description>
-    <Version>0.1.5</Version>
+    <Description>Plugin to improve compatibility of mods with Nebula multiplayer mod</Description>
+    <Version>0.1.6</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -34,6 +34,12 @@
     </Reference>
     <Reference Include="NebulaModel">
       <HintPath>reference\NebulaModel.dll</HintPath>
+    </Reference>
+    <Reference Include="PlanetFinder">
+      <HintPath>reference\PlanetFinder.dll</HintPath>
+    </Reference>
+    <Reference Include="PlanetFinder">
+      <HintPath>reference\PlanetFinder.dll</HintPath>
     </Reference>
   </ItemGroup>
   

@@ -1,19 +1,21 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
 using NebulaCompatibilityAssist.Packets;
+using PlanetFinderMod;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace NebulaCompatibilityAssist.Patches
 {
-    public static class PlanetFinder
+    public static class PlanetFinder_Patch
     {
         public const string NAME = "PlanetFinder";
         public const string GUID = "com.hetima.dsp.PlanetFinder";
-        public const string VERSION = "0.4.2";
+        public const string VERSION = "1.0.0";
 
         public struct PlanetInfo
         {
@@ -40,13 +42,13 @@ namespace NebulaCompatibilityAssist.Patches
                 
                 Type classType = assembly.GetType("PlanetFinderMod.UIPlanetFinderWindow");
                 // Send request when client open window
-                harmony.Patch(AccessTools.Method(classType, "SetUpAndOpen"), new HarmonyMethod(typeof(PlanetFinder).GetMethod("SendRequest")));
+                harmony.Patch(AccessTools.Method(classType, "SetUpAndOpen"), new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("SendRequest")));
                 // Show HasFactory list on client
-                harmony.Patch(classType.GetMethod("PlanetsWithFactory"), new HarmonyMethod(typeof(PlanetFinder).GetMethod("PlanetsWithFactory_Prefix")));
+                harmony.Patch(classType.GetMethod("FilterPlanetsWithFactory"), new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("FilterPlanetsWithFactory_Prefix")));
                                 
                 classType = assembly.GetType("PlanetFinderMod.UIPlanetFinderListItem");
                 // Show power network information on client
-                harmony.Patch(classType.GetMethod("RefreshValues"), null, new HarmonyMethod(typeof(PlanetFinder).GetMethod("RefreshValues_Postfix")));
+                harmony.Patch(classType.GetMethod("RefreshValues"), null, new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("RefreshValues_Postfix")));
 
                 Log.Info($"{NAME} - OK");
             }
@@ -78,9 +80,9 @@ namespace NebulaCompatibilityAssist.Patches
             };
         }
 
-        public static void RefreshValues_Postfix(bool shown, bool onlyNewlyEmerged, int ____itemId, PlanetData ___planetData, Text ___valueText, Text ___valueSketchText)
+        public static void RefreshValues_Postfix(GameObject ___baseObj, int ____itemId, PlanetData ___planetData, Text ___valueText, Text ___valueSketchText)
         {
-            if (!shown || onlyNewlyEmerged || ____itemId != 0)
+            if (!___baseObj.activeSelf || ____itemId != 0)
                 return;
 
             if (!NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
@@ -121,15 +123,15 @@ namespace NebulaCompatibilityAssist.Patches
             }
         }
 
-        public static bool PlanetsWithFactory_Prefix(ref List<PlanetData> __result)
+        public static bool FilterPlanetsWithFactory_Prefix(List<PlanetListData> ____allPlanetList)
         {
             if (!NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 return true;
 
-            __result = new List<PlanetData>(planetInfos.Count);
-            foreach (int planetId in planetInfos.Keys)
-                __result.Add(GameMain.galaxy.PlanetById(planetId));
-
+            foreach (PlanetListData d in ____allPlanetList)
+            {
+                d.shouldShow = planetInfos.ContainsKey(d.planetData.id);
+            }
             return false;
         }
     }

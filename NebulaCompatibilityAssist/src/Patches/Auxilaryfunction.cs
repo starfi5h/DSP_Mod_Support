@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "Auxilaryfunction";
         public const string GUID = "cn.blacksnipe.dsp.Auxilaryfunction";
-        public const string VERSION = "1.6.9";
+        public const string VERSION = "1.8.4";
 
         private static ConfigEntry<bool> stationcopyItem_bool; // 物流站复制物品配方
         private static ConfigEntry<bool> auto_supply_station; // 自动配置新运输站
