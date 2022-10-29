@@ -35,6 +35,12 @@
     <Reference Include="NebulaModel">
       <HintPath>reference\NebulaModel.dll</HintPath>
     </Reference>
+    <Reference Include="PlanetFinder">
+      <HintPath>reference\PlanetFinder.dll</HintPath>
+    </Reference>
+    <Reference Include="PlanetFinder">
+      <HintPath>reference\PlanetFinder.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

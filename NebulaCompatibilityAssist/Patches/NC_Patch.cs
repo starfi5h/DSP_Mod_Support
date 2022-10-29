@@ -7,6 +7,7 @@ namespace NebulaCompatibilityAssist.Patches
 {
     public static class NC_Patch
     {
+        public static bool IsClient;
         public static Action OnLogin;
         public static string RequriedPlugins = ""; // plugins required to install on both end
         public static string ErrorMessage = "";
@@ -18,6 +19,7 @@ namespace NebulaCompatibilityAssist.Patches
             Plugin.Instance.Harmony.PatchAll(typeof(NC_Patch));
 #if DEBUG
             Init();
+            IsClient = NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient;
 #endif
         }
 
@@ -33,7 +35,7 @@ namespace NebulaCompatibilityAssist.Patches
             DSPStarMapMemo.Init(harmony);
             DSPBeltReverseDirection.Init(harmony);
             DSPTransportStat_Patch.Init(harmony);
-            PlanetFinder.Init(harmony);
+            PlanetFinder_Patch.Init(harmony);
             MoreMegaStructure.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
             AutoStationConfig.Init(harmony);
@@ -57,9 +59,11 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
             {
+                IsClient = true;
                 Log.Debug("OnLogin");
                 OnLogin?.Invoke();
             }
+            IsClient = false;
         }
 
     }
