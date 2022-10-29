@@ -1,7 +1,7 @@
 # Nebula Compatibility Assist
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
-Support Nebula multiplayer mod compatibility for following mods.  
+This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 DSP Belt Reverse Direction, MoreMegaStructure are required to install on both client and host.  
 
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
@@ -12,7 +12,8 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 - Client can't open remote station window yet.  
 
 ### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
-- Client can now see vein amount and power status on planets not loaded yet.  
+- Client can now see vein amount and power status on planets not loaded yet. 
+- The data is updated everytime client open the window.  
 
 ### [DSPMarker](https://dsp.thunderstore.io/package/appuns/DSPMarker/)
 - Markers now sync when players click apply or delete button.  
@@ -33,9 +34,8 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 - Sync data when player change mega structure type in the editor.
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
-- Sync station configuration and drone, ship, warper count.  
-- Fix advance miner power usage abnormal ([issue#17](https://github.com/Pasukaru/DSP-Mods/issues/17))  
-- Note: AutoStationConfig v1.4.0 is not compatible with DSP v0.9.27
+- Sync station configuration and drone, ship, warper count.   
+- Note: AutoStationConfig v1.4.0 is broken in DSP0.9.27.  
 
 ### [Auxilaryfunction](https://dsp.thunderstore.io/package/blacksnipebiu/Auxilaryfunction/)
 - Sync auto station config functions.  
@@ -80,8 +80,7 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
-- 修复大矿机能耗异常的问题 ([issue#17](https://github.com/Pasukaru/DSP-Mods/issues/17))  
-- 注意：AutoStationConfig v1.4.0 与 游戏版本v0.9.27 不兼容  
+- 注意：AutoStationConfigv1.4.0 与 游戏版本v0.9.27 不兼容  
 
 ### [Auxilaryfunction](https://dsp.thunderstore.io/package/blacksnipebiu/Auxilaryfunction/) [辅助多功能mod](https://www.bilibili.com/video/BV1SS4y1X75n)
 - 同步物流站自动配置相关功能  
@@ -92,11 +91,15 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 
 主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題。  
 DSP Belt Reverse Direction、MoreMegaStructure必须要两端都得安装。  
-热修联机0.8.11版中配送运输机出错的bug。  
+热修联机0.8.12版中配送器上叠储物仓的bug。  
 
 ----
 
 ## Changelog
+
+#### v0.1.6 (NebulaMultiplayerMod 0.8.12)  
+\- Hotfix for nebula 0.8.12: Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
+\- Update PlanetFinder support version to 1.0.0.  
 
 #### v0.1.5 (NebulaMultiplayerMod 0.8.11)  
 \- Fix mod data doesn't sync correctly for another clients.  
