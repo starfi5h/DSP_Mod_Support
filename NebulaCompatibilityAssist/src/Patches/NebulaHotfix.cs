@@ -2,9 +2,12 @@
 using System;
 using System.Reflection.Emit;
 using System.Collections.Generic;
+using System.Reflection;
+
 using NebulaAPI;
 using NebulaModel.Networking;
-using System.Reflection;
+using NebulaModel.Packets.Planet;
+using NebulaWorld;
 
 namespace NebulaCompatibilityAssist.Patches
 {
@@ -38,8 +41,8 @@ namespace NebulaCompatibilityAssist.Patches
         private static void Patch0812(Harmony harmony)
         {
             Type classType;
-            //classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-            //harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaHotfix).GetMethod("BeforeHostGame")));
+            classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
+            harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaHotfix).GetMethod("BeforeHostGame")));
 
             classType = AccessTools.TypeByName("NebulaWorld.SimulatedWorld");
             harmony.Patch(AccessTools.Method(classType, "SetupInitialPlayerState"),
@@ -115,6 +118,10 @@ namespace NebulaCompatibilityAssist.Patches
                     }
 
                     // Patch PacketProcessors here in the future
+                    Type classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.Planet.VegeMinedProcessor");
+                    MethodInfo methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(VegeMinedPacket), typeof(NebulaConnection) });
+                    Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(VegeMinedProcessor))));
+
                     Log.Info("PacketProcessors patch success!");
                 }
                 catch (Exception e)
@@ -123,6 +130,67 @@ namespace NebulaCompatibilityAssist.Patches
                     Log.Warn(e);
                 }
             }
+        }
+
+        public static bool VegeMinedProcessor(VegeMinedPacket packet)
+        {
+            if (GameMain.galaxy.PlanetById(packet.PlanetId)?.factory != null && GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.vegePool != null)
+            {
+                using (Multiplayer.Session.Planets.IsIncomingRequest.On())
+                {
+                    PlanetData planetData = GameMain.galaxy.PlanetById(packet.PlanetId);
+                    PlanetFactory factory = planetData?.factory;
+                    if (packet.Amount == 0 && factory != null)
+                    {
+                        if (packet.IsVein)
+                        {
+                            VeinData veinData = factory.GetVeinData(packet.VegeId);
+                            VeinProto veinProto = LDB.veins.Select((int)veinData.type);
+
+                            factory.RemoveVeinWithComponents(packet.VegeId);
+
+                            // Patch: Only show effect if it is on the same local planet
+                            if (veinProto != null && GameMain.localPlanet == planetData)
+                            {
+                                VFEffectEmitter.Emit(veinProto.MiningEffect, veinData.pos, Maths.SphericalRotation(veinData.pos, 0f));
+                                VFAudio.Create(veinProto.MiningAudio, null, veinData.pos, true, 0, -1, -1L);
+                            }
+                        }
+                        else
+                        {
+                            VegeData vegeData = factory.GetVegeData(packet.VegeId);
+                            VegeProto vegeProto = LDB.veges.Select(vegeData.protoId);
+
+                            factory.RemoveVegeWithComponents(packet.VegeId);
+                            Log.Warn(vegeProto != null && GameMain.localPlanet == planetData);
+
+                            // Patch: Only show effect if it is on the same local planet
+                            if (vegeProto != null && GameMain.localPlanet == planetData)
+                            {
+                                VFEffectEmitter.Emit(vegeProto.MiningEffect, vegeData.pos, Maths.SphericalRotation(vegeData.pos, 0f));
+                                VFAudio.Create(vegeProto.MiningAudio, null, vegeData.pos, true, 0, -1, -1L);
+                            }
+                        }
+                    }
+                    else if (factory != null)
+                    {
+                        // Taken from if (!isInfiniteResource) part of PlayerAction_Mine.GameTick()
+                        VeinData veinData = factory.GetVeinData(packet.VegeId);
+                        VeinGroup[] veinGroups = factory.veinGroups;
+                        short groupIndex = veinData.groupIndex;
+
+                        // must be a vein/oil patch (i think the game treats them same now as oil patches can run out too)
+                        factory.veinPool[packet.VegeId].amount = packet.Amount;
+                        veinGroups[groupIndex].amount = veinGroups[groupIndex].amount - 1L;
+                    }
+                    else
+                    {
+                        Log.Warn("Received VegeMinedPacket but could not do as i was told :C");
+                    }
+                }
+            }
+
+            return false;
         }
 
 
