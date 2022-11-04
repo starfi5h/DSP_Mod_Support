@@ -29,6 +29,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     Patch0812(harmony);
                     Log.Info("Nebula hotfix 0.8.12 - OK");
+                    harmony.PatchAll(typeof(Analysis.StacktraceParser));
                 }
             }
             catch (Exception e)
