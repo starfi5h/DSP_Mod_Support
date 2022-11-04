@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace NebulaCompatibilityAssist
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("dsp.nebula-multiplayer")]
     [BepInDependency("dsp.nebula-multiplayer-api")]
     public class Plugin : BaseUnityPlugin, IMultiplayerMod
@@ -19,7 +19,7 @@ namespace NebulaCompatibilityAssist
         {
             Instance = this;
             Log.LogSource = Logger;
-            Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             Patches.NC_Patch.OnAwake();
         }
 

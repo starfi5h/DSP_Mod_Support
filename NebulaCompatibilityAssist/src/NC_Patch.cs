@@ -49,7 +49,7 @@ namespace NebulaCompatibilityAssist.Patches
                 UIMessageBox.Show("Nebula Compatibility Assist Error", ErrorMessage, "确定".Translate(), 3);
             }
             initialized = true;
-            Plugin.Instance.Version = PluginInfo.PLUGIN_VERSION + RequriedPlugins;
+            Plugin.Instance.Version = MyPluginInfo.PLUGIN_VERSION + RequriedPlugins;
             Log.Debug($"Version: {Plugin.Instance.Version}");
         }
 
