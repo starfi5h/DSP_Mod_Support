@@ -1,5 +1,10 @@
 # Nebula Compatibility Assist
 
+Nebula 0.8.12 hotfix:  
+- Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
+- Fix infinite tech level desync in client.  
+- Fix that rock destroy on remote planet show effects on local planet.  
+
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 DSP Belt Reverse Direction, MoreMegaStructure are required to install on both client and host.  
@@ -91,36 +96,41 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 
 主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題。  
 DSP Belt Reverse Direction、MoreMegaStructure必须要两端都得安装。  
-热修联机0.8.12版中配送器上叠储物仓的bug。  
+热修联机0.8.12版中的bug。  
 
 ----
 
 ## Changelog
 
-#### v0.1.6 (NebulaMultiplayerMod 0.8.12)  
-\- Hotfix for nebula 0.8.12: Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
+#### v0.1.7 (Nebula 0.8.12)  
+\- Hotfix: Fix infinite tech level desync in client.  
+\- Hotfix: Fix that rock destroy on remote planet show effects on local planet.  
+\- Show possible mod patches from stacktraces on error report.  
+
+#### v0.1.6 (Nebula 0.8.12)  
+\- Hotfix: Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
 \- Update PlanetFinder support version to 1.0.0.  
 
-#### v0.1.5 (NebulaMultiplayerMod 0.8.11)  
+#### v0.1.5 (Nebula 0.8.11)  
 \- Fix mod data doesn't sync correctly for another clients.  
 \- Fix client mecha spawning position.  
 
-#### v0.1.4 (NebulaMultiplayerMod 0.8.11)  
+#### v0.1.4 (Nebulad 0.8.11)  
 \- Hotfix for nebula 0.8.11 about host sometimes get error when client request logistic on other planets.  
 \- Hotfix for GS2 star detail doesn't display correctly for clients.  
 
-#### v0.1.3 (NebulaMultiplayerMod 0.8.11)
+#### v0.1.3 (Nebulad 0.8.11)
 \- Hotfix for nebula 0.8.11 about logistic bots errors.  
 \- Fix client error when host reverse belts on a remote planet.  
 
-#### v0.1.2 (NebulaMultiplayerMod 0.8.10)
+#### v0.1.2 (Nebula 0.8.10)
 \- Support DSPOptimizations  
 
-#### v0.1.1 (NebulaMultiplayerMod 0.8.10)
+#### v0.1.1 (Nebula 0.8.10)
 \- Support AutoStationConfig, Auxilaryfunction.  
 \- Fix advance miner power usage abnormal of AutoStationConfig.   
 
-#### v0.1.0 (NebulaMultiplayerMod 0.8.8)
+#### v0.1.0 (Nebula 0.8.8)
 \- Support DSPTransportStat, PlanetFinder, DSPFreeMechaCustom, MoreMegaStructure.  
 \- Fix DSPMarker didn't refresh marker when local planet changed.  
 
