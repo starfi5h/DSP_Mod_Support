@@ -6,6 +6,7 @@ using System.Reflection;
 
 using NebulaAPI;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 
@@ -123,6 +124,10 @@ namespace NebulaCompatibilityAssist.Patches
                     MethodInfo methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(VegeMinedPacket), typeof(NebulaConnection) });
                     Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(VegeMinedProcessor))));
 
+                    classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.GameHistory.GameHistoryUnlockTechProcessor");
+                    methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(GameHistoryUnlockTechPacket), typeof(NebulaConnection) });
+                    Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(GameHistoryUnlockTechProcessor))));
+
                     Log.Info("PacketProcessors patch success!");
                 }
                 catch (Exception e)
@@ -194,6 +199,18 @@ namespace NebulaCompatibilityAssist.Patches
             return false;
         }
 
+        public static bool GameHistoryUnlockTechProcessor(GameHistoryUnlockTechPacket packet)
+        {
+            Log.Info($"Unlocking tech (ID: {packet.TechId})");
+            using (Multiplayer.Session.History.IsIncomingRequest.On())
+            {
+                // Let the default method give back the items
+                GameMain.mainPlayer.mecha.lab.ManageTakeback();
 
+                GameMain.history.UnlockTechUnlimited(packet.TechId, false);
+            }
+
+            return false;
+        }
     }
 }
