@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using NebulaCompatibilityAssist.Hotfix;
 using System;
 using System.Reflection;
 
