@@ -6,6 +6,7 @@ using NebulaModel.Networking;
 using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
+using NebulaModel.Packets.Trash;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -34,6 +35,14 @@ namespace NebulaCompatibilityAssist.Hotfix
                     classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.GameHistory.GameHistoryUnlockTechProcessor");
                     methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(GameHistoryUnlockTechPacket), typeof(NebulaConnection) });
                     Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(GameHistoryUnlockTechProcessor))));
+
+                    classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.Trash.TrashSystemTrashRemovedProcessor");
+                    methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(TrashSystemTrashRemovedPacket), typeof(NebulaConnection) });
+                    Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(TrashSystemTrashRemovedProcessor))));
+
+                    classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.Trash.TrashSystemResponseDataProcessor");
+                    methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(TrashSystemResponseDataPacket), typeof(NebulaConnection) });
+                    Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(TrashSystemResponseDataProcessor))));
 
                     Log.Info("PacketProcessors patch success!");
                 }
@@ -120,6 +129,39 @@ namespace NebulaCompatibilityAssist.Hotfix
             return false;
         }
 
+        public static bool TrashSystemTrashRemovedProcessor(TrashSystemTrashRemovedPacket packet, NebulaConnection conn)
+        {
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                Multiplayer.Session.Network.PlayerManager.SendPacketToOtherPlayers(packet, conn);
+            }
+            using (Multiplayer.Session.Trashes.RemoveTrashFromOtherPlayers.On())
+            {
+                GameMain.data.trashSystem.RemoveTrash(packet.TrashId);
+            }
 
+            return false;
+        }
+
+        public static bool TrashSystemResponseDataProcessor(TrashSystemResponseDataPacket packet)
+        {
+            if (Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return false;
+            }
+
+            using (BinaryUtils.Reader reader = new BinaryUtils.Reader(packet.TrashSystemData))
+            {
+                GameMain.data.trashSystem.Import(reader.BinaryReader);
+            }
+            // Wait until WarningDataPacket to assign warningId
+            TrashContainer container = GameMain.data.trashSystem.container;
+            for (int i = 0; i < container.trashCursor; i++)
+            {
+                container.trashDataPool[i].warningId = -1;
+            }
+
+            return false;
+        }
     }
 }
