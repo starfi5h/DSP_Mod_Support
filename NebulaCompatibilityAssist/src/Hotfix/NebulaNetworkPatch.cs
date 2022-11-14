@@ -7,6 +7,7 @@ using NebulaModel.Packets.GameHistory;
 using NebulaModel.Packets.Planet;
 using NebulaWorld;
 using NebulaModel.Packets.Trash;
+using NebulaModel.Packets.Factory.Splitter;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -43,6 +44,10 @@ namespace NebulaCompatibilityAssist.Hotfix
                     classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.Trash.TrashSystemResponseDataProcessor");
                     methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(TrashSystemResponseDataPacket), typeof(NebulaConnection) });
                     Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(TrashSystemResponseDataProcessor))));
+
+                    classType = AccessTools.TypeByName("NebulaNetwork.PacketProcessors.Factory.Splitter.SplitterPriorityChangeProcessor");
+                    methodInfo = AccessTools.Method(classType, "ProcessPacket", new Type[] { typeof(SplitterPriorityChangePacket), typeof(NebulaConnection) });
+                    Plugin.Instance.Harmony.Patch(methodInfo, new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(SplitterPriorityChangeProcessor))));
 
                     Log.Info("PacketProcessors patch success!");
                 }
@@ -159,6 +164,17 @@ namespace NebulaCompatibilityAssist.Hotfix
             for (int i = 0; i < container.trashCursor; i++)
             {
                 container.trashDataPool[i].warningId = -1;
+            }
+
+            return false;
+        }
+
+        public static bool SplitterPriorityChangeProcessor(SplitterPriorityChangePacket packet, NebulaConnection conn)
+        {
+            SplitterComponent[] pool = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory?.cargoTraffic.splitterPool;
+            if (pool != null && packet.SplitterIndex != -1 && packet.SplitterIndex < pool.Length && pool[packet.SplitterIndex].id != -1)
+            {
+                pool[packet.SplitterIndex].SetPriority(packet.Slot, packet.IsPriority, packet.Filter);
             }
 
             return false;
