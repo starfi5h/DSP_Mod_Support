@@ -13,7 +13,7 @@ namespace NebulaCompatibilityAssist.Hotfix
     {
         private static bool isPatched = false;
 
-        public static void BeforeHostGame()
+        public static void BeforeMultiplayerGame()
         {
             if (!isPatched)
             {

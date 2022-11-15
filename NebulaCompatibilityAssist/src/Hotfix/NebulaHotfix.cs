@@ -43,7 +43,8 @@ namespace NebulaCompatibilityAssist.Hotfix
         {
             Type classType;
             classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-            harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod("BeforeHostGame")));
+            harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
+            harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
 
             classType = AccessTools.TypeByName("NebulaWorld.SimulatedWorld");
             harmony.Patch(AccessTools.Method(classType, "SetupInitialPlayerState"),
