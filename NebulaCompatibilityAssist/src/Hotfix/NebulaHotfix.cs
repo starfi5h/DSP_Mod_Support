@@ -254,8 +254,99 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
         }
 
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(FactorySystem), nameof(FactorySystem.GameTickInserters), new Type[] { typeof(long), typeof(bool) })]
+        [HarmonyPatch(typeof(FactorySystem), nameof(FactorySystem.GameTickInserters), new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int) })]
+        private static IEnumerable<CodeInstruction> GameTickInserters_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new CodeMatcher(instructions)
+                    .MatchForward(false, new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "InternalOffsetCorrection"))
+                    .Repeat(matcher => matcher
+                        .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(NebulaHotfix), nameof(InternalOffsetCorrection)))
+                     );
+                return matcher.InstructionEnumeration();
+            }
+            catch
+            {
+                NebulaModel.Logger.Log.Error("FactorySystem.GameTickInserters_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
+        }
 
+        private static void InternalOffsetCorrection(ref InserterComponent inserter, EntityData[] entityPool, CargoTraffic traffic, BeltComponent[] beltPool)
+        {
+            bool flag = false;
+            int beltId = entityPool[inserter.pickTarget].beltId;
+            if (beltId > 0)
+            {
+                CargoPath cargoPath = traffic.GetCargoPath(beltPool[beltId].segPathId);
+                if (cargoPath != null)
+                {
+                    int num = beltPool[beltId].segPivotOffset + beltPool[beltId].segIndex;
+                    int num2 = num + (int)inserter.pickOffset;
+                    if (num2 < 4)
+                    {
+                        num2 = 4;
+                    }
+                    if (num2 + 5 >= cargoPath.pathLength)
+                    {
+                        num2 = cargoPath.pathLength - 5 - 1;
+                    }
+                    if (inserter.pickOffset != (short)(num2 - num))
+                    {
+                        Log.Warn($"{traffic.factory.planetId} Fix inserter{inserter.id} pickOffset {inserter.pickOffset} -> {num2 - num}");
+                        inserter.pickOffset = (short)(num2 - num);
+                        flag = true;
+                    }
+                }
+            }
+            int beltId2 = entityPool[inserter.insertTarget].beltId;
+            if (beltId2 > 0)
+            {
+                CargoPath cargoPath2 = traffic.GetCargoPath(beltPool[beltId2].segPathId);
+                if (cargoPath2 != null)
+                {
+                    int num3 = beltPool[beltId2].segPivotOffset + beltPool[beltId2].segIndex;
+                    int num4 = num3 + (int)inserter.insertOffset;
+                    if (num4 < 4)
+                    {
+                        num4 = 4;
+                    }
+                    if (num4 + 5 >= cargoPath2.pathLength)
+                    {
+                        num4 = cargoPath2.pathLength - 5 - 1;
+                    }
+                    if (inserter.insertOffset != (short)(num4 - num3))
+                    {
+                        Log.Warn($"{traffic.factory.planetId} Fix inserter{inserter.id} insertOffset {inserter.insertOffset} -> {num4 - num3}");
+                        inserter.insertOffset = (short)(num4 - num3);
+                        flag = true;
+                    }
+                }
+            }
+            if (flag && Multiplayer.IsActive)
+            {
+                Multiplayer.Session.Network.SendPacketToLocalStar(new InserterOffsetCorrectionPacket(inserter.id, inserter.pickOffset, inserter.insertOffset, traffic.factory.planetId));
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlanetFactory), nameof(PlanetFactory.Import))]
+        public static void PlanetFactoryImport_Postfix(PlanetFactory __instance)
+        {
+            EntityData[] entityPool = __instance.entityPool;
+            CargoTraffic traffic = __instance.factorySystem.traffic;
+            BeltComponent[] beltPool = __instance.factorySystem.traffic.beltPool;
+            for (int i = 1; i < __instance.factorySystem.inserterCursor; i++)
+            {
+                ref InserterComponent inserter = ref __instance.factorySystem.inserterPool[i];
+                if (inserter.id == i)
+                {
+                    InternalOffsetCorrection(ref inserter, entityPool, traffic, beltPool);
+                }
+            }
+        }
     }
-
-
 }
