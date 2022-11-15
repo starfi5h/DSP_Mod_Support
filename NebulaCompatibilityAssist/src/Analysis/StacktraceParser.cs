@@ -110,7 +110,7 @@ namespace NebulaCompatibilityAssist.Analysis
             }
 
             if (sb.Length > 0)
-                sb.Insert(0, "\nRelated patches:\n");
+                sb.Insert(0, "\nPossible related patches:\n");
 
             return sb.ToString();
         }
@@ -119,6 +119,9 @@ namespace NebulaCompatibilityAssist.Analysis
         {
             foreach (var patch in patches)
             {
+                if (IsWhitelist(name, patch))
+                    continue;
+
                 sb.Append(name)
                   .Append("(")
                   .Append(prefix)
@@ -134,15 +137,32 @@ namespace NebulaCompatibilityAssist.Analysis
             }
         }
 
+        private static bool IsWhitelist(string name, Patch patch)
+        {
+            if (name == "FixedUpdate")
+            {
+                string declaringType = patch.PatchMethod.DeclaringType.ToString();
+                if (declaringType == "BulletTime.GameMain_Patch")
+                    return true;
+                if (declaringType == "NebulaPatcher.Patches.Transpiler.GameMain_Transpiler")
+                    return true;
+            }
+            return false;
+        }
+
         /*
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(UIEscMenu), nameof(UIEscMenu.OnButton1Click))]
-        //[HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
+        static bool flag;
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIEscMenu), nameof(UIEscMenu.OnButton1Click))]
+        [HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
         public static void TestError()
         {
+            if (flag)
+                return;
+            flag = true;
             int a = 0;
             int b = 1 / a;
         }
-        */        
+        */
     }
 }

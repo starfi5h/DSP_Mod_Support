@@ -4,6 +4,8 @@ Nebula 0.8.12 hotfix:
 - Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
 - Fix infinite tech level desync in client.  
 - Fix that rock destroy on remote planet show effects on local planet.  
+- Fix trash warning. To remove the corrupted trash warnings, click Erase All Litter button. (new)  
+- Fix sometimes sorters connection desync when players are on different planets. (new)   
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -51,10 +53,12 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 
 ----
 
-# 联机兼容支援
+# 联机兼容支援 + 热修补丁
 
-[联机兼容的模组列表](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s) 绿勾=无问题, 蓝勾=需两端皆安装, 红标=有严重冲突  
-有些mod和联机模组Nebula multiplayer mod有兼容性问题, 此模组提供以下MOD的兼容支援: 
+[联机兼容的模组列表](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
+绿勾=无问题, 蓝勾=需两端皆安装, 红标=有严重冲突  
+有些mod和联机模组Nebula multiplayer mod有冲突，可能造成红字错误或预期效果不正确。  
+此模组提供以下mod的兼容支援, 主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題:  
 
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
 - 让客户端显示所有星际物流塔的内容  
@@ -94,13 +98,16 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 ### [DSPOptimizations](https://dsp.thunderstore.io/package/Selsion/DSPOptimizations/)
 - 修复客户端离开星系会使游戏崩溃的错误  
 
-主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題。  
-DSP Belt Reverse Direction、MoreMegaStructure必须要两端都得安装。  
-热修联机0.8.12版中的bug。  
+DSP Belt Reverse Direction、MoreMegaStructure必须要伺服端和客户端都得安装。  
 
 ----
 
 ## Changelog
+
+#### v0.1.8 (Nebula 0.8.12)
+\- Hotfix: Fix trash warning (error when there are litters on host and client join, positions doen't sync)  
+\- Hotfix: Fix InserterOffsetCorrection which may cause desync that sorters don't work on one end.  
+\- Hotfix: Fix SplitterPriorityChange packet.  
 
 #### v0.1.7 (Nebula 0.8.12)  
 \- Hotfix: Fix infinite tech level desync in client.  
@@ -116,11 +123,11 @@ DSP Belt Reverse Direction、MoreMegaStructure必须要两端都得安装。
 \- Fix client mecha spawning position.  
 
 #### v0.1.4 (Nebulad 0.8.11)  
-\- Hotfix for nebula 0.8.11 about host sometimes get error when client request logistic on other planets.  
+\- Hotfix: Fix host sometimes get error when client request logistic on other planets.  
 \- Hotfix for GS2 star detail doesn't display correctly for clients.  
 
 #### v0.1.3 (Nebulad 0.8.11)
-\- Hotfix for nebula 0.8.11 about logistic bots errors.  
+\- Hotfix: Fix logistic bots errors.  
 \- Fix client error when host reverse belts on a remote planet.  
 
 #### v0.1.2 (Nebula 0.8.10)
