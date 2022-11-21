@@ -1,0 +1,407 @@
+﻿using CommonAPI.Systems;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace FactoryLocator
+{
+    public class MainLogic
+    {
+        public static int SignalId { get; set; } = 401;
+
+        private static readonly List<PlanetFactory> factories = new();
+        private static readonly Dictionary<int, int> filterIds = new();
+        private static readonly List<int> planetIds = new();
+        private static readonly List<Vector3> localPos = new();
+        private static readonly List<int> detailIds = new();
+
+        public static int SetFactories(StarData star, PlanetData planet)
+        {
+            factories.Clear();
+            if (star != null)
+            {
+                foreach (var p in star.planets)
+                {
+                    if (p?.factory != null)
+                        factories.Add(p.factory);
+                }
+            }
+            else
+            {
+                if (planet?.factory != null)
+                    factories.Add(planet.factory);
+            }
+            return factories.Count;
+        }
+
+        public static void PickBuilding(int _)
+        {
+            RefreshBuilding(-1);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
+        }
+
+        public static void OnBuildingPickReturn(ItemProto itemProto)
+        {
+            if (itemProto == null) // Return by ESC
+                return;
+            int itemId = itemProto.ID;
+            RefreshBuilding(itemId);
+            WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
+            UIentryCount.OnClose();
+        }
+
+        public static void PickVein(int _)
+        {
+            RefreshVein(-1);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
+        }
+
+        public static void OnVeinPickReturn(ItemProto itemProto)
+        {
+            if (itemProto == null) // Return by ESC
+                return;
+            int itemId = itemProto.ID;
+            RefreshVein(itemId);
+            WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
+            UIentryCount.OnClose();
+        }
+
+        public static void PickAssembler(int _)
+        {
+            RefreshAssemblers(-1);
+            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
+            UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
+        }
+
+        public static void OnAssemblerPickReturn(RecipeProto recipeProto)
+        {
+            if (recipeProto == null) // Return by ESC
+                return;
+            int recipeId = recipeProto.ID;
+            RefreshAssemblers(recipeId);
+            WarningSystemPatch.AddWarningData(SignalId, SignalProtoSet.SignalId(ESignalType.Recipe, recipeId), planetIds, localPos);
+            UIentryCount.OnClose();
+        }
+
+        public static void PickWarning(int _)
+        {
+            RefreshSignal(-1);
+            UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
+            UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(1);
+            UIentryCount.OnOpen(ESignalType.Signal, filterIds);
+        }
+
+        public static void OnWarningPickReturn(int signalId)
+        {
+            if (signalId <= 0) // Return by ESC
+                return;
+            RefreshSignal(signalId);
+            WarningSystemPatch.AddWarningData(SignalId, signalId, planetIds, localPos, detailIds);
+            UIentryCount.OnClose();
+        }
+
+        public static void PickStorage(int _)
+        {
+            RefreshStorage(-1);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
+        }
+
+        public static void OnStoragePickReturn(ItemProto itemProto)
+        {
+            if (itemProto == null) // Return by ESC
+                return;
+            int itemId = itemProto.ID;
+            RefreshStorage(itemId);
+            WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
+            UIentryCount.OnClose();
+        }
+
+        public static void PickStation(int _)
+        {
+            RefreshStation(-1);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
+        }
+
+        public static void OnStationPickReturn(ItemProto itemProto)
+        {
+            if (itemProto == null) // Return by ESC
+                return;
+            int itemId = itemProto.ID;
+            RefreshStation(itemId);
+            WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
+            UIentryCount.OnClose();
+        }
+
+        private static void RefreshBuilding(int itemId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 0; id < factory.entityCursor; id++)
+                {
+                    if (id == factory.entityPool[id].id)
+                    {
+                        if (itemId == -1)
+                        {
+                            int key = factory.entityPool[id].protoId;
+                            if (filterIds.ContainsKey(key))
+                                ++filterIds[key];
+                            else
+                                filterIds[key] = 1;
+                        }
+                        else
+                        {
+                            if (itemId == factory.entityPool[id].protoId)
+                            {
+                                localPos.Add(factory.entityPool[id].pos + factory.entityPool[id].pos.normalized * 0.5f);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RefreshVein(int itemId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            EVeinType veinTypeByItemId = EVeinType.None;
+            if (itemId > 0)
+                veinTypeByItemId = LDB.veins.GetVeinTypeByItemId(itemId);
+
+            foreach (var factory in factories)
+            {
+                for (int id = 1; id < factory.veinGroups.Length; id++)
+                {
+                    if (factory.veinGroups[id].type != EVeinType.None)
+                    {
+                        if (itemId == -1)
+                        {
+                            int key;
+                            if (factory.veinGroups[id].type == EVeinType.Oil)
+                            {
+                                // Special case for item Crude Oil
+                                key = 1007;
+                            }
+                            else
+                            {
+                                key = LDB.veins.Select((int)factory.veinGroups[id].type).MiningItem;
+                            }
+                            if (filterIds.ContainsKey(key))
+                                ++filterIds[key];
+                            else
+                                filterIds[key] = 1;
+                        }
+                        else
+                        {
+                            if (veinTypeByItemId == factory.veinGroups[id].type)
+                            {
+                                localPos.Add(factory.veinGroups[id].pos.normalized * (factory.planet.realRadius + 0.5f));
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RefreshAssemblers(int recipeId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 0; id < factory.factorySystem.assemblerCursor; id++)
+                {
+                    if (id == factory.factorySystem.assemblerPool[id].id)
+                    {
+                        if (recipeId == -1)
+                        {
+                            int key = factory.factorySystem.assemblerPool[id].recipeId;
+                            if (filterIds.ContainsKey(key))
+                                ++filterIds[key];
+                            else
+                                filterIds[key] = 1;
+                        }
+                        else
+                        {
+                            if (recipeId == factory.factorySystem.assemblerPool[id].recipeId)
+                            {
+                                ref EntityData entity = ref factory.entityPool[factory.factorySystem.assemblerPool[id].entityId];
+                                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RefreshSignal(int signalId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            detailIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 0; id < factory.entityCursor; id++)
+                {
+                    if (id == factory.entityPool[id].id)
+                    {
+                        if (signalId == -1)
+                        {
+                            if (factory.entitySignPool[id].signType > 0)
+                            {
+                                int key = (int)factory.entitySignPool[id].signType + 500;
+                                if (filterIds.ContainsKey(key))
+                                    ++filterIds[key];
+                                else
+                                    filterIds[key] = 1;
+                            }
+                        }
+                        else
+                        {
+                            if (signalId == (int)factory.entitySignPool[id].signType + 500)
+                            {
+                                localPos.Add(factory.entityPool[id].pos + factory.entityPool[id].pos.normalized * 0.5f);
+                                detailIds.Add(factory.entityPool[id].protoId);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RefreshStorage(int itemId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 1; id < factory.factoryStorage.storageCursor; id++)
+                {
+                    StorageComponent storage = factory.factoryStorage.storagePool[id];
+                    if (storage != null && storage.id == id)
+                    {
+                        if (itemId == -1)
+                        {
+                            for (int i = 0; i < storage.size; i++)
+                            {
+                                if (storage.grids[i].count > 0)
+                                {
+                                    int key = storage.grids[i].itemId;
+                                    if (!filterIds.ContainsKey(key))
+                                        filterIds[key] = storage.grids[i].count;
+                                    else
+                                        filterIds[key] += storage.grids[i].count;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            bool flag = false;
+                            for (int i = 0; i < storage.size; i++)
+                            {
+                                if (storage.grids[i].itemId == itemId && storage.grids[i].count > 0)
+                                {
+                                    ref EntityData entity = ref factory.entityPool[storage.entityId];
+                                    localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                    planetIds.Add(factory.planetId);
+                                    flag = true;
+                                }
+                                if (flag)
+                                    break;
+                            }
+                        }
+                    }
+                }
+                for (int id = 1; id < factory.factoryStorage.tankCursor; id++)
+                {
+                    ref TankComponent tank = ref factory.factoryStorage.tankPool[id];
+                    if (tank.id == id)
+                    {
+                        if (itemId == -1)
+                        {
+                            int key = tank.fluidId;
+                            if (filterIds.ContainsKey(key))
+                                filterIds[key] += tank.fluidCount;
+                            else
+                                filterIds[key] = tank.fluidCount;
+                        }
+                        else
+                        {
+                            if (itemId == tank.fluidId)
+                            {
+                                ref EntityData entity = ref factory.entityPool[tank.entityId];
+                                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void RefreshStation(int itemId)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 1; id < factory.transport.stationCursor; id++)
+                {
+                    StationComponent station = factory.transport.stationPool[id];
+                    if (station != null && station.id == id && station.storage != null)
+                    {
+                        if (itemId == -1)
+                        {
+                            for (int i = 0; i < station.storage.Length; i++)
+                            {
+                                int key = station.storage[i].itemId;
+                                if (filterIds.ContainsKey(key))
+                                    filterIds[key] += station.storage[i].count;
+                                else
+                                    filterIds[key] = station.storage[i].count;
+                            }
+                        }
+                        else
+                        {
+                            bool flag = false;
+                            for (int i = 0; i < station.storage.Length; i++)
+                            {
+                                if (station.storage[i].itemId == itemId)
+                                {
+                                    ref EntityData entity = ref factory.entityPool[station.entityId];
+                                    localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                    planetIds.Add(factory.planetId);
+                                    flag = true;
+                                }
+                                if (flag)
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

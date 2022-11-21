@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModFixerOnePreloader", "Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModFixerOne", "ModFixerOne\ModFixerOne.csproj", "{40BB110B-CC48-4BD5-AB81-26AF6D3BA2BC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactoryLocator", "FactoryLocator\FactoryLocator.csproj", "{9447B58A-F64F-4704-8C4C-B3CBB5BD8228}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{40BB110B-CC48-4BD5-AB81-26AF6D3BA2BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40BB110B-CC48-4BD5-AB81-26AF6D3BA2BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40BB110B-CC48-4BD5-AB81-26AF6D3BA2BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9447B58A-F64F-4704-8C4C-B3CBB5BD8228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9447B58A-F64F-4704-8C4C-B3CBB5BD8228}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9447B58A-F64F-4704-8C4C-B3CBB5BD8228}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9447B58A-F64F-4704-8C4C-B3CBB5BD8228}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
