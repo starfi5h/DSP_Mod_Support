@@ -158,23 +158,19 @@ namespace FactoryLocator.UI
 
         public void SetViewingTarget()
         {
-            veiwPlanet = GameMain.localPlanet;
             veiwStar = null;
+            veiwPlanet = null;
             if (UIRoot.instance.uiGame.planetDetail.active)
-            {
                 veiwPlanet = UIRoot.instance.uiGame.planetDetail.planet;
-                nameText.text = veiwPlanet?.displayName ?? "外太空".Translate();
-            }
             else if (UIRoot.instance.uiGame.starDetail.active)
-            {
                 veiwStar = UIRoot.instance.uiGame.starDetail.star;
-                veiwPlanet = null;
-                nameText.text = veiwStar?.displayName + "空格行星系".Translate();
-            }
             else
-            {
+                veiwPlanet = GameMain.localPlanet;
+
+            if (veiwStar != null)
+                nameText.text = veiwStar.displayName + "空格行星系".Translate();
+            else
                 nameText.text = veiwPlanet?.displayName ?? "外太空".Translate();
-            }
 
             int factoryCount = MainLogic.SetFactories(veiwStar, veiwPlanet);
             for (int i = 0; i < queryBtns.Length; i++)

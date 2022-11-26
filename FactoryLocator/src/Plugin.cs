@@ -16,7 +16,7 @@ namespace FactoryLocator
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "0.0.1";
+        public const string VERSION = "1.0.0";
 
         public static UILocatorWindow mainWindow = null;
         public static Harmony harmony;
@@ -45,12 +45,12 @@ namespace FactoryLocator
 #if !DEBUG
             CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
             {
-                key = new CombineKey((int)KeyCode.F, CombineKey.SHIFT_COMB, ECombineKeyAction.OnceClick, false),
+                key = new CombineKey((int)KeyCode.F, CombineKey.CTRL_COMB, ECombineKeyAction.OnceClick, false),
                 conflictGroup = 2052,
                 name = "ShowFactoryLocator",
                 canOverride = true
             });
-            ProtoRegistry.RegisterString("KEYShowFactoryLocator", "Show Factory Locator Window", "显示FactoryLocator窗口");
+            ProtoRegistry.RegisterString("KEYShowFactoryLocator", "Show Factory Locator Window", "打开FactoryLocator窗口");
 #endif
         }
 
@@ -89,9 +89,11 @@ namespace FactoryLocator
         public void OnDestroy()
         {
             harmony.UnpatchSelf();
-            mainWindow._Destroy();
-            Destroy(mainWindow.gameObject);
-            mainWindow = null;
+            if (mainWindow != null)
+            {
+                Destroy(mainWindow.gameObject);
+                mainWindow = null;
+            }
             UIentryCount.OnDestory();
         }
     }
