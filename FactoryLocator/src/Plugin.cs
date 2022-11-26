@@ -5,6 +5,7 @@ using CommonAPI.Systems;
 using HarmonyLib;
 using UnityEngine;
 using FactoryLocator.UI;
+using FactoryLocator.Compat;
 
 namespace FactoryLocator
 {
@@ -18,7 +19,7 @@ namespace FactoryLocator
         public const string VERSION = "0.0.1";
 
         public static UILocatorWindow mainWindow = null;
-        Harmony harmony;
+        public static Harmony harmony;
 
         public void Awake()
         {
@@ -40,6 +41,8 @@ namespace FactoryLocator
         {
             Log.Debug("Initing...");
             mainWindow = UILocatorWindow.CreateWindow();
+            NebulaCompat.Init();
+#if !DEBUG
             CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
             {
                 key = new CombineKey((int)KeyCode.F, CombineKey.SHIFT_COMB, ECombineKeyAction.OnceClick, false),
@@ -48,6 +51,7 @@ namespace FactoryLocator
                 canOverride = true
             });
             ProtoRegistry.RegisterString("KEYShowFactoryLocator", "Show Factory Locator Window", "显示FactoryLocator窗口");
+#endif
         }
 
         public void Update()

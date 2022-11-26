@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using FactoryLocator.Compat;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace FactoryLocator.UI
@@ -147,10 +148,12 @@ namespace FactoryLocator.UI
                 initialized = true;
             }
             SetViewingTarget();
+            NebulaCompat.OnOpen();
         }
 
         public override void _OnClose()
         {
+            NebulaCompat.OnClose();
         }
 
         public void SetViewingTarget()
@@ -197,6 +200,7 @@ namespace FactoryLocator.UI
             {
                 SetViewingTarget();
             }
+            NebulaCompat.OnUpdate();
         }
 
         private void OnIconBtnClick(int _)
