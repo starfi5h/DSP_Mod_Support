@@ -28,5 +28,5 @@ Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/), or manual do
 
 ## Changelog
 
-#### v1.0.0 (DSP 0.9.27.15033)
-\- Initial release.  
+v1.0.1 - Fix mod dependency error. Fix incorrect planet when searching by warning.  
+v1.0.0 - Initial release. (DSP 0.9.27.15033)  

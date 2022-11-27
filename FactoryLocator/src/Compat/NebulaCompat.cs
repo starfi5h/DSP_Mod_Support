@@ -2,7 +2,6 @@
 using System;
 using System.Reflection;
 
-using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Warning;
 
@@ -25,9 +24,7 @@ namespace FactoryLocator.Compat
             {
                 // Initial patching version: 0.8.12
                 Patch0812();
-                NebulaModAPI.OnMultiplayerGameStarted += () => IsClient = NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient;
-                NebulaModAPI.OnMultiplayerGameEnded += () => IsClient = false;
-                Log.Info("Nebula - OK");
+                Log.Info("Nebula compat - OK");
             }
             catch (Exception e)
             {
@@ -102,8 +99,9 @@ namespace FactoryLocator.Compat
         {
             Type classType;
             classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-            Plugin.harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaCompat).GetMethod(nameof(BeforeMultiplayerGame))));
-            Plugin.harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaCompat).GetMethod(nameof(BeforeMultiplayerGame))));
+            Plugin.harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaCompat).GetMethod(nameof(BeforeJoinGame))));
+            Plugin.harmony.Patch(AccessTools.Method(classType, "LeaveGame"), new HarmonyMethod(typeof(NebulaCompat).GetMethod(nameof(BeforeLeaveGame))));
+
 
             classType = AccessTools.TypeByName("NebulaPatcher.Patches.Dynamic.WarningSystem_Patch");
             var method = AccessTools.Method(classType, "CalcFocusDetail_Prefix");
@@ -111,7 +109,7 @@ namespace FactoryLocator.Compat
                 Plugin.harmony.Patch(method, new HarmonyMethod(typeof(NebulaCompat).GetMethod(nameof(Guard))));
         }
 
-        public static void BeforeMultiplayerGame()
+        public static void BeforeJoinGame()
         {
             if (!isPatched)
             {
@@ -140,7 +138,14 @@ namespace FactoryLocator.Compat
                     Log.Warn(e);
                 }
             }
+            IsClient = true;
         }
+
+        public static void BeforeLeaveGame()
+        {
+            IsClient = false;
+        }
+
 
         public static bool Guard()
         {
