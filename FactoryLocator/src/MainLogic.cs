@@ -6,15 +6,15 @@ namespace FactoryLocator
 {
     public class MainLogic
     {
-        public static int SignalId { get; set; } = 401;
+        public int SignalId { get; set; } = 401;
 
-        private static readonly List<PlanetFactory> factories = new();
-        private static readonly Dictionary<int, int> filterIds = new();
-        private static readonly List<int> planetIds = new();
-        private static readonly List<Vector3> localPos = new();
-        private static readonly List<int> detailIds = new();
+        private readonly List<PlanetFactory> factories = new();
+        private readonly Dictionary<int, int> filterIds = new();
+        private readonly List<int> planetIds = new();
+        private readonly List<Vector3> localPos = new();
+        private readonly List<int> detailIds = new();
 
-        public static int SetFactories(StarData star, PlanetData planet)
+        public int SetFactories(StarData star, PlanetData planet)
         {
             factories.Clear();
             if (star != null)
@@ -40,7 +40,7 @@ namespace FactoryLocator
             return factories.Count;
         }
 
-        public static void PickBuilding(int _)
+        public void PickBuilding(int _)
         {
             RefreshBuilding(-1);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
@@ -48,7 +48,7 @@ namespace FactoryLocator
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
-        public static void OnBuildingPickReturn(ItemProto itemProto)
+        public void OnBuildingPickReturn(ItemProto itemProto)
         {
             if (itemProto == null) // Return by ESC
                 return;
@@ -58,7 +58,7 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public static void PickVein(int _)
+        public void PickVein(int _)
         {
             RefreshVein(-1);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
@@ -66,7 +66,7 @@ namespace FactoryLocator
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
-        public static void OnVeinPickReturn(ItemProto itemProto)
+        public void OnVeinPickReturn(ItemProto itemProto)
         {
             if (itemProto == null) // Return by ESC
                 return;
@@ -76,14 +76,14 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public static void PickAssembler(int _)
+        public void PickAssembler(int _)
         {
             RefreshAssemblers(-1);
             UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
         }
 
-        public static void OnAssemblerPickReturn(RecipeProto recipeProto)
+        public void OnAssemblerPickReturn(RecipeProto recipeProto)
         {
             if (recipeProto == null) // Return by ESC
                 return;
@@ -93,7 +93,7 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public static void PickWarning(int _)
+        public void PickWarning(int _)
         {
             RefreshSignal(-1);
             UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
@@ -101,7 +101,7 @@ namespace FactoryLocator
             UIentryCount.OnOpen(ESignalType.Signal, filterIds);
         }
 
-        public static void OnWarningPickReturn(int signalId)
+        public void OnWarningPickReturn(int signalId)
         {
             if (signalId <= 0) // Return by ESC
                 return;
@@ -110,14 +110,14 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public static void PickStorage(int _)
+        public void PickStorage(int _)
         {
             RefreshStorage(-1);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
-        public static void OnStoragePickReturn(ItemProto itemProto)
+        public void OnStoragePickReturn(ItemProto itemProto)
         {
             if (itemProto == null) // Return by ESC
                 return;
@@ -127,14 +127,14 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public static void PickStation(int _)
+        public void PickStation(int _)
         {
             RefreshStation(-1);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
-        public static void OnStationPickReturn(ItemProto itemProto)
+        public void OnStationPickReturn(ItemProto itemProto)
         {
             if (itemProto == null) // Return by ESC
                 return;
@@ -144,7 +144,9 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        private static void RefreshBuilding(int itemId)
+        // Internal functions
+
+        public void RefreshBuilding(int itemId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -177,7 +179,7 @@ namespace FactoryLocator
             }
         }
 
-        private static void RefreshVein(int itemId)
+        public void RefreshVein(int itemId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -223,7 +225,7 @@ namespace FactoryLocator
             }
         }
 
-        private static void RefreshAssemblers(int recipeId)
+        public void RefreshAssemblers(int recipeId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -257,7 +259,7 @@ namespace FactoryLocator
             }
         }
 
-        private static void RefreshSignal(int signalId)
+        public void RefreshSignal(int signalId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -295,7 +297,7 @@ namespace FactoryLocator
             }
         }
 
-        private static void RefreshStorage(int itemId)
+        public void RefreshStorage(int itemId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -367,7 +369,7 @@ namespace FactoryLocator
             }
         }
 
-        private static void RefreshStation(int itemId)
+        public void RefreshStation(int itemId)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -410,6 +412,35 @@ namespace FactoryLocator
                     }
                 }
             }
+        }
+    
+        // For multiplayer communication
+        
+        public void ExportFilter(out int[] entryIds, out int [] entryCounts)
+        {
+            entryIds = new int[filterIds.Count];
+            entryCounts = new int[filterIds.Count];
+            int i = 0;
+            foreach (var pair in filterIds)
+            {
+                entryIds[i] = pair.Key;
+                entryCounts[i] = pair.Value;
+                i++;
+            }
+        }
+
+        public void ImportFilter(in int[] entryIds, in int[] entryCounts)
+        {
+            filterIds.Clear();
+            for (int i = 0; i < entryIds.Length; i++)
+                filterIds[entryIds[i]] = entryCounts[i];
+        }
+
+        public void GetReferences(out List<int> _planetIds, out List<Vector3> _localPos, out List<int> _detailIds)
+        {
+            _planetIds = this.planetIds;
+            _localPos = this.localPos;
+            _detailIds = this.detailIds;
         }
     }
 }

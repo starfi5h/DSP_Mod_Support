@@ -16,9 +16,10 @@ namespace FactoryLocator
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.0.1";
 
         public static UILocatorWindow mainWindow = null;
+        public static MainLogic mainLogic = null;
         public static Harmony harmony;
 
         public void Awake()
@@ -40,6 +41,7 @@ namespace FactoryLocator
         internal static void Init()
         {
             Log.Debug("Initing...");
+            mainLogic = new MainLogic();
             mainWindow = UILocatorWindow.CreateWindow();
             NebulaCompat.Init();
 #if !DEBUG

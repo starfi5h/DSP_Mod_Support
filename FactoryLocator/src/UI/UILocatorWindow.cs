@@ -98,27 +98,27 @@ namespace FactoryLocator.UI
 
             queryBtns[0] = Util.CreateButton("Building", 90f, 24f);
             AddElement(queryBtns[0].transform as RectTransform, 0f, 30f);
-            queryBtns[0].onClick += MainLogic.PickBuilding;
+            queryBtns[0].onClick += Plugin.mainLogic.PickBuilding;
 
             queryBtns[1] = Util.CreateButton("Vein", 90f, 24f);
             AddElement(queryBtns[1].transform as RectTransform, 98f, 0f);
-            queryBtns[1].onClick += MainLogic.PickVein;
+            queryBtns[1].onClick += Plugin.mainLogic.PickVein;
 
             queryBtns[2] = Util.CreateButton("Product", 90f, 24f);
             AddElement(queryBtns[2].transform as RectTransform, -98f, 32f);
-            queryBtns[2].onClick += MainLogic.PickAssembler;
+            queryBtns[2].onClick += Plugin.mainLogic.PickAssembler;
 
             queryBtns[3] = Util.CreateButton("Warning", 90f, 24f);
             AddElement(queryBtns[3].transform as RectTransform, 98f, 0f);
-            queryBtns[3].onClick += MainLogic.PickWarning;
+            queryBtns[3].onClick += Plugin.mainLogic.PickWarning;
 
             queryBtns[4] = Util.CreateButton("Storage", 90f, 24f);
             AddElement(queryBtns[4].transform as RectTransform, -98f, 32f);
-            queryBtns[4].onClick += MainLogic.PickStorage;
+            queryBtns[4].onClick += Plugin.mainLogic.PickStorage;
 
             queryBtns[5] = Util.CreateButton("Station", 90f, 24f);
             AddElement(queryBtns[5].transform as RectTransform, 98f, 0f);
-            queryBtns[5].onClick += MainLogic.PickStation;
+            queryBtns[5].onClick += Plugin.mainLogic.PickStation;
 
             // Sigal Control settings
             x_ = 0f;
@@ -172,7 +172,7 @@ namespace FactoryLocator.UI
             else
                 nameText.text = veiwPlanet?.displayName ?? "外太空".Translate();
 
-            int factoryCount = MainLogic.SetFactories(veiwStar, veiwPlanet);
+            int factoryCount = Plugin.mainLogic.SetFactories(veiwStar, veiwPlanet);
             for (int i = 0; i < queryBtns.Length; i++)
             {
                 queryBtns[i].button.enabled = factoryCount > 0;
@@ -209,7 +209,7 @@ namespace FactoryLocator.UI
             Sprite sprite = LDB.signals.IconSprite(signalId);
             if (sprite != null)
             {
-                MainLogic.SignalId = signalId;
+                Plugin.mainLogic.SignalId = signalId;
                 iconImage.sprite = sprite;
             }
         }
