@@ -1,7 +1,7 @@
 {
     "name": "FactoryLocator",
     "description": "Find the positions of specified buildings and indicate them with warning icons. Ctrl + F to open the window. 寻物/定位",
-    "version_number": "1.0.0",
+    "version_number": "1.0.1",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
     "dependencies": ["CommonAPI-CommonAPI-1.5.6"]
 }
