@@ -30,6 +30,13 @@ namespace FactoryLocator
                 if (planet?.factory != null)
                     factories.Add(planet.factory);
             }
+#if DEBUG
+            string s = $"SetFactories {factories.Count}:";
+            foreach (var f in factories)
+                s += f.planetId + " ";
+            Log.Debug(s);
+#endif
+
             return factories.Count;
         }
 
@@ -254,6 +261,7 @@ namespace FactoryLocator
         {
             filterIds.Clear();
             localPos.Clear();
+            planetIds.Clear();
             detailIds.Clear();
 
             foreach (var factory in factories)

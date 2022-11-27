@@ -77,6 +77,12 @@ namespace FactoryLocator
 
 		public static void AddWarningData(int signalId, int detailId, List<int> planetIds, List<Vector3> localPos, List<int> detailIds = null)
         {
+			if (planetIds.Count != localPos.Count)
+			{
+				Log.Debug($"Length mismatch! {planetIds.Count} != {localPos.Count}(pos)");
+				return;
+			}
+
 			WarningSystem warningSystem = GameMain.data.warningSystem;
 			
 			// Extend capacity if needed
