@@ -9,6 +9,8 @@ using NebulaAPI;
 using NebulaWorld;
 using NebulaModel.Packets.Factory.Splitter;
 using NebulaModel.Packets.Trash;
+using UnityEngine;
+using System.Collections;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -71,6 +73,11 @@ namespace NebulaCompatibilityAssist.Hotfix
             harmony.Patch(AccessTools.Method(classType, "SetPriority_Postfix"),
                 new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(DisableFunction))));
 
+            //=== Hide ip ===
+            classType = AccessTools.TypeByName("NebulaPatcher.Patches.Dynamic.UIMainMenu_Patch");
+            harmony.Patch(AccessTools.Method(classType, "JoinGame"),
+                null, null, new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(JoinGame_Transpiler))));
+            ConnectToServer = AccessTools.MethodDelegate<Func<string, int, bool, string, bool>>(AccessTools.Method(classType, "ConnectToServer"));
 
             harmony.PatchAll(typeof(NebulaHotfix));
         }
@@ -346,6 +353,52 @@ namespace NebulaCompatibilityAssist.Hotfix
                 {
                     InternalOffsetCorrection(ref inserter, entityPool, traffic, beltPool);
                 }
+            }
+        }
+
+        public static IEnumerable<CodeInstruction> JoinGame_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                // replace : UIRoot.instance.StartCoroutine(UIMainMenu_Patch.TryConnectToServer(s, p, isIP, password));
+                // with    : UIRoot.instance.StartCoroutine(TryConnectToServer(s, p, isIP, password));
+
+                var codeMatcher = new CodeMatcher(instructions)
+                    .MatchForward(false,
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "TryConnectToServer")
+                    )
+                    .SetOperandAndAdvance(typeof(NebulaHotfix).GetMethod(nameof(TryConnectToServer)));
+
+                return codeMatcher.InstructionEnumeration();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("JoinGame_Transpiler fail!");
+                Log.Dev(e);
+                return instructions;
+            }
+        }
+
+        static Func<string, int, bool, string, bool> ConnectToServer;
+        public static IEnumerator TryConnectToServer(string ip, int port, bool isIP, string password)
+        {
+            Type UIMainMenu_Patch = AccessTools.TypeByName("NebulaPatcher.Patches.Dynamic.UIMainMenu_Patch");
+            RectTransform multiplayerMenu = AccessTools.StaticFieldRefAccess<RectTransform>(UIMainMenu_Patch, "multiplayerMenu");
+            InGamePopup.ShowInfo("Connecting", "Connecting to server...", null, null);
+            multiplayerMenu.gameObject.SetActive(false);
+
+            yield return new WaitForSeconds(0.5f);
+
+            if (!ConnectToServer(ip, port, isIP, password))
+            {
+                InGamePopup.FadeOut();
+                //re-enabling the menu again after failed connect attempt
+                InGamePopup.ShowWarning("Connect failed", "Was not able to connect to server", "OK");
+                multiplayerMenu.gameObject.SetActive(true);
+            }
+            else
+            {
+                InGamePopup.FadeOut();
             }
         }
     }
