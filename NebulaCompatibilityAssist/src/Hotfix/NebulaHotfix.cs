@@ -30,9 +30,11 @@ namespace NebulaCompatibilityAssist.Hotfix
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 8 && nebulaVersion.Build == 12)
                 {
                     Patch0812(harmony);
-                    Log.Info("Nebula hotfix 0.8.12 - OK");
-                    harmony.PatchAll(typeof(Analysis.StacktraceParser));
+                    Log.Info("Nebula hotfix 0.8.12 - OK");                    
                 }
+                ChatManager.Init(harmony);
+                harmony.PatchAll(typeof(Analysis.StacktraceParser));
+                Log.Info("Nebula extra features - OK");
             }
             catch (Exception e)
             {
