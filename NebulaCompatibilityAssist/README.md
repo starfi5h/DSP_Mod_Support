@@ -4,9 +4,11 @@ Nebula 0.8.12 hotfix:
 - Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
 - Fix infinite tech level desync in client.  
 - Fix that rock destroy on remote planet show effects on local planet.  
-- Fix trash warning. To remove the corrupted trash warnings, click Erase All Litter button. (new)  
-- Fix sometimes sorters connection desync when players are on different planets. (new)   
-
+- Fix trash warning. To remove the corrupted trash warnings, click Erase All Litter button.  
+- Fix sometimes sorters connection desync when players are on different planets.     
+- (new) Hide server ip and port in status window during login & reconnect.  
+- (new) Show the diff count of local & remote mod list in chat when client login.   
+  
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 DSP Belt Reverse Direction, MoreMegaStructure are required to install on both client and host.  
@@ -51,6 +53,8 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 ### [DSPOptimizations](https://dsp.thunderstore.io/package/Selsion/DSPOptimizations/)
 - Fix client crash when leaving a system.  
 
+### [FactoryLocator](https://dsp.thunderstore.io/package/starfi5h/FactoryLocator/)
+- Client can now see info of remote planet (Require Host to install FactoryLocator too).   
 ----
 
 # 联机兼容支援 + 热修补丁
@@ -98,11 +102,20 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 ### [DSPOptimizations](https://dsp.thunderstore.io/package/Selsion/DSPOptimizations/)
 - 修复客户端离开星系会使游戏崩溃的错误  
 
+### [FactoryLocator](https://dsp.thunderstore.io/package/starfi5h/FactoryLocator/)
+- 让客户端能显示未载入星球的建物讯息(需求主机也安装mod)  
+
 DSP Belt Reverse Direction、MoreMegaStructure必须要伺服端和客户端都得安装。  
 
 ----
 
 ## Changelog
+
+#### v0.1.9 (Nebula 0.8.12)
+\- Support FactoryLocator 1.0.1  
+\- Update MoreMegaStructure support version to 1.1.4  
+\- Hide server ip and port during login & reconnect.  
+\- Show the diff count of local & remote mod list when client login.  
 
 #### v0.1.8 (Nebula 0.8.12)
 \- Hotfix: Fix trash warning (error when there are litters on host and client join, positions doen't sync)  
