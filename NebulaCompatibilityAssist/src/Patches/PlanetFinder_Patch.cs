@@ -16,6 +16,8 @@ namespace NebulaCompatibilityAssist.Patches
         public const string NAME = "PlanetFinder";
         public const string GUID = "com.hetima.dsp.PlanetFinder";
         public const string VERSION = "1.0.0";
+        public static bool Enable { get; private set; }
+
 
         public struct PlanetInfo
         {
@@ -33,6 +35,7 @@ namespace NebulaCompatibilityAssist.Patches
             if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
                 return;
             Assembly assembly = pluginInfo.Instance.GetType().Assembly;
+            Enable = true;
 
             try
             {
@@ -64,20 +67,23 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
             {
-                NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest());
+                NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(-1));
             }
         }
 
         public static void OnReceive(NC_PlanetInfoData packet)
         {
-            Log.Dev("NC_PlanetInfoData: " + packet.PlanetId);
-            planetInfos[packet.PlanetId] = new PlanetInfo
+            if (packet.PlanetId > 0)
             {
-                energyCapacity = packet.EnergyCapacity,
-                energyRequired = packet.EnergyRequired,
-                energyExchanged = packet.EnergyExchanged,
-                networkCount = packet.NetworkCount
-            };
+                Log.Dev("NC_PlanetInfoData: " + packet.PlanetId);
+                planetInfos[packet.PlanetId] = new PlanetInfo
+                {
+                    energyCapacity = packet.EnergyCapacity,
+                    energyRequired = packet.EnergyRequired,
+                    energyExchanged = packet.EnergyExchanged,
+                    networkCount = packet.NetworkCount
+                };
+            }
         }
 
         public static void RefreshValues_Postfix(GameObject ___baseObj, int ____itemId, PlanetData ___planetData, Text ___valueText, Text ___valueSketchText)
