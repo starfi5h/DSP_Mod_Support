@@ -3,7 +3,11 @@ using HarmonyLib;
 using NebulaAPI;
 using NebulaCompatibilityAssist.Packets;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace NebulaCompatibilityAssist.Patches
 {
@@ -11,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.0.3";
+        private const string VERSION = "1.1.4";
 
         private static IModCanSave Save;
 
@@ -36,9 +40,22 @@ namespace NebulaCompatibilityAssist.Patches
                     Import(bytes);
                 };
                 
+                // Sync MegaStructure type
                 Type classType = assembly.GetType("MoreMegaStructure.MoreMegaStructure");
                 harmony.Patch(AccessTools.Method(classType, "SetMegaStructure"), null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData")));
                 harmony.Patch(AccessTools.Method(classType, "BeforeGameTickPostPatch"), new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressOnClient")));
+
+                // Sync StarAssembly recipeIds & weights 
+                classType = assembly.GetType("MoreMegaStructure.StarAssembly");
+                harmony.Patch(AccessTools.Method(classType, "OnRecipePickerReturn"), null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData")));
+                var sliders = AccessTools.StaticFieldRefAccess<List<Slider>>(classType, "sliders");
+                foreach (var slider in sliders)
+                {
+                    GameObject go = slider.gameObject;
+                    GameObject.Destroy(go.GetComponent<PointerDownUpHandler>());
+                    var handler = go.AddComponent<PointerDownUpHandler>();
+                    handler.onPointerUp += (_) => SendData();
+                }
 
                 Log.Info($"{NAME} - OK");
                 NC_Patch.RequriedPlugins += " +" + NAME;
@@ -93,6 +110,23 @@ namespace NebulaCompatibilityAssist.Patches
         public static bool SuppressOnClient()
         {
             return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost;
+        }
+
+        public class PointerDownUpHandler : ManualBehaviour, IPointerDownHandler, IPointerUpHandler
+        {
+            public int Id;
+            public event Action<int> onPointerDown;
+            public event Action<int> onPointerUp;
+
+            public void OnPointerDown(PointerEventData pointerEventData)
+            {
+                onPointerDown?.Invoke(Id);
+            }
+
+            public void OnPointerUp(PointerEventData pointerEventData)
+            {
+                onPointerUp?.Invoke(Id);
+            }
         }
     }
 }

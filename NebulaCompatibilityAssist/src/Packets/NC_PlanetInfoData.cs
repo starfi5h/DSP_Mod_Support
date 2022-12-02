@@ -5,6 +5,7 @@ namespace NebulaCompatibilityAssist.Packets
 {
     public class NC_PlanetInfoData
     {
+        public int StarId { get; set; }
         public int PlanetId { get; set; }
         public long EnergyCapacity { get; set; }
         public long EnergyRequired { get; set; }
@@ -30,6 +31,29 @@ namespace NebulaCompatibilityAssist.Packets
                 }
             }
         }
+
+        public NC_PlanetInfoData(in StarData star)
+        { 
+            StarId = star.id;
+            for (int j = 0; j < star.planetCount; j++)
+            {
+                PlanetData planet = star.planets[j];
+                if (planet.factory?.powerSystem != null)
+                {
+                    for (int i = 1; i < planet.factory.powerSystem.netCursor; i++)
+                    {
+                        PowerNetwork powerNetwork = planet.factory.powerSystem.netPool[i];
+                        if (powerNetwork != null && powerNetwork.id == i)
+                        {
+                            NetworkCount++;
+                            EnergyCapacity += powerNetwork.energyCapacity;
+                            EnergyRequired += powerNetwork.energyRequired;
+                            EnergyExchanged += powerNetwork.energyExchanged;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     [RegisterPacketProcessor]
@@ -39,7 +63,10 @@ namespace NebulaCompatibilityAssist.Packets
         {
             if (IsHost) return;
 
-            PlanetFinder_Patch.OnReceive(packet);
+            if (PlanetFinder_Patch.Enable)
+                PlanetFinder_Patch.OnReceive(packet);
+            if (FactoryLocator_Patch.Enable)
+                FactoryLocator_Patch.OnReceive(packet);
         }
     }
 }
