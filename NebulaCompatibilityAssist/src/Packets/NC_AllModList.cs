@@ -9,6 +9,7 @@ namespace NebulaCompatibilityAssist.Packets
         public string[] GUIDs { get; set; }
         public string[] Names { get; set; }
         public string[] Versions { get; set; }
+        public bool SandboxToolsEnabled { get; set; }
 
         public NC_AllModList() {}
         public NC_AllModList(int _)
@@ -26,6 +27,7 @@ namespace NebulaCompatibilityAssist.Packets
                 Versions[i] = pair.Value.Metadata.Version.ToString();
                 i++;
             }
+            SandboxToolsEnabled = GameMain.sandboxToolsEnabled;
         }
     }
 
@@ -42,6 +44,8 @@ namespace NebulaCompatibilityAssist.Packets
                 {
                     ChatManager.ShowMessageInChat($"Server mods diff = {count}. Type /info full to see details.");
                 }
+                // Will it too slow to set sandboxToolsEnabled?
+                GameMain.sandboxToolsEnabled = packet.SandboxToolsEnabled;
             }
         }
     }
