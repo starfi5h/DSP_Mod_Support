@@ -1,7 +1,7 @@
 {
     "name": "NebulaCompatibilityAssist",
     "description": "Provide Nebula multiplayer mod compatibility for 12 mods. Hotfix for Nebula 0.8.12. 热修联机mod并增进与12个其他mod的兼容性",
-    "version_number": "0.1.9",
+    "version_number": "0.1.10",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
     "dependencies": ["nebula-NebulaMultiplayerMod-0.8.12"]
 }
