@@ -4,7 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>NebulaCompatibilityAssist</AssemblyName>
     <Description>NebulaCompatibilityAssist</Description>
-    <Version>0.1.9</Version>
+    <Version>0.1.10</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -52,10 +52,6 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if $(ConfigurationName) == Debug copy &quot;$(TargetPath)&quot; &quot;D:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program\BepInEx\scripts\$(TargetFileName)&quot;" />
-  </Target>
   
   <ItemGroup>
     <Reference Update="mscorlib">

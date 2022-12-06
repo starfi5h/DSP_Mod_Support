@@ -6,8 +6,10 @@ Nebula 0.8.12 hotfix:
 - Fix that rock destroy on remote planet show effects on local planet.  
 - Fix trash warning. To remove the corrupted trash warnings, click Erase All Litter button.  
 - Fix sometimes sorters connection desync when players are on different planets.     
-- (new) Hide server ip and port in status window during login & reconnect.  
-- (new) Show the diff count of local & remote mod list in chat when client login.   
+- Hide server ip and port in status window during login & reconnect.  
+- Show the diff count of local & remote mod list in chat when client login.   
+- (new) Fix sandbox tool enable syncing.  
+- (new) Show multiplayer name in starmap for own player.  
   
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -110,6 +112,10 @@ DSP Belt Reverse Direction、MoreMegaStructure必须要伺服端和客户端都�
 ----
 
 ## Changelog
+
+#### v0.1.10 (Nebula 0.8.12)
+\- Fix sandbox tool enable syncing.  
+\- Show multiplayer name in starmap for own player.  
 
 #### v0.1.9 (Nebula 0.8.12)
 \- Support FactoryLocator 1.0.1  

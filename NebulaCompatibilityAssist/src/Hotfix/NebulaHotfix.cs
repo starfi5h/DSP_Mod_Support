@@ -109,6 +109,8 @@ namespace NebulaCompatibilityAssist.Hotfix
                     GameMain.mainPlayer.movementState = EMovementState.Fly;
                 }
             }
+            // Set the name of local player in starmap from Icarus to user name
+            GameMain.mainPlayer.mecha.appearance.overrideName = " " + player.Data.Username + " ";
         }
 
         public static IEnumerable<CodeInstruction> RefreshDispenserOnStoragePrebuildBuild_Transpiler(IEnumerable<CodeInstruction> instructions)
