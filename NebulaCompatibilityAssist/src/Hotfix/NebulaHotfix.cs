@@ -81,6 +81,10 @@ namespace NebulaCompatibilityAssist.Hotfix
                 null, null, new HarmonyMethod(typeof(NebulaHotfix).GetMethod(nameof(JoinGame_Transpiler))));
             ConnectToServer = AccessTools.MethodDelegate<Func<string, int, bool, string, bool>>(AccessTools.Method(classType, "ConnectToServer"));
 
+            if (GameConfig.gameVersion.Build >= 15466) //0.9.27.15466
+            {
+                harmony.PatchAll(typeof(Build15466_Patch));
+            }
             harmony.PatchAll(typeof(NebulaHotfix));
         }
 
