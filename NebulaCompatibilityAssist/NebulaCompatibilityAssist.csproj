@@ -33,6 +33,9 @@
       <HintPath>reference\DSPTransportStat_publicized.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="DSP_Battle">
+      <HintPath>reference\DSP_Battle-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="FactoryLocator">
       <HintPath>reference\FactoryLocator-nstrip.dll</HintPath>
     </Reference>
@@ -45,11 +48,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="PlanetFinder">
-      <HintPath>reference\PlanetFinder.dll</HintPath>
-    </Reference>
-    <Reference Include="PlanetFinder">
-      <HintPath>reference\PlanetFinder.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>reference\PlanetFinder-nstrip.dll</HintPath>
     </Reference>
   </ItemGroup>
   
