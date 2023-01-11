@@ -43,6 +43,7 @@ namespace NebulaCompatibilityAssist.Patches
             Auxilaryfunction.Init(harmony);
             DSPOptimizations.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
+            SplitterOverBelt.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             if (ErrorMessage != "")
