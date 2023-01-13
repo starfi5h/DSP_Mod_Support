@@ -8,12 +8,18 @@ Nebula 0.8.12 hotfix:
 - Fix sometimes sorters connection desync when players are on different planets.     
 - Hide server ip and port in status window during login & reconnect.  
 - Show the diff count of local & remote mod list in chat when client login.   
-- (new) Fix sandbox tool enable syncing.  
-- (new) Show multiplayer name in starmap for own player.  
+- Fix sandbox tool enable syncing.  
+- Show multiplayer name in starmap for own player.  
+
+DPS 0.9.27.15466 hotfix:  
+- (new) Sync Flip Whole Path button for belts.  
   
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
-DSP Belt Reverse Direction, MoreMegaStructure are required to install on both client and host.  
+DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid are required to install on both client and host.  
+
+<details>
+<summary>Supported Mods List</summary>
 
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
 - Client can now see all ILS stations when choosing system/global tab.  
@@ -35,7 +41,7 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 - Memo now sync when players add/remove icons, or finish editing text area.  
 
 ### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- Now reverse direction will sync correctly.  
+- Now reverse direction will sync correctly. (Note: Already in vanilla game)  
   Special thanks to GreyHak for permission to use his code.  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
@@ -57,14 +63,31 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 
 ### [FactoryLocator](https://dsp.thunderstore.io/package/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
+
+### [SplitterOverBelt](https://dsp.thunderstore.io/package/hetima/SplitterOverBelt/)
+- Fix that splitters and pilers put by clients can't reconnect belts.  
+
+### [TheyComeFromVoid](https://dsp.thunderstore.io/package/ckcz123/TheyComeFromVoid/) (WIP)
+- Sync config changes: wave start, wave end, timer reduce, difficulty changes.  
+- Sync building destoryed event.    
+- Sync star cannon fire event.  
+- Sync relic add/remove (control by host).  
+- Note: Process of battle (ships, droplet) does not synced, only the final result are same.  
+
+</details>
+  
 ----
 
-# 联机兼容支援 + 热修补丁
+# 联机mod扩充模组(热修补丁+兼容支援)
 
 [联机兼容的模组列表](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 绿勾=无问题, 蓝勾=需两端皆安装, 红标=有严重冲突  
 有些mod和联机模组Nebula multiplayer mod有冲突，可能造成红字错误或预期效果不正确。  
+DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid必须要伺服端和客户端都得安装。  
 此模组提供以下mod的兼容支援, 主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題:  
+
+<details>
+<summary>MOD列表</summary>
 
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
 - 让客户端显示所有星际物流塔的内容  
@@ -85,12 +108,12 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 - 同步星球註記  
 
 ### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- 同步传送带反转方向
+- 同步传送带反转方向 (原版游戏已加入功能)  
   
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - 同步免费的机甲外观  
 
-### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/)
+### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑
 - 当巨构类型更改时同步资料  
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
@@ -107,62 +130,19 @@ DSP Belt Reverse Direction, MoreMegaStructure are required to install on both cl
 ### [FactoryLocator](https://dsp.thunderstore.io/package/starfi5h/FactoryLocator/)
 - 让客户端能显示未载入星球的建物讯息(需求主机也安装mod)  
 
-DSP Belt Reverse Direction、MoreMegaStructure必须要伺服端和客户端都得安装。  
+### [SplitterOverBelt](https://dsp.thunderstore.io/package/hetima/SplitterOverBelt/)
+- 让客户端在传送带上放置分流器/集装机时,可以正确地重新连接传送带  
 
-----
+### [TheyComeFromVoid](https://dsp.thunderstore.io/package/ckcz123/TheyComeFromVoid/) [战斗mod-深空来敌](https://www.bilibili.com/video/BV1jR4y1F7t5)
+- 测试中，若出现错误可尝试重连。  
+- 同步配置：波次开始、波次结束、时间提前、难度改变。  
+- 同步建筑破坏事件。
+- 同步恒星炮开火事件。
+- 同步遗物添加/删除（由主机控制）。
+- 注意：战斗过程（舰船，水滴）不会同步，只会同步最终结果。若客户端想要观看完整的战斗过程，需要在敌舰入侵前造访该星系的每一个有工厂的星球，以及用戴森球编辑器观看每一个有恒星炮的星系来载入相关的戴森球。
 
-## Changelog
-
-#### v0.1.10 (Nebula 0.8.12)
-\- Fix sandbox tool enable syncing.  
-\- Show multiplayer name in starmap for own player.  
-
-#### v0.1.9 (Nebula 0.8.12)
-\- Support FactoryLocator 1.0.1  
-\- Update MoreMegaStructure support version to 1.1.4  
-\- Hide server ip and port during login & reconnect.  
-\- Show the diff count of local & remote mod list when client login.  
-
-#### v0.1.8 (Nebula 0.8.12)
-\- Hotfix: Fix trash warning (error when there are litters on host and client join, positions doen't sync)  
-\- Hotfix: Fix InserterOffsetCorrection which may cause desync that sorters don't work on one end.  
-\- Hotfix: Fix SplitterPriorityChange packet.  
-
-#### v0.1.7 (Nebula 0.8.12)  
-\- Hotfix: Fix infinite tech level desync in client.  
-\- Hotfix: Fix that rock destroy on remote planet show effects on local planet.  
-\- Show possible mod patches from stacktraces on error report.  
-
-#### v0.1.6 (Nebula 0.8.12)  
-\- Hotfix: Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
-\- Update PlanetFinder support version to 1.0.0.  
-
-#### v0.1.5 (Nebula 0.8.11)  
-\- Fix mod data doesn't sync correctly for another clients.  
-\- Fix client mecha spawning position.  
-
-#### v0.1.4 (Nebulad 0.8.11)  
-\- Hotfix: Fix host sometimes get error when client request logistic on other planets.  
-\- Hotfix for GS2 star detail doesn't display correctly for clients.  
-
-#### v0.1.3 (Nebulad 0.8.11)
-\- Hotfix: Fix logistic bots errors.  
-\- Fix client error when host reverse belts on a remote planet.  
-
-#### v0.1.2 (Nebula 0.8.10)
-\- Support DSPOptimizations  
-
-#### v0.1.1 (Nebula 0.8.10)
-\- Support AutoStationConfig, Auxilaryfunction.  
-\- Fix advance miner power usage abnormal of AutoStationConfig.   
-
-#### v0.1.0 (Nebula 0.8.8)
-\- Support DSPTransportStat, PlanetFinder, DSPFreeMechaCustom, MoreMegaStructure.  
-\- Fix DSPMarker didn't refresh marker when local planet changed.  
-
-#### v0.0.1  
-\- Initial release. (Game Version 0.9.25.12201)
-
+</details>
+  
 ----
 
 <a href="https://www.flaticon.com/free-icons/puzzle" title="puzzle icons">Puzzle icons created by Freepik - Flaticon</a>
