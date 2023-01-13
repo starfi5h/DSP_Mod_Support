@@ -26,6 +26,7 @@ namespace NebulaCompatibilityAssist
         [Conditional("DEBUG")]
         public void OnDestroy()
         {
+            Patches.NC_Patch.OnDestory();
             Harmony.UnpatchSelf();
             Harmony = null;
         }
@@ -46,5 +47,7 @@ namespace NebulaCompatibilityAssist
 
         [Conditional("DEBUG")]
         public static void Dev(object obj) => LogSource.LogDebug(obj);
+        [Conditional("DEBUG")]
+        public static void SlowLog(object obj) { if (GameMain.gameTick % 30 == 0) LogSource.LogDebug(obj); }
     }
 }

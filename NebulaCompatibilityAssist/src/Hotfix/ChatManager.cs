@@ -15,11 +15,20 @@ namespace NebulaCompatibilityAssist.Hotfix
         public static void Init(Harmony harmony)
         {
             // === Mod list check ===
-            NebulaModAPI.OnPlayerJoinedGame += (player) =>
-                NebulaModAPI.MultiplayerSession.Network.PlayerManager.GetPlayerById(player.PlayerId).SendPacket(new NC_AllModList(0));
+            NebulaModAPI.OnPlayerJoinedGame += OnPlayerJoined;
             var classType = AccessTools.TypeByName("NebulaWorld.Chat.Commands.InfoCommandHandler");
             harmony.Patch(AccessTools.Method(classType, "GetClientInfoText"),
                 null, new HarmonyMethod(AccessTools.Method(typeof(ChatManager),nameof(GetClientInfoText_Postfix))));
+        }
+
+        public static void OnDestory()
+        {
+            NebulaModAPI.OnPlayerJoinedGame -= OnPlayerJoined;
+        }
+
+        private static void OnPlayerJoined (IPlayerData player)
+        {
+            NebulaModAPI.MultiplayerSession.Network.PlayerManager.GetPlayerById(player.PlayerId).SendPacket(new NC_AllModList(0));
         }
 
         public static void ShowMessageInChat(string message)
