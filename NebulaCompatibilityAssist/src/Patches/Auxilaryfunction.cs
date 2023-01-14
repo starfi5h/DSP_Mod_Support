@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "Auxilaryfunction";
         public const string GUID = "cn.blacksnipe.dsp.Auxilaryfunction";
-        public const string VERSION = "1.8.4";
+        public const string VERSION = "1.8.9";
 
         private static ConfigEntry<bool> stationcopyItem_bool; // 物流站复制物品配方
         private static ConfigEntry<bool> auto_supply_station; // 自动配置新运输站
@@ -30,19 +30,19 @@ namespace NebulaCompatibilityAssist.Patches
                 auto_supply_station = (ConfigEntry<bool>)AccessTools.Field(classType, "auto_supply_station").GetValue(pluginInfo.Instance);
 
                 // 填充當前星球飛機,飛船,翹曲器
-                harmony.Patch(AccessTools.Method(classType, "addDroneShiptooldstation"), null,
+                harmony.Patch(AccessTools.Method(classType, "AddDroneShipToStation"), null,
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("AddDroneShiptooldstation_Postfix")));
 
                 // 批量配置當前星球物流站
-                harmony.Patch(AccessTools.Method(classType, "changeallstationconfig"), null,
+                harmony.Patch(AccessTools.Method(classType, "ChangeAllStationConfig"), null,
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("Changeallstationconfig_Postfix")));
 
                 // 批量配置當前星球大礦機速率
-                harmony.Patch(AccessTools.Method(classType, "changeallveincollectorspeedconfig"), null,
+                harmony.Patch(AccessTools.Method(classType, "ChangeAllVeinCollectorSpeedConfig"), null,
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("Changeallstationconfig_Postfix")));
 
                 // 填充當前星球人造恆星
-                harmony.Patch(AccessTools.Method(classType, "addfueltoallStar"), null,
+                harmony.Patch(AccessTools.Method(classType, "AddFuelToAllStar"), null,
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("AddfueltoallStar_Postfix")));
 
                 // 自動配置新運輸站

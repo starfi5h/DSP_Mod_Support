@@ -89,7 +89,6 @@ namespace NebulaCompatibilityAssist.Hotfix
                             VegeProto vegeProto = LDB.veges.Select(vegeData.protoId);
 
                             factory.RemoveVegeWithComponents(packet.VegeId);
-                            Log.Warn(vegeProto != null && GameMain.localPlanet == planetData);
 
                             // Patch: Only show effect if it is on the same local planet
                             if (vegeProto != null && GameMain.localPlanet == planetData)

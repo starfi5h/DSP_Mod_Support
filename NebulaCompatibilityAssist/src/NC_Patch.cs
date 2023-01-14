@@ -37,12 +37,14 @@ namespace NebulaCompatibilityAssist.Patches
             DSPBeltReverseDirection.Init(harmony);
             DSPTransportStat_Patch.Init(harmony);
             PlanetFinder_Patch.Init(harmony);
-            MoreMegaStructure.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
             AutoStationConfig.Init(harmony);
             Auxilaryfunction.Init(harmony);
             DSPOptimizations.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
+            SplitterOverBelt.Init(harmony);
+            MoreMegaStructure.Init(harmony);
+            DSP_Battle_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             if (ErrorMessage != "")
@@ -53,6 +55,12 @@ namespace NebulaCompatibilityAssist.Patches
             initialized = true;
             Plugin.Instance.Version = MyPluginInfo.PLUGIN_VERSION + RequriedPlugins;
             Log.Debug($"Version: {Plugin.Instance.Version}");
+        }
+
+        public static void OnDestory()
+        {
+            DSP_Battle_Patch.OnDestory();
+            ChatManager.OnDestory();
         }
 
         [HarmonyPostfix]
