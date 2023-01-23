@@ -11,10 +11,15 @@ This solve `[Warning:BepInEx] Skipping ... because of process filters (DSPGAME.e
 
 ### [PersonalLogistics](https://dsp.thunderstore.io/package/Semar/PersonalLogistics/)  
 - v2.9.10: Fix `MissingFieldException: Field 'UIGame.inventory' not found.` error. ([#42](https://github.com/mattsemar/dsp-personal-logistics/issues/42))  
+- v2.9.10: Fix litter moving leaving a tag (SendLitterToLogisticsNetwork). ([#45](https://github.com/mattsemar/dsp-personal-logistics/issues/45))
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
 - v1.4.0: Fix `MissingMethodExcpetion: void PlanetTransport.Refresh(int)` when loading. ([#19](https://github.com/Pasukaru/DSP-Mods/issues/19))  
 You can also use the [1.4.0-fix version](https://github.com/soarqin/DSP_AutoStationConfig/releases/tag/1.4.0-fix) by soarqin for more features,   
+
+### [4DPocket](https://dsp.thunderstore.io/package/yyuueexxiinngg/4DPocket/)
+- v1.5.0: Fix error when opening stroage or station via 4DPocket. ([#7](https://github.com/yyuueexxiinngg/BepInEx-Plugins/issues/7))  
+Opening station via favorite button still has error.  
 
 ## Installation
   
@@ -28,6 +33,7 @@ Drag `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.
 
 ## Changelog
 
+v1.2.0 - Add 4DPocket support. Fix litter warning icon in PersonalLogistics. (DSP0.9.15466)  
 v1.1.0 - Remove process filter. Add AutoStationConfig support.  
 v1.0.0 - Initial release. (DSP0.9.27.14659)  
 
