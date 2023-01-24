@@ -38,6 +38,7 @@ namespace ModFixerOne
             LongArm.Init(harmony);
             PersonalLogistics.Init(harmony);
             AutoStationConfig.Init(harmony);
+            Dyson4DPocket.Init(harmony);
 
             if (ErrorMessage != "")
             {

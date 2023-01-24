@@ -1,7 +1,7 @@
 {
   "name": "ModFixerOne",
-  "description": "Make mods work in latest DSP version. v1.1.0 - Fix PersonalLogistics, LongArm, AutoStationConfig. Disable process filters of mods for XGP version.",
-  "version_number": "1.1.0",
+  "description": "Make mods work in latest DSP version. v1.2.0 - Fix PersonalLogistics, LongArm, AutoStationConfig, 4DPocket. Disable process filters of mods for XGP version.",
+  "version_number": "1.2.0",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
   "dependencies": ["xiaoye97-BepInEx-5.4.17"]
 }

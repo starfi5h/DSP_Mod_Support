@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace ModFixerOne.Mods
 {
@@ -38,6 +40,13 @@ namespace ModFixerOne.Mods
                 methodInfo = AccessTools.Method(classType, "InitUi");
                 harmony.Patch(methodInfo, null, postfix, transplier);
 
+                if (GameConfig.gameVersion.Build >= 15033) //DSP version 0.9.27.15033
+                {
+                    classType = assembly.GetType("PersonalLogistics.PlayerInventory.TrashHandler");
+                    methodInfo = AccessTools.Method(classType, "ProcessTasks");
+                    harmony.Patch(methodInfo, null, null, new HarmonyMethod(typeof(PersonalLogistics).GetMethod(nameof(RemoveTrash_Transpiler))));
+                }
+
                 Plugin.Log.LogInfo($"{NAME} - OK");
             }
             catch (Exception e)
@@ -51,6 +60,34 @@ namespace ModFixerOne.Mods
         public static void Postfix()
         {
             Plugin.Log.LogDebug("init");
+        }
+
+        public static IEnumerable<CodeInstruction> RemoveTrash_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                // replace: container.RemoveTrash(index);
+                // to:      GameMain.data.trashSystem.RemoveTrash(index);
+                var codeMatcher = new CodeMatcher(instructions)
+                    .MatchForward(false, new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "RemoveTrash"))
+                    .SetInstruction(
+                        Transpilers.EmitDelegate<Action<TrashContainer, int>>(
+                            (_, index) =>
+                            {
+                                GameMain.data.trashSystem.RemoveTrash(index);
+                            }
+                        )
+                    );
+                return codeMatcher.InstructionEnumeration();
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogWarning("RemoveTrash_Transpiler fail!");
+#if DEBUG
+                Plugin.Log.LogWarning(e);
+#endif
+                return instructions;
+            }
         }
     }
 }
