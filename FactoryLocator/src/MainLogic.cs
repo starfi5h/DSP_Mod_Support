@@ -30,6 +30,26 @@ namespace FactoryLocator
                 if (planet?.factory != null)
                     factories.Add(planet.factory);
             }
+
+            var ratios = new List<float>();
+            var counts = new List<int>();
+            foreach (var factory in factories)
+            {
+                if (factory.powerSystem != null)
+                {
+                    for (int i = 1; i < factory.powerSystem.netCursor; i++)
+                    {
+                        PowerNetwork powerNetwork = factory.powerSystem.netPool[i];
+                        if (powerNetwork != null && powerNetwork.id == i)
+                        {
+                            ratios.Add((float)powerNetwork.consumerRatio);
+                            counts.Add(powerNetwork.consumers.Count);
+                        }
+                    }
+                }
+            }
+            Plugin.mainWindow.SetStatusTipText(ratios.ToArray(), counts.ToArray());
+
 #if DEBUG
             string s = $"SetFactories {factories.Count}:";
             foreach (var f in factories)
@@ -39,7 +59,7 @@ namespace FactoryLocator
 
             return factories.Count;
         }
-
+        
         public void PickBuilding(int _)
         {
             RefreshBuilding(-1);
