@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,9 +17,29 @@ namespace FactoryLocator
 		[HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.Import))]
 		internal static void Import(WarningSystem __instance)
 		{
+			/*
+			Log.Debug($"Before shrink: {__instance.warningCursor} {__instance.warningRecycleCursor} {__instance.warningCapacity}");
+			int cursor = __instance.warningCursor;
+			while (--cursor > 0)
+            {
+				if (__instance.warningPool[cursor].id != 0)
+					break;
+			}
+			__instance.warningCursor = cursor + 1;
+			__instance.warningRecycleCursor = 0;
+			for (int i = 1; i <= cursor; i++)
+            {
+				if (__instance.warningPool[i].id == 0)
+					__instance.warningRecycle[__instance.warningRecycleCursor++] = i;
+			}
+			int capacity = __instance.warningCursor > 64 ? __instance.warningCursor : 64;
+			__instance.SetWarningCapacity(__instance.warningCapacity);
+			Log.Debug($"After shrink: {__instance.warningCursor} {__instance.warningRecycleCursor} {__instance.warningCapacity}");
+			*/
+
 			for (int i = 1; i < __instance.warningCursor; i++)
 			{
-				if (__instance.warningPool[i].factoryId < INDEXUPPERBOND)
+				if (__instance.warningPool[i].factoryId <= INDEXUPPERBOND)
 				{
 					// recalculate detailId
 					__instance.warningPool[i].detailId = -__instance.warningPool[i].factoryId + INDEXUPPERBOND;
@@ -84,7 +105,7 @@ namespace FactoryLocator
 			for (int i = 1; i < ws.warningCursor; i++)
             {
 				ref var warning = ref ws.warningPool[i];
-				if (warning.factoryId < INDEXUPPERBOND && warning.astroId == planetId)
+				if (warning.factoryId <= INDEXUPPERBOND && warning.astroId == planetId)
                 {
 					if ((warning.localPos -__instance.entityPool[id].pos).sqrMagnitude < 1.0f)
 					{
@@ -123,9 +144,9 @@ namespace FactoryLocator
 					++warningSystem.warningCursor;
 				
 				int warningDetailId = detailIds == null ? detailId : detailIds[i];
-				if (warningDetailId <= 0)
+				if (warningDetailId < 0)
                 {
-					Log.Warn($"warningDetailId {warningDetailId} <= 0");
+					Log.Warn($"warningDetailId {warningDetailId} < 0");
 					return;
                 }
 
@@ -156,7 +177,7 @@ namespace FactoryLocator
             {
 				ref WarningData warning = ref warningSystem.warningPool[i];
 				//Log.Debug($"[{i}] {warning.id} {warning.signalId} - {warning.factoryId}");
-				if (warning.factoryId < INDEXUPPERBOND)
+				if (warning.factoryId <= INDEXUPPERBOND)
                 {
 					warning.SetEmpty();
 					// If it is at the tail, just reduce cursor so no need to recycle

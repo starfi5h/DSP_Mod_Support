@@ -253,7 +253,7 @@ namespace FactoryLocator
 
             foreach (var factory in factories)
             {
-                for (int id = 0; id < factory.factorySystem.assemblerCursor; id++)
+                for (int id = 1; id < factory.factorySystem.assemblerCursor; id++)
                 {
                     if (id == factory.factorySystem.assemblerPool[id].id)
                     {
@@ -288,7 +288,7 @@ namespace FactoryLocator
 
             foreach (var factory in factories)
             {
-                for (int id = 0; id < factory.entityCursor; id++)
+                for (int id = 1; id < factory.entityCursor; id++)
                 {
                     if (id == factory.entityPool[id].id)
                     {
