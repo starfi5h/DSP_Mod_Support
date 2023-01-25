@@ -413,34 +413,6 @@ namespace FactoryLocator
                 }
             }
         }
-    
-        // For multiplayer communication
-        
-        public void ExportFilter(out int[] entryIds, out int [] entryCounts)
-        {
-            entryIds = new int[filterIds.Count];
-            entryCounts = new int[filterIds.Count];
-            int i = 0;
-            foreach (var pair in filterIds)
-            {
-                entryIds[i] = pair.Key;
-                entryCounts[i] = pair.Value;
-                i++;
-            }
-        }
 
-        public void ImportFilter(in int[] entryIds, in int[] entryCounts)
-        {
-            filterIds.Clear();
-            for (int i = 0; i < entryIds.Length; i++)
-                filterIds[entryIds[i]] = entryCounts[i];
-        }
-
-        public void GetReferences(out List<int> _planetIds, out List<Vector3> _localPos, out List<int> _detailIds)
-        {
-            _planetIds = this.planetIds;
-            _localPos = this.localPos;
-            _detailIds = this.detailIds;
-        }
     }
 }
