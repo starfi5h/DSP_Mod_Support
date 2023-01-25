@@ -75,11 +75,31 @@ namespace FactoryLocator
 			}
 		}
 
+		[HarmonyPrefix]
+		[HarmonyPatch(typeof(PlanetFactory), nameof(PlanetFactory.RemoveEntityWithComponents))]
+		internal static void RemoveWarningByEntity(PlanetFactory __instance, int id)
+		{
+			int planetId = __instance.planetId;
+			var ws = GameMain.data.warningSystem;
+			for (int i = 1; i < ws.warningCursor; i++)
+            {
+				ref var warning = ref ws.warningPool[i];
+				if (warning.factoryId < INDEXUPPERBOND && warning.astroId == planetId)
+                {
+					if ((warning.localPos -__instance.entityPool[id].pos).sqrMagnitude < 1.0f)
+					{
+						ws.RemoveWarningData(i);
+						Log.Debug($"Remove {i} on {planetId}");
+					}
+				}
+            }
+		}
+
 		public static void AddWarningData(int signalId, int detailId, List<int> planetIds, List<Vector3> localPos, List<int> detailIds = null)
         {
-			if (planetIds.Count != localPos.Count)
+			if (planetIds.Count != localPos.Count || (detailIds != null && detailIds.Count != localPos.Count))
 			{
-				Log.Debug($"Length mismatch! {planetIds.Count} != {localPos.Count}(pos)");
+				Log.Warn($"Length mismatch! planetIds:{planetIds.Count} pos:{localPos.Count}");
 				return;
 			}
 
@@ -102,11 +122,18 @@ namespace FactoryLocator
 				else
 					++warningSystem.warningCursor;
 				
+				int warningDetailId = detailIds == null ? detailId : detailIds[i];
+				if (warningDetailId <= 0)
+                {
+					Log.Warn($"warningDetailId {warningDetailId} <= 0");
+					return;
+                }
+
 				ref WarningData warning = ref warningSystem.warningPool[warningId];
 				warning.id = warningId;
 				warning.state = 1; // ON
 				warning.signalId = signalId; // Config
-				warning.detailId = detailIds == null ? detailId : detailIds[i];
+				warning.detailId = warningDetailId;
 				warning.factoryId = INDEXUPPERBOND - warning.detailId; // a negative value so it won't get updated
 				warning.astroId = planetIds[i]; // local pos reference plaent
 				warning.localPos = localPos[i];
