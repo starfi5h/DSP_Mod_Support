@@ -30,6 +30,26 @@ namespace FactoryLocator
                 if (planet?.factory != null)
                     factories.Add(planet.factory);
             }
+
+            var ratios = new List<float>();
+            var counts = new List<int>();
+            foreach (var factory in factories)
+            {
+                if (factory.powerSystem != null)
+                {
+                    for (int i = 1; i < factory.powerSystem.netCursor; i++)
+                    {
+                        PowerNetwork powerNetwork = factory.powerSystem.netPool[i];
+                        if (powerNetwork != null && powerNetwork.id == i)
+                        {
+                            ratios.Add((float)powerNetwork.consumerRatio);
+                            counts.Add(powerNetwork.consumers.Count);
+                        }
+                    }
+                }
+            }
+            Plugin.mainWindow.SetStatusTipText(ratios.ToArray(), counts.ToArray());
+
 #if DEBUG
             string s = $"SetFactories {factories.Count}:";
             foreach (var f in factories)
@@ -39,13 +59,13 @@ namespace FactoryLocator
 
             return factories.Count;
         }
-
+        
         public void PickBuilding(int _)
         {
             RefreshBuilding(-1);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
-            UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
         public void OnBuildingPickReturn(ItemProto itemProto)
@@ -61,9 +81,9 @@ namespace FactoryLocator
         public void PickVein(int _)
         {
             RefreshVein(-1);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
-            UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
         public void OnVeinPickReturn(ItemProto itemProto)
@@ -79,8 +99,8 @@ namespace FactoryLocator
         public void PickAssembler(int _)
         {
             RefreshAssemblers(-1);
-            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
+            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
         }
 
         public void OnAssemblerPickReturn(RecipeProto recipeProto)
@@ -96,9 +116,9 @@ namespace FactoryLocator
         public void PickWarning(int _)
         {
             RefreshSignal(-1);
+            UIentryCount.OnOpen(ESignalType.Signal, filterIds);
             UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
             UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(1);
-            UIentryCount.OnOpen(ESignalType.Signal, filterIds);
         }
 
         public void OnWarningPickReturn(int signalId)
@@ -113,8 +133,8 @@ namespace FactoryLocator
         public void PickStorage(int _)
         {
             RefreshStorage(-1);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStoragePickReturn(ItemProto itemProto)
@@ -130,8 +150,8 @@ namespace FactoryLocator
         public void PickStation(int _)
         {
             RefreshStation(-1);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStationPickReturn(ItemProto itemProto)
@@ -233,7 +253,7 @@ namespace FactoryLocator
 
             foreach (var factory in factories)
             {
-                for (int id = 0; id < factory.factorySystem.assemblerCursor; id++)
+                for (int id = 1; id < factory.factorySystem.assemblerCursor; id++)
                 {
                     if (id == factory.factorySystem.assemblerPool[id].id)
                     {
@@ -268,7 +288,7 @@ namespace FactoryLocator
 
             foreach (var factory in factories)
             {
-                for (int id = 0; id < factory.entityCursor; id++)
+                for (int id = 1; id < factory.entityCursor; id++)
                 {
                     if (id == factory.entityPool[id].id)
                     {
@@ -413,34 +433,6 @@ namespace FactoryLocator
                 }
             }
         }
-    
-        // For multiplayer communication
-        
-        public void ExportFilter(out int[] entryIds, out int [] entryCounts)
-        {
-            entryIds = new int[filterIds.Count];
-            entryCounts = new int[filterIds.Count];
-            int i = 0;
-            foreach (var pair in filterIds)
-            {
-                entryIds[i] = pair.Key;
-                entryCounts[i] = pair.Value;
-                i++;
-            }
-        }
 
-        public void ImportFilter(in int[] entryIds, in int[] entryCounts)
-        {
-            filterIds.Clear();
-            for (int i = 0; i < entryIds.Length; i++)
-                filterIds[entryIds[i]] = entryCounts[i];
-        }
-
-        public void GetReferences(out List<int> _planetIds, out List<Vector3> _localPos, out List<int> _detailIds)
-        {
-            _planetIds = this.planetIds;
-            _localPos = this.localPos;
-            _detailIds = this.detailIds;
-        }
     }
 }

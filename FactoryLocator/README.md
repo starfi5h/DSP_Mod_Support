@@ -13,13 +13,16 @@ By default, the mod will search for buildings on the local planet.
 When in starmap view, the mod will change the searching planet if the selecting planet has factory on it. When selecting a star, it will search all planets in the star system.  
 Click on a warning detail icon to show where the warning locate. Click on other areas to close it.  
   
+![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
+Mouse over name to show power status of all networks.  
   
 Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI design and Raptor for mod idea.  
 
 ## Nebula multiplayer mod compat
 The mod don't have to install on both host and client. Some behaviors will be different though.  
 - Host : The temporary guiding warning will sync with clients.  
-- Client : Only loaded planets are searchable. When the mod window is opened, the warning icon will stop syncing with host temporarily.    
+- Client : Only loaded planets are searchable. When the mod window is opened, the warning icon will stop syncing with host temporarily.   
+Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h/NebulaCompatibilityAssist/) to get full functionality for clients.  
 
 ## Installation
 Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/), or manual download the file and put `FactoryLocator.dll` in `BepInEx/plugins` folder.
@@ -28,5 +31,6 @@ Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/), or manual do
 
 ## Changelog
 
+v1.1.0 - Show power status. Show all count in picker window. Remove warning when the entity destroyed. Fix blank warning.  
 v1.0.1 - Fix mod dependency error. Fix incorrect planet when searching by warning.  
 v1.0.0 - Initial release. (DSP 0.9.27.15033)  

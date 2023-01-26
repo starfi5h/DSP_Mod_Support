@@ -1,4 +1,5 @@
 ﻿using FactoryLocator.Compat;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +22,8 @@ namespace FactoryLocator.UI
         private PlanetData veiwPlanet;
         private StarData veiwStar;
         private bool initialized;
+        private UIButtonTip statusTip = null;
+        private string statusText = "";
 
         public static UILocatorWindow CreateWindow()
         {
@@ -153,6 +156,8 @@ namespace FactoryLocator.UI
 
         public override void _OnClose()
         {
+            if (statusTip != null)
+                Destroy(statusTip.gameObject);
             NebulaCompat.OnClose();
         }
 
@@ -179,6 +184,19 @@ namespace FactoryLocator.UI
             }
         }
 
+        public void SetStatusTipText(float[] consumerRatio, int[] consumerCount)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Power Ratio - Consumer Count");
+            for (int i = 0; i < consumerCount.Length; i++)
+            {
+                sb.AppendLine($"{consumerRatio[i],-3:P0} - {consumerCount[i]}");
+            }
+            statusText = sb.ToString();
+            if (statusTip != null)
+                statusTip.subTextComp.text = statusText;
+        }
+
 
         public override void _OnUpdate()
         {
@@ -196,6 +214,25 @@ namespace FactoryLocator.UI
             {
                 SetViewingTarget();
             }
+
+            Transform transform = nameText.transform;
+            if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)transform, Input.mousePosition, UIRoot.instance.overlayCanvas.worldCamera))
+            {
+                if (statusTip == null)
+                {
+                    SetViewingTarget();
+                    statusTip = UIButtonTip.Create(true, "Power Network Status", statusText, 1, new Vector2(0, -10), 0, transform, "", "");
+                }
+            }
+            else
+            {
+                if (statusTip != null)
+                {
+                    Destroy(statusTip.gameObject);
+                    statusTip = null;
+                }
+            }
+
             NebulaCompat.OnUpdate();
         }
 
