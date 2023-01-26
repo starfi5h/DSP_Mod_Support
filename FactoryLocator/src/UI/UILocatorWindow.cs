@@ -187,7 +187,7 @@ namespace FactoryLocator.UI
         public void SetStatusTipText(float[] consumerRatio, int[] consumerCount)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("powerRatio% - consumerCount");
+            sb.AppendLine("Power Ratio - Consumer Count");
             for (int i = 0; i < consumerCount.Length; i++)
             {
                 sb.AppendLine($"{consumerRatio[i],-3:P0} - {consumerCount[i]}");
