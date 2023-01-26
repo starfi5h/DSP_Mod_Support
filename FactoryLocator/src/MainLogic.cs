@@ -63,9 +63,9 @@ namespace FactoryLocator
         public void PickBuilding(int _)
         {
             RefreshBuilding(-1);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
-            UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
         public void OnBuildingPickReturn(ItemProto itemProto)
@@ -81,9 +81,9 @@ namespace FactoryLocator
         public void PickVein(int _)
         {
             RefreshVein(-1);
+            UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
-            UIentryCount.OnOpen(ESignalType.Item, filterIds);
         }
 
         public void OnVeinPickReturn(ItemProto itemProto)
@@ -99,8 +99,8 @@ namespace FactoryLocator
         public void PickAssembler(int _)
         {
             RefreshAssemblers(-1);
-            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
+            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
         }
 
         public void OnAssemblerPickReturn(RecipeProto recipeProto)
@@ -116,9 +116,9 @@ namespace FactoryLocator
         public void PickWarning(int _)
         {
             RefreshSignal(-1);
+            UIentryCount.OnOpen(ESignalType.Signal, filterIds);
             UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
             UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(1);
-            UIentryCount.OnOpen(ESignalType.Signal, filterIds);
         }
 
         public void OnWarningPickReturn(int signalId)
@@ -133,8 +133,8 @@ namespace FactoryLocator
         public void PickStorage(int _)
         {
             RefreshStorage(-1);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStoragePickReturn(ItemProto itemProto)
@@ -150,8 +150,8 @@ namespace FactoryLocator
         public void PickStation(int _)
         {
             RefreshStation(-1);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
+            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStationPickReturn(ItemProto itemProto)
