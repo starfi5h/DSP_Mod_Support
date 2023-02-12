@@ -1,5 +1,6 @@
 ﻿using NebulaAPI;
 using NebulaCompatibilityAssist.Patches;
+using System.Collections.Generic;
 
 namespace NebulaCompatibilityAssist.Packets
 {
@@ -11,11 +12,15 @@ namespace NebulaCompatibilityAssist.Packets
         public long EnergyRequired { get; set; }
         public long EnergyExchanged { get; set; }
         public int NetworkCount { get; set; }
+        public float[] ConsumerRatios { get; set; }
+        public int[] ConsumerCounts { get; set; }
 
         public NC_PlanetInfoData() { }
         public NC_PlanetInfoData(in PlanetData planet)
         {
             PlanetId = planet.id;
+            var ratios = new List<float>();
+            var counts = new List<int>();
             if (planet.factory?.powerSystem != null)
             {
                 for (int i = 1; i < planet.factory.powerSystem.netCursor; i++)
@@ -27,14 +32,21 @@ namespace NebulaCompatibilityAssist.Packets
                         EnergyCapacity += powerNetwork.energyCapacity;
                         EnergyRequired += powerNetwork.energyRequired;
                         EnergyExchanged += powerNetwork.energyExchanged;
+                        ratios.Add((float)powerNetwork.consumerRatio);
+                        counts.Add(powerNetwork.consumers.Count);
                     }
                 }
             }
+            ConsumerRatios = ratios.ToArray();
+            ConsumerCounts = counts.ToArray();
         }
 
         public NC_PlanetInfoData(in StarData star)
         { 
             StarId = star.id;
+
+            var ratios = new List<float>();
+            var counts = new List<int>();
             for (int j = 0; j < star.planetCount; j++)
             {
                 PlanetData planet = star.planets[j];
@@ -49,10 +61,14 @@ namespace NebulaCompatibilityAssist.Packets
                             EnergyCapacity += powerNetwork.energyCapacity;
                             EnergyRequired += powerNetwork.energyRequired;
                             EnergyExchanged += powerNetwork.energyExchanged;
+                            ratios.Add((float)powerNetwork.consumerRatio);
+                            counts.Add(powerNetwork.consumers.Count);
                         }
                     }
                 }
             }
+            ConsumerRatios = ratios.ToArray();
+            ConsumerCounts = counts.ToArray();
         }
     }
 
