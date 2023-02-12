@@ -45,6 +45,7 @@ namespace NebulaCompatibilityAssist.Patches
             SplitterOverBelt.Init(harmony);
             MoreMegaStructure.Init(harmony);
             DSP_Battle_Patch.Init(harmony);
+            BlueprintTweaks.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             if (ErrorMessage != "")
