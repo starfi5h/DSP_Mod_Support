@@ -15,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.1.4";
+        private const string VERSION = "1.1.5";
 
         private static IModCanSave Save;
 
@@ -56,6 +56,9 @@ namespace NebulaCompatibilityAssist.Patches
                     var handler = go.AddComponent<PointerDownUpHandler>();
                     handler.onPointerUp += (_) => SendData();
                 }
+
+                // Disable UI update when editor window is closed
+                harmony.Patch(AccessTools.Method(classType, "UIFrameUpdate"),  new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressUIupdate")));
 
                 Log.Info($"{NAME} - OK");
                 NC_Patch.RequriedPlugins += " +" + NAME;
@@ -110,6 +113,11 @@ namespace NebulaCompatibilityAssist.Patches
         public static bool SuppressOnClient()
         {
             return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost;
+        }
+
+        public static bool SuppressUIupdate()
+        {
+            return UIRoot.instance.uiGame.dysonEditor.active;
         }
 
         public class PointerDownUpHandler : ManualBehaviour, IPointerDownHandler, IPointerUpHandler
