@@ -36,6 +36,9 @@
     <Reference Include="DSP_Battle">
       <HintPath>reference\DSP_Battle-nstrip.dll</HintPath>
     </Reference>
+    <Reference Include="Dustbin">
+      <HintPath>reference\Dustbin-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="FactoryLocator">
       <HintPath>reference\FactoryLocator-nstrip.dll</HintPath>
     </Reference>

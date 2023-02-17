@@ -46,6 +46,7 @@ namespace NebulaCompatibilityAssist.Patches
             MoreMegaStructure.Init(harmony);
             DSP_Battle_Patch.Init(harmony);
             BlueprintTweaks.Init(harmony);
+            Dustbin_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             if (ErrorMessage != "")
@@ -61,6 +62,7 @@ namespace NebulaCompatibilityAssist.Patches
         public static void OnDestory()
         {
             DSP_Battle_Patch.OnDestory();
+            Dustbin_Patch.OnDestory();
             ChatManager.OnDestory();
         }
 
