@@ -29,6 +29,7 @@ namespace NebulaCompatibilityAssist.Patches
                 installed = true;
 
                 Log.Info($"{NAME} - OK");
+                NC_Patch.RequriedPlugins += " +" + NAME;
             }
             catch (Exception e)
             {

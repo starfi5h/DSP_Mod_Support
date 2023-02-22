@@ -42,7 +42,7 @@ namespace NebulaCompatibilityAssist.Patches
                 if (!normal) 
                     throw new Exception("ReverseBelt_Transpiler error");
                 Log.Info($"{NAME} - OK");
-                NC_Patch.RequriedPlugins += " +" + NAME;
+                NC_Patch.RequriedPlugins += " +" + "Belt Reverse";
             }
             catch (Exception e)
             {

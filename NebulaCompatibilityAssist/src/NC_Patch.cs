@@ -49,10 +49,18 @@ namespace NebulaCompatibilityAssist.Patches
             Dustbin_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
+            var title = Localization.language == Language.zhCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
+            var errorMessage = Localization.language == Language.zhCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行:" : "Error occurred when patching the following mods:";
+            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误" : "The following mods are not compatible with multiplayer mod:";
+
             if (ErrorMessage != "")
             {
-                ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
-                UIMessageBox.Show("Nebula Compatibility Assist Error", ErrorMessage, "确定".Translate(), 3);
+                errorMessage = errorMessage + ErrorMessage;
+                UIMessageBox.Show(title, errorMessage, "确定".Translate(), 3);
+            }
+            if (TestIncompatMods(ref incompatMessage))
+            {
+                UIMessageBox.Show(title, incompatMessage, "确定".Translate(), 3);
             }
             initialized = true;
             Plugin.Instance.Version = MyPluginInfo.PLUGIN_VERSION + RequriedPlugins;
@@ -77,6 +85,27 @@ namespace NebulaCompatibilityAssist.Patches
                 OnLogin?.Invoke();
             }
             IsClient = false;
+        }
+
+        static bool TestIncompatMods(ref string incompatMessage)
+        {
+            int count = 0;
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("semarware.dysonsphereprogram.LongArm"))
+            {
+                incompatMessage += "\nLongArm";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.droneclearing"))
+            {
+                incompatMessage += "\nDSP Drone Clearing";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Appun.DSP.plugin.BigFormingSize"))
+            {
+                incompatMessage += "\nDSPBigFormingSize";
+                count++;
+            }
+            return count > 0;
         }
 
     }
