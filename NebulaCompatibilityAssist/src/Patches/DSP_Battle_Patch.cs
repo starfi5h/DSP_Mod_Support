@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using UnityEngine;
 
 namespace NebulaCompatibilityAssist.Patches
@@ -69,9 +70,12 @@ namespace NebulaCompatibilityAssist.Patches
                     using var p = NebulaModAPI.GetBinaryWriter();
                     var w = p.BinaryWriter;
 
-                    w.Write(stage);
+                    w.Write(stage);                    
+                    int seed = EnemyShips.random.Next(); 
+                    EnemyShips.random = new System.Random(seed); // Sync random seed
+                    w.Write(seed);
                     DSP_Battle.Configs.Export(w);
-                    if (stage != 1)
+                    if (stage == 0 || stage == 3)
                     {
                         // The current impelmentation don't sync stuff created during battle
                         //EnemyShips.Export(w);
@@ -85,6 +89,10 @@ namespace NebulaCompatibilityAssist.Patches
                         Rank.Export(w);
                         Relic.Export(w);
                         UIBattleStatistics_Export(w);
+                    }
+                    else if (stage == 2)
+                    {
+                        EnemyShips.Export(w);
                     }
 
 
@@ -113,8 +121,10 @@ namespace NebulaCompatibilityAssist.Patches
                 isIncomingPacket = true;
 
                 int stage = r.ReadInt32();
+                int seed = r.ReadInt32();
+                EnemyShips.random = new System.Random(seed); // Sync random seed
                 DSP_Battle.Configs.Import(r);
-                if (stage != 1)
+                if (stage == 0 || stage == 3)
                 {
                     // The current impelmentation don't sync stuff created during battle
                     EnemyShips.IntoOtherSave();
@@ -129,6 +139,11 @@ namespace NebulaCompatibilityAssist.Patches
                     Relic.Import(r);
                     UIBattleStatistics_Import(r);
                 }
+                else if (stage == 2)
+                {
+                    Log.Info("Import enemy ships");
+                    EnemyShips.Import(r);
+                }
 
                 WaveStages.ResetCargoAccIncTable(DSP_Battle.Configs.extraSpeedEnabled && Rank.rank >= 5);
                 if (stage == 0) // Login first time
@@ -141,15 +156,18 @@ namespace NebulaCompatibilityAssist.Patches
                     BattleBGMController.InitWhenLoad();
 
                     UIAlert.UIRoot_OnGameBegin();
-                    Log.Info("Battle mod stage 0");
                 }
                 else if (stage == 1) // Wave generated
                 {
                     ShowUIDialog1();
                 }
-                else if (stage == 2) // Wave end
+                else if (stage == 2) // Wave start
                 {
-                    ShowUIDialog2();
+
+                }
+                else if (stage == 3) // Wave end
+                {
+                    ShowUIDialog3();
                 }
 
                 isIncomingPacket = false;
@@ -170,13 +188,33 @@ namespace NebulaCompatibilityAssist.Patches
                 }
             }
 
+            [HarmonyPrefix, HarmonyPatch(typeof(WaveStages), nameof(WaveStages.UpdateWaveStage2))]
+            static bool UpdateWaveStage2_Prefix()
+            {
+                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
+                {
+                    return isIncomingPacket; // In client, only update if it is tirgger by host
+                }
+                return true;
+            }
+
+            [HarmonyPostfix, HarmonyPatch(typeof(WaveStages), nameof(WaveStages.UpdateWaveStage2))]
+            static void UpdateWaveStage2_Postfix()
+            {
+                if (DSP_Battle.Configs.nextWaveState == 3) // moving to the next stage
+                {
+                    if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
+                        ExportData(2, -1); // Host send wave start signal to sync random seed
+                }
+            }
+
             [HarmonyPostfix, HarmonyPatch(typeof(WaveStages), nameof(WaveStages.UpdateWaveStage3))]
             static void UpdateWaveStage3_Postfix()
             {
                 if (DSP_Battle.Configs.nextWaveState == 0) // moving to the next stage
                 {
                     if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
-                        ExportData(2, -1); // Host send wave end signal and mod data to all clients
+                        ExportData(3, -1); // Host send wave end signal and mod data to all clients
                 }
             }
 
@@ -256,7 +294,7 @@ namespace NebulaCompatibilityAssist.Patches
                         string.Format("做好防御提示".Translate(), GameMain.galaxy.stars[DSP_Battle.Configs.nextWaveStarIndex].displayName));
             }
 
-            static void ShowUIDialog2()
+            static void ShowUIDialog3()
             {
                 // In WaveStages.UpdateWaveStage3(long time)
                 RemoveEntities.distroyedStation.Clear();
@@ -374,17 +412,19 @@ namespace NebulaCompatibilityAssist.Patches
 
                 // Client only put the station into distroyedStation to remove it from target
                 // The real building removing is performed by Host
-                Log.Info("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
+                Log.Debug("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
                 RemoveEntities.distroyedStation[ship.shipData.otherGId] = 0;
+                ship.state = EnemyShip.State.distroyed;
                 ship.shipData.inc--;
                 if (ship.shipData.inc > 0)
                 {
-                    ship.state = EnemyShip.State.active;
+                    // Set the landed ship state to tempoary disable, until host give new target
+                    //ship.state = EnemyShip.State.active;
                 }
                 return false;
             }
 
-            [HarmonyPostfix, HarmonyPatch(typeof(RemoveEntities), nameof(RemoveEntities.Add))]
+            [HarmonyPrefix, HarmonyPatch(typeof(RemoveEntities), nameof(RemoveEntities.Add))]
             static void RemoveEntitiesAdd(EnemyShip ship, StationComponent station)
             {
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
@@ -397,6 +437,9 @@ namespace NebulaCompatibilityAssist.Patches
                     w.Write(station.id);
                     var packet = new NC_BattleEvent(NC_BattleEvent.EType.RemoveEntities, NebulaModAPI.MultiplayerSession.LocalPlayer.Id, p.CloseAndGetBytes());
                     NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
+
+                    PlanetData planet = GameMain.galaxy.PlanetById(ship.shipData.planetB);
+                    ShowMessageInChat(string.Format("station-{0} is attacked on {1}".Translate(), station.id, planet.displayName));
                 }
             }
 
@@ -531,6 +574,214 @@ namespace NebulaCompatibilityAssist.Patches
                 UIRelic.RefreshSlotsWindowUI();
                 UIRelic.HideSlots();
                 isIncomingPacket = false;
+            }
+
+            #endregion
+
+            #region Replace distance calculation to ship.distanceToTarget
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIBattleStatistics), nameof(UIBattleStatistics.RegisterIntercept))]
+            static bool RegisterIntercept(EnemyShip ship, ref double distance)
+            {
+                try
+                {
+                    if (distance < 0)
+                    {
+                        distance = ship.distanceToTarget; // MOD
+                    }
+                    Interlocked.Exchange(ref UIBattleStatistics.minInterceptDis, distance < UIBattleStatistics.minInterceptDis ? distance : UIBattleStatistics.minInterceptDis);
+                    UIBattleStatistics.allInterceptDis.AddItem(distance);
+                }
+                catch (Exception) { }
+                return false;
+            }
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIAlert), nameof(UIAlert.RefreshBattleProgress))]
+            static bool RefreshBattleProgress(long time)
+            {
+                int curState = DSP_Battle.Configs.nextWaveState;
+                try
+                {
+                    if ((UIAlert.lastState != 3 && curState == 3) || (curState == 3 && UIAlert.totalDistance == 1 && UIAlert.totalStrength == 1))
+                    {
+                        UIBattleStatistics.RegisterEnemyGen(); //注册敌人生成信息
+                        UIAlert.totalStrength = 0;
+                        foreach (var shipIndex in EnemyShips.ships.Keys)
+                        {
+                            var ship = EnemyShips.ships[shipIndex];
+
+                            UIAlert.totalDistance += ship.distanceToTarget; // MOD
+                            UIAlert.totalStrength += ship.hp;
+                        }
+                    }
+                    if (curState != 3 || UIAlert.totalStrength < 1) UIAlert.totalStrength = 1;
+                    if (curState != 3 || UIAlert.totalDistance <= 0) UIAlert.totalDistance = 1;
+                    if (UIAlert.lastState == 3 && curState != 3)
+                    {
+                        UIAlert.totalDistance = 1;
+                        UIAlert.totalStrength = 1;
+                        UIAlert.elimPointRatio = 1.0f;
+                        UIAlert.elimProgRT.sizeDelta = new Vector2(0, 12);
+                        UIAlert.invaProgRT.sizeDelta = new Vector2(0, 12);
+                    }
+                    if (curState == 3) //要刷新进度条
+                    {
+                        double curTotalDistance = 0;
+                        double curTotalStrength = 0;
+                        foreach (var shipIndex in EnemyShips.ships.Keys)
+                        {
+                            var ship = EnemyShips.ships[shipIndex];
+                            curTotalDistance += ship.distanceToTarget; // MOD
+                            curTotalStrength += ship.hp;
+                        }
+                        double elimPoint = (UIAlert.totalStrength - curTotalStrength) * 1.0 / UIAlert.totalStrength;
+                        double invaPoint = Mathf.Min((float)((UIAlert.totalDistance - curTotalDistance) * 1.0 / UIAlert.totalDistance), (float)(1 - elimPoint));
+                        if (invaPoint < 0) invaPoint = 0;
+
+                        double totalPoint = elimPoint + invaPoint;
+                        if (totalPoint <= 0)
+                        {
+                            UIAlert.elimProgRT.sizeDelta = new Vector2(0, 5);
+                            UIAlert.invaProgRT.sizeDelta = new Vector2(0, 5);
+                        }
+                        else
+                        {
+                            float leftProp = (float)(elimPoint / totalPoint);
+                            float deRatio = 1.0f;
+                            //if(elimPoint > 0.99)//快消灭干净了，让绿条多填充，弥补一半之前建筑炸掉的比例减成
+                            //{
+                            //    deRatio = 0.5f / elimPointRatio;
+                            //}
+                            UIAlert.elimProgRT.sizeDelta = new Vector2(996 * leftProp * UIAlert.elimPointRatio * deRatio, 5);
+                            UIAlert.invaProgRT.sizeDelta = new Vector2(996 * (1 - leftProp * UIAlert.elimPointRatio * deRatio), 5);
+                        }
+                    }
+                }
+                catch (Exception) { }
+
+                UIAlert.lastState = curState;
+                return false;
+            }
+
+            #endregion
+
+            #region Sync EnemyShip state
+
+            [HarmonyPrefix, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.RemoveShip))]
+            static bool RemoveShip()
+            {
+                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
+                {
+                    // Let ship destoryed in client stay until host send packet
+                    return isIncomingPacket;
+                }
+                return true;
+            }
+
+
+            [HarmonyPostfix, HarmonyPatch(typeof(EnemyShip), nameof(EnemyShip.FindAnotherStation))]
+            static void OnTargetChange(EnemyShip __instance)
+            {
+                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
+                {
+                    Log.Debug($"[Battle] send ship{__instance.shipIndex}:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
+                    SendEnemyShipState(__instance);
+                }
+            }
+
+            [HarmonyPostfix, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.OnShipDestroyed))]
+            static void OnShipDestroyed(EnemyShip ship)
+            {
+                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
+                {
+                    Log.Debug($"[Battle] send ship{ship.shipIndex}:{ship.state} P{ship.shipData.planetB} HP: {ship.hp}");
+                    SendEnemyShipState(ship);
+                }
+            }
+
+            static void SendEnemyShipState(EnemyShip ship)
+            {
+                using var p = NebulaModAPI.GetBinaryWriter();
+                var w = p.BinaryWriter;
+                w.Write(ship.shipIndex);
+                w.Write((int)ship.state);
+
+                // Revive
+                w.Write(ship.countDown);
+                w.Write(ship.hp);
+                w.Write(ship.shipData.inc);
+
+                // FindAnotherStation
+                w.Write(ship.shipData.stage);
+                w.Write(ship.shipData.otherGId);
+                w.Write(ship.shipData.planetB);
+                
+                // Positions
+                w.Write(ship.shipData.direction);
+                w.Write((float)ship.shipData.uPos.x);
+                w.Write((float)ship.shipData.uPos.y);
+                w.Write((float)ship.shipData.uPos.z);
+                Vector3 eular = ship.shipData.uRot.eulerAngles;
+                w.Write(eular.x);
+                w.Write(eular.y);
+                w.Write(eular.z);
+                w.Write(ship.shipData.uSpeed);
+                w.Write(ship.shipData.uAngularSpeed);
+
+                var packet = new NC_BattleEvent(NC_BattleEvent.EType.EnemyShipState, NebulaModAPI.MultiplayerSession.LocalPlayer.Id, p.CloseAndGetBytes());
+                NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
+            }
+
+            public static void SyncEnemyShipState(BinaryReader r)
+            {
+                int shipIndex = r.ReadInt32();
+                EnemyShip.State state = (EnemyShip.State)r.ReadInt32();
+
+                try
+                {
+                    if (EnemyShips.ships.TryGetValue(shipIndex, out var ship))
+                    {
+                        ship.state = state;
+                        ship.countDown = r.ReadInt32();
+                        ship.hp = r.ReadInt32();
+                        ship.shipData.inc = r.ReadInt32();
+
+                        Log.Debug($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+
+                        if (ship.state == EnemyShip.State.distroyed)
+                        {
+                            EnemyShips.ships.TryRemove(ship.shipIndex, out _);
+                            return;
+                        }
+                        else if (ship.state == EnemyShip.State.uninitialized)
+                        {
+                            // EnemyShip.Revive
+                            int num = DSP_Battle.Configs.enemyIntensity2TypeMap[ship.intensity];
+                            ship.damageRange = DSP_Battle.Configs.enemyRange[num];
+                            ship.intensity = DSP_Battle.Configs.enemyIntensity[num];
+                            ship.isFiring = false;
+                            ship.fireStart = 0L;
+                            ship.isBlockedByShield = false;
+                            ship.forceDisplacementTime = 0;
+                        }
+
+                        ship.shipData.stage = r.ReadInt32();
+                        ship.shipData.otherGId = r.ReadInt32();
+                        ship.shipData.planetB = r.ReadInt32();
+
+                        Log.Debug($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+
+                        ship.shipData.direction = r.ReadInt32();
+                        ship.shipData.uPos = new VectorLF3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                        ship.shipData.uRot = Quaternion.Euler(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                        ship.shipData.uSpeed = r.ReadSingle();
+                        ship.shipData.uAngularSpeed = r.ReadSingle();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Warn($"[Battle] error when updating ship {shipIndex}:{state}");
+                }
             }
 
             #endregion

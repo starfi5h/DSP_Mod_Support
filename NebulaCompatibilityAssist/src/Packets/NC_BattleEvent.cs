@@ -11,7 +11,8 @@ namespace NebulaCompatibilityAssist.Packets
             RemoveEntities,
             StarCannonStartAiming,
             AddRelic,
-            RemoveRelic
+            RemoveRelic,
+            EnemyShipState
         }
 
         public EType EventType { get; set; }
@@ -63,6 +64,10 @@ namespace NebulaCompatibilityAssist.Packets
 
                 case NC_BattleEvent.EType.RemoveRelic:
                     DSP_Battle_Patch.Warper.SyncRemoveRelic(r);
+                    break;
+
+                case NC_BattleEvent.EType.EnemyShipState:
+                    DSP_Battle_Patch.Warper.SyncEnemyShipState(r);
                     break;
             }
         }
