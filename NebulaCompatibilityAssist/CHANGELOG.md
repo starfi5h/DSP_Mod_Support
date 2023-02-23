@@ -1,5 +1,13 @@
 ## Changelog
 
+#### v0.1.12 (Nebula 0.8.12)
+\- Fix BlueprintTweak 1.5.9  
+\- Support Dustbin 1.2.1  
+\- Update FactoryLocator support version to 1.1.0  
+\- Update Auxilaryfunction support version to 2.0.1  
+\- MoreMegaStructure: Fix RefreshProduceSpeedText error  
+\- TheyComeFromVoid: Add EnemyShips event syncing  
+
 #### v0.1.11 (Nebula 0.8.12)
 \- Hotfix: Sync Flip Whole Path button for belts in DSP 0.9.27.15466  
 \- Support SplitterOverBelt 1.1.3  

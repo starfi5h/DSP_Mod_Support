@@ -4,7 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>NebulaCompatibilityAssist</AssemblyName>
     <Description>NebulaCompatibilityAssist</Description>
-    <Version>0.1.11</Version>
+    <Version>0.1.12</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -35,6 +35,9 @@
     </Reference>
     <Reference Include="DSP_Battle">
       <HintPath>reference\DSP_Battle-nstrip.dll</HintPath>
+    </Reference>
+    <Reference Include="Dustbin">
+      <HintPath>reference\Dustbin-nstrip.dll</HintPath>
     </Reference>
     <Reference Include="FactoryLocator">
       <HintPath>reference\FactoryLocator-nstrip.dll</HintPath>

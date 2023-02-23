@@ -14,7 +14,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "FactoryLocator";
         public const string GUID = "starfi5h.plugin.FactoryLocator";
-        public const string VERSION = "1.0.1";
+        public const string VERSION = "1.1.0";
         public static bool Enable { get; private set; }
 
         public static void Init(Harmony harmony)
@@ -102,18 +102,21 @@ namespace NebulaCompatibilityAssist.Patches
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
                 {
                     var mainWindow = FactoryLocator.Plugin.mainWindow;
-                    astroId = mainWindow.veiwPlanet?.id ?? mainWindow.veiwStar?.id * 100 ?? 0;
+                    int newAstroId = mainWindow.veiwPlanet?.id ?? mainWindow.veiwStar?.id * 100 ?? 0;
                     if (mainWindow.veiwPlanet != null && FactoryLocator.Plugin.mainLogic.factories.Count == 0)
                     {
-                        NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(astroId));
-                        mainWindow.nameText.text = "Loading...";
+                        NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(newAstroId));
+                        if (newAstroId != astroId)
+                            mainWindow.nameText.text = "Loading...";
                     }
                     else if (mainWindow.veiwStar != null)
                     {
                         // Request for whole planets in the star system
-                        NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(astroId));
-                        mainWindow.nameText.text = "Loading...";
+                        NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(newAstroId));
+                        if (newAstroId != astroId)
+                            mainWindow.nameText.text = "Loading...";
                     }
+                    astroId = newAstroId;
                 }
             }
 
@@ -136,6 +139,7 @@ namespace NebulaCompatibilityAssist.Patches
                     for (int i = 0; i < mainWindow.queryBtns.Length; i++)
                         mainWindow.queryBtns[i].button.enabled = packet.NetworkCount > 0;
                 }
+                mainWindow.SetStatusTipText(packet.ConsumerRatios, packet.ConsumerCounts);
             }
 
             public static void OnClick(int queryType)
