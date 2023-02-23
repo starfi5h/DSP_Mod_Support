@@ -1,7 +1,7 @@
 {
     "name": "NebulaCompatibilityAssist",
-    "description": "Multiplayer mod extension to hotfix bugs and improve compatibility with other 14 mods. 联机mod扩充模组 - 热修bug,兼容其他mod",
-    "version_number": "0.1.11",
+    "description": "Multiplayer mod extension to hotfix bugs and improve compatibility with other 16 mods. 联机mod扩充补丁 - 修复联机bug,兼容其他mod",
+    "version_number": "0.1.12",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
     "dependencies": ["nebula-NebulaMultiplayerMod-0.8.12"]
 }
