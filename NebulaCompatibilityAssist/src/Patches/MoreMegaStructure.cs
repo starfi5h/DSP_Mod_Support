@@ -120,6 +120,7 @@ namespace NebulaCompatibilityAssist.Patches
             return UIRoot.instance.uiGame.dysonEditor.active;
         }
 
+#pragma warning disable IDE1006
         public class PointerDownUpHandler : ManualBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             public int Id;
@@ -136,5 +137,6 @@ namespace NebulaCompatibilityAssist.Patches
                 onPointerUp?.Invoke(Id);
             }
         }
+#pragma warning restore IDE1006
     }
 }

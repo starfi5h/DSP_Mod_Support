@@ -597,7 +597,7 @@ namespace NebulaCompatibilityAssist.Patches
             }
 
             [HarmonyPrefix, HarmonyPatch(typeof(UIAlert), nameof(UIAlert.RefreshBattleProgress))]
-            static bool RefreshBattleProgress(long time)
+            static bool RefreshBattleProgress()
             {
                 int curState = DSP_Battle.Configs.nextWaveState;
                 try
@@ -778,7 +778,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.shipData.uAngularSpeed = r.ReadSingle();
                     }
                 }
-                catch (Exception e)
+                catch
                 {
                     Log.Warn($"[Battle] error when updating ship {shipIndex}:{state}");
                 }

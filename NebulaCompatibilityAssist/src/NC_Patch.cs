@@ -55,7 +55,7 @@ namespace NebulaCompatibilityAssist.Patches
 
             if (ErrorMessage != "")
             {
-                errorMessage = errorMessage + ErrorMessage;
+                errorMessage += ErrorMessage;
                 UIMessageBox.Show(title, errorMessage, "确定".Translate(), 3);
             }
             if (TestIncompatMods(ref incompatMessage))
@@ -63,7 +63,7 @@ namespace NebulaCompatibilityAssist.Patches
                 UIMessageBox.Show(title, incompatMessage, "确定".Translate(), 3);
             }
             initialized = true;
-            Plugin.Instance.Version = MyPluginInfo.PLUGIN_VERSION + RequriedPlugins;
+            Plugin.Instance.Version = Plugin.VERSION + RequriedPlugins;
             Log.Debug($"Version: {Plugin.Instance.Version}");
         }
 
