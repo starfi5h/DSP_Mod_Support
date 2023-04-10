@@ -276,6 +276,31 @@ namespace FactoryLocator
                         }
                     }
                 }
+
+                // For labs in production mode
+                for (int id = 1; id < factory.factorySystem.labCursor; id++)
+                {
+                    if (id == factory.factorySystem.labPool[id].id)
+                    {
+                        if (recipeId == -1)
+                        {
+                            int key = factory.factorySystem.labPool[id].recipeId;
+                            if (filterIds.ContainsKey(key))
+                                ++filterIds[key];
+                            else
+                                filterIds[key] = 1;
+                        }
+                        else
+                        {
+                            if (recipeId == factory.factorySystem.labPool[id].recipeId)
+                            {
+                                ref EntityData entity = ref factory.entityPool[factory.factorySystem.labPool[id].entityId];
+                                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
             }
         }
 
