@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSP_Battle";
         private const string GUID = "com.ckcz123.DSP_Battle";
-        private const string VERSION = "2.1.2";
+        private const string VERSION = "2.2.2";
         private static bool installed = false;
 
         public static void Init(Harmony harmony)
@@ -89,6 +89,7 @@ namespace NebulaCompatibilityAssist.Patches
                         Rank.Export(w);
                         Relic.Export(w);
                         UIBattleStatistics_Export(w);
+                        StarFortress.Export(w);
                     }
                     else if (stage == 2)
                     {
@@ -138,6 +139,7 @@ namespace NebulaCompatibilityAssist.Patches
                     Rank.Import(r);
                     Relic.Import(r);
                     UIBattleStatistics_Import(r);
+                    StarFortress.Import(r);
                 }
                 else if (stage == 2)
                 {
@@ -163,7 +165,7 @@ namespace NebulaCompatibilityAssist.Patches
                 }
                 else if (stage == 2) // Wave start
                 {
-
+                    StarFortress.cannonChargeProgress = 600; // 战斗开始默认光矛充能完毕
                 }
                 else if (stage == 3) // Wave end
                 {
@@ -227,23 +229,22 @@ namespace NebulaCompatibilityAssist.Patches
                     // with    : EnemyShips.ships.Count == 0 && IsHost
                     var codeMatcher = new CodeMatcher(instructions)
                         .MatchForward(true,
-                            new CodeMatch(OpCodes.Ldsfld),
-                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_Count"),
-                            new CodeMatch(OpCodes.Brtrue)
+                            new CodeMatch(i => i.opcode == OpCodes.Ldsfld && ((FieldInfo)i.operand).Name == "ships"),
+                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_Count")
                         )
+                        .Advance(1)
                         .Insert(
-                            Transpilers.EmitDelegate<Func<int, bool>>
+                            Transpilers.EmitDelegate<Func<int, int>>
                             (
                                 (count) =>
                                 {
                                     // Don't let client exit stage 3 itself
                                     if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
-                                        return true;
-                                    return count > 0;
+                                        return 1; // dummy value greater than 0
+                                    return count;
                                 }
                             )
                         );
-
                     return codeMatcher.InstructionEnumeration();
                 }
                 catch (Exception e)
@@ -684,7 +685,7 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 {
-                    Log.Debug($"[Battle] send ship{__instance.shipIndex}:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
+                    Log.Dev($"[Battle] send ship{__instance.shipIndex}:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
                     SendEnemyShipState(__instance);
                 }
             }
@@ -694,7 +695,7 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 {
-                    Log.Debug($"[Battle] send ship{ship.shipIndex}:{ship.state} P{ship.shipData.planetB} HP: {ship.hp}");
+                    Log.Dev($"[Battle] send ship{ship.shipIndex}:{ship.state} P{ship.shipData.planetB} HP: {ship.hp}");
                     SendEnemyShipState(ship);
                 }
             }
@@ -746,7 +747,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.hp = r.ReadInt32();
                         ship.shipData.inc = r.ReadInt32();
 
-                        Log.Debug($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+                        Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
 
                         if (ship.state == EnemyShip.State.distroyed)
                         {
@@ -769,7 +770,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.shipData.otherGId = r.ReadInt32();
                         ship.shipData.planetB = r.ReadInt32();
 
-                        Log.Debug($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+                        Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
 
                         ship.shipData.direction = r.ReadInt32();
                         ship.shipData.uPos = new VectorLF3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
@@ -782,6 +783,88 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     Log.Warn($"[Battle] error when updating ship {shipIndex}:{state}");
                 }
+            }
+
+            #endregion
+
+
+            #region Sync starFortress
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStarFortress), nameof(UIStarFortress.SetModuleNum))]
+            static void SetModuleNum_Prefix(int index, ref int __state)
+            {
+                if (UIStarFortress.curDysonSphere == null) return;
+                int starIndex = UIStarFortress.curDysonSphere.starData.index;
+                if (starIndex < StarFortress.moduleMaxCount.Count && index < StarFortress.moduleMaxCount[starIndex].Count)
+                {
+                    __state = StarFortress.moduleMaxCount[starIndex][index];
+                }
+            }
+
+            [HarmonyPostfix, HarmonyPatch(typeof(UIStarFortress), nameof(UIStarFortress.SetModuleNum))]
+            static void SetModuleNum_Prefix(int index, int __state)
+            {
+                if (UIStarFortress.curDysonSphere == null) return;
+                int starIndex = UIStarFortress.curDysonSphere.starData.index;
+                if (starIndex < StarFortress.moduleMaxCount.Count && index < StarFortress.moduleMaxCount[starIndex].Count)
+                {
+                    int value = StarFortress.moduleMaxCount[starIndex][index];
+                    if (value != __state && NebulaModAPI.IsMultiplayerActive)
+                    {
+                        // 在moduleMaxCount的值更改後廣播修改後的值
+                        // TODO: 同步拆除的確認窗口
+                        SendStarFortressSetModuleNum(starIndex, index, value);
+                    }
+                }
+            }
+
+            static void SendStarFortressSetModuleNum(int starIndex, int index, int value)
+            {
+                using var p = NebulaModAPI.GetBinaryWriter();
+                var w = p.BinaryWriter;
+                w.Write(starIndex);
+                w.Write(index);
+                w.Write(value);
+
+                var packet = new NC_BattleEvent(NC_BattleEvent.EType.StarFortressSetModuleNum, NebulaModAPI.MultiplayerSession.LocalPlayer.Id, p.CloseAndGetBytes());
+                NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
+            }
+
+            public static void SyncStarFortressSetModuleNum(BinaryReader r)
+            {
+                int starIndex = r.ReadInt32();
+                int index = r.ReadInt32();
+                int value = r.ReadInt32();
+                if (starIndex < StarFortress.moduleMaxCount.Count && index < StarFortress.moduleMaxCount[starIndex].Count)
+                {
+                    StarFortress.moduleMaxCount[starIndex][index] = value;
+                    Log.Debug($"StarFortressSetModuleNum : [{starIndex}][{starIndex}] = {value}");
+
+                    if (starIndex < GameMain.data.dysonSpheres.Length)
+                    {
+                        var curDysonSphere = GameMain.data.dysonSpheres[starIndex];
+                        StarFortress.ReCalcData(ref curDysonSphere);
+                        UIStarFortress.RefreshAll();
+                    }
+                }
+            }
+
+            #endregion
+
+            #region EnemyShips.sortedShips TempFix
+
+            static int errorCount = 0;
+            [HarmonyFinalizer, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.sortedShips))]
+            static Exception SortedShips(Exception __exception, ref List<EnemyShip> __result)
+            {
+                if (__exception != null)
+                {
+                    // 在報錯時取消exception, 並回傳一個數量為0的list以讓流程繼續進行
+                    if (errorCount++ < 10)
+                        Log.Warn(__exception);
+                    __result = new List<EnemyShip>();
+                }
+                return null;
             }
 
             #endregion
