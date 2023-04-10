@@ -197,7 +197,8 @@ namespace FactoryLocator
 				if (capacity != warningSystem.warningCapacity)
 					warningSystem.SetWarningCapacity(capacity);
 			}
-			Log.Debug($"Remove {count}. Cursor = {warningSystem.warningCursor} RecycleCursor = {warningSystem.warningRecycleCursor} Capacity = {warningSystem.warningCapacity}");
+			if (count > 0)
+				Log.Debug($"Remove {count}. Cursor = {warningSystem.warningCursor} RecycleCursor = {warningSystem.warningRecycleCursor} Capacity = {warningSystem.warningCapacity}");
 		}
 
 		public static void Debug()
