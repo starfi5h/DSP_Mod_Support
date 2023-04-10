@@ -1,7 +1,7 @@
 {
     "name": "FactoryLocator",
     "description": "Find the positions of specified buildings and mark them with warning beacons. Ctrl + F to open the search window. 寻物/定位",
-    "version_number": "1.1.0",
-    "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
-    "dependencies": ["CommonAPI-CommonAPI-1.5.6"]
+    "version_number": "1.2.0",
+    "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/FactoryLocator",
+    "dependencies": ["CommonAPI-CommonAPI-1.5.7"]
 }
