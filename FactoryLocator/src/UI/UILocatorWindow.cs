@@ -15,6 +15,7 @@ namespace FactoryLocator.UI
         private Text nameText;
         private UIButton[] queryBtns;
         private UIButton clearAllBtn;
+        private Text iconText;
         private UIButton iconBtn;
         private Image iconImage;
         private MyCheckBox warningCheckBox;
@@ -26,6 +27,7 @@ namespace FactoryLocator.UI
         private UIButtonTip statusTip = null; // show power network status
         private string statusText = "";
         private bool autoclear_enable = true; // clear previous results when close or make another query
+        private Language language = Language.enUS;
 
         public static UILocatorWindow CreateWindow()
         {
@@ -109,7 +111,7 @@ namespace FactoryLocator.UI
             AddElement(queryBtns[1].transform as RectTransform, 98f, 0f);
             queryBtns[1].onClick += (_) => OnQueryClick(1);
 
-            queryBtns[2] = Util.CreateButton("Product", 90f, 24f);
+            queryBtns[2] = Util.CreateButton("Recipe", 90f, 24f);
             AddElement(queryBtns[2].transform as RectTransform, -98f, 32f);
             queryBtns[2].onClick += (_) => OnQueryClick(2);
 
@@ -127,8 +129,8 @@ namespace FactoryLocator.UI
 
             // Sigal Control settings
             x_ = 0f;
-            Text text = CreateTitleText("Signal Icon");
-            AddElement(text.transform as RectTransform, 0f, 34f);
+            iconText = CreateTitleText("Signal Icon");
+            AddElement(iconText.transform as RectTransform, 0f, 34f);
 
             Util.CreateSignalIcon(out iconBtn, out iconImage);
             AddElement(iconBtn.transform as RectTransform, 70f, -3f);
@@ -158,6 +160,7 @@ namespace FactoryLocator.UI
                 OnSignalPickReturn(401);
                 initialized = true;
             }
+            SetText();
             SetViewingTarget();
             NebulaCompat.OnOpen();
         }
@@ -170,6 +173,24 @@ namespace FactoryLocator.UI
                 WarningSystemPatch.ClearAll();
             UIentryCount.OnClose();
             NebulaCompat.OnClose();
+        }
+
+        public void SetText()
+        {
+            if (language != Localization.language)
+            {
+                language = Localization.language;
+                queryBtns[0].transform.Find("Text").GetComponent<Text>().text = "Building".Translate();
+                queryBtns[1].transform.Find("Text").GetComponent<Text>().text = "Vein".Translate();
+                queryBtns[2].transform.Find("Text").GetComponent<Text>().text = "Recipe".Translate();
+                queryBtns[3].transform.Find("Text").GetComponent<Text>().text = "Warning".Translate();
+                queryBtns[4].transform.Find("Text").GetComponent<Text>().text = "Storage".Translate();
+                queryBtns[5].transform.Find("Text").GetComponent<Text>().text = "Station".Translate();
+                iconText.text = "Signal Icon".Translate();
+                clearAllBtn.transform.Find("Text").GetComponent<Text>().text = "Clear All".Translate();
+                warningCheckBox.labelText.text = "Display All Warning".Translate();
+                autoclearCheckBox.labelText.text = "Auto Clear Query".Translate();
+            }
         }
 
         public void SetViewingTarget()
@@ -198,7 +219,7 @@ namespace FactoryLocator.UI
         public void SetStatusTipText(float[] consumerRatio, int[] consumerCount)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Power Ratio - Consumer Count");
+            sb.AppendLine("Satisfaction - Consumer Count".Translate());
             for (int i = 0; i < consumerCount.Length; i++)
             {
                 sb.AppendLine($"{consumerRatio[i],-3:P0} - {consumerCount[i]}");
@@ -232,7 +253,7 @@ namespace FactoryLocator.UI
                 if (statusTip == null)
                 {
                     SetViewingTarget();
-                    statusTip = UIButtonTip.Create(true, "Power Network Status", statusText, 1, new Vector2(0, -10), 0, transform, "", "");
+                    statusTip = UIButtonTip.Create(true, "Power Network Status".Translate(), statusText, 1, new Vector2(0, -10), 0, transform, "", "");
                 }
             }
             else

@@ -55,6 +55,18 @@ namespace FactoryLocator
                 canOverride = true
             });
             ProtoRegistry.RegisterString("KEYShowFactoryLocator", "Show Factory Locator Window", "打开FactoryLocator窗口");
+            ProtoRegistry.RegisterString("Building", "Building", "建筑");
+            ProtoRegistry.RegisterString("Vein", "Vein", "矿脉");
+            ProtoRegistry.RegisterString("Recipe", "Recipe", "配方");
+            ProtoRegistry.RegisterString("Warning", "Warning", "警报");
+            ProtoRegistry.RegisterString("Storage", "Storage", "储物仓");
+            ProtoRegistry.RegisterString("Station", "Station", "物流塔");
+            ProtoRegistry.RegisterString("Signal Icon", "Signal Icon", "信号图标");
+            ProtoRegistry.RegisterString("Clear All", "Clear All", "清空");
+            ProtoRegistry.RegisterString("Display All Warning", "Display All Warning", "显示所有警报提示");
+            ProtoRegistry.RegisterString("Auto Clear Query", "Auto Clear Query", "自动清除搜寻结果");
+            ProtoRegistry.RegisterString("Power Network Status", "Power Network Status", "电网状态");
+            ProtoRegistry.RegisterString("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
 #endif
         }
 
