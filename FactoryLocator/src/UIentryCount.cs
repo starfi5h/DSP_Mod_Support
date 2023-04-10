@@ -7,9 +7,10 @@ namespace FactoryLocator
 {
     public class UIentryCount
     {
-        public static bool EnableAll { get; set; } = true;
+        public static int ItemCol { get; set; } = 12;
+        public static int RecipeCol { get; set; } = 12;
+        public static int SignalCol { get; set; } = 12;
 
-        static Text countText;
         static Dictionary<int, int> filterIds;
         static Text[] countArray;
         const int ARRAYLENGTH = 84;
@@ -19,27 +20,14 @@ namespace FactoryLocator
             // This need to call before OnTypeButtonClick
             filterIds = filters;
 
-            Init(ref countText, signalType, 0);
-            if (EnableAll)
-            {
-                countText.gameObject.SetActive(false);
-                if (countArray == null)
-                    countArray = new Text[ARRAYLENGTH];
-                for (int i = 0; i < ARRAYLENGTH; i++)
-                    Init(ref countArray[i], signalType, i);
-            }
-            else
-            {
-                countText.gameObject.SetActive(true);
-            }
+            if (countArray == null)
+                countArray = new Text[ARRAYLENGTH];
+            for (int i = 0; i < ARRAYLENGTH; i++)
+                Init(ref countArray[i], signalType, i);
         }
 
         public static void OnClose()
         {
-            if (countText != null)
-            {
-                countText.gameObject.SetActive(false);
-            }
             if (countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
@@ -49,66 +37,16 @@ namespace FactoryLocator
 
         public static void OnDestory()
         {
-            GameObject.DestroyImmediate(countText);
             if (countArray != null)
                 for (int i = 0; i < ARRAYLENGTH; i++)
                     GameObject.DestroyImmediate(countArray[i]);
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIItemPicker), nameof(UIItemPicker.TestMouseIndex))]
-        static void TestMouseIndex(UIItemPicker __instance)
-        {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                if (__instance.hoveredIndex >= 0)
-                {
-                    int id = __instance.protoArray[__instance.hoveredIndex]?.ID ?? 0;
-                    SetPosition(countText, __instance.hoveredIndex);
-                    SetNumber(countText, id);
-                }
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIRecipePicker), nameof(UIRecipePicker.TestMouseIndex))]
-        static void TestMouseIndex(UIRecipePicker __instance)
-        {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                if (__instance.hoveredIndex >= 0)
-                {
-                    int id = __instance.protoArray[__instance.hoveredIndex]?.ID ?? 0;
-                    SetPosition(countText, __instance.hoveredIndex);
-                    SetNumber(countText, id);
-                }
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UISignalPicker), nameof(UISignalPicker.TestMouseIndex))]
-        static void TestMouseIndex(UISignalPicker __instance)
-        {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                if (__instance.hoveredIndex >= 0)
-                {
-                    int id = __instance.signalArray[__instance.hoveredIndex];
-                    SetPosition(countText, __instance.hoveredIndex);
-                    SetNumber(countText, id);
-                }
-            }
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(UIItemPicker), nameof(UIItemPicker.OnTypeButtonClick))]
         static void OnTypeButtonClick1(UIItemPicker __instance)
         {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                countText.text = "";
-            }
-            if (EnableAll && countArray != null)
+            if (countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {
@@ -122,11 +60,7 @@ namespace FactoryLocator
         [HarmonyPatch(typeof(UIRecipePicker), nameof(UIRecipePicker.OnTypeButtonClick))]
         static void OnTypeButtonClick2(UIRecipePicker __instance)
         {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                countText.text = "";
-            }
-            if (EnableAll && countArray != null)
+            if (countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {
@@ -140,11 +74,7 @@ namespace FactoryLocator
         [HarmonyPatch(typeof(UISignalPicker), nameof(UISignalPicker.OnTypeButtonClick))]
         static void OnTypeButtonClick3(UISignalPicker __instance)
         {
-            if (countText != null && countText.isActiveAndEnabled)
-            {
-                countText.text = "";
-            }
-            if (EnableAll && countArray != null)
+            if (countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {
@@ -175,13 +105,20 @@ namespace FactoryLocator
             }
             text.gameObject.transform.localScale = Vector3.one;
             text.text = "";
-            SetPosition(text, index);
+            SetPosition(text, index, signalType);
         }
 
-        private static void SetPosition(Text text, int hoveredIndex)
+        private static void SetPosition(Text text, int hoveredIndex, ESignalType signalType)
         {
-            int col = hoveredIndex % 12;
-            int row = hoveredIndex / 12;
+            int maxCol = 12;
+            switch (signalType)
+            {
+                case ESignalType.Item: maxCol = ItemCol; break;
+                case ESignalType.Recipe: maxCol = RecipeCol; break;
+                case ESignalType.Signal: maxCol = SignalCol; break;
+            }
+            int col = hoveredIndex % maxCol;
+            int row = hoveredIndex / maxCol;
             text.rectTransform.localPosition = new Vector2(col * 46 + 41, -row * 46 - 15); // (col * 46 + 46, -row * 46 - 45)
         }
 

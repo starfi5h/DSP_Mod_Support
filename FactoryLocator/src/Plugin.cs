@@ -44,6 +44,8 @@ namespace FactoryLocator
             mainLogic = new MainLogic();
             mainWindow = UILocatorWindow.CreateWindow();
             NebulaCompat.Init();
+            DSPMoreRecipesCompat.Init();
+            GenesisBookCompat.Init();
 #if !DEBUG
             CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
             {
