@@ -51,17 +51,6 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         private static class Warper0813
         {
-            [HarmonyPrefix, HarmonyPatch(typeof(StationUIManager), "UpdateStorage")]
-            static bool UpdateStorage(StationUI packet)
-            {
-                StationComponent stationComponent = StationUIManager.GetStation(packet.PlanetId, packet.StationId, packet.StationGId);
-                if (stationComponent == null || stationComponent.storage?.Length == 0) // Storge may be null?
-                {
-                    return false;
-                }
-                return true;
-            }
-
             #region mecha animation
             struct Snapshot
             {
