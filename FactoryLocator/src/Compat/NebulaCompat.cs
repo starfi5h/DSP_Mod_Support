@@ -24,7 +24,7 @@ namespace FactoryLocator.Compat
             {
                 // Initial patching version: 0.8.12
                 Patch0812();
-                Log.Info("Nebula compat - OK");
+                Log.Debug("Nebula compat - OK");
             }
             catch (Exception e)
             {

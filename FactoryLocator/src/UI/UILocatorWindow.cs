@@ -15,15 +15,19 @@ namespace FactoryLocator.UI
         private Text nameText;
         private UIButton[] queryBtns;
         private UIButton clearAllBtn;
+        private Text iconText;
         private UIButton iconBtn;
         private Image iconImage;
         private MyCheckBox warningCheckBox;
+        private MyCheckBox autoclearCheckBox;
 
         private PlanetData veiwPlanet;
         private StarData veiwStar;
         private bool initialized;
-        private UIButtonTip statusTip = null;
+        private UIButtonTip statusTip = null; // show power network status
         private string statusText = "";
+        private bool autoclear_enable = true; // clear previous results when close or make another query
+        private Language language = Language.enUS;
 
         public static UILocatorWindow CreateWindow()
         {
@@ -57,7 +61,7 @@ namespace FactoryLocator.UI
             {
                 GameObject tab = new();
                 RectTransform tabRect = tab.AddComponent<RectTransform>();
-                Util.NormalizeRectWithMargin(tabRect, 54f, 36f, 0f, 0f, windowTrans);
+                Util.NormalizeRectWithMargin(tabRect, 52f, 36f, 0f, 0f, windowTrans);
                 tab.name = "tab-" + tabIndex_.ToString();
                 return tabRect;
             }
@@ -101,32 +105,32 @@ namespace FactoryLocator.UI
 
             queryBtns[0] = Util.CreateButton("Building", 90f, 24f);
             AddElement(queryBtns[0].transform as RectTransform, 0f, 30f);
-            queryBtns[0].onClick += Plugin.mainLogic.PickBuilding;
+            queryBtns[0].onClick += (_) => OnQueryClick(0);
 
             queryBtns[1] = Util.CreateButton("Vein", 90f, 24f);
             AddElement(queryBtns[1].transform as RectTransform, 98f, 0f);
-            queryBtns[1].onClick += Plugin.mainLogic.PickVein;
+            queryBtns[1].onClick += (_) => OnQueryClick(1);
 
-            queryBtns[2] = Util.CreateButton("Product", 90f, 24f);
+            queryBtns[2] = Util.CreateButton("Recipe", 90f, 24f);
             AddElement(queryBtns[2].transform as RectTransform, -98f, 32f);
-            queryBtns[2].onClick += Plugin.mainLogic.PickAssembler;
+            queryBtns[2].onClick += (_) => OnQueryClick(2);
 
             queryBtns[3] = Util.CreateButton("Warning", 90f, 24f);
             AddElement(queryBtns[3].transform as RectTransform, 98f, 0f);
-            queryBtns[3].onClick += Plugin.mainLogic.PickWarning;
+            queryBtns[3].onClick += (_) => OnQueryClick(3);
 
             queryBtns[4] = Util.CreateButton("Storage", 90f, 24f);
             AddElement(queryBtns[4].transform as RectTransform, -98f, 32f);
-            queryBtns[4].onClick += Plugin.mainLogic.PickStorage;
+            queryBtns[4].onClick += (_) => OnQueryClick(4);
 
             queryBtns[5] = Util.CreateButton("Station", 90f, 24f);
             AddElement(queryBtns[5].transform as RectTransform, 98f, 0f);
-            queryBtns[5].onClick += Plugin.mainLogic.PickStation;
+            queryBtns[5].onClick += (_) => OnQueryClick(5);
 
             // Sigal Control settings
             x_ = 0f;
-            Text text = CreateTitleText("Signal Icon");
-            AddElement(text.transform as RectTransform, 0f, 35f);
+            iconText = CreateTitleText("Signal Icon");
+            AddElement(iconText.transform as RectTransform, 0f, 34f);
 
             Util.CreateSignalIcon(out iconBtn, out iconImage);
             AddElement(iconBtn.transform as RectTransform, 70f, -3f);
@@ -139,8 +143,14 @@ namespace FactoryLocator.UI
             // Check box
             x_ = 0f;
             warningCheckBox = MyCheckBox.CreateCheckBox(WarningSystemPatch.Enable, "Display All Warning");
-            AddElement(warningCheckBox.rectTrans, 0f, 38f);
+            AddElement(warningCheckBox.rectTrans, 0f, 30f);
             warningCheckBox.uiButton.onClick += OnWarningCheckboxClick;
+
+            // Check box
+            x_ = 0f;
+            autoclearCheckBox = MyCheckBox.CreateCheckBox(autoclear_enable, "Auto Clear Query");
+            AddElement(autoclearCheckBox.rectTrans, 0f, 26f);
+            autoclearCheckBox.uiButton.onClick += OnAutoClearCheckoxClick;
         }
 
         public override void _OnOpen()
@@ -150,6 +160,7 @@ namespace FactoryLocator.UI
                 OnSignalPickReturn(401);
                 initialized = true;
             }
+            SetText();
             SetViewingTarget();
             NebulaCompat.OnOpen();
         }
@@ -158,7 +169,28 @@ namespace FactoryLocator.UI
         {
             if (statusTip != null)
                 Destroy(statusTip.gameObject);
+            if (autoclear_enable)
+                WarningSystemPatch.ClearAll();
+            UIentryCount.OnClose();
             NebulaCompat.OnClose();
+        }
+
+        public void SetText()
+        {
+            if (language != Localization.language)
+            {
+                language = Localization.language;
+                queryBtns[0].transform.Find("Text").GetComponent<Text>().text = "Building".Translate();
+                queryBtns[1].transform.Find("Text").GetComponent<Text>().text = "Vein".Translate();
+                queryBtns[2].transform.Find("Text").GetComponent<Text>().text = "Recipe".Translate();
+                queryBtns[3].transform.Find("Text").GetComponent<Text>().text = "Warning".Translate();
+                queryBtns[4].transform.Find("Text").GetComponent<Text>().text = "Storage".Translate();
+                queryBtns[5].transform.Find("Text").GetComponent<Text>().text = "Station".Translate();
+                iconText.text = "Signal Icon".Translate();
+                clearAllBtn.transform.Find("Text").GetComponent<Text>().text = "Clear All".Translate();
+                warningCheckBox.labelText.text = "Display All Warning".Translate();
+                autoclearCheckBox.labelText.text = "Auto Clear Query".Translate();
+            }
         }
 
         public void SetViewingTarget()
@@ -187,7 +219,7 @@ namespace FactoryLocator.UI
         public void SetStatusTipText(float[] consumerRatio, int[] consumerCount)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Power Ratio - Consumer Count");
+            sb.AppendLine("Satisfaction - Consumer Count".Translate());
             for (int i = 0; i < consumerCount.Length; i++)
             {
                 sb.AppendLine($"{consumerRatio[i],-3:P0} - {consumerCount[i]}");
@@ -221,7 +253,7 @@ namespace FactoryLocator.UI
                 if (statusTip == null)
                 {
                     SetViewingTarget();
-                    statusTip = UIButtonTip.Create(true, "Power Network Status", statusText, 1, new Vector2(0, -10), 0, transform, "", "");
+                    statusTip = UIButtonTip.Create(true, "Power Network Status".Translate(), statusText, 1, new Vector2(0, -10), 0, transform, "", "");
                 }
             }
             else
@@ -234,6 +266,21 @@ namespace FactoryLocator.UI
             }
 
             NebulaCompat.OnUpdate();
+        }
+
+        private void OnQueryClick(int queryType)
+        {
+            if (autoclear_enable)
+                WarningSystemPatch.ClearAll();
+            switch (queryType)
+            {
+                case 0: Plugin.mainLogic.PickBuilding(0); break;
+                case 1: Plugin.mainLogic.PickVein(0); break;
+                case 2: Plugin.mainLogic.PickAssembler(0); break;
+                case 3: Plugin.mainLogic.PickWarning(0); break;
+                case 4: Plugin.mainLogic.PickStorage(0); break;
+                case 5: Plugin.mainLogic.PickStation(0); break;
+            }
         }
 
         private void OnIconBtnClick(int _)
@@ -256,7 +303,9 @@ namespace FactoryLocator.UI
             WarningSystemPatch.Enable = !WarningSystemPatch.Enable;
         }
 
+        private void OnAutoClearCheckoxClick(int _)
+        {
+            autoclear_enable = !autoclear_enable;
+        }
     }
-
-
 }
