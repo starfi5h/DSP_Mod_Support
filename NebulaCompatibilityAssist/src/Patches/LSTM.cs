@@ -9,7 +9,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "LSTM";
         public const string GUID = "com.hetima.dsp.LSTM";
-        public const string VERSION = "0.8.0";
+        public const string VERSION = "0.8.2";
 
         public static void Init(Harmony harmony)
         {

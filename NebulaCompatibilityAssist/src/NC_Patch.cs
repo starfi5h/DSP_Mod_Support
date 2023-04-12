@@ -105,6 +105,16 @@ namespace NebulaCompatibilityAssist.Patches
                 incompatMessage += "\nDSPBigFormingSize";
                 count++;
             }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.small.dsp.transferInfo"))
+            {
+                incompatMessage += "\nTransferInfo";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("cn.blacksnipe.dsp.Multfuntion_mod"))
+            {
+                incompatMessage += "\nMultfuntion mod";
+                count++;
+            }
             return count > 0;
         }
 
