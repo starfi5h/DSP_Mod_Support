@@ -1,5 +1,13 @@
 ## Changelog
 
+#### v0.2.0 (Nebula 0.8.13)
+\- Hotfix: Fix mecha animation when 3rd player join.  
+\- Update FactoryLocator support version to 1.2.0  
+\- TheyComeFromVoid: Add StarFortress syncing  
+
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.1.12 (Nebula 0.8.12)
 \- Fix BlueprintTweak 1.5.9  
 \- Support Dustbin 1.2.1  
@@ -13,9 +21,6 @@
 \- Support SplitterOverBelt 1.1.3  
 \- Support TheyComeFromVoid 2.1.2  
 \- Update Auxilaryfunction support version to 1.8.9  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.1.10 (Nebula 0.8.12)
 \- Fix sandbox tool enable syncing.  
