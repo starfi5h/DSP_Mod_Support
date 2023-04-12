@@ -5,7 +5,6 @@ using HarmonyLib;
 using NebulaAPI;
 using NebulaCompatibilityAssist.Packets;
 using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace NebulaCompatibilityAssist.Patches
@@ -14,7 +13,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "FactoryLocator";
         public const string GUID = "starfi5h.plugin.FactoryLocator";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.2.0";
         public static bool Enable { get; private set; }
 
         public static void Init(Harmony harmony)
@@ -26,8 +25,6 @@ namespace NebulaCompatibilityAssist.Patches
             try
             {
                 harmony.PatchAll(typeof(Warper));
-
-                Warper.Init();
 
                 Log.Info($"{NAME} - OK");
             }
@@ -82,20 +79,6 @@ namespace NebulaCompatibilityAssist.Patches
             static int astroId;
             static int detailId;
 
-            public static void Init()
-            {
-                // Reference to mod-specific type should be warpped inside the functions
-                var mainWindow = FactoryLocator.Plugin.mainWindow;
-                var onClickRef = AccessTools.FieldRefAccess<Action<int>>(typeof(UIButton), "onClick");
-                for (int i = 0; i < mainWindow.queryBtns.Length; i++)
-                {
-                    // Remove buttons listeners and replace
-                    onClickRef(mainWindow.queryBtns[i]) = null;
-                    int copy = i; // https://stackoverflow.com/questions/271440/captured-variable-in-a-loop-in-c-sharp
-                    mainWindow.queryBtns[i].onClick += (_) => OnClick(copy);
-                }
-            }
-
             [HarmonyPostfix, HarmonyPatch(typeof(UILocatorWindow), nameof(UILocatorWindow.SetViewingTarget))]
             private static void SetViewingTarget_Postfix()
             {
@@ -142,11 +125,14 @@ namespace NebulaCompatibilityAssist.Patches
                 mainWindow.SetStatusTipText(packet.ConsumerRatios, packet.ConsumerCounts);
             }
 
-            public static void OnClick(int queryType)
+            [HarmonyPrefix, HarmonyPatch(typeof(UILocatorWindow), nameof(UILocatorWindow.OnQueryClick))]
+            public static bool OnQueryClick(UILocatorWindow __instance, int queryType)
             {
-                var mainWindow = FactoryLocator.Plugin.mainWindow;
+                if (__instance.autoclear_enable)
+                    WarningSystemPatch.ClearAll();
+
                 bool isClient = NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient;
-                if (!isClient || (FactoryLocator.Plugin.mainLogic.factories.Count > 0 && mainWindow.veiwStar == null))
+                if (!isClient || (FactoryLocator.Plugin.mainLogic.factories.Count > 0 && __instance.veiwStar == null))
                 {
                     switch (queryType)
                     {
@@ -162,6 +148,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, queryType, null));
                 }
+                return false;
             }
 
             public static void HandleRequest(NC_LocatorFilter packet, INebulaConnection conn)
@@ -205,6 +192,7 @@ namespace NebulaCompatibilityAssist.Patches
                         break;
                     
                     case 0:
+                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         UIItemPickerExtension.Popup(new Vector2(-300f, 250f), 
                             (itemProto) => {
                                 if (itemProto != null)
@@ -216,10 +204,10 @@ namespace NebulaCompatibilityAssist.Patches
                             }, 
                             itemProto => filterIds.ContainsKey(itemProto.ID));
                         UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
-                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         break;
                     
                     case 1:
+                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
                             (itemProto) => {
                                 if (itemProto != null)
@@ -231,10 +219,10 @@ namespace NebulaCompatibilityAssist.Patches
                             },
                             itemProto => filterIds.ContainsKey(itemProto.ID));
                         UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
-                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         break;
                     
                     case 2:
+                        UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
                         UIRecipePickerExtension.Popup(new Vector2(-300f, 250f),
                             (recipeProto) => {
                                 if (recipeProto != null)
@@ -245,11 +233,10 @@ namespace NebulaCompatibilityAssist.Patches
                                 UIentryCount.OnClose();
                             },
                             recipeProto => filterIds.ContainsKey(recipeProto.ID));
-                        UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
-                        UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
                         break;
                     
                     case 3:
+                        UIentryCount.OnOpen(ESignalType.Signal, filterIds);
                         UISignalPickerExtension.Popup(new Vector2(-300f, 250f),
                             (signalId) => {
                                 if (signalId > 0)
@@ -261,10 +248,10 @@ namespace NebulaCompatibilityAssist.Patches
                             },
                             signalId => filterIds.ContainsKey(signalId));
                         UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(1);
-                        UIentryCount.OnOpen(ESignalType.Signal, filterIds);
                         break;
 
                     case 4:
+                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
                             (itemProto) => {
                                 if (itemProto != null)
@@ -275,9 +262,10 @@ namespace NebulaCompatibilityAssist.Patches
                                 UIentryCount.OnClose();
                             },
                             itemProto => filterIds.ContainsKey(itemProto.ID));
-                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         break;
+
                     case 5:
+                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
                             (itemProto) => {
                                 if (itemProto != null)
@@ -288,7 +276,6 @@ namespace NebulaCompatibilityAssist.Patches
                                 UIentryCount.OnClose();
                             },
                             itemProto => filterIds.ContainsKey(itemProto.ID));
-                        UIentryCount.OnOpen(ESignalType.Item, filterIds);
                         break;
                 }
             }
