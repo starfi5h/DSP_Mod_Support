@@ -34,7 +34,6 @@ namespace NebulaCompatibilityAssist.Patches
             LSTM.Init(harmony);
             DSPMarker.Init(harmony);
             DSPStarMapMemo.Init(harmony);
-            DSPBeltReverseDirection.Init(harmony);
             DSPTransportStat_Patch.Init(harmony);
             PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
@@ -115,6 +114,11 @@ namespace NebulaCompatibilityAssist.Patches
                 incompatMessage += "\nMultfuntion mod";
                 count++;
             }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.beltreversedirection"))
+            {
+                incompatMessage += "\nDSP Belt Reverse";
+                count++;
+            }            
             return count > 0;
         }
 
