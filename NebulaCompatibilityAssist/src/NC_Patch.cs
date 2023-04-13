@@ -34,7 +34,6 @@ namespace NebulaCompatibilityAssist.Patches
             LSTM.Init(harmony);
             DSPMarker.Init(harmony);
             DSPStarMapMemo.Init(harmony);
-            DSPBeltReverseDirection.Init(harmony);
             DSPTransportStat_Patch.Init(harmony);
             PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
@@ -55,7 +54,7 @@ namespace NebulaCompatibilityAssist.Patches
 
             if (ErrorMessage != "")
             {
-                errorMessage = errorMessage + ErrorMessage;
+                errorMessage += ErrorMessage;
                 UIMessageBox.Show(title, errorMessage, "确定".Translate(), 3);
             }
             if (TestIncompatMods(ref incompatMessage))
@@ -63,7 +62,7 @@ namespace NebulaCompatibilityAssist.Patches
                 UIMessageBox.Show(title, incompatMessage, "确定".Translate(), 3);
             }
             initialized = true;
-            Plugin.Instance.Version = MyPluginInfo.PLUGIN_VERSION + RequriedPlugins;
+            Plugin.Instance.Version = Plugin.VERSION + RequriedPlugins;
             Log.Debug($"Version: {Plugin.Instance.Version}");
         }
 
@@ -105,6 +104,21 @@ namespace NebulaCompatibilityAssist.Patches
                 incompatMessage += "\nDSPBigFormingSize";
                 count++;
             }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.small.dsp.transferInfo"))
+            {
+                incompatMessage += "\nTransferInfo";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("cn.blacksnipe.dsp.Multfuntion_mod"))
+            {
+                incompatMessage += "\nMultfuntion mod";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.beltreversedirection"))
+            {
+                incompatMessage += "\nDSP Belt Reverse";
+                count++;
+            }            
             return count > 0;
         }
 

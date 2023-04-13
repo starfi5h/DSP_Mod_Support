@@ -15,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.1.5";
+        private const string VERSION = "1.1.9";
 
         private static IModCanSave Save;
 
@@ -120,6 +120,7 @@ namespace NebulaCompatibilityAssist.Patches
             return UIRoot.instance.uiGame.dysonEditor.active;
         }
 
+#pragma warning disable IDE1006
         public class PointerDownUpHandler : ManualBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             public int Id;
@@ -136,5 +137,6 @@ namespace NebulaCompatibilityAssist.Patches
                 onPointerUp?.Invoke(Id);
             }
         }
+#pragma warning restore IDE1006
     }
 }

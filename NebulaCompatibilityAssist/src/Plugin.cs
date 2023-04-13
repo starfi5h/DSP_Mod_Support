@@ -6,11 +6,15 @@ using System.Diagnostics;
 
 namespace NebulaCompatibilityAssist
 {
-    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(GUID, NAME, VERSION)]
     [BepInDependency("dsp.nebula-multiplayer")]
     [BepInDependency("dsp.nebula-multiplayer-api")]
     public class Plugin : BaseUnityPlugin, IMultiplayerMod
     {
+        public const string GUID = "NebulaCompatibilityAssist";
+        public const string NAME = "NebulaCompatibilityAssist";
+        public const string VERSION = "0.2.1";
+
         public static Plugin Instance { get; private set; }
         public Harmony Harmony { get; private set; }
         public string Version { get; set; }
@@ -19,7 +23,7 @@ namespace NebulaCompatibilityAssist
         {
             Instance = this;
             Log.LogSource = Logger;
-            Harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+            Harmony = new Harmony(GUID);
             Patches.NC_Patch.OnAwake();
         }
 

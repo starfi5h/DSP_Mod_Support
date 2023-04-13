@@ -18,7 +18,7 @@ namespace NebulaCompatibilityAssist.Analysis
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFatalErrorTip), nameof(UIFatalErrorTip._OnClose))]
-        public static void OnClose_Postfix(UIFatalErrorTip __instance)
+        public static void OnClose_Postfix()
         {
             IsChecked = false;
             patchMap = null;

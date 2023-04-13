@@ -12,7 +12,8 @@ namespace NebulaCompatibilityAssist.Packets
             StarCannonStartAiming,
             AddRelic,
             RemoveRelic,
-            EnemyShipState
+            EnemyShipState,
+            StarFortressSetModuleNum
         }
 
         public EType EventType { get; set; }
@@ -68,6 +69,10 @@ namespace NebulaCompatibilityAssist.Packets
 
                 case NC_BattleEvent.EType.EnemyShipState:
                     DSP_Battle_Patch.Warper.SyncEnemyShipState(r);
+                    break;
+
+                case NC_BattleEvent.EType.StarFortressSetModuleNum:
+                    DSP_Battle_Patch.Warper.SyncStarFortressSetModuleNum(r);
                     break;
             }
         }

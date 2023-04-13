@@ -1,18 +1,8 @@
 # Nebula Compatibility Assist
 
-Nebula 0.8.12 hotfix:  
-- Fix error on host when client put a storage chest on a logisitics distributor on remote planets.  
-- Fix infinite tech level desync in client.  
-- Fix that rock destroy on remote planet show effects on local planet.  
-- Fix trash warning. To remove the corrupted trash warnings, click Erase All Litter button.  
-- Fix sometimes sorters connection desync when players are on different planets.     
-- Hide server ip and port in status window during login & reconnect.  
+Nebula 0.8.13 hotfix:  
+- Fix mecha animation when 3 or more players join.  
 - Show the diff count of local & remote mod list in chat when client login.   
-- Fix sandbox tool enable syncing.  
-- Show multiplayer name in starmap for own player.  
-
-DPS 0.9.27.15466 hotfix:  
-- (new) Sync Flip Whole Path button for belts.  
   
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -31,10 +21,6 @@ DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are req
 
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - Set `useFastDismantle` = false in config file to prevent host from crashing.  
-
-### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- Now reverse direction will sync correctly. (Note: Already in vanilla game)  
-  Special thanks to GreyHak for permission to use his code.  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - Free mecha appearance now sync correctly.  
@@ -81,6 +67,7 @@ DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are req
 - Sync star cannon fire event.  
 - Sync relic add/remove (control by host).  
 - Sync enemy ship retarget/destroy/revive event.  
+- Sync star fortress.  
 - Note: Process of battle (ships, droplet) does not synced, only the final result are same.  
 
 </details>
@@ -98,33 +85,6 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 <details>
 <summary>MOD列表 (点击展开)</summary>
 
-### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
-- 让客户端显示所有星际物流塔的内容  
-
-### [DSPTransportStat](https://dsp.thunderstore.io/package/IndexOutOfRange/DSPTransportStat/)
-- 让客户端显示所有星际物流塔的内容  
-- 客户端目前无法打开非本地的物流塔  
-
-### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
-- 让客户端能显示未载入星球的资源储量和电力状态  
-
-### [DSPMarker](https://dsp.thunderstore.io/package/appuns/DSPMarker/)
-- 同步地图标记  
-- 修复离开游戏时的错误 ([issue#8](https://github.com/appuns/DSPMarker/issues/8))  
-- 修复到达另一个星球标记没更新的bug  
-
-### [DSPStarMapMemo](https://dsp.thunderstore.io/package/appuns/DSPStarMapMemo/)
-- 同步星球註記  
-
-### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- 同步传送带反转方向 (原版游戏已加入功能)  
-  
-### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
-- 同步免费的机甲外观  
-
-### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑
-- 当巨构类型更改时同步资料  
-
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
 - 注意：AutoStationConfigv1.4.0 与 游戏版本v0.9.27 不兼容  
@@ -133,11 +93,42 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 - 同步物流站自动配置相关功能  
 - 同步一键填充星球上的飞机飞船翘曲器、燃料  
 
+### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
+- 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。
+
+### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
+- 同步免费的机甲外观  
+
+### [DSPMarker](https://dsp.thunderstore.io/package/appuns/DSPMarker/)
+- 同步地图标记  
+- 修复离开游戏时的错误 ([issue#8](https://github.com/appuns/DSPMarker/issues/8))  
+- 修复到达另一个星球标记没更新的bug  
+
 ### [DSPOptimizations](https://dsp.thunderstore.io/package/Selsion/DSPOptimizations/)
 - 修复客户端离开星系会使游戏崩溃的错误  
 
+### [DSPStarMapMemo](https://dsp.thunderstore.io/package/appuns/DSPStarMapMemo/)
+- 同步星球註記  
+
+### [DSPTransportStat](https://dsp.thunderstore.io/package/IndexOutOfRange/DSPTransportStat/)
+- 让客户端显示所有星际物流塔的内容  
+- 客户端目前无法打开非本地的物流塔  
+
+### [Dustbin](https://dsp.thunderstore.io/package/soarqin/Dustbin/)
+- 同步储物仓和储液罐的垃圾桶设置。  
+- 修复客户端的垃圾桶勾选框位置。  
+
 ### [FactoryLocator](https://dsp.thunderstore.io/package/starfi5h/FactoryLocator/)
-- 让客户端能显示未载入星球的建物讯息(需求主机也安装mod)  
+- 让客户端能显示远端星球的建物讯息(需求主机也安装mod)  
+
+### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
+- 让客户端显示所有星际物流塔的内容  
+
+### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑
+- 当巨构类型或星际组装厂配方更改时同步资料  
+
+### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
+- 让客户端能显示远端星球的资源储量和电力状态  
 
 ### [SplitterOverBelt](https://dsp.thunderstore.io/package/hetima/SplitterOverBelt/)
 - 让客户端在传送带上放置分流器/集装机时,可以正确地重新连接传送带  
@@ -149,14 +140,8 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 - 同步恒星炮开火事件。
 - 同步遗物添加/删除（由主机控制）。  
 - 同步敌舰转向/破坏/复活事件。
-- 注意：战斗过程（舰船，水滴）不会同步，只会同步最终结果。若客户端想要观看完整的战斗过程，需要在敌舰入侵前造访该星系的每一个有工厂的星球，以及用戴森球编辑器观看每一个有恒星炮的星系来载入相关的戴森球。
-
-### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
-- 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。
-
-### [Dustbin](https://dsp.thunderstore.io/package/soarqin/Dustbin/)
-- 同步储物仓和储液罐的垃圾桶设置。  
-- 修复客户端的垃圾桶勾选框位置。  
+- 同步恒星要塞配置。
+- 注意：战斗过程（舰船，水滴）不会精准同步，只会同步最终结果。若客户端想要观看完整的战斗过程，需要在敌舰入侵前造访该星系的每一个有工厂的星球，以及用戴森球编辑器观看每一个有恒星炮的星系来载入相关的戴森球。
 
 </details>
   
