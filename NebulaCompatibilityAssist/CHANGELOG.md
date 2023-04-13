@@ -1,5 +1,9 @@
 ## Changelog
 
+#### v0.2.1 (Nebula 0.8.13)
+\- Fix a bug that client can't change station storage.  
+\- DSP Belt Reverse Direction is no longer supported due to vanilla has the function now.  
+
 #### v0.2.0 (Nebula 0.8.13)
 \- Hotfix: Fix mecha animation when 3rd player join.  
 \- Update FactoryLocator support version to 1.2.0  

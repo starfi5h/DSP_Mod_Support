@@ -22,10 +22,6 @@ DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are req
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - Set `useFastDismantle` = false in config file to prevent host from crashing.  
 
-### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- Now reverse direction will sync correctly. (Note: Already in vanilla game)  
-  Special thanks to GreyHak for permission to use his code.  
-
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - Free mecha appearance now sync correctly.  
 
@@ -99,9 +95,6 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。
-
-### [DSP Belt Reverse Direction](https://dsp.thunderstore.io/package/GreyHak/DSP_Belt_Reverse_Direction/)
-- 同步传送带反转方向 (原版游戏已加入功能)  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - 同步免费的机甲外观  
