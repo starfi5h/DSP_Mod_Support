@@ -46,6 +46,7 @@ namespace NebulaCompatibilityAssist.Patches
             DSP_Battle_Patch.Init(harmony);
             BlueprintTweaks.Init(harmony);
             Dustbin_Patch.Init(harmony);
+            Bottleneck_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             var title = Localization.language == Language.zhCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";

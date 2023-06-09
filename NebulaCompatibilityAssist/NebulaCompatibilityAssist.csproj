@@ -28,6 +28,9 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="Bottleneck">
+      <HintPath>reference\Bottleneck-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="DSPTransportStat">
       <HintPath>reference\DSPTransportStat_publicized.dll</HintPath>
       <Private>false</Private>
