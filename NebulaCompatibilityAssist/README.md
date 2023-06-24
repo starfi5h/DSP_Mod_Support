@@ -2,6 +2,7 @@
 
 Nebula 0.8.13 hotfix:  
 - Fix mecha animation when 3 or more players join.  
+- Fix a potential error when saving the game.  
 - Show the diff count of local & remote mod list in chat when client login.   
   
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
@@ -21,6 +22,9 @@ DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are req
 
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - Set `useFastDismantle` = false in config file to prevent host from crashing.  
+
+### [Bottleneck](https://dsp.thunderstore.io/package/Semar/Bottleneck/)
+- Fixed an error that occurred on the host when the client was using different proliferator settings.  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - Free mecha appearance now sync correctly.  
@@ -95,6 +99,9 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。
+
+### [Bottleneck](https://dsp.thunderstore.io/package/Semar/Bottleneck/)
+- 修复客户端使用不同增产剂设定时在主机发生的错误  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - 同步免费的机甲外观  
