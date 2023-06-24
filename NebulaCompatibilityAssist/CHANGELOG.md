@@ -1,5 +1,9 @@
 ## Changelog
 
+#### v0.2.2 (Nebula 0.8.13)
+\- Hotfix: Fix an error when saving game.  
+\- Bottleneck v1.0.15: Fixed an error that occurred on the host when the client was using different proliferator settings.  
+
 #### v0.2.1 (Nebula 0.8.13)
 \- Fix a bug that client can't change station storage.  
 \- DSP Belt Reverse Direction is no longer supported due to vanilla has the function now.  
