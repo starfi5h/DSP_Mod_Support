@@ -47,6 +47,12 @@
     <Reference Include="NebulaModel">
       <HintPath>reference\NebulaModel-nstrip.dll</HintPath>
     </Reference>
+    <Reference Include="NebulaNetwork">
+      <HintPath>reference\NebulaNetwork-nstrip.dll</HintPath>
+    </Reference>
+    <Reference Include="NebulaPatcher">
+      <HintPath>reference\NebulaPatcher-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="NebulaWorld">
       <HintPath>reference\NebulaWorld-nstrip.dll</HintPath>
     </Reference>

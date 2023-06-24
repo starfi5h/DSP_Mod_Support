@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-using NebulaWorld.Logistics;
 using UnityEngine;
-using NebulaModel.Packets.Logistics;
 using NebulaModel.Packets.Players;
 using NebulaWorld.MonoBehaviours.Remote;
+using NebulaPatcher.Patches.Dynamic;
+using NebulaWorld;
+using NebulaModel;
+using NebulaNetwork;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -150,6 +152,43 @@ namespace NebulaCompatibilityAssist.Hotfix
 
                 return false;
             }
+            #endregion
+
+            #region save
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(GameSave_Patch), "SaveCurrentGame_Prefix")]
+            public static bool SaveCurrentGame_Prefix(string saveName, ref bool __result)
+            {
+                if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsHost)
+                {
+                    // temp revert sand count back to original value before saving if we sync it (see SimulatedWorld.SetupInitialPlayerState() )
+                    if (Config.Options.SyncSoil)
+                    {
+                        int tmp = GameMain.mainPlayer.sandCount;
+                        GameMain.mainPlayer.sandCount = Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount;
+                        Multiplayer.Session.LocalPlayer.Data.Mecha.SandCount = tmp;
+                    }
+                    SaveManager.SaveServerData(saveName);
+                }
+
+                // Only save if in single player or if you are the host
+                __result = !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
+                return false;
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(UIPerformancePanel), nameof(UIPerformancePanel.OnDataActiveButtonClick))]
+            public static bool OnDataActiveButtonClick_Prefix()
+            {
+                if (Multiplayer.IsActive)
+                {
+                    InGamePopup.ShowInfo("Access Denied", "Save test is not available in multiplayer game.", "OK");
+                    return false;
+                }
+                return true;
+            }
+
             #endregion
         }
     }
