@@ -80,9 +80,10 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
             {
-                IsClient = true;
                 Log.Debug("OnLogin");
+                IsClient = true;
                 OnLogin?.Invoke();
+                return;
             }
             IsClient = false;
         }

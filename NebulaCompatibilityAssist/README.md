@@ -3,6 +3,8 @@
 Nebula 0.8.13 hotfix:  
 - Fix mecha animation when 3 or more players join.  
 - Fix a potential error when saving the game.  
+- Add compat to mods that increase reform brush size.  
+- (Test) Reset planet physics & audio when arriving at a planet.  
 - Show the diff count of local & remote mod list in chat when client login.   
   
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
@@ -133,6 +135,7 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 
 ### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑
 - 当巨构类型或星际组装厂配方更改时同步资料  
+- 修复客户端戴森球电力供给和需求不正确的问题  
 
 ### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
 - 让客户端能显示远端星球的资源储量和电力状态  

@@ -1,5 +1,10 @@
 ## Changelog
 
+#### v0.2.3 (Nebula 0.8.13)
+\- Hotfix: Add compat to mods that increase reform brush size.  
+\- Hotfix: (Test) Reset planet physics & audio when arriving at a planet.  
+\- MoreMegaStructure v1.1.11: Fix receivers requested power flicks on clients.  
+
 #### v0.2.2 (Nebula 0.8.13)
 \- Hotfix: Fix an error when saving game.  
 \- Bottleneck v1.0.15: Fixed an error that occurred on the host when the client was using different proliferator settings.  

@@ -5,6 +5,7 @@ using NebulaCompatibilityAssist.Packets;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.1.9";
+        private const string VERSION = "1.1.11";
 
         private static IModCanSave Save;
 
@@ -44,6 +45,10 @@ namespace NebulaCompatibilityAssist.Patches
                 Type classType = assembly.GetType("MoreMegaStructure.MoreMegaStructure");
                 harmony.Patch(AccessTools.Method(classType, "SetMegaStructure"), null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData")));
                 harmony.Patch(AccessTools.Method(classType, "BeforeGameTickPostPatch"), new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressOnClient")));
+
+                // Fix RequestDysonSpherePower patch
+                classType = assembly.GetType("MoreMegaStructure.ReceiverPatchers");
+                harmony.Patch(AccessTools.Method(classType, "RequestDysonSpherePowerPrePatch"), null, null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("RequestDysonSpherePowerPrePatch_Transpiler")));
 
                 // Sync StarAssembly recipeIds & weights 
                 classType = assembly.GetType("MoreMegaStructure.StarAssembly");
@@ -118,6 +123,37 @@ namespace NebulaCompatibilityAssist.Patches
         public static bool SuppressUIupdate()
         {
             return UIRoot.instance.uiGame.dysonEditor.active;
+        }
+
+        public static IEnumerable<CodeInstruction> RequestDysonSpherePowerPrePatch_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            //Prevent dysonSphere.energyReqCurrentTick from changing on the client side
+            //Change: bool flag6 = powerSystem.dysonSphere != null;
+            //To:     bool flag6 = powerSystem.dysonSphere != null && !NC_Patch.IsClient;
+            try
+            {
+                CodeMatcher codeMatcher = new CodeMatcher(instructions)
+                    .End()
+                    .MatchBack(true,
+                        new CodeMatch(i => i.IsLdloc()),
+                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "dysonSphere")),
+                        new CodeMatch(OpCodes.Ldnull),
+                        new CodeMatch(OpCodes.Cgt_Un)
+                    );
+                codeMatcher.Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(NC_Patch), "IsClient")),
+                        new CodeInstruction(OpCodes.Not),
+                        new CodeInstruction(OpCodes.And)
+                    );
+
+                return codeMatcher.InstructionEnumeration();
+            }
+            catch
+            {
+                NebulaModel.Logger.Log.Error("PowerSystem.RequestDysonSpherePower_Transpiler failed. Mod version not compatible with game version.");
+                return instructions;
+            }
         }
 
 #pragma warning disable IDE1006
