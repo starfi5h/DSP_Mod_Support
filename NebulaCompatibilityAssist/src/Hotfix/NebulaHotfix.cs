@@ -190,6 +190,27 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
 
             #endregion
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(PlanetData), nameof(PlanetData.LoadFactory))]
+            public static void LoadFactory_Prefix(PlanetData __instance)
+            {
+                if (!__instance.loading && __instance.factory != null)
+                {
+                    // Unload dummy physics & audio (remote planet timer < 10s) to fully initialize
+                    Log.Info("Clean " + __instance.displayName + "physics + audio");
+                    if (__instance.physics != null)
+                    {
+                        __instance.physics.Free();
+                        __instance.physics = null;
+                    }
+                    if (__instance.audio != null)
+                    {
+                        __instance.audio.Free();
+                        __instance.audio = null;
+                    }
+                }
+            }
         }
     }
 }
