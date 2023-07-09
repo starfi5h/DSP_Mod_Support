@@ -23,7 +23,7 @@ namespace SF_ChinesePatch
             Log = Logger;
             harmony = new(GUID);
 
-            Log.LogInfo(LDB.strings);
+            BulletTime_Patch.OnAwake();
             NebulaMultiplayer_Patch.OnAwake();
             harmony.PatchAll(typeof(Plugin));
             harmony.PatchAll(typeof(StringManager));
