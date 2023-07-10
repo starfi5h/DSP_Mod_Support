@@ -5,39 +5,55 @@ namespace SF_ChinesePatch
 {
     public class StringManager
     {
+        private static bool isInject = false;
         private static int lastStringId = 1000;
-        private static List<Proto> protos = new();
-        private static Dictionary<string, int> nameIndices = new ();
+        private static List<Proto> protos = new ();
+        private static HashSet<string> nameIndices = new ();
 
         public static void RegisterString(string key, string cnTrans, string enTrans = "")
         {
-            if (nameIndices.ContainsKey(key))
+            if (nameIndices.Contains(key) || isInject)
                 return;
 
-            if (enTrans.Equals("")) enTrans = key;
+            if (string.IsNullOrEmpty(enTrans)) enTrans = key;
             StringProto proto = new()
             {
                 Name = key,
                 ENUS = enTrans,
-                ZHCN = cnTrans.Equals("") ? enTrans : cnTrans,
+                ZHCN = string.IsNullOrEmpty(cnTrans) ? enTrans : cnTrans,
                 FRFR = enTrans,
-                ID = FindAvailableStringID()
+                ID = -1
             };
-            nameIndices.Add(key, proto.ID);
+            nameIndices.Add(key);
             protos.Add(proto);
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(UIGame), nameof(UIGame._OnCreate))]
+        [HarmonyPatch(typeof(DSPGame), nameof(DSPGame.Awake))] // Before GS2 patch
         public static void InjectStrings()
         {
-            // UIGame._OnCreate is triggered earlier than LDBTool injection ()
-            // In order to make translate() works for mod UI, it need to inject earlier
-
-            AddProtosToSet(LDB.strings, protos);
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("me.xiaoye97.plugin.Dyson.LDBTool"))
+            if (!isInject)
             {
-                AccessTools.Field(AccessTools.TypeByName("xiaoye97.LDBTool"), "lastStringId").SetValue(null, lastStringId);
+                isInject = true;
+                bool hasLDBTool = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("me.xiaoye97.plugin.Dyson.LDBTool");
+
+                if (hasLDBTool)
+                {
+                    lastStringId = (int)AccessTools.Field(AccessTools.TypeByName("xiaoye97.LDBTool"), "lastStringId").GetValue(null);
+                    Plugin.Log.LogInfo("Starting with LDBTool lastStringId " + lastStringId);
+                }
+
+                // GalacticScale.GS2.Init() too early for Localization.language to load, so we assume the language is zhCN first
+                Localization.language = Language.zhCN;
+                AddProtosToSet(LDB.strings, protos);
+                protos = null;
+                nameIndices = null;
+
+                if (hasLDBTool)
+                {
+                    AccessTools.Field(AccessTools.TypeByName("xiaoye97.LDBTool"), "lastStringId").SetValue(null, lastStringId);
+                    Plugin.Log.LogInfo("End with LDBTool lastStringId " + lastStringId);
+                }
             }
         }
 
@@ -52,6 +68,7 @@ namespace SF_ChinesePatch
 
             for (int i = 0; i < protos.Count; i++)
             {
+                protos[i].ID = FindAvailableStringID();
                 protoSet.dataArray[array.Length + i] = protos[i] as T;
                 Plugin.Log.LogDebug($"Add {protos[i].ID} {protos[i].Name.Translate()} to {protoSet.GetType().Name}.");
             }
@@ -73,18 +90,12 @@ namespace SF_ChinesePatch
             }
         }
 
-        private static bool HasStringIdRegisted(int id)
-        {
-            if (LDB.strings.dataIndices.ContainsKey(id)) return true;
-            return false;
-        }
-
         private static int FindAvailableStringID()
         {
             int id = lastStringId + 1;
             while (true)
             {
-                if (!HasStringIdRegisted(id))
+                if (!LDB.strings.dataIndices.ContainsKey(id))
                 {
                     break;
                 }

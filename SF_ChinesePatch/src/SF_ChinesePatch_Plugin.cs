@@ -24,26 +24,11 @@ namespace SF_ChinesePatch
             harmony = new(GUID);
 
             BulletTime_Patch.OnAwake();
+            GalacticScale_Patch.OnAwake(harmony);
             NebulaMultiplayer_Patch.OnAwake();
-            harmony.PatchAll(typeof(Plugin));
+
             harmony.PatchAll(typeof(StringManager));
         }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIMainMenu), nameof(UIMainMenu._OnOpen))]
-        public static void UIMainMenu_OnOpen_Postfix()
-        {
-            Log.LogWarning("UIMainMenu._OnOpen");
-            Log.LogInfo("New Game (Host)".Translate());
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIOptionWindow), nameof(UIOptionWindow._OnCreate))]
-        public static void UIOptionWindow_OnCreate_Postfix()
-        {
-            Log.LogWarning("UIOptionWindow_OnCreate");
-        }
-
 
         public void OnDestroy()
         {
