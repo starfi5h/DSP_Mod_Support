@@ -2,12 +2,13 @@
 {
     public class LSTM_Patch
     {
+        public const string NAME = "LSTM";
         public const string GUID = "com.hetima.dsp.LSTM";
 
         public static void OnAwake()
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID))
-                return;
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID)) return;
+            if (!Plugin.Instance.Config.Bind("Enable", NAME, true).Value) return;
             RegisterStrings();
         }
 

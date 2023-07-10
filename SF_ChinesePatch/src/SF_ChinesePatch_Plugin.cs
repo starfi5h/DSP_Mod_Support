@@ -16,11 +16,13 @@ namespace SF_ChinesePatch
         public const string VERSION = "1.0.0";
 
         public static ManualLogSource Log;
+        public static Plugin Instance;
         Harmony harmony;
 
         public void Awake()
         {
             Log = Logger;
+            Instance = this;
             harmony = new(GUID);
 
             BulletTime_Patch.OnAwake();

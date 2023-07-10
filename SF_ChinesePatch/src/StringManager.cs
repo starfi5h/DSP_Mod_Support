@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace SF_ChinesePatch
 {
+
+    // Reference source: https://github.com/xiaoye97/DSP_LDBTool
+
     public class StringManager
     {
         private static bool isInject = false;

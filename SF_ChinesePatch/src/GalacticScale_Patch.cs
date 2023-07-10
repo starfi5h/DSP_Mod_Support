@@ -10,13 +10,14 @@ namespace SF_ChinesePatch
 
     public class GalacticScale_Patch
     {
+        public const string NAME = "GalacticScale";
         public const string GUID = "dsp.galactic-scale.2";
         private static Dictionary<string, string> typeStrings;
 
         public static void OnAwake(Harmony harmony)
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID))
-                return;
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID)) return;
+            if (!Plugin.Instance.Config.Bind("Enable", NAME, true).Value) return;
 
             typeStrings = new();
             RegisterStrings();

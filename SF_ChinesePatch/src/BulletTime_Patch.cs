@@ -2,12 +2,14 @@
 {
     public class BulletTime_Patch
     {
+        public const string NAME = "BulletTime";
         public const string GUID = "com.starfi5h.plugin.BulletTime";
 
         public static void OnAwake()
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID))
-                return;
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID)) return;
+            if (!Plugin.Instance.Config.Bind("Enable", NAME, true).Value) return;
+
             RegisterStrings();
         }
 
