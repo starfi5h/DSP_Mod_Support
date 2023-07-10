@@ -14,7 +14,7 @@
 
         private static void RegisterStrings()
         {
-            #region Menu UI 目錄
+            #region Menu UI 主選單
             StringManager.RegisterString("Multiplayer", "多人游戏");
             StringManager.RegisterString("New Game (Host)", "新游戏 (主机)");
             StringManager.RegisterString("Load Game (Host)", "加载存档 (主机)");
@@ -38,7 +38,7 @@
             StringManager.RegisterString("Chat", "聊天");
 
             StringManager.RegisterString("Nickname", "玩家名称");
-            StringManager.RegisterString("Show Lobby Hints", "显示大厅提示");
+            StringManager.RegisterString("Show Lobby Hints", "显示大厅说明");
             StringManager.RegisterString("Sync Ups", "同步逻辑帧");
             StringManager.RegisterString("If enabled the UPS of each player is synced. This ensures a similar amount of GameTick() calls.", "启用后，会调整本地的逻辑帧率以和远端主机同步");
             StringManager.RegisterString("Sync Soil", "共享砂土");
@@ -79,6 +79,16 @@
             StringManager.RegisterString("No UPnp or Pmp compatible/enabled NAT device found", "未找到支持/启用UPnp或Pmp的NAT设备");
             StringManager.RegisterString("Could not create UPnp or Pmp port mapping", "无法创建UPnp或Pmp端口映射");
             StringManager.RegisterString("An error occurred while hosting the game: ", "在创建服务器时发生错误: ");
+
+            var Nebula_LobbyMessage = "当玩家首次进入游戏时会进入大厅，在这里可以预览星球资源和选择起始星球\n" +
+            "点击恒星可以展开其行星系。行星系中点击星球能查看其详细信息。\n" +
+            "在打开行星详细信息面板时，再点击行星一次就可以将其设置为出生星球。\n" +
+            "点击外太空可以回到上一层次。滚轮放大/缩小。长按Alt键可查看星球名称。\n\n" +
+            "在游戏中 Alt + ~ 可以打开聊天窗口。输入/help可以查看所有命令。\n" +
+            "联机mod可能和某些模组不相容。模组NebulaCompatibilityAssist有详细的说明\n" +
+            "当出错或失去同步时可以让客户端重连,或主机保存重开。祝游戏愉快!";
+            StringManager.RegisterString("The Lobby", "大厅说明");
+            StringManager.RegisterString("Nebula_LobbyMessage", Nebula_LobbyMessage);
             #endregion
 
             #region Disconnect reasons 斷線原因
