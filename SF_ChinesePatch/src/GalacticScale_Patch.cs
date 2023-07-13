@@ -66,8 +66,8 @@ namespace SF_ChinesePatch
 
             StringManager.RegisterString("WARNING - Galactic Scale savegames can be broken by updates. Read the FAQ @ http://customizing.space", "警告 - Galactic Scale 存档可能会因更新而损坏。请阅读常见问题解答 @ http://customizing.space");
             StringManager.RegisterString("WARNING - Galactic Scale savegames can be broken by updates.Read the FAQ @ http://customizing.space\r\n", "警告 - Galactic Scale 存档可能会因更新而损坏。请阅读常见问题解答 @ http://customizing.space\r\n");
-            StringManager.RegisterString("BACKUP YOUR SAVES. This version has potentially BREAKING CHANGES.\r\nNote: Settings for this mod are in the settings menu. Make sure to change the Generator to get the full Galactic Scale experience.\r\n", "备份您的存档。此版本可能存在破坏性变更。\r\n注意：此 mod 的设置位于设置菜单中。请确保更改生成器以获得完整的 Galactic Scale 体验。\r\n");
-            StringManager.RegisterString("Update Detected. Please do not save over existing saves \r\nuntil you are sure you can load saves saved with this version!\r\nPlease Click GS2 Help and click the link to join our community on discord for preview builds and to help shape the mod going forward", "检测到更新。请不要在现有存档上保存，\r\n直到您确信可以加载使用此版本保存的存档！\r\n请单击 GS2 帮助并单击链接加入我们的 Discord 社区以获取预览版本并帮助塑造 mod 的未来");
+            StringManager.RegisterString("BACKUP YOUR SAVES. This version has potentially BREAKING CHANGES.\r\nNote: Settings for this mod are in the settings menu. Make sure to change the Generator to get the full Galactic Scale experience.\r\n", "备份您的存档。此版本可能存在破坏性变更。\r\n注意：此 mod 的设置位于设置菜单中。请确保更改生成器以获得完整的体验。\r\n");
+            StringManager.RegisterString("Update Detected. Please do not save over existing saves \r\nuntil you are sure you can load saves saved with this version!\r\nPlease Click GS2 Help and click the link to join our community on discord for preview builds and to help shape the mod going forward", "检测到更新。请不要在现有存档上保存，\r\n直到您确信可以加载使用此版本保存的存档！");
             StringManager.RegisterString("The latest DSP update has added additional planet themes which are yet to be included in GS2. \r\nI'm working on getting them added to the GS2 themeset, as well as implementing their new subtheme system", "最新的 DSP 更新添加了其他行星主题，但尚未包含在 GS2 中。\r\n");
             #endregion
 
@@ -75,14 +75,14 @@ namespace SF_ChinesePatch
             RegisterPlanetType("Acid Greenhouse", "酸性温室");
             RegisterPlanetType("Obsidian", "黑曜石");
             RegisterPlanetType("Hot Obsidian", "炙热黑曜石");
-            RegisterPlanetType("Ice Malusol", "冰岛");
+            RegisterPlanetType("Ice Malusol", "冰原");
             RegisterPlanetType("Infernal Gas Giant", "地狱气巨星");
             RegisterPlanetType("Dwarf Planet", "矮行星");
             RegisterPlanetType("Barren Satellite", "贫瘠卫星");
             RegisterPlanetType("Sulfurous Sea", "硫酸海");
             RegisterPlanetType("Gigantic Forest", "巨大森林");
-            RegisterPlanetType("Red Forest", "红色森林");
-            RegisterPlanetType("Molten World", "岩浆世界");
+            RegisterPlanetType("Red Forest", "红森林");
+            RegisterPlanetType("Molten World", "熔岩世界");
             RegisterPlanetType("Beach", "海滩");
             RegisterPlanetType("SpaceWhale Excrement", "太空鲸粪");
             #endregion
@@ -92,8 +92,8 @@ namespace SF_ChinesePatch
             RegisterPlanetType("Oceanic Jungle", "海洋丛林");
             RegisterPlanetType("Sakura Ocean", "樱林海");
             RegisterPlanetType("Ocean World", "水世界");
-            RegisterPlanetType("Pandora Swamp", "潘多拉沼泽");
-            RegisterPlanetType("Pandora Swamp II", "潘多拉沼泽 II");
+            RegisterPlanetType("Pandora Swamp", "潘多拉沼泽I");
+            RegisterPlanetType("Pandora Swamp II", "潘多拉沼泽II");
             RegisterPlanetType("Red Stone", "红石");
             RegisterPlanetType("Prairie", "草原");
             RegisterPlanetType("Savanna", "热带草原");
@@ -110,25 +110,25 @@ namespace SF_ChinesePatch
 
             RegisterPlanetType("Scarlet Ice Lake", "猩红冰湖");
             RegisterPlanetType("Ashen Gelisol", "灰烬冻土");
-            RegisterPlanetType("Ice Field Gelisol", "冰原冻土");
-            RegisterPlanetType("Ice Field Gelisol II", "冰原冻土 II");
-            RegisterPlanetType("Ice Field Gelisol III", "冰原冻土 III");
+            RegisterPlanetType("Ice Field Gelisol", "冰原冻土I");
+            RegisterPlanetType("Ice Field Gelisol II", "冰原冻土II");
+            RegisterPlanetType("Ice Field Gelisol III", "冰原冻土III");
             RegisterPlanetType("Frozen Tundra", "极寒冻土");
 
-            RegisterPlanetType("Gas Giant", "气态巨星");
-            RegisterPlanetType("Gas Giant II", "气态巨星 II");
-            RegisterPlanetType("Gas Giant III", "气态巨星 III");
-            RegisterPlanetType("Gas Giant IV", "气态巨星 IV");
-            RegisterPlanetType("Gas Giant V", "气态巨星 V");
+            RegisterPlanetType("Gas Giant", "气态巨星I");
+            RegisterPlanetType("Gas Giant II", "气态巨星II");
+            RegisterPlanetType("Gas Giant III", "气态巨星III");
+            RegisterPlanetType("Gas Giant IV", "气态巨星IV");
+            RegisterPlanetType("Gas Giant V", "气态巨星V");
 
-            RegisterPlanetType("Ice Giant", "冰巨星");
-            RegisterPlanetType("Ice Giant II", "冰巨星 II");
-            RegisterPlanetType("Ice Giant III", "冰巨星 III");
-            RegisterPlanetType("Ice Giant IV", "冰巨星 IV");
+            RegisterPlanetType("Ice Giant", "冰巨星I");
+            RegisterPlanetType("Ice Giant II", "冰巨星II");
+            RegisterPlanetType("Ice Giant III", "冰巨星III");
+            RegisterPlanetType("Ice Giant IV", "冰巨星IV");
             #endregion
 
             #region Left-side options
-            StringManager.RegisterString("Generator", "星系生成方式");
+            StringManager.RegisterString("Generator", "星系生成器");
             StringManager.RegisterString("Try them all!", "选择自定义星系的生成器(Generator)");
             StringManager.RegisterString("You cannot change the generator while in game.", "您不能在游戏中更改生成器。");
 
@@ -229,11 +229,11 @@ namespace SF_ChinesePatch
 
             #region GS2 Generator - Galaxy Settings
             StringManager.RegisterString("Galaxy Spread", "星系扩散程度");
-            StringManager.RegisterString("Lower = Stars are closer to each other. Default is 5", "较低值 = 星体更接近。默认值为5");
+            StringManager.RegisterString("Lower = Stars are closer to each other. Default is 5", "较低值 = 星系更接近。默认值为5");
             StringManager.RegisterString("Default StarCount", "默认恒星数量");
             StringManager.RegisterString("How many stars should the slider default to", "新游戏滑动条默认恒星数量");
             StringManager.RegisterString("Star Size Multiplier", "恒星大小倍率");
-            StringManager.RegisterString("GS2 uses 10x as standard. They just look cooler.", "GS2设为标准10倍。看起来更酷。");
+            StringManager.RegisterString("GS2 uses 10x as standard. They just look cooler.", "GS2设为原版10倍。看起来更酷。");
             StringManager.RegisterString("Luminosity Multiplier", "亮度倍率");
             StringManager.RegisterString("Increase the luminosity of all stars by this multiplier", "将所有恒星的亮度倍增此倍率");
             StringManager.RegisterString("Use Vanilla Star Names", "使用原版星体名称");
@@ -243,8 +243,8 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Settings that control Binary Star formation", "控制双星形成的设置");
             StringManager.RegisterString("Binary Distance Multi", "双星距离倍率");
             StringManager.RegisterString("How close secondary stars should be to primaries", "伴星距离主星的接近程度");
-            StringManager.RegisterString("Binary Star Chance %", "双星几率 %");
-            StringManager.RegisterString("% Chance of a star having a binary companion", "星体成为双星的几率 %");
+            StringManager.RegisterString("Binary Star Chance %", "双星概率 %");
+            StringManager.RegisterString("% Chance of a star having a binary companion", "星体成为双星的概率 %");
 
             StringManager.RegisterString("Star Relative Frequencies", "星体生成概率");
             StringManager.RegisterString("How often to select a star type", "生成器选择星体类型的概率");            
@@ -264,31 +264,31 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Allow other habitable themes for starting planet", "允许起始星球使用其他宜居主题");
             StringManager.RegisterString("Starting planet Si/Ti", "起始星球解锁硅和钛");
             StringManager.RegisterString("Force Silicon and Titanium on the starting planet", "在起始星球上强制生成硅和钛");
-            StringManager.RegisterString("Allow Rares in Starting System", "起始系统中允许稀有资源");
+            StringManager.RegisterString("Allow Rares in Starting System", "起始星系中允许稀有资源");
             StringManager.RegisterString("Allow Rares other than Oil and FireIce", "允许起始系统中除了原油和可燃冰之外的稀有资源");
             StringManager.RegisterString("Starting Planet Star", "起始恒星类型");
-            StringManager.RegisterString("Type of Star to Start at", "起始系统中星体的类型");
+            StringManager.RegisterString("Type of Star to Start at", "起始星系中星体的类型");
             StringManager.RegisterString("Tidal Lock Starting Planet", "强制起始星球潮汐锁定");
             StringManager.RegisterString("Force the starting planet to be tidally locked", "将起始星球锁定为潮汐锁定");
-            StringManager.RegisterString("Birth Planet is a Moon", "起始行星是一个卫星");
+            StringManager.RegisterString("Birth Planet is a Moon", "起始星球是一个卫星");
             StringManager.RegisterString("... of a Gas Giant", "起始是气态巨星的卫星");
-            StringManager.RegisterString("Starting Planet No Rares", "禁止起始星球上的稀有资源");
-            StringManager.RegisterString("Disable to allow rare veins on starting planet", "禁用以允许起始星球上有稀有矿脉");
+            StringManager.RegisterString("Starting Planet No Rares", "起始星球上不会有稀有资源");
+            StringManager.RegisterString("Disable to allow rare veins on starting planet", "禁用此项后,起始星球上可有稀有矿脉");
             #endregion
 
             #region GS2 Generator - System Settings
             StringManager.RegisterString("Solar Power Falloff", "太阳能衰减计算方法");
             StringManager.RegisterString("InverseSquare", "反比平方");
             StringManager.RegisterString("Linear", "线性");
-            StringManager.RegisterString("Linear Damping", "线性阻尼"); //NA
-            StringManager.RegisterString("How close to 100% the inner and outer planets will be", "内外行星距离100%的接近程度"); //NA
+            StringManager.RegisterString("Linear Damping", "线性阻尼");
+            StringManager.RegisterString("How close to 100% the inner and outer planets will be", "内外行星距离100%的接近程度");
             StringManager.RegisterString("None", "无");
+            StringManager.RegisterString("Min/Max Solar", "最小/最大光能利用率");
 
-            StringManager.RegisterString("Min/Max Solar", "最小/最大太阳能效率");
             StringManager.RegisterString("Orbit Spacing", "轨道间距");
             StringManager.RegisterString("Minimum gap between planet orbits", "行星轨道间的最小间隔");
-            StringManager.RegisterString("Planet Naming Scheme", "行星命名方案"); //NA
-            StringManager.RegisterString("How to determine planet names", "行星命名的规则"); //NA
+            StringManager.RegisterString("Planet Naming Scheme", "行星命名方案");
+            StringManager.RegisterString("How to determine planet names", "行星命名的规则");
             StringManager.RegisterString("Default", "原版");
             StringManager.RegisterString("Alpha", "Alpha");
             StringManager.RegisterString("Random", "随机");
@@ -300,12 +300,12 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Allow Orbital Resonance 1:2 and 1:4", "允许轨道共振 1:2 和 1:4");
             StringManager.RegisterString("Moons Are Small", "卫星较小");
             StringManager.RegisterString("Try to ensure moons are 1/2 their planets size or less", "使卫星的大小为其行星的1/2或更小");
-            StringManager.RegisterString("Gas Giants Moon Bias", "气态巨行星卫星偏好");
-            StringManager.RegisterString("Lower prefers telluric planets, higher gas giants", "较低的偏好岩石行星，较高的偏好气态巨行星");
+            StringManager.RegisterString("Gas Giants Moon Bias", "气态行星生成卫星偏好");
+            StringManager.RegisterString("Lower prefers telluric planets, higher gas giants", "较低的偏好岩石行星，较高的偏好气态行星");
             StringManager.RegisterString("Secondary satellites", "二级卫星");
             StringManager.RegisterString("Allow moons to have moons", "允许卫星拥有卫星");
             StringManager.RegisterString("Secondary Satellite Chance", "二级卫星概率");
-            StringManager.RegisterString("% Chance for a moon to have a moon", "卫星有卫星的几率%");
+            StringManager.RegisterString("% Chance for a moon to have a moon", "卫星有卫星的概率%");
             StringManager.RegisterString("Recursive Moons", "递归卫星");
             StringManager.RegisterString("Moons of moons can have moons...", "卫星的卫星可以有卫星...");
 
@@ -314,14 +314,14 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Planet Count", "行星数量");
             StringManager.RegisterString("The amount of planets per star", "每颗恒星的行星数量");
             StringManager.RegisterString("Planet Count Bias", "行星数量偏好");
-            StringManager.RegisterString("Prefer Less (lower) or More (higher) Planets", "喜欢较少或较多的行星");
-            StringManager.RegisterString("Huge Gas Giants", "巨大气态巨行星");
-            StringManager.RegisterString("Allow gas giants larger than 800 radius", "允许半径大于800的气态巨行星");
+            StringManager.RegisterString("Prefer Less (lower) or More (higher) Planets", "随机数会偏向较小或较大的数值");
+            StringManager.RegisterString("Huge Gas Giants", "巨大气态行星");
+            StringManager.RegisterString("Allow gas giants larger than 800 radius", "允许半径大于800的气态行星");
             StringManager.RegisterString("Chance Gas", "气态行星概率");
-            StringManager.RegisterString("% Chance of a planet being a Gas Giant", "行星是气态巨行星的概率%");
+            StringManager.RegisterString("% Chance of a planet being a Gas Giant", "行星是气态行星的概率%");
             StringManager.RegisterString("Chance Moon", "卫星概率");
-            StringManager.RegisterString("% Chance of a rocky planet being a moon", "岩石行星是卫星的几率%");
-            StringManager.RegisterString("Enable Comets", "启用小行星"); //NA
+            StringManager.RegisterString("% Chance of a rocky planet being a moon", "岩石行星是卫星的概率%");
+            StringManager.RegisterString("Enable Comets", "启用小行星");
             StringManager.RegisterString("Star has a small planetoid with a random rare resource", "恒星附近有一颗带有随机稀有资源的小行星");
             StringManager.RegisterString("Comet Chance", "小行星概率");
             StringManager.RegisterString("% Chance of a star spawning a comet", "恒星生成小行星的几率");
@@ -344,10 +344,10 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Force Planets to these sizes", "将行星强制设定为这些大小");
             StringManager.RegisterString("Gas Planet Size", "气态行星大小");
             StringManager.RegisterString("Min/Max Size of Gas Planets", "气态行星的最小/最大大小");
-            StringManager.RegisterString("Limit Gas Giant Sizes", "限制气态巨行星大小");
-            StringManager.RegisterString("Force Gas Giants to these sizes", "将气态巨行星强制设定为这些大小");
+            StringManager.RegisterString("Limit Gas Giant Sizes", "限制气态行星大小");
+            StringManager.RegisterString("Force Gas Giants to these sizes", "将气态行星强制设定为这些大小");
             StringManager.RegisterString("Planet Size Bias", "行星大小偏好");
-            StringManager.RegisterString("Prefer Smaller (lower) or Larger (higher) Sizes", "更喜欢较小或较大的大小");
+            StringManager.RegisterString("Prefer Smaller (lower) or Larger (higher) Sizes", "随机数会偏向较小或较大的数值");
             StringManager.RegisterString("Max Inclination", "最大轨道倾角");
             StringManager.RegisterString("Maximum angle of orbit", "轨道的最大倾角");
             StringManager.RegisterString("Random", "随机");
@@ -361,10 +361,10 @@ namespace SF_ChinesePatch
             #region GS2 Generator - Star Specific Overrides
             StringManager.RegisterString("Will be selected randomly from this range", "将在此范围内随机选择");
             StringManager.RegisterString("Count Bias", "计数偏好");
-            StringManager.RegisterString("Prefer Less (lower) or More (higher) Counts", "偏好更高或更低的数量");
-            StringManager.RegisterString("Gas Giant Planet Size", "气态巨行星大小");
-            StringManager.RegisterString("Telluric Size Bias", "类地行星大小偏差");
-            StringManager.RegisterString("Chance for Gas giant", "气态巨星的概率");
+            StringManager.RegisterString("Prefer Less (lower) or More (higher) Counts", "随机数会偏向较小或较大的数值");
+            StringManager.RegisterString("Gas Giant Planet Size", "气态行星大小");
+            StringManager.RegisterString("Telluric Size Bias", "岩石行星大小偏好");
+            StringManager.RegisterString("Chance for Gas giant", "气态行星的概率");
             StringManager.RegisterString("Chance for Moon", "卫星的概率");
             StringManager.RegisterString("Prefer Inner Planets", "更偏好内行星");
             StringManager.RegisterString("Luminosity Boost", "亮度提升");

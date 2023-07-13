@@ -21,8 +21,8 @@
             StringManager.RegisterString("Pause", "暂停");
             StringManager.RegisterString("Dyson sphere is rotating", "点击以停止旋转");
             StringManager.RegisterString("Dyson sphere is stopped", "点击以恢复旋转");
-            //StringManager.RegisterString("Click to stop rotating", "点击以停止旋转");
-            //StringManager.RegisterString("Click to resume rotating", "点击以恢复旋转");
+            StringManager.RegisterString("Click to stop rotating", "点击以停止旋转");
+            StringManager.RegisterString("Click to resume rotating", "点击以恢复旋转");
 
             StringManager.RegisterString("Host is saving game...", "主机正在保存游戏...");
             StringManager.RegisterString("{0} arriving {1}", "{0} 即将抵达 {1}");

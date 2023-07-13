@@ -1,20 +1,16 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using CommonAPI;
-using CommonAPI.Systems;
 using System;
 
 namespace SF_ChinesePatch
 {
     [BepInPlugin(GUID, NAME, VERSION)]
-    [BepInDependency(CommonAPIPlugin.GUID)]
-    [CommonAPISubmoduleDependency(nameof(ProtoRegistry))]
     public class Plugin : BaseUnityPlugin
     {
         public const string GUID = "starfi5h.plugin.SF_ChinesePatch";
         public const string NAME = "SF_ChinesePatch";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.1.0";
 
         public static ManualLogSource Log;
         public static Plugin Instance;
@@ -45,14 +41,21 @@ namespace SF_ChinesePatch
         {            
             try
             {
-                var jsonString = Config.Bind("自定义", "字典", "", @"增加或覆盖翻译。範例格式:\n{""Yes"":""是"",""No"":""否""}").Value;
-                var dict = LightweightJsonParser.ParseJSON(jsonString);
-                if (dict != null)
+                var importString = Config.Bind("自定义", "字典", "", "增加或覆盖翻译。格式範例:\n" + @"""Yes"":""是"",""No"":""否""").Value;
+                if (!string.IsNullOrEmpty(importString)) 
                 {
-                    Log.LogDebug($"Import {dict.Count} strings from config file");
-                    foreach (var item in dict)
+                    var dict = SimpleParser.Parse(importString);
+                    if (dict != null)
                     {
-                        StringManager.RegisterString(item.Key, (string)item.Value);
+                        Log.LogDebug($"Import {dict.Count} strings from config file");
+                        foreach (var item in dict)
+                        {
+                            StringManager.RegisterString(item.Key, (string)item.Value);
+                        }
+                    }
+                    else
+                    {
+                        Log.LogError("Import strings from config file fail Format is not correct");
                     }
                 }
             }
