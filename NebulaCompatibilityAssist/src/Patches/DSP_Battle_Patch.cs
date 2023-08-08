@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSP_Battle";
         private const string GUID = "com.ckcz123.DSP_Battle";
-        private const string VERSION = "2.2.2";
+        private const string VERSION = "2.2.8";
         private static bool installed = false;
 
         public static void Init(Harmony harmony)
@@ -297,7 +297,7 @@ namespace NebulaCompatibilityAssist.Patches
 
             static void ShowUIDialog3()
             {
-                // In WaveStages.UpdateWaveStage3(long time)
+                // [COPY] In WaveStages.UpdateWaveStage3(long time)
                 RemoveEntities.distroyedStation.Clear();
 
                 long rewardBase = 5 * 60 * 60;
@@ -494,7 +494,7 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 if (__result != 1 || !NebulaModAPI.IsMultiplayerActive) return; // Selection didn't success or in single player mode
 
-                ShowMessageInChat("add relic ".Translate() + num);
+                ShowMessageInChat("add relic ".Translate() + ("遗物名称" + type + "-" + num).Translate().Replace("\n", " "));
                 if (!isIncomingPacket)
                 {
                     using var p = NebulaModAPI.GetBinaryWriter();
@@ -506,12 +506,12 @@ namespace NebulaCompatibilityAssist.Patches
                 }                
             }
 
-            [HarmonyPrefix, HarmonyPatch(typeof(Relic), nameof(Relic.AskRemoveRelic))]
+            [HarmonyPrefix, HarmonyPatch(typeof(Relic), nameof(Relic.AskRemoveRelic))] //[COPY]
             static bool AskRemoveRelic_Prefix(int removeType, int removeNum)
             {
                 if (!NebulaModAPI.IsMultiplayerActive) return true; // Don't overwirte in single player
-
-                if (removeType > 3 || removeNum > 30)
+                                
+                if (removeType > 4 || removeNum > 30)
                 {
                     UIMessageBox.Show("Failed".Translate(), "Failed. Unknown relic.".Translate(), "确定".Translate(), 1);
                     Relic.RegretRemoveRelic();
@@ -530,7 +530,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     RemoveRelic(removeType, removeNum); // Modify
                     UIRelic.CloseSelectionWindow();
-                    UIRelic.RefreshSlotsWindowUI();
+                    UIRelic.RefreshSlotsWindowUI(false);
                     UIRelic.HideSlots();
                 });
                 return false;
@@ -541,7 +541,7 @@ namespace NebulaCompatibilityAssist.Patches
                 Relic.relics[removeType] = (Relic.relics[removeType] ^ 1 << removeNum);
                 if (!NebulaModAPI.IsMultiplayerActive) return;
 
-                ShowMessageInChat("remove relic ".Translate() + removeNum);
+                ShowMessageInChat("remove relic ".Translate() + ("遗物名称" + removeType + "-" + removeNum).Translate().Replace("\n", " "));
                 if (!isIncomingPacket)
                 {
                     using var p = NebulaModAPI.GetBinaryWriter();
@@ -597,9 +597,11 @@ namespace NebulaCompatibilityAssist.Patches
                 return false;
             }
 
-            [HarmonyPrefix, HarmonyPatch(typeof(UIAlert), nameof(UIAlert.RefreshBattleProgress))]
+            [HarmonyPrefix, HarmonyPatch(typeof(UIAlert), nameof(UIAlert.RefreshBattleProgress))] //[COPY]
             static bool RefreshBattleProgress()
             {
+                if (!NC_Patch.IsClient) return true;
+
                 int curState = DSP_Battle.Configs.nextWaveState;
                 try
                 {
@@ -611,7 +613,7 @@ namespace NebulaCompatibilityAssist.Patches
                         {
                             var ship = EnemyShips.ships[shipIndex];
 
-                            UIAlert.totalDistance += ship.distanceToTarget; // MOD
+                            UIAlert.totalDistance += Math.Max(0.0, ship.distanceToTarget); // MOD
                             UIAlert.totalStrength += ship.hp;
                         }
                     }
@@ -632,7 +634,7 @@ namespace NebulaCompatibilityAssist.Patches
                         foreach (var shipIndex in EnemyShips.ships.Keys)
                         {
                             var ship = EnemyShips.ships[shipIndex];
-                            curTotalDistance += ship.distanceToTarget; // MOD
+                            curTotalDistance += Math.Max(0.0, ship.distanceToTarget); // MOD
                             curTotalStrength += ship.hp;
                         }
                         double elimPoint = (UIAlert.totalStrength - curTotalStrength) * 1.0 / UIAlert.totalStrength;
