@@ -13,7 +13,8 @@ namespace NebulaCompatibilityAssist.Packets
             AddRelic,
             RemoveRelic,
             EnemyShipState,
-            StarFortressSetModuleNum
+            StarFortressSetModuleNum,
+            DropletLaunch
         }
 
         public EType EventType { get; set; }
@@ -73,6 +74,10 @@ namespace NebulaCompatibilityAssist.Packets
 
                 case NC_BattleEvent.EType.StarFortressSetModuleNum:
                     DSP_Battle_Patch.Warper.SyncStarFortressSetModuleNum(r);
+                    break;
+
+                case NC_BattleEvent.EType.DropletLaunch:
+                    DSP_Battle_Patch.Warper.SyncDropletLaunch(packet.PlayerId);
                     break;
             }
         }
