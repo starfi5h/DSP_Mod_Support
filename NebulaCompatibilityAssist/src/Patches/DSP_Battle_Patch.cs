@@ -188,6 +188,8 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                         ExportData(1, -1); // Host send wave generated signal and mod data to all clients
+
+                    RecyleDroplets(); //強制回收運行中的水滴
                 }
             }
 
@@ -871,6 +873,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     RendererSphere.enemySpheres[lastWaveStarIndex].swarm.GameTick(time); //維持原邏輯
                     RendererSphere.dropletSpheres[lastWaveStarIndex].swarm.GameTick(time); //計算遠程水滴
+                    //Log.SlowLog(lastWaveStarIndex);
                 }
                 return false;
             }
@@ -878,19 +881,19 @@ namespace NebulaCompatibilityAssist.Patches
             [HarmonyPostfix, HarmonyPatch(typeof(StarmapCamera), "OnPostRender")]
             static void DrawPatch2(StarmapCamera __instance)
             {
-                if (__instance.uiStarmap.viewStarSystem != null && __instance.uiStarmap.viewStarSystem.index != GameMain.localStar?.index && !UIStarmap.isChangingToMilkyWay && DysonSphere.renderPlace == ERenderPlace.Starmap)
+                if (__instance.uiStarmap.viewStarSystem != null && !UIStarmap.isChangingToMilkyWay && DysonSphere.renderPlace == ERenderPlace.Starmap)
                 {
                     RendererSphere.dropletSpheres[__instance.uiStarmap.viewStarSystem.index].DrawPost();
                 }
             }
 
 
-            static int[] dropletOwners = new int[21];
+            static ushort[] dropletOwners = new ushort[21];
 
             [HarmonyPostfix, HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
             public static void OnGameBegin()
             {                
-                dropletOwners = new int[Droplets.dropletPool.Length]; //重置水滴擁有者
+                dropletOwners = new ushort[Droplets.dropletPool.Length]; //重置水滴擁有者
             }
 
             [HarmonyPostfix, HarmonyPatch(typeof(Droplet), nameof(Droplet.Launch))]
@@ -900,7 +903,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     var packet = new NC_BattleEvent(NC_BattleEvent.EType.DropletLaunch, NebulaModAPI.MultiplayerSession.LocalPlayer.Id, new byte[0]);
                     NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
-                    dropletOwners[__instance.dropletIndex] = 0;
+                    dropletOwners[__instance.dropletIndex] = 0; // 本地id = 0
                     Log.Debug($"Droplet[{__instance.dropletIndex}] launch from local");
                 }
             }
@@ -909,51 +912,41 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 Log.Dev($"Recv droplet launch from remote{playerId}");
                 for (int i = 0; i < Droplets.maxDroplet; i++)
-                {
-                    // 找到一個空的或待命的水滴並嘗試發射
-                    if (Droplets.dropletPool[i].state <= 0)
+                {                    
+                    if (Droplets.dropletPool[i].state <= 0) // 找到一個空的或待命的水滴並嘗試發射
                     {
                         Droplet droplet = Droplets.dropletPool[i];
                         droplet.swarmIndex = DSP_Battle.Configs.nextWaveStarIndex;
-                        if (droplet.FindNextTarget())
+                        if (DropletRemote_CreateBulltes(playerId, droplet))
                         {
-                            Log.Dev($"Droplet[{i}] launch: FindNextTarget");
-                            if (DropletRemote_CreateBulltes(playerId, droplet))
-                            {
-                                droplet.state = 1;//起飞
-                                dropletOwners[i] = (ushort)(playerId + 1);
-                                ShowMessageInChat(string.Format("Player {0} launch droplet[{1}]", playerId, i));
-                                Log.Debug($"Droplet[{i}] launch from remote[{playerId}]");
-                                return;
-                            }
-                            else //没创建成功，很可能是因为swarm为null
-                            {
-                                continue;
-                            }
+                            droplet.state = 1;//起飞
+                            dropletOwners[i] = playerId; // 其他人的id從1開始
+                            ShowMessageInChat(string.Format("Player {0} launch droplet[{1}]", playerId, i));
+                            Log.Debug($"Droplet[{i}] launch from remote[{playerId}]");
+                            return;
                         }
-                        Log.Dev($"Droplet[{i}] launch: Can't FindNextTarget");
-                        continue;
+                        else //没创建成功，很可能是因为swarm为null
+                        {
+                            continue;
+                        }
                     }
                 }
                 Log.Warn($"Droplet launch from remote[{playerId}]: N/A");
             }
 
-            static bool TryGetMechaPositions(ushort playerId, ref int localPlanetId, ref VectorLF3 UPos, ref Vector3 LPos)
+            static bool TryGetMechaPositions(ushort playerId, ref int localPlanetId, ref VectorLF3 UPos)
             {
+                // player.Movement.rootTransform.localPosition的值不太對, 暫且忽略當地座標處理
                 using (Multiplayer.Session.World.GetRemotePlayersModels(out var remotePlayersModels))
                 {
                     if (remotePlayersModels.TryGetValue(playerId, out var player))
                     {
                         localPlanetId = player.Movement.localPlanetId;
                         UPos = player.Movement.absolutePosition;
-                        LPos = player.Movement.rootTransform.localPosition;
                         return true;
                     }
                     else
                     {
-                        localPlanetId = GameMain.localPlanet?.id ?? -1;
-                        UPos = GameMain.mainPlayer.uPosition;
-                        LPos = GameMain.mainPlayer.position;
                         return false;
                     }
                 }
@@ -962,25 +955,24 @@ namespace NebulaCompatibilityAssist.Patches
             static bool DropletRemote_CreateBulltes(ushort playerId, Droplet droplet)
             {
                 DysonSwarm swarm = droplet.GetSwarm();
-                if (swarm == null || !EnemyShips.ships.ContainsKey(droplet.targetShipIndex)) 
-                {
-                    return false; 
-                }
+                if (swarm == null) return false;
 
                 int planetId = -1;
                 VectorLF3 beginUPos = VectorLF3.zero; // 以遠端玩家的uPostion當作水滴起始位置
                 Vector3 beginLPos = Vector3.zero;
-                if (!TryGetMechaPositions(playerId, ref planetId, ref beginUPos, ref beginLPos))
+                if (!TryGetMechaPositions(playerId, ref planetId, ref beginUPos))
                 {
                     Log.Warn($"Can't find player{playerId} in DropletRemote_CreateBulltes");
                     return false;
                 }
-                VectorLF3 endUPos = beginUPos + (EnemyShips.ships[droplet.targetShipIndex].uPos - beginUPos).normalized * 300;
-                if (planetId != -1) //遠端玩家在星球上
+                VectorLF3 endUPos = beginUPos + VectorLF3.one * 300; //遠端玩家在太空時, 隨便挑一個方向發射
+                if (planetId != -1) //遠端玩家在星球上時, 以法向量的方向發射
                 {
-                    AstroData[] astroPoses = GameMain.galaxy.astrosData;
-                    beginUPos = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, beginLPos);
-                    endUPos = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, beginLPos + beginLPos.normalized * 300); //飞出地表的方向
+                    VectorLF3 normal = (beginUPos - GameMain.galaxy.astrosData[planetId].uPos).normalized;
+                    if (normal != VectorLF3.zero) 
+                    {
+                        endUPos = beginUPos + normal;
+                    }
                 }
 
                 float newMaxt = (float)((endUPos - beginUPos).magnitude / DSP_Battle.Configs.dropletSpd * 200);
@@ -1002,7 +994,6 @@ namespace NebulaCompatibilityAssist.Patches
                     }, 1);
                     swarm.bulletPool[droplet.bulletIds[i]].state = 0;
                 }
-                Log.Debug("Succsss:" + droplet.dropletIndex);
                 return true;
             }
 
@@ -1028,8 +1019,9 @@ namespace NebulaCompatibilityAssist.Patches
                 }
             }
 
-            public static void DropletRemote_Update(Droplet droplet, bool _)
+            public static void DropletRemote_Update(Droplet droplet, bool _) //新的Update, 允許遠端水滴 + 待命狀態
             {
+                const float tickT = 0.016666668f;
                 if (droplet.state <= 0) return;
                 if (droplet.swarmIndex < 0)
                 {
@@ -1048,6 +1040,33 @@ namespace NebulaCompatibilityAssist.Patches
                     droplet.state = 0;
                     return;
                 }
+
+                if (GameMain.gameTick % 10 == 0) // Debug
+                {
+                    float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
+                    float lastMaxt = swarm.bulletPool[droplet.bulletIds[0]].maxt;
+                    Log.Dev($"Droplet[{droplet.dropletIndex}]: {droplet.state} {lastT} {lastMaxt} {swarm.bulletPool[droplet.bulletIds[0]].uBegin}");
+                }
+
+                if (DSP_Battle.Configs.nextWaveState == 1) //在和平階段,強制回收水滴
+                {
+                    for (int i = 0; i < droplet.bulletIds.Length; i++)
+                    {
+                        if (swarm.bulletPool.Length <= droplet.bulletIds[i])
+                            continue;
+                        swarm.RemoveBullet(droplet.bulletIds[i]);
+                    }
+                    droplet.swarmIndex = -1;
+                    droplet.state = dropletOwners[droplet.dropletIndex] == 0 ? 0 : -1; // 本地的回收, 遠程的設為空
+                    Log.Debug($"Droplet[{droplet.dropletIndex}]: teleport to mecha[{dropletOwners[droplet.dropletIndex]}]");
+                    return;
+                }
+
+                if (dropletOwners[droplet.dropletIndex] == 0 && droplet.state == 2) // (MOD)本地發出的水滴且追敵中才会消耗能量
+                {
+                    Droplets.ForceConsumeMechaEnergy(Droplets.energyConsumptionPerTick);
+                }
+
 
                 /* TODO: 處理水滴維持能量消耗。 目前默認水滴只有發射時需要能量, 攻擊時消耗能量 (影響平衡)
                 if (GameMain.localStar == null || GameMain.localStar.index != swarmIndex)//机甲所在星系和水滴不一样，让水滴返回
@@ -1079,6 +1098,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
                     float lastMaxt = swarm.bulletPool[droplet.bulletIds[0]].maxt;
+                    /*
                     //如果原目标不存在了，尝试寻找新目标，如果找不到目标，设定为极接近机甲的回到机甲状态（5）
                     if (!EnemyShips.ships.ContainsKey(droplet.targetShipIndex) || EnemyShips.ships[droplet.targetShipIndex].state != EnemyShip.State.active)
                     {
@@ -1087,7 +1107,8 @@ namespace NebulaCompatibilityAssist.Patches
                             DropletRemote_Return(droplet, 5);
                         }
                     }
-                    else if (lastMaxt - lastT <= 0.035f) //进入太空索敌阶段
+                    */
+                    if (lastMaxt - lastT <= 0.035f) //进入太空索敌阶段
                     {
                         droplet.state = 2; //不需要在此刷新当前位置，因为state2每帧开头都刷新
                     }
@@ -1102,37 +1123,39 @@ namespace NebulaCompatibilityAssist.Patches
                     //如果原目标不存在了，尝试寻找新目标，如果找不到目标，设定为回机甲状态（4）
                     if (!EnemyShips.ships.ContainsKey(droplet.targetShipIndex) || EnemyShips.ships[droplet.targetShipIndex].state != EnemyShip.State.active)
                     {
-                        if (!droplet.FindNextNearTarget())
+                        if (!droplet.FindNextNearTarget()) //重新尋找目標
                         {
-                            DropletRemote_Return(droplet, 4);
+                            DropletRemote_Return(droplet);
+                            return;
                         }
                     }
-                    else //目标存在
+                    
+                    VectorLF3 enemyUPos = EnemyShips.ships[droplet.targetShipIndex].uPos + Utils.RandPosDelta(droplet.randSeed) * 200f;
+                    VectorLF3 newBegin = droplet.GetCurrentUPos();
+                    VectorLF3 newEnd = (enemyUPos - newBegin).normalized * Droplet.exceedDis + enemyUPos;
+                    float newMaxt = (float)((newEnd - newBegin).magnitude / DSP_Battle.Configs.dropletSpd);
+                    double realSpd = DSP_Battle.Configs.dropletSpd;
+                    if (Rank.rank >= 8 || DSP_Battle.Configs.developerMode) // 水滴快速接近
                     {
-                        VectorLF3 enemyUPos = EnemyShips.ships[droplet.targetShipIndex].uPos + Utils.RandPosDelta(droplet.randSeed) * 200f;
-                        VectorLF3 newBegin = droplet.GetCurrentUPos();
-                        VectorLF3 newEnd = (enemyUPos - newBegin).normalized * Droplet.exceedDis + enemyUPos;
-                        float newMaxt = (float)((newEnd - newBegin).magnitude / DSP_Battle.Configs.dropletSpd);
-                        double realSpd = DSP_Battle.Configs.dropletSpd;
-                        if (Rank.rank >= 8 || DSP_Battle.Configs.developerMode) // 水滴快速接近
+                        double warpRushDist = (enemyUPos - newBegin).magnitude - Droplet.exceedDis;
+                        if (warpRushDist > Droplets.warpRushDistThr && Droplets.warpRushCharge[droplet.dropletIndex] >= Droplets.warpRushNeed)
                         {
-                            double warpRushDist = (enemyUPos - newBegin).magnitude - Droplet.exceedDis;
-                            if (warpRushDist > Droplets.warpRushDistThr && Droplets.warpRushCharge[droplet.dropletIndex] >= Droplets.warpRushNeed)
-                            {
-                                Droplets.warpRushCharge[droplet.dropletIndex] = -5;
-                                realSpd = 12 * warpRushDist;
-                            }
-                            else if (Droplets.warpRushCharge[droplet.dropletIndex] < 0)
-                            {
-                                int phase = -Droplets.warpRushCharge[droplet.dropletIndex];
-                                realSpd = 60 / phase * warpRushDist;
-                            }
+                            Droplets.warpRushCharge[droplet.dropletIndex] = -5;
+                            realSpd = 12 * warpRushDist;
                         }
-                        droplet.RetargetAllBullet(newBegin, newEnd, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, realSpd);
-                        //判断击中，如果距离过近
-                        if ((newBegin - enemyUPos).magnitude < 500 || newMaxt <= Droplet.exceedDis * 1.0 / DSP_Battle.Configs.dropletSpd + 0.035f)
+                        else if (Droplets.warpRushCharge[droplet.dropletIndex] < 0)
                         {
-                            int damage = DSP_Battle.Configs.dropletAtk;
+                            int phase = -Droplets.warpRushCharge[droplet.dropletIndex];
+                            realSpd = 60 / phase * warpRushDist;
+                        }
+                    }
+                    droplet.RetargetAllBullet(newBegin, newEnd, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, realSpd);
+                    //判断击中，如果距离过近
+                    if ((newBegin - enemyUPos).magnitude < 500 || newMaxt <= Droplet.exceedDis * 1.0 / DSP_Battle.Configs.dropletSpd + 0.035f)
+                    {
+                        int damage = DSP_Battle.Configs.dropletAtk;
+                        if (!NC_Patch.IsClient) // (MOD)不是聯機客戶端才計算傷害
+                        {
                             if (Rank.rank >= 10) damage = 5 * DSP_Battle.Configs.dropletAtk;
                             if (Relic.HaveRelic(0, 10))
                             {
@@ -1143,8 +1166,8 @@ namespace NebulaCompatibilityAssist.Patches
                             {
                                 UIBattleStatistics.RegisterDropletAttack(EnemyShips.ships[droplet.targetShipIndex].BeAttacked(damage, DamageType.droplet));
                             }
-                            droplet.state = 3; //击中后继续冲过目标，准备转向的阶段
                         }
+                        droplet.state = 3; //击中后继续冲过目标，准备转向的阶段
                     }
                 }
                 else if (droplet.state == 3) //刚刚击中敌船，正准备转向
@@ -1172,12 +1195,31 @@ namespace NebulaCompatibilityAssist.Patches
                         }
                         else
                         {
-                            DropletRemote_Return(droplet, 4);
+                            DropletRemote_Return(droplet);
                         }
                     }
                 }
-                else if (droplet.state == 4) //正在回到机甲的路程中，但还不够近
+                else if (droplet.state == 4) //待命or回程 (MOD)只有當戰鬥結束後才會嘗試回收
                 {
+                    if (DSP_Battle.Configs.nextWaveState == 3) //戰鬥還沒結束前不回收
+                    {
+                        if (GameMain.gameTick % 60 == 0) //每秒重新索敵一次
+                        {
+                            droplet.state = 2;
+                            return;
+                        }
+
+                        swarm.bulletPool[droplet.bulletIds[0]].t -= tickT; //進入原地待命狀態
+                        VectorLF3 lastUPos = droplet.GetCurrentUPos();
+                        for (int i = 0; i < droplet.bulletIds.Length; i++)
+                        {
+                            if (swarm.bulletPool.Length <= droplet.bulletIds[i]) continue;
+                            swarm.bulletPool[droplet.bulletIds[i]].uBegin = lastUPos;
+                            swarm.bulletPool[droplet.bulletIds[i]].t = 0;
+                        }
+                        return;
+                    }
+
                     VectorLF3 mechaUPos = GameMain.mainPlayer.uPosition;
                     VectorLF3 mechaUPos2 = GameMain.mainPlayer.uPosition;
                     Vector3 meachLPos = GameMain.mainPlayer.position;
@@ -1186,14 +1228,11 @@ namespace NebulaCompatibilityAssist.Patches
 
                     if (dropletOwners[droplet.dropletIndex] != 0) //水滴為其他玩家發出
                     {
-                        if (TryGetMechaPositions((ushort)(dropletOwners[droplet.dropletIndex] - 1), ref planetId, ref mechaUPos, ref meachLPos))
+                        mechaStarIndex = -1; //找不到玩家時, 進入回收階段
+                        if (TryGetMechaPositions(dropletOwners[droplet.dropletIndex], ref planetId, ref mechaUPos))
                         {
                             mechaUPos2 = mechaUPos;
-                            mechaStarIndex = planetId / 100 > 0 ? planetId / 100 -1 : -1; //機甲不在星球上時直接回收
-                        }
-                        else
-                        {
-                            mechaStarIndex = -1; //找不到玩家時, 直接回收
+                            mechaStarIndex = planetId / 100 > 0 ? planetId / 100 -1 : -1; //機甲不在星球上時, 進入回收階段
                         }
                     }
                     if (planetId != -1) //機甲在星球上
@@ -1202,18 +1241,10 @@ namespace NebulaCompatibilityAssist.Patches
                         mechaUPos = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, meachLPos);
                         mechaUPos2 = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, meachLPos * 2);
                     }
-
-                    //如果水滴已经处在返回状态但是和机甲不在同一个星系，直接传送回机甲。但是攻击状态（1和2）的水滴不会瞬移回机甲
-                    if (mechaStarIndex >= 0 && droplet.swarmIndex != mechaStarIndex)
+                    
+                    if (droplet.swarmIndex != mechaStarIndex)
                     {
-                        for (int i = 0; i < droplet.bulletIds.Length; i++)
-                        {
-                            if (swarm.bulletPool.Length <= droplet.bulletIds[i])
-                                continue;
-                            swarm.RemoveBullet(droplet.bulletIds[i]);
-                        }
-                        droplet.swarmIndex = -1;
-                        droplet.state = 0;
+                        droplet.state = 5; //如果水滴已经处在返回状态但是和机甲不在同一个星系，(MOD)進入回收階段
                     }
                     else
                     {
@@ -1233,7 +1264,6 @@ namespace NebulaCompatibilityAssist.Patches
                             droplet.TryRemoveOtherBullets();
                             if (planetId != -1) newBegin = mechaUPos2; //如果是在星球上，则从上空(也就是mechUPos2)飞回来，否则从阶段拐点的原位置(也就是GetCurrentUPos())直线向机甲飞回来
                                                                        //RetargetAllBullet(newBegin, mechaUPos, 1, 0, 0, Configs.dropletSpd / 200.0);
-                            float tickT = 0.016666668f;
                             swarm.bulletPool[droplet.bulletIds[0]].maxt = (float)((newBegin - mechaUPos).magnitude / (DSP_Battle.Configs.dropletSpd / 200.0));
                             swarm.bulletPool[droplet.bulletIds[0]].t = swarm.bulletPool[droplet.bulletIds[0]].maxt - tickT * 3;
                             swarm.bulletPool[droplet.bulletIds[0]].uEnd = newBegin;
@@ -1244,33 +1274,26 @@ namespace NebulaCompatibilityAssist.Patches
                         {
                             droplet.RetargetAllBullet(newBegin, mechaUPos2, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, DSP_Battle.Configs.dropletSpd);
                         }
-
                     }
-
-
                 }
-                else if (droplet.state == 5) //回到机甲阶段
+                else if (droplet.state == 5) //回到机甲阶段 
                 {
                     VectorLF3 mechaUPos = GameMain.mainPlayer.uPosition;
                     Vector3 mechaLPos = GameMain.mainPlayer.position;
+                    int mechaStarIndex = GameMain.localStar?.index ?? -1;
                     int planetId = GameMain.localPlanet?.id ?? -1;
-                    float tickT = 0.016666668f;
 
                     if (dropletOwners[droplet.dropletIndex] != 0) //水滴為其他玩家發出
                     {
-                        if (TryGetMechaPositions((ushort)(dropletOwners[droplet.dropletIndex] - 1), ref planetId, ref mechaUPos, ref mechaLPos))
+                        mechaStarIndex = -1; //找不到遠端機甲時, 直接回收
+                        if (TryGetMechaPositions(dropletOwners[droplet.dropletIndex], ref planetId, ref mechaUPos))
                         {
                             if (planetId != -1)
                             {
                                 AstroData[] astroPoses = GameMain.galaxy.astrosData;
                                 mechaUPos = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, mechaLPos);
                             }
-                        }
-                        else //找不到玩家時, 直接回收
-                        {
-                            droplet.state = 0;
-                            droplet.TryRemoveOtherBullets(0);
-                            droplet.swarmIndex = -1;
+                            mechaStarIndex = planetId / 100 - 1; //遠端機甲不在星球上時, 直接回收
                         }
                     }
                     else if (planetId != -1) //水滴為本機玩家發出, 且在星球上
@@ -1278,15 +1301,30 @@ namespace NebulaCompatibilityAssist.Patches
                         AstroData[] astroPoses = GameMain.galaxy.astrosData;
                         mechaUPos = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, mechaLPos);
                     }
+
+                    if (droplet.swarmIndex != mechaStarIndex) //如果水滴和機甲的星系不同, 直接回收
+                    {
+                        for (int i = 0; i < droplet.bulletIds.Length; i++)
+                        {
+                            if (swarm.bulletPool.Length <= droplet.bulletIds[i])
+                                continue;
+                            swarm.RemoveBullet(droplet.bulletIds[i]);
+                        }
+                        droplet.swarmIndex = -1;
+                        droplet.state = dropletOwners[droplet.dropletIndex] == 0 ? 0 : -1; // 本地的回收, 遠程的設為空
+                        Log.Debug($"Droplet[{droplet.dropletIndex}]: teleport to mecha[{dropletOwners[droplet.dropletIndex]}]");
+                    }
+
                     swarm.bulletPool[droplet.bulletIds[0]].t -= tickT * 2;
                     float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
                     //float lastMaxt = swarm.bulletPool[bulletIds[0]].maxt;
 
                     if (lastT <= 0.03) //足够近，则回到机甲
                     {
-                        droplet.state = 0;
+                        droplet.state = dropletOwners[droplet.dropletIndex] == 0 ? 0 : -1; // 本地的回收, 遠程的設為空
                         droplet.TryRemoveOtherBullets(0);
                         droplet.swarmIndex = -1;
+                        Log.Debug($"Droplet[{droplet.dropletIndex}]: return to mecha[{dropletOwners[droplet.dropletIndex]}]");
                     }
                     else //否则持续更新目标点为机甲位置
                     {
@@ -1300,9 +1338,9 @@ namespace NebulaCompatibilityAssist.Patches
                 }
             }
 
-            static void DropletRemote_Return(Droplet droplet, int nextState)
+            static void DropletRemote_Return(Droplet droplet)
             {
-                droplet.state = nextState;
+                droplet.state = 4;
                 VectorLF3 mechaUPos = GameMain.mainPlayer.uPosition;
                 Vector3 mechaLPos = GameMain.mainPlayer.position;
                 int planetId = GameMain.localPlanet?.id ?? -1;
@@ -1311,23 +1349,46 @@ namespace NebulaCompatibilityAssist.Patches
                 
                 if (dropletOwners[droplet.dropletIndex] != 0)
                 {
-                    if (TryGetMechaPositions((ushort)(dropletOwners[droplet.dropletIndex] - 1), ref planetId, ref mechaUPos, ref mechaLPos))
+                    if (TryGetMechaPositions(dropletOwners[droplet.dropletIndex], ref planetId, ref mechaUPos))
                     {
                         newEnd = mechaUPos;
                     }
                 }
-
-                if (planetId != -1) //如果玩家在星球上，水滴则不是直线往玩家身上飞，而是飞到玩家头顶星球上空，然后再飞回玩家（这是在state=5阶段）
+                else if (planetId != -1) //如果玩家在星球上，水滴则不是直线往玩家身上飞，而是飞到玩家头顶星球上空，然后再飞回玩家（这是在state=5阶段）
                 {
                     AstroData[] astroPoses = GameMain.galaxy.astrosData;
-                    newEnd = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, nextState == 4 ? mechaLPos : mechaLPos * 2);
+                    newEnd = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, mechaLPos);
                 }
 
-                if (nextState == 4)
-                    droplet.RetargetAllBullet(newBegin, newEnd, 1, 0, 0, DSP_Battle.Configs.dropletSpd / 200.0);
-                else
-                    droplet.RetargetAllBullet(newBegin, newEnd, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, DSP_Battle.Configs.dropletSpd);
+                //droplet.RetargetAllBullet(newBegin, newEnd, 1, 0, 0, DSP_Battle.Configs.dropletSpd / 200.0);
+                droplet.RetargetAllBullet(newBegin, newEnd, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, DSP_Battle.Configs.dropletSpd);
             }
+
+            public static void RecyleDroplets()
+            {
+                for (int i = 0; i < Droplets.maxDroplet; i++)
+                {
+                    var droplet = Droplets.dropletPool[i];
+                    if (droplet.state > 0)
+                    {
+                        var swarm = droplet.GetSwarm();
+                        if (swarm != null)
+                        {
+                            for (int j = 0; j < droplet.bulletIds.Length; j++)
+                            {
+                                if (swarm.bulletPool.Length <= droplet.bulletIds[j])
+                                    continue;
+                                swarm.RemoveBullet(droplet.bulletIds[j]);
+                            }
+                        }
+                        droplet.swarmIndex = -1;
+                        droplet.state = 0;
+                        Log.Debug($"Droplet[{droplet.dropletIndex}]: force recycle to mecha[{dropletOwners[droplet.dropletIndex]}]");
+                    }
+                }
+            }
+
+
             #endregion
 
             #region EnemyShips.sortedShips TempFix
