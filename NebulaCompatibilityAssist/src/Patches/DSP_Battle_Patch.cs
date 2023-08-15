@@ -375,7 +375,7 @@ namespace NebulaCompatibilityAssist.Patches
                     DSP_Battle.Configs.difficulty = UIBattleStatistics.difficultyComboBox.itemIndex - 1;
                     UIBattleStatistics.InitSelectDifficulty();
                     UIMessageBox.Show("设置成功！".Translate(), string.Format("难度设置成功".Translate(), UIBattleStatistics.difficultyComboBox.text), "确定".Translate(), 1);
-                    SendConfig();
+                    if (NebulaModAPI.IsMultiplayerActive) SendConfig();
                 });
                 return false;
             }
@@ -613,7 +613,6 @@ namespace NebulaCompatibilityAssist.Patches
                         {
                             var ship = EnemyShips.ships[shipIndex];
 
-                            UIAlert.totalDistance += Math.Max(0.0, ship.distanceToTarget); // MOD
                             UIAlert.totalStrength += ship.hp;
                         }
                     }
@@ -629,12 +628,11 @@ namespace NebulaCompatibilityAssist.Patches
                     }
                     if (curState == 3) //要刷新进度条
                     {
-                        double curTotalDistance = 0;
-                        double curTotalStrength = 0;
+                        double curTotalDistance = 0; // (MOD) 不管距離了, 綠條/紅條只表示總血量
+                        double curTotalStrength = 0; 
                         foreach (var shipIndex in EnemyShips.ships.Keys)
                         {
                             var ship = EnemyShips.ships[shipIndex];
-                            curTotalDistance += Math.Max(0.0, ship.distanceToTarget); // MOD
                             curTotalStrength += ship.hp;
                         }
                         double elimPoint = (UIAlert.totalStrength - curTotalStrength) * 1.0 / UIAlert.totalStrength;
@@ -650,13 +648,8 @@ namespace NebulaCompatibilityAssist.Patches
                         else
                         {
                             float leftProp = (float)(elimPoint / totalPoint);
-                            float deRatio = 1.0f;
-                            //if(elimPoint > 0.99)//快消灭干净了，让绿条多填充，弥补一半之前建筑炸掉的比例减成
-                            //{
-                            //    deRatio = 0.5f / elimPointRatio;
-                            //}
-                            UIAlert.elimProgRT.sizeDelta = new Vector2(996 * leftProp * UIAlert.elimPointRatio * deRatio, 5);
-                            UIAlert.invaProgRT.sizeDelta = new Vector2(996 * (1 - leftProp * UIAlert.elimPointRatio * deRatio), 5);
+                            UIAlert.elimProgRT.sizeDelta = new Vector2(996 * leftProp * UIAlert.elimPointRatio, 5);
+                            UIAlert.invaProgRT.sizeDelta = new Vector2(996 * (1 - leftProp * UIAlert.elimPointRatio), 5);
                         }
                     }
                 }
