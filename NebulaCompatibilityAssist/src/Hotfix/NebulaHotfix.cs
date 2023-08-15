@@ -25,11 +25,13 @@ namespace NebulaCompatibilityAssist.Hotfix
             try
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
+                /*
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 8 && nebulaVersion.Build == 13)
                 {
                     Patch0813(harmony);
                     Log.Info("Nebula hotfix 0.8.13 - OK");                    
                 }
+                */
                 ChatManager.Init(harmony);
                 harmony.PatchAll(typeof(Analysis.StacktraceParser));
                 Log.Info("Nebula extra features - OK");
@@ -41,6 +43,7 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
         }
 
+        /*
         private static void Patch0813(Harmony harmony)
         {
             Type classType;
@@ -212,5 +215,6 @@ namespace NebulaCompatibilityAssist.Hotfix
                 }
             }
         }
+        */
     }
 }
