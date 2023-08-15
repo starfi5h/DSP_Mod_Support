@@ -1,5 +1,12 @@
 ## Changelog
 
+#### v0.3.0 (Nebula 0.8.14)
+\- TheyComeFromVoid v2.2.8: Add Droplet syncing and fixes  
+\- Remove BigFormingSize from incompat list  
+
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.2.3 (Nebula 0.8.13)
 \- Hotfix: Add compat to mods that increase reform brush size.  
 \- Hotfix: (Test) Reset planet physics & audio when arriving at a planet.  
@@ -17,9 +24,6 @@
 \- Hotfix: Fix mecha animation when 3rd player join.  
 \- Update FactoryLocator support version to 1.2.0  
 \- TheyComeFromVoid: Add StarFortress syncing  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.1.12 (Nebula 0.8.12)
 \- Fix BlueprintTweak 1.5.9  
