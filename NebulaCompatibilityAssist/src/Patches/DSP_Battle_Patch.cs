@@ -1041,13 +1041,6 @@ namespace NebulaCompatibilityAssist.Patches
                     return;
                 }
 
-                if (GameMain.gameTick % 10 == 0) // Debug
-                {
-                    float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
-                    float lastMaxt = swarm.bulletPool[droplet.bulletIds[0]].maxt;
-                    Log.Dev($"Droplet[{droplet.dropletIndex}]: {droplet.state} {lastT} {lastMaxt} {swarm.bulletPool[droplet.bulletIds[0]].uBegin}");
-                }
-
                 if (DSP_Battle.Configs.nextWaveState == 1) //在和平階段,強制回收水滴
                 {
                     for (int i = 0; i < droplet.bulletIds.Length; i++)
@@ -1067,47 +1060,10 @@ namespace NebulaCompatibilityAssist.Patches
                     Droplets.ForceConsumeMechaEnergy(Droplets.energyConsumptionPerTick);
                 }
 
-
-                /* TODO: 處理水滴維持能量消耗。 目前默認水滴只有發射時需要能量, 攻擊時消耗能量 (影響平衡)
-                if (GameMain.localStar == null || GameMain.localStar.index != swarmIndex)//机甲所在星系和水滴不一样，让水滴返回
-                {
-                    state = 0;
-                    TryRemoveOtherBullets(0);
-                    return;
-                }
-                if (state >= 2 && state <= 3 && working)//只有不是飞出、返航过程，才会消耗能量
-                {
-                    Droplets.ForceConsumeMechaEnergy(Droplets.energyConsumptionPerTick);
-                }
-                if (droplet.state >= 2 && droplet.state <= 3 && !working && DSP_Battle.Configs.nextWaveState == 3) //如果因为机甲能量水平不够，水滴会停在原地，但是如果战斗状态结束了，那么水滴会无视能量限制继续正常Update（正常Update会在战斗结束后让水滴立刻进入4阶段回机甲）
-                {
-                    float tickT = 0.016666668f;
-                    swarm.bulletPool[bulletIds[0]].t -= tickT;
-                    VectorLF3 lastUPos = GetCurrentUPos();
-                    for (int i = 0; i < bulletIds.Length; i++)
-                    {
-                        if (swarm.bulletPool.Length <= bulletIds[i]) continue;
-                        swarm.bulletPool[bulletIds[i]].uBegin = lastUPos;
-                        swarm.bulletPool[bulletIds[i]].t = 0;
-                    }
-                    return;
-                }
-                */
-
                 if (droplet.state == 1) //刚起飞
                 {
                     float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
                     float lastMaxt = swarm.bulletPool[droplet.bulletIds[0]].maxt;
-                    /*
-                    //如果原目标不存在了，尝试寻找新目标，如果找不到目标，设定为极接近机甲的回到机甲状态（5）
-                    if (!EnemyShips.ships.ContainsKey(droplet.targetShipIndex) || EnemyShips.ships[droplet.targetShipIndex].state != EnemyShip.State.active)
-                    {
-                        if (!droplet.FindNextTarget())
-                        {
-                            DropletRemote_Return(droplet, 5);
-                        }
-                    }
-                    */
                     if (lastMaxt - lastT <= 0.035f) //进入太空索敌阶段
                     {
                         droplet.state = 2; //不需要在此刷新当前位置，因为state2每帧开头都刷新
@@ -1116,10 +1072,6 @@ namespace NebulaCompatibilityAssist.Patches
                 }
                 else if (droplet.state == 2) //追敌中
                 {
-
-                    //float lastT = swarm.bulletPool[droplet.bulletIds[0]].t;
-                    //float lastMaxt = swarm.bulletPool[droplet.bulletIds[0]].maxt;
-
                     //如果原目标不存在了，尝试寻找新目标，如果找不到目标，设定为回机甲状态（4）
                     if (!EnemyShips.ships.ContainsKey(droplet.targetShipIndex) || EnemyShips.ships[droplet.targetShipIndex].state != EnemyShip.State.active)
                     {
@@ -1360,7 +1312,6 @@ namespace NebulaCompatibilityAssist.Patches
                     newEnd = astroPoses[planetId].uPos + Maths.QRotateLF(astroPoses[planetId].uRot, mechaLPos);
                 }
 
-                //droplet.RetargetAllBullet(newBegin, newEnd, 1, 0, 0, DSP_Battle.Configs.dropletSpd / 200.0);
                 droplet.RetargetAllBullet(newBegin, newEnd, droplet.bulletIds.Length, Droplet.maxPosDelta, Droplet.maxPosDelta, DSP_Battle.Configs.dropletSpd);
             }
 
