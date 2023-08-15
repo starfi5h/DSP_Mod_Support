@@ -683,7 +683,7 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 {
-                    Log.Dev($"[Battle] send ship{__instance.shipIndex}:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
+                    Log.Dev($"[Battle] ship retarget [{__instance.shipIndex}]:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
                     SendEnemyShipState(__instance);
                 }
             }
@@ -693,7 +693,7 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 {
-                    Log.Dev($"[Battle] send ship{ship.shipIndex}:{ship.state} P{ship.shipData.planetB} HP: {ship.hp}");
+                    Log.Dev($"[Battle] ship destory [{ship.shipIndex}]:{ship.state} P{ship.shipData.planetB} HP: {ship.hp}");
                     SendEnemyShipState(ship);
                 }
             }
@@ -749,12 +749,14 @@ namespace NebulaCompatibilityAssist.Patches
 
                         if (ship.state == EnemyShip.State.distroyed)
                         {
+                            AfterShipDestoryed(ship);
                             EnemyShips.ships.TryRemove(ship.shipIndex, out _);
                             return;
                         }
                         else if (ship.state == EnemyShip.State.uninitialized)
                         {
                             // EnemyShip.Revive
+                            AfterShipDestoryed(ship);
                             int num = DSP_Battle.Configs.enemyIntensity2TypeMap[ship.intensity];
                             ship.damageRange = DSP_Battle.Configs.enemyRange[num];
                             ship.intensity = DSP_Battle.Configs.enemyIntensity[num];
@@ -780,6 +782,78 @@ namespace NebulaCompatibilityAssist.Patches
                 catch
                 {
                     Log.Warn($"[Battle] error when updating ship {shipIndex}:{state}");
+                }
+            }
+
+            static void AfterShipDestoryed(EnemyShip ship) // [COPY] EnemyShip.BeAttacked if (hp <= 0)的部分
+            {
+                try
+                {
+                    UIBattleStatistics.RegisterEliminate(ship.intensity); //记录某类型的敌人被摧毁
+                    UIBattleStatistics.RegisterIntercept(ship); //记录拦截距离
+                    // relic 0-2 新版女神之泪充能效果
+                    if (Relic.HaveRelic(0, 2) && Relic.relic0_2Version == 1 && Relic.relic0_2CanActivate >= 1 && Relic.relic0_2Charge < Relic.relic0_2MaxCharge && DSP_Battle.Configs.nextWaveElite <= 0)
+                    {
+                        Interlocked.Add(ref Relic.relic0_2Charge, 1);
+                        UIRelic.RefreshTearOfGoddessSlotTips();
+                    }
+                    Rank.AddExp(ship.intensity * 10); //获得经验
+
+                    double dropExpectation = ship.intensity * 1.0 / DSP_Battle.Configs.nextWaveIntensity * DSP_Battle.Configs.nextWaveMatrixExpectation;
+                    if (UIBattleStatistics.alienMatrixGain >= DSP_Battle.Configs.nextWaveMatrixExpectation) dropExpectation *= 0.1; // 对于精英波次，如果已经获得了等同于期望以上的矩阵，接下来的获得量只有10%。可以通过存读档刷新，但是不改了，就好像sl玩家想这样就这样吧
+                    int dropItemId = 8032;
+                    if (Relic.HaveRelic(3, 1)) dropExpectation *= 1.3; // relic1-3 窃法之刃获得额外掉落
+                    if (GameMain.history.TechUnlocked(1924)) // 由于异星矩阵有用，用于随机遗物，所以这里改了
+                    {
+                        //dropExpectation *= 50;
+                        //dropItemId = 8033;
+                    }
+                    if (dropExpectation > 1) //期望超过1的部分必然掉落
+                    {
+                        int guaranteed = (int)dropExpectation;
+                        dropExpectation -= guaranteed;
+
+                        GameMain.mainPlayer.TryAddItemToPackage(dropItemId, guaranteed, 0, true);
+                        Utils.UIItemUp(dropItemId, guaranteed, 180);
+                        UIBattleStatistics.RegisterAlienMatrixGain(guaranteed);
+                    }
+                    if (Utils.RandDouble() < dropExpectation) //根据概率决定是否掉落
+                    {
+                        GameMain.mainPlayer.TryAddItemToPackage(dropItemId, 1, 0, true);
+                        Utils.UIItemUp(dropItemId, 1, 180);
+                        UIBattleStatistics.RegisterAlienMatrixGain(1);
+                    }
+                    //relic 0-10 水滴击杀加伤害 MOD:(水滴在客戶端純粹動畫效果, 因此不改)
+                    // relic 2-14 每次击杀有概率获得黑棒或者翘曲器 概率为（5+0.1*舰船强度）%
+                    if (Relic.HaveRelic(2, 14) && Relic.Verify(0.05 + 0.001 * ship.intensity))
+                    {
+                        if (Utils.RandInt(0, 2) == 0)
+                        {
+                            GameMain.mainPlayer.TryAddItemToPackage(1803, 1, 0, true);
+                            Utils.UIItemUp(1803, 1, 200);
+                        }
+                        else
+                        {
+                            GameMain.mainPlayer.TryAddItemToPackage(1210, 1, 0, true);
+                            Utils.UIItemUp(1210, 1, 200);
+                        }
+                    }
+                    // relic3-3 掘墓人击杀敌舰给沙子
+                    if (Relic.HaveRelic(3, 3))
+                    {
+                        GameMain.mainPlayer.SetSandCount(GameMain.mainPlayer.sandCount + 500 * (int)Math.Sqrt(ship.intensity));
+                    }
+
+                    // relic0-0吞噬者效果
+                    if (Relic.HaveRelic(0, 0))
+                    {
+                        Relic.AutoBuildMegaStructure(-1, 12 * ship.intensity);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Warn("AfterShipDestoryed error!");
+                    Log.Warn(e);
                 }
             }
 
