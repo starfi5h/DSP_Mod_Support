@@ -51,7 +51,7 @@ namespace NebulaCompatibilityAssist.Patches
 
             var title = Localization.language == Language.zhCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
             var errorMessage = Localization.language == Language.zhCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行:" : "Error occurred when patching the following mods:";
-            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误" : "The following mods are not compatible with multiplayer mod:";
+            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误或不同步" : "The following mods are not compatible with multiplayer mod:";
 
             if (ErrorMessage != "")
             {
@@ -99,11 +99,6 @@ namespace NebulaCompatibilityAssist.Patches
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.droneclearing"))
             {
                 incompatMessage += "\nDSP Drone Clearing";
-                count++;
-            }
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Appun.DSP.plugin.BigFormingSize"))
-            {
-                incompatMessage += "\nDSPBigFormingSize";
                 count++;
             }
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.small.dsp.transferInfo"))
