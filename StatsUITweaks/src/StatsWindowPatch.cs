@@ -373,14 +373,18 @@ namespace StatsUITweaks
             dict.TryGetValue(targetDetail, out var data);
             int start = (int)(lvlen * (1f - ratio) + 0.5f); //擷取最近的ratio%統計數據
             int num = cur + start - 1;
-            for (int i = start; i < lvlen; i++)
+            for (int i = 0; i < lvlen - start; i++)
             {
                 if (++num > lastCursor)
                 {
                     num -= lvlen;
                 }
-                targetDetail[i] += detail[num];
-                data.production += detail[num]; //有多個facotryStat會累加至同一個UIProductEntry
+                long value = detail[num];
+                data.production += value; //有多個facotryStat會累加至同一個UIProductEntry
+                int len = (int)((i + 1) / ratio); //直方圖拉伸
+                for (int j = (int)(i / ratio); j < len; j++)
+                    targetDetail[j] += value; //填滿直方圖
+                
             }
             dict[targetDetail] = data;
             return false;
@@ -395,14 +399,17 @@ namespace StatsUITweaks
             dict.TryGetValue(targetDetail, out var data);
             int start = (int)(lvlen * (1f - ratio) + 0.5f);
             int num = cur + start - 1;
-            for (int i = start; i < lvlen; i++)
+            for (int i = 0; i < lvlen - start; i++)
             {
                 if (++num > lastCursor)
                 {
                     num -= lvlen;
                 }
-                targetDetail[i] += detail[num];
-                data.production += detail[num];
+                long value = detail[num];
+                data.production += value;
+                int len = (int)((i + 1) / ratio);
+                for (int j = (int)(i / ratio); j < len; j++)
+                    targetDetail[j] += value;
             }
             dict[targetDetail] = data;
             return false;
@@ -417,14 +424,17 @@ namespace StatsUITweaks
             dict.TryGetValue(targetDetail, out var data);
             int start = (int)(lvlen * (1f - ratio) + 0.5f);
             int num = cur + start - 1;
-            for (int i = start; i < lvlen; i++)
+            for (int i = 0; i < lvlen - start; i++)
             {
                 if (++num > lastCursor)
                 {
                     num -= lvlen;
                 }
-                targetDetail[i + lvlen] += detail[num];
-                data.consumption += detail[num];
+                long value = detail[num];
+                data.consumption += value;
+                int len = (int)((i + 1) / ratio);
+                for (int j = (int)(i / ratio); j < len; j++)
+                    targetDetail[lvlen + j] += value;
             }
             dict[targetDetail] = data;
             return false;
@@ -439,14 +449,17 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
             dict.TryGetValue(targetDetail, out var data);
             int start = (int)(lvlen * (1f - ratio) + 0.5f);
             int num = cur + start - 1;
-            for (int i = start; i < lvlen; i++)
+            for (int i = 0; i < lvlen - start; i++)
             {
                 if (++num > lastCursor)
                 {
                     num -= lvlen;
                 }
-                targetDetail[i + lvlen] += detail[num];
-                data.consumption += detail[num];
+                long value = detail[num];
+                data.consumption += value;
+                int len = (int)((i + 1) / ratio);
+                for (int j = (int)(i / ratio); j < len; j++)
+                    targetDetail[lvlen + j] += value;
             }
             dict[targetDetail] = data;
             return false;
