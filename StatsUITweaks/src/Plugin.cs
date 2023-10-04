@@ -32,16 +32,14 @@ namespace StatsUITweaks
             var ListWidthOffeset = Config.Bind("StatsUITweaks", "ListWidthOffeset", 80, "Increase width of the list.\n增加列表栏位宽度");
             var HotkeyListUp = Config.Bind("StatsUITweaks", "HotkeyListUp", "PageUp", "Move to previous item in list.\n切换至列表中上一个项目");
             var HotkeyListDown = Config.Bind("StatsUITweaks", "HotkeyListDown", "PageDown", "Move to next item in list.\n切换至列表中下一个项目");
+            var NumericPlanetNo = Config.Bind("StatsUITweaks", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
 
-            harmony = new Harmony(GUID);
-            harmony.PatchAll(typeof(StatsWindowPatch));
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
             StatsWindowPatch.OrderByName = OrderByName.Value;
             StatsWindowPatch.SystemPrefix = SystemPrefix.Value;
             StatsWindowPatch.SystemPostfix = SystemPostfix.Value;
             StatsWindowPatch.PlanetPrefix = PlanetPrefix.Value;
             StatsWindowPatch.PlanetPostfix = PlanetPostfix.Value;
-
             try
             {
                 StatsWindowPatch.HotkeyListUp = (KeyCode)System.Enum.Parse(typeof(KeyCode), HotkeyListUp.Value, true);
@@ -53,6 +51,11 @@ namespace StatsUITweaks
                 StatsWindowPatch.HotkeyListUp = KeyCode.PageUp;
                 StatsWindowPatch.HotkeyListDown = KeyCode.PageDown;
             }
+
+            harmony = new Harmony(GUID);
+            harmony.PatchAll(typeof(StatsWindowPatch));
+            if (NumericPlanetNo.Value)
+                harmony.PatchAll(typeof(PlanetNamePatch));
         }
 
         public void OnDestroy()
