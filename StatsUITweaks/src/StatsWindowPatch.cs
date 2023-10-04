@@ -9,9 +9,15 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
+        public static int ListWidthOffeset = 80;
         public static bool OrderByName = true;
         public static KeyCode HotkeyListUp = KeyCode.PageUp;
         public static KeyCode HotkeyListDown = KeyCode.PageDown;
+
+        public static string PlanetPrefix  = "ㅤ";
+        public static string PlanetPostfix = "";
+        public static string SystemPrefix  = "<color=yellow>";
+        public static string SystemPostfix = "</color>";
 
         static bool initialized;
         static Slider timerSlider;
@@ -25,14 +31,46 @@ namespace StatsUITweaks
             {
                 try
                 {
+                    static void Reposition(Transform astroBoxtTansform, Transform timeBoxTransform)
+                    {
+                        ((RectTransform)astroBoxtTansform).sizeDelta = new Vector2(200f + ListWidthOffeset, 30f);
+                        timeBoxTransform.localPosition = new Vector3(310 + 20 - ListWidthOffeset, timeBoxTransform.localPosition.y);
+                    }
+
+                    static void EnableRichText(UIComboBox uIComboBox)
+                    {
+                        uIComboBox.m_Text.supportRichText = true;
+                        uIComboBox.m_EmptyItemRes.supportRichText = true;
+                        uIComboBox.m_ListItemRes.GetComponentInChildren<Text>().supportRichText = true;
+                        foreach (var button in uIComboBox.ItemButtons)
+                            button.GetComponentInChildren<Text>().supportRichText = true;
+                    }
+
+                    if (ListWidthOffeset > 0)
+                    {
+                        Reposition(__instance.productAstroBox.transform, __instance.productTimeBox.transform);
+                        if (ListWidthOffeset > 40)
+                        {
+                            ((RectTransform)__instance.productSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
+                            __instance.productSortBox.transform.localPosition = new Vector3(135f - ( ListWidthOffeset - 40 ), __instance.productSortBox.transform.localPosition.y);
+                        }
+                        Reposition(__instance.powerAstroBox.transform, __instance.powerTimeBox.transform);
+                        Reposition(__instance.researchAstroBox.transform, __instance.researchTimeBox.transform);
+                        Reposition(__instance.dysonAstroBox.transform, __instance.dysonTimeBox.transform);
+                    }
+                    EnableRichText(__instance.productAstroBox);
+                    EnableRichText(__instance.powerAstroBox);
+                    EnableRichText(__instance.researchAstroBox);
+                    EnableRichText(__instance.dysonAstroBox);
+
                     Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                     GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Globe Panel/name-input");
                     UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
 
                     var go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
                     go.name = "CustomStats_Ratio";
-                    go.transform.localPosition = new Vector3(-155f, 8f, 0);
-                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(160, 13);
+                    go.transform.localPosition = new Vector3(-153f, 8f, 0);
+                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
                     timerSlider = go.GetComponent<Slider>();
                     timerSlider.minValue = 0;
                     timerSlider.maxValue = 20;
@@ -44,11 +82,11 @@ namespace StatsUITweaks
 
                     go = GameObject.Instantiate(inputObj, __instance.productAstroBox.transform);
                     go.name = "CustomStats_Fliter";
-                    go.transform.localPosition = new Vector3(-201.5f, 30f, 0);
+                    go.transform.localPosition = new Vector3(-201.5f - ListWidthOffeset, 30f, 0);
                     filterInput = go.GetComponent<InputField>();
                     filterInput.text = "";
                     filterInput.onValueChanged.AddListener(new UnityAction<string>(OnInputValueChanged));
-                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(203f, 28f);
+                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(((RectTransform)__instance.productAstroBox.transform).sizeDelta.x + 3f, 28f);
                     go.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
                     // 在聚焦輸入框時無法使用滾輪, 因此不套用以下的聚焦設定
                     // tmp.transform.parent.GetChild(0).GetComponent<Button>().onClick.AddListener(new UnityAction(OnComboBoxClicked));
@@ -223,7 +261,7 @@ namespace StatsUITweaks
                 startIndex = 3;
             }
 
-            if (OrderByName) // 以星系名稱排序
+            if (true) // Planet filter
             {
                 systemList.Clear();
                 newItems.Clear();
@@ -234,7 +272,8 @@ namespace StatsUITweaks
                     if (__instance.astroBox.ItemsData[i] % 100 == 0)
                         systemList.Add((__instance.astroBox.Items[i], __instance.astroBox.ItemsData[i]));
                 }
-                systemList.Sort();
+                if (OrderByName) // 以星系名稱排序
+                    systemList.Sort();
 
                 foreach (var tuple in systemList)
                 {
@@ -244,7 +283,20 @@ namespace StatsUITweaks
                         int astroId = __instance.astroBox.ItemsData[i];
                         if (astroId / 100 == starId)
                         {
-                            newItems.Add(__instance.astroBox.Items[i]);
+                            string itemName = __instance.astroBox.Items[i];
+
+                            if (astroId % 100 != 0)
+                            {
+                                if (!itemName.StartsWith(PlanetPrefix) || !itemName.EndsWith(PlanetPostfix))
+                                    itemName = PlanetPrefix + itemName + PlanetPostfix;
+                            }
+                            else
+                            {
+                                if (!itemName.StartsWith(SystemPrefix) || !itemName.EndsWith(SystemPostfix))
+                                    itemName = SystemPrefix + itemName + SystemPostfix;
+                            }
+                            
+                            newItems.Add(itemName);
                             newItemData.Add(__instance.astroBox.ItemsData[i]);
                         }
                     }
@@ -255,11 +307,14 @@ namespace StatsUITweaks
                 __instance.astroBox.ItemsData.AddRange(newItemData);
             }
 
-            if (!string.IsNullOrWhiteSpace(searchStr))
+            if (!string.IsNullOrEmpty(searchStr))
             {
                 for (int i = __instance.astroBox.Items.Count - 1; i >= startIndex; i--)
                 {
-                    if (__instance.astroBox.Items[i].IndexOf(searchStr, StringComparison.OrdinalIgnoreCase) == -1)
+                    int startIndex = __instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPrefix.Length : PlanetPrefix.Length;
+                    int endIndex = __instance.astroBox.Items[i].Length - (__instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPostfix.Length : PlanetPostfix.Length);
+                    int result = __instance.astroBox.Items[i].IndexOf(searchStr, startIndex, StringComparison.OrdinalIgnoreCase);
+                    if (result == -1 || (result + searchStr.Length) > endIndex)
                     {
                         __instance.astroBox.Items.RemoveAt(i);
                         __instance.astroBox.ItemsData.RemoveAt(i);
