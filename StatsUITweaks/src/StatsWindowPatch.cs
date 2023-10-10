@@ -9,6 +9,7 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
+        public static int TimeSliderSlice = 20;
         public static int ListWidthOffeset = 80;
         public static bool OrderByName = true;
         public static KeyCode HotkeyListUp = KeyCode.PageUp;
@@ -73,7 +74,7 @@ namespace StatsUITweaks
                     go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
                     timerSlider = go.GetComponent<Slider>();
                     timerSlider.minValue = 0;
-                    timerSlider.maxValue = 20;
+                    timerSlider.maxValue = TimeSliderSlice;
                     timerSlider.wholeNumbers = true;
                     timerSlider.value = timerSlider.maxValue;
                     timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
