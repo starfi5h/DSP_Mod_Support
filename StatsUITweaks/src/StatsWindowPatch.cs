@@ -9,6 +9,7 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
+        public static int TimeSliderSlice = 20;
         public static int ListWidthOffeset = 80;
         public static bool OrderByName = true;
         public static KeyCode HotkeyListUp = KeyCode.PageUp;
@@ -73,7 +74,7 @@ namespace StatsUITweaks
                     go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
                     timerSlider = go.GetComponent<Slider>();
                     timerSlider.minValue = 0;
-                    timerSlider.maxValue = 20;
+                    timerSlider.maxValue = TimeSliderSlice;
                     timerSlider.wholeNumbers = true;
                     timerSlider.value = timerSlider.maxValue;
                     timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
@@ -261,7 +262,7 @@ namespace StatsUITweaks
                 startIndex = 3;
             }
 
-            if (true) // Planet filter
+            if (__instance.astroBox.Items.Count > startIndex) // Planet filter
             {
                 systemList.Clear();
                 newItems.Clear();
@@ -335,7 +336,7 @@ namespace StatsUITweaks
             try
             {
                 int length = __instance.astroBox.ItemsData.Count;
-                if (__state != __instance.astroBox.itemIndex && __state < length && __instance.astroBox.itemIndex < length)
+                if (__state != __instance.astroBox.itemIndex && __state >= 0 && __state < length && __instance.astroBox.itemIndex < length)
                 {
                     if (__instance.astroBox.ItemsData[__state] == __instance.astroBox.ItemsData[__instance.astroBox.itemIndex])
                         __instance.astroBox.itemIndex = __state;

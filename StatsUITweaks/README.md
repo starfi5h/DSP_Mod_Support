@@ -24,7 +24,8 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `PlanetPrefix`    | `ㅤ`             | Prefix string of planet in the list |
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
 | StatsUITweaks | | |
-| `ListWidthOffeset`| 80     | Increase width of the list |
+| `TimeSliderSlice`| 20      | The number of divisions of the time range slider |
+| `ListWidthOffeset`| 70     | Increase width of the list |
 | `HotkeyListUp`  | PageUp   | Move to previous item in astro list |
 | `HotkeyListUp`  | PageDown | Move to next item in astro list |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers. |
@@ -67,7 +68,8 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `PlanetPrefix`    | `ㅤ`             | 星球名称前缀 |
 | `PlanetPostfix`   |                | 星球名称后缀 |
 | StatsUITweaks | | |
-| `ListWidthOffeset`| 80       | 增加列表栏位的宽度 |
+| `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
+| `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListUp`    | PageDown | 切换至列表中下一个项目的热键 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
@@ -75,5 +77,6 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.2.0: Add `TimeSliderSlice` config options. Fix error when opening dyson tab when there is only one system.  
 \- v1.1.0: Add `ListWidthOffeset`, `NumericPlanetNo`, prefixes & postfixes config options. Stretch histogram.  
 \- v1.0.0: Initial released. (DSP 0.9.27.15466)  
