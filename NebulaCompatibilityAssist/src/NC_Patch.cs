@@ -50,18 +50,28 @@ namespace NebulaCompatibilityAssist.Patches
             NebulaHotfix.Init(harmony);
 
             var title = Localization.language == Language.zhCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
-            var errorMessage = Localization.language == Language.zhCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行:" : "Error occurred when patching the following mods:";
-            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误或不同步" : "The following mods are not compatible with multiplayer mod:";
+            var errorMessage = Localization.language == Language.zhCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行" : "Error occurred when patching the following mods:";
+            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误或不同步\n" : "The following mods are not compatible with multiplayer mod:\n";
+            var warnMessage = Localization.language == Language.zhCN ? "以下mod的部分功能可能导致联机不同步\n" : "The following mods have some functions that don't sync in multiplayer game:\n";
+            var message = "";
 
             if (ErrorMessage != "")
             {
                 errorMessage += ErrorMessage;
-                UIMessageBox.Show(title, errorMessage, "确定".Translate(), 3);
+                message += errorMessage + "\n";
             }
             if (TestIncompatMods(ref incompatMessage))
             {
-                UIMessageBox.Show(title, incompatMessage, "确定".Translate(), 3);
+                message += incompatMessage;
             }
+            if (TestWarnMods(ref warnMessage))
+            {
+                message += warnMessage;
+            }
+
+            if (!string.IsNullOrEmpty(message))
+                UIMessageBox.Show(title, message, "确定".Translate(), 3);
+
             initialized = true;
             Plugin.Instance.Version = Plugin.VERSION + RequriedPlugins;
             Log.Debug($"Version: {Plugin.Instance.Version}");
@@ -93,29 +103,40 @@ namespace NebulaCompatibilityAssist.Patches
             int count = 0;
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("semarware.dysonsphereprogram.LongArm"))
             {
-                incompatMessage += "\nLongArm";
+                incompatMessage += "LongArm\n";
                 count++;
             }
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.droneclearing"))
             {
-                incompatMessage += "\nDSP Drone Clearing";
+                incompatMessage += "DSP Drone Clearing\n";
                 count++;
             }
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.small.dsp.transferInfo"))
             {
-                incompatMessage += "\nTransferInfo";
-                count++;
-            }
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("cn.blacksnipe.dsp.Multfuntion_mod"))
-            {
-                incompatMessage += "\nMultfuntion mod";
+                incompatMessage += "TransferInfo\n";
                 count++;
             }
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("greyhak.dysonsphereprogram.beltreversedirection"))
             {
-                incompatMessage += "\nDSP Belt Reverse";
+                incompatMessage += "DSP Belt Reverse\n";
                 count++;
             }            
+            return count > 0;
+        }
+
+        static bool TestWarnMods(ref string warnMessage)
+        {
+            int count = 0;
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("cn.blacksnipe.dsp.Multfuntion_mod"))
+            {
+                warnMessage += "Multfuntion mod\n";
+                count++;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("org.soardev.cheatenabler"))
+            {
+                warnMessage += "CheatEnabler\n";
+                count++;
+            }
             return count > 0;
         }
 
