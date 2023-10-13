@@ -31,6 +31,7 @@ namespace NebulaCompatibilityAssist.Patches
                 NebulaModAPI.OnPlayerJoinedGame += Warper.OnPlayerJoinedGame;
                 NC_ModSaveData.OnReceive += Warper.ImportData;
                 harmony.PatchAll(typeof(Warper));
+                harmony.PatchAll(typeof(Warper_RemoteBuildings));
 
                 Log.Info($"{NAME} - OK");
                 NC_Patch.RequriedPlugins += " +" + NAME;
@@ -95,6 +96,7 @@ namespace NebulaCompatibilityAssist.Patches
                     else if (stage == 2)
                     {
                         EnemyShips.Export(w);
+                        Warper_RemoteBuildings.Export(w);
                     }
 
 
@@ -146,6 +148,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     Log.Info("Import enemy ships");
                     EnemyShips.Import(r);
+                    Warper_RemoteBuildings.Import(r);
                 }
 
                 WaveStages.ResetCargoAccIncTable(DSP_Battle.Configs.extraSpeedEnabled && Rank.rank >= 5);
@@ -1427,6 +1430,271 @@ namespace NebulaCompatibilityAssist.Patches
             }
 
             #endregion
+        }
+
+        public static class Warper_RemoteBuildings
+        {
+            // Remote buildings : shadow ejector/silo 遠端建築: 影子砲塔
+
+            public static void Export(BinaryWriter w)
+            {
+                int count = 0;
+                foreach (var planet in GameMain.galaxy.stars[DSP_Battle.Configs.nextWaveStarIndex].planets)
+                {
+                    if (planet.factory == null) continue;
+
+                    var entityPool = planet.factory.entityPool;
+                    var factorySystem = planet.factory.factorySystem;
+
+
+                    var siloPool = factorySystem.siloPool;
+                    for (int i = 1; i < factorySystem.siloCursor; i++)
+                    {
+                        ref var silo = ref siloPool[i];
+                        if (silo.id == 0) continue;
+
+                        int protoId = entityPool[silo.entityId].protoId;
+                        if (protoId == 2312 || protoId == 8036) continue; // 不收錄原版彈射器
+
+                        // 記錄下SiloPatch會用到的參數
+                        w.Write(protoId);
+                        w.Write(silo.planetId);
+                        w.Write(silo.bulletId);
+                        w.Write(silo.bulletCount);
+                        w.Write(silo.bulletInc);
+                        w.Write(silo.chargeSpend);
+                        w.Write(silo.coldSpend);
+                        w.Write(silo.localPos.x);
+                        w.Write(silo.localPos.y);
+                        w.Write(silo.localPos.z);
+                        count++;
+                    }
+                }
+                w.Write(-1); // EOF
+                Log.Debug("RemoteBuildings: Export silo " + count);
+            }
+
+            static int siloCursor = 0;
+            static SiloComponent[] siloPool = new SiloComponent[32];
+            static readonly AnimData[] animPool = new AnimData[1]; // Dummy pool
+
+            public static void Import(BinaryReader r)
+            {
+                siloCursor = 1;
+                while (true)
+                {
+                    int protoId = r.ReadInt32();
+                    if (protoId == -1) break;
+
+                    if (siloCursor >= siloPool.Length)
+                    {
+                        SiloComponent[] oldPool = siloPool;
+                        siloPool = new SiloComponent[oldPool.Length * 2];
+                        Array.Copy(oldPool, siloPool, oldPool.Length);
+                    }
+
+                    siloPool[siloCursor].id = protoId; // Use id to store protoId
+                    siloPool[siloCursor].planetId = r.ReadInt32();
+                    siloPool[siloCursor].bulletId = r.ReadInt32();
+                    siloPool[siloCursor].bulletCount = r.ReadInt32();
+                    siloPool[siloCursor].bulletInc = r.ReadInt32();
+                    siloPool[siloCursor].chargeSpend = r.ReadInt32();
+                    siloPool[siloCursor].coldSpend = r.ReadInt32();
+                    siloPool[siloCursor].localPos = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                    //Log.Debug($"[{siloCursor}] {protoId} : planet{siloPool[siloCursor].planetId} count{siloPool[siloCursor].bulletCount}");
+
+                    // 只有在工廠尚未載入時才加入影子建築
+                    if (GameMain.galaxy.PlanetById(siloPool[siloCursor].planetId)?.factory == null)
+                    {
+                        // 以localPos猜測localRot
+                        siloPool[siloCursor].localRot = Maths.SphericalRotation(siloPool[siloCursor].localPos, 0f);
+                        ++siloCursor;
+                    }
+                }
+                Log.Debug("RemoteBuildings: Import silo " + siloCursor);
+                for (int i = 1; i < siloCursor; i++)
+                {
+                    ref var silo = ref siloPool[i];
+                    Log.Debug($"[{i}] {silo.id} : planet{silo.planetId} count{silo.bulletCount}");
+                }
+            }
+
+            [HarmonyPostfix, HarmonyPatch(typeof(WorkerThreadExecutor), nameof(WorkerThreadExecutor.AssemblerPartExecute))]
+            static void UpdateShadowBuildings(int ___usedThreadCnt, int ___curThreadIdx)
+            {
+                // 在客戶端更新影子建築, 製造子彈/火箭動畫
+                if (!NC_Patch.IsClient) return;
+                if (DSP_Battle.Configs.nextWaveState != 3) return; // 不在戰鬥階段時跳過
+
+                try
+                {
+                    int start, end;
+                    DysonSphere dysonSphere = GameMain.data.dysonSpheres[DSP_Battle.Configs.nextWaveStarIndex];
+                    if (WorkerThreadExecutor.CalculateMissionIndex(1, siloCursor - 1, ___usedThreadCnt, ___curThreadIdx, 4, out start, out end))
+                    {
+                        for (int i = start; i < end; i++)
+                        {
+                            ref var silo = ref siloPool[i];
+                            int bulletCount = silo.bulletCount;
+                            //Log.Debug($"[{i}] {silo.id} {silo.time} {silo.planetId}");
+                            SiloPatch(ref silo, dysonSphere);
+                            silo.bulletCount = bulletCount; // (不完美)將子彈數量保持在一開始的狀態
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Warn(e);
+                }
+            }
+
+
+            public static bool SiloPatch(ref SiloComponent __instance, DysonSphere sphere)
+            {
+                float power = 1.0f; // 默認滿電狀態
+                int planetId = __instance.planetId;
+                int starIndex = planetId / 100 - 1;
+                //int gmProtoId = __instance.id; // 使用id儲存
+
+                if (DSP_Battle.Configs.developerMode)
+                {
+                    __instance.bulletId = 8006;
+                    __instance.bulletCount = 99;
+                }
+                if (GameMain.instance.timei % 60 == 0 && __instance.bulletCount == 0)
+                {
+                    __instance.bulletId = MissileSilo.nextBulletId(__instance.bulletId);
+                }
+
+                if (__instance.fired && __instance.direction != -1)
+                {
+                    __instance.fired = false;
+                }
+                float num = (float)Cargo.accTableMilli[__instance.incLevel];
+                int num2 = (int)(power * 10000f * (1f + num) + 0.1f);
+                Mutex dysonSphere_mx = sphere.dysonSphere_mx;
+                uint result;
+                lock (dysonSphere_mx)
+                {
+                    //下面设定目标，发射时是选择最近目标；如果目标丢失则再随机选择目标
+                    int targetIndex = 0;
+                    //if (DSP_Battle.Configs.nextWaveState == 3) // MOD: 鎖定在戰鬥階段執行
+                    {
+                        targetIndex = MissileSilo.FindTarget(starIndex, planetId);
+                    }
+
+                    __instance.hasNode = (sphere.GetAutoNodeCount() > 0);
+                    if (targetIndex <= 0)  //if (!__instance.hasNode) 原本是没有节点，因此不发射
+                    {
+                        __instance.autoIndex = 0;
+                        if (__instance.direction == 1)
+                        {
+                            __instance.time = (int)((long)__instance.time * (long)__instance.coldSpend / (long)__instance.chargeSpend);
+                            __instance.direction = -1;
+                        }
+                        if (__instance.direction == -1)
+                        {
+                            __instance.time -= num2;
+                            if (__instance.time <= 0)
+                            {
+                                __instance.time = 0;
+                                __instance.direction = 0;
+                            }
+                        }
+                        if (power >= 0.1f)
+                        {
+                            result = 1U;
+                        }
+                        else
+                        {
+                            result = 0U;
+                        }
+                    }
+                    else if (power < 0.1f)
+                    {
+                        if (__instance.direction == 1)
+                        {
+                            __instance.time = (int)((long)__instance.time * (long)__instance.coldSpend / (long)__instance.chargeSpend);
+                            __instance.direction = -1;
+                        }
+                        result = 0U;
+                    }
+                    else
+                    {
+                        uint num3 = 0U;
+                        bool flag2;
+                        num3 = ((flag2 = (__instance.bulletCount > 0)) ? 3U : 2U);
+                        if (__instance.direction == 1)
+                        {
+                            if (!flag2)
+                            {
+                                __instance.time = (int)((long)__instance.time * (long)__instance.coldSpend / (long)__instance.chargeSpend);
+                                __instance.direction = -1;
+                            }
+                        }
+                        else if (__instance.direction == 0 && flag2)
+                        {
+                            __instance.direction = 1;
+                        }
+                        if (__instance.direction == 1)
+                        {
+                            __instance.time += num2;
+                            if (__instance.time >= __instance.chargeSpend)
+                            {
+                                AstroData[] astroPoses = sphere.starData.galaxy.astrosData;
+                                __instance.fired = true;
+                                //DysonNode autoDysonNode = sphere.GetAutoDysonNode(__instance.autoIndex + __instance.id); //原本获取目标节点，现在已不需要
+                                DysonRocket dysonRocket = default(DysonRocket);
+                                dysonRocket.planetId = __instance.planetId;
+                                dysonRocket.uPos = astroPoses[__instance.planetId].uPos + Maths.QRotateLF(astroPoses[__instance.planetId].uRot, __instance.localPos + __instance.localPos.normalized * 6.1f);
+                                dysonRocket.uRot = astroPoses[__instance.planetId].uRot * __instance.localRot * Quaternion.Euler(-90f, 0f, 0f);
+                                dysonRocket.uVel = dysonRocket.uRot * Vector3.forward;
+                                dysonRocket.uSpeed = 0f;
+                                dysonRocket.launch = __instance.localPos.normalized;
+                                //sphere.AddDysonRocket(dysonRocket, autoDysonNode); //原本
+                                int rocketIndex = MissileSilo.AddDysonRockedGniMaerd(ref sphere, ref dysonRocket, null); //这是添加了一个目标戴森球节点为null的火箭，因此被判定为导弹
+
+                                MissileSilo.MissileTargets[starIndex][rocketIndex] = targetIndex;
+                                MissileSilo.missileProtoIds[starIndex][rocketIndex] = __instance.bulletId;
+                                int damage = 0;
+                                if (__instance.bulletId == 8004) damage = DSP_Battle.Configs.missile1Atk;
+                                else if (__instance.bulletId == 8005) damage = DSP_Battle.Configs.missile2Atk;
+                                else if (__instance.bulletId == 8006) damage = DSP_Battle.Configs.missile3Atk;
+                                //注册导弹
+                                UIBattleStatistics.RegisterShootOrLaunch(__instance.bulletId, damage);
+
+                                __instance.autoIndex++;
+                                if (!Relic.HaveRelic(1, 5))
+                                {
+                                    __instance.bulletInc -= __instance.bulletInc / __instance.bulletCount;
+                                    __instance.bulletCount--;
+                                }
+                                if (__instance.bulletCount == 0)
+                                {
+                                    __instance.bulletInc = 0;
+                                }
+                                __instance.time = __instance.coldSpend;
+                                __instance.direction = -1;
+                            }
+                        }
+                        else if (__instance.direction == -1)
+                        {
+                            __instance.time -= num2;
+                            if (__instance.time <= 0)
+                            {
+                                __instance.time = 0;
+                                __instance.direction = (flag2 ? 1 : 0);
+                            }
+                        }
+                        else
+                        {
+                            __instance.time = 0;
+                        }
+                        result = num3;
+                    }
+                }
+                return false;
+            }
         }
     }
 }
