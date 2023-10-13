@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using UnityEngine;
+using System.Collections.Concurrent;
 
 namespace NebulaCompatibilityAssist.Patches
 {
@@ -146,7 +147,6 @@ namespace NebulaCompatibilityAssist.Patches
                 }
                 else if (stage == 2)
                 {
-                    Log.Info("Import enemy ships");
                     EnemyShips.Import(r);
                     Warper_RemoteBuildings.Import(r);
                 }
@@ -1442,10 +1442,34 @@ namespace NebulaCompatibilityAssist.Patches
                 foreach (var planet in GameMain.galaxy.stars[DSP_Battle.Configs.nextWaveStarIndex].planets)
                 {
                     if (planet.factory == null) continue;
+                    w.Write(planet.id);
 
                     var entityPool = planet.factory.entityPool;
                     var factorySystem = planet.factory.factorySystem;
 
+                    var ejectorPool = factorySystem.ejectorPool;
+                    for (int i = 1; i < factorySystem.ejectorCursor; i++)
+                    {
+                        ref var ejector = ref ejectorPool[i];
+                        if (ejector.id == 0) continue;
+
+                        int protoId = entityPool[ejector.entityId].protoId;
+                        if (protoId == 2311) continue; // 不收錄原版彈射器
+
+                        // 記錄下EjectorPatch會用到的參數
+                        w.Write(protoId);
+                        w.Write(ejector.entityId);
+                        w.Write(ejector.bulletId);
+                        w.Write(ejector.bulletCount);
+                        w.Write(ejector.bulletInc);
+                        w.Write(ejector.chargeSpend);
+                        w.Write(ejector.coldSpend);
+                        w.Write(ejector.localPosN.x);
+                        w.Write(ejector.localPosN.y);
+                        w.Write(ejector.localPosN.z);
+                        count++;
+                    }
+                    w.Write(-1);
 
                     var siloPool = factorySystem.siloPool;
                     for (int i = 1; i < factorySystem.siloCursor; i++)
@@ -1458,7 +1482,6 @@ namespace NebulaCompatibilityAssist.Patches
 
                         // 記錄下SiloPatch會用到的參數
                         w.Write(protoId);
-                        w.Write(silo.planetId);
                         w.Write(silo.bulletId);
                         w.Write(silo.bulletCount);
                         w.Write(silo.bulletInc);
@@ -1469,85 +1492,136 @@ namespace NebulaCompatibilityAssist.Patches
                         w.Write(silo.localPos.z);
                         count++;
                     }
+                    w.Write(-1);
                 }
-                w.Write(-1); // EOF
-                Log.Debug("RemoteBuildings: Export silo " + count);
+                w.Write(-1);
+                Log.Info("RemoteBuildings: Export buildings " + count);
             }
 
+            static int ejectorCursor = 0;
+            static EjectorComponent[] ejectorPool = new EjectorComponent[32];
             static int siloCursor = 0;
             static SiloComponent[] siloPool = new SiloComponent[32];
-            static readonly AnimData[] animPool = new AnimData[1]; // Dummy pool
 
             public static void Import(BinaryReader r)
             {
+                ejectorCursor = 1;
                 siloCursor = 1;
+
                 while (true)
                 {
-                    int protoId = r.ReadInt32();
-                    if (protoId == -1) break;
+                    int planetId = r.ReadInt32();
+                    if (planetId == -1) break;
+                    bool hasFactory = GameMain.galaxy.PlanetById(planetId)?.factory != null;
 
-                    if (siloCursor >= siloPool.Length)
+                    while (true)
                     {
-                        SiloComponent[] oldPool = siloPool;
-                        siloPool = new SiloComponent[oldPool.Length * 2];
-                        Array.Copy(oldPool, siloPool, oldPool.Length);
+                        int protoId = r.ReadInt32();
+                        if (protoId == -1) break;
+
+                        if (ejectorCursor >= ejectorPool.Length)
+                        {
+                            EjectorComponent[] oldPool = ejectorPool;
+                            ejectorPool = new EjectorComponent[oldPool.Length * 2];
+                            Array.Copy(oldPool, siloPool, oldPool.Length);
+                        }
+
+                        ejectorPool[ejectorCursor].planetId = planetId;
+                        ejectorPool[ejectorCursor].id = protoId; // Use id to store protoId
+                        ejectorPool[ejectorCursor].entityId = r.ReadInt32(); // 分辨目標用
+                        ejectorPool[ejectorCursor].bulletId = r.ReadInt32();
+                        ejectorPool[ejectorCursor].bulletCount = r.ReadInt32();
+                        ejectorPool[ejectorCursor].bulletInc = r.ReadInt32();
+                        ejectorPool[ejectorCursor].chargeSpend = r.ReadInt32();
+                        ejectorPool[ejectorCursor].coldSpend = r.ReadInt32();
+                        ejectorPool[ejectorCursor].localPosN = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+
+                        if (!hasFactory) // 只有在工廠尚未載入時才加入影子建築
+                        {
+                            ejectorPool[ejectorCursor].localRot = Maths.SphericalRotation(ejectorPool[ejectorCursor].localPosN, 0f); // 以localPos猜測localRot
+                            ++ejectorCursor;
+
+                        }
                     }
 
-                    siloPool[siloCursor].id = protoId; // Use id to store protoId
-                    siloPool[siloCursor].planetId = r.ReadInt32();
-                    siloPool[siloCursor].bulletId = r.ReadInt32();
-                    siloPool[siloCursor].bulletCount = r.ReadInt32();
-                    siloPool[siloCursor].bulletInc = r.ReadInt32();
-                    siloPool[siloCursor].chargeSpend = r.ReadInt32();
-                    siloPool[siloCursor].coldSpend = r.ReadInt32();
-                    siloPool[siloCursor].localPos = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-                    //Log.Debug($"[{siloCursor}] {protoId} : planet{siloPool[siloCursor].planetId} count{siloPool[siloCursor].bulletCount}");
-
-                    // 只有在工廠尚未載入時才加入影子建築
-                    if (GameMain.galaxy.PlanetById(siloPool[siloCursor].planetId)?.factory == null)
+                    while (true)
                     {
-                        // 以localPos猜測localRot
-                        siloPool[siloCursor].localRot = Maths.SphericalRotation(siloPool[siloCursor].localPos, 0f);
-                        ++siloCursor;
+                        int protoId = r.ReadInt32();
+                        if (protoId == -1) break;
+
+                        if (siloCursor >= siloPool.Length)
+                        {
+                            SiloComponent[] oldPool = siloPool;
+                            siloPool = new SiloComponent[oldPool.Length * 2];
+                            Array.Copy(oldPool, siloPool, oldPool.Length);
+                        }
+
+                        siloPool[siloCursor].planetId = planetId;
+                        siloPool[siloCursor].id = protoId; // Use id to store protoId
+                        siloPool[siloCursor].bulletId = r.ReadInt32();
+                        siloPool[siloCursor].bulletCount = r.ReadInt32();
+                        siloPool[siloCursor].bulletInc = r.ReadInt32();
+                        siloPool[siloCursor].chargeSpend = r.ReadInt32();
+                        siloPool[siloCursor].coldSpend = r.ReadInt32();
+                        siloPool[siloCursor].localPos = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                        //Log.Debug($"[{siloCursor}] {protoId} : planet{siloPool[siloCursor].planetId} count{siloPool[siloCursor].bulletCount}");
+
+                        if (!hasFactory)
+                        {
+                            siloPool[siloCursor].localRot = Maths.SphericalRotation(siloPool[siloCursor].localPos, 0f);
+                            ++siloCursor;
+                        }
                     }
                 }
-                Log.Debug("RemoteBuildings: Import silo " + siloCursor);
-                for (int i = 1; i < siloCursor; i++)
-                {
-                    ref var silo = ref siloPool[i];
-                    Log.Debug($"[{i}] {silo.id} : planet{silo.planetId} count{silo.bulletCount}");
-                }
+                Log.Info($"RemoteBuildings: Import ejector {ejectorCursor - 1} silo {siloCursor - 1}");
             }
 
             [HarmonyPostfix, HarmonyPatch(typeof(WorkerThreadExecutor), nameof(WorkerThreadExecutor.AssemblerPartExecute))]
             static void UpdateShadowBuildings(int ___usedThreadCnt, int ___curThreadIdx)
             {
-                // 在客戶端更新影子建築, 製造子彈/火箭動畫
+                // 在客戶端更新影子建築, 製造子彈/火箭動畫。 假設: 1.電力全滿 2.子彈保持為全空/全滿
                 if (!NC_Patch.IsClient) return;
-                if (DSP_Battle.Configs.nextWaveState != 3) return; // 不在戰鬥階段時跳過
+                if (DSP_Battle.Configs.nextWaveState != 3) return; // 只在戰鬥階段時運行
 
                 try
                 {
                     int start, end;
-                    DysonSphere dysonSphere = GameMain.data.dysonSpheres[DSP_Battle.Configs.nextWaveStarIndex];
-                    if (WorkerThreadExecutor.CalculateMissionIndex(1, siloCursor - 1, ___usedThreadCnt, ___curThreadIdx, 4, out start, out end))
+                    int localplanetId = GameMain.localPlanet?.id ?? -1;
+                    var dysonSphere = GameMain.data.dysonSpheres[DSP_Battle.Configs.nextWaveStarIndex];
+                    var dysonSwarm = dysonSphere?.swarm;
+
+                    if (dysonSwarm != null && WorkerThreadExecutor.CalculateMissionIndex(1, ejectorCursor - 1, ___usedThreadCnt, ___curThreadIdx, 4, out start, out end))
+                    {
+                        var astroPoses = GameMain.galaxy.astrosData;
+                        for (int i = start; i < end; i++)
+                        {
+                            ref var ejector = ref ejectorPool[i];
+                            if (ejector.planetId == localplanetId) continue; // 如果玩家已經登陸星球, 則跳過
+
+                            int bulletCount = ejector.bulletCount;
+                            EjectorPatch(ref ejector, dysonSwarm, astroPoses);
+                            ejector.bulletCount = bulletCount; // 鎖定子彈數量
+                        }
+                    }
+
+                    if (dysonSphere != null && WorkerThreadExecutor.CalculateMissionIndex(1, siloCursor - 1, ___usedThreadCnt, ___curThreadIdx, 4, out start, out end))
                     {
                         for (int i = start; i < end; i++)
                         {
                             ref var silo = ref siloPool[i];
+                            if (silo.planetId == localplanetId) continue; // 如果玩家已經登陸星球, 則跳過
+
                             int bulletCount = silo.bulletCount;
-                            //Log.Debug($"[{i}] {silo.id} {silo.time} {silo.planetId}");
                             SiloPatch(ref silo, dysonSphere);
-                            silo.bulletCount = bulletCount; // (不完美)將子彈數量保持在一開始的狀態
+                            silo.bulletCount = bulletCount; // 鎖定子彈數量
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Log.Warn(e);
+                    Log.Dev(e);
                 }
             }
-
 
             public static bool SiloPatch(ref SiloComponent __instance, DysonSphere sphere)
             {
@@ -1695,6 +1769,342 @@ namespace NebulaCompatibilityAssist.Patches
                 }
                 return false;
             }
+
+            public static bool EjectorPatch(ref EjectorComponent __instance, DysonSwarm swarm, AstroData[] astroPoses)
+            {
+                float power = 1.0f;
+                int gmProtoId = __instance.id;
+
+                //子弹需求循环
+                if (__instance.bulletCount == 0 && gmProtoId != 8014 && GameMain.instance.timei % 60 == 0)
+                {
+                    __instance.bulletId = Cannon.nextBulletId(__instance.bulletId);
+                }
+                else if (gmProtoId == 8014)
+                {
+                    __instance.bulletId = 8007;
+                    __instance.bulletCount = 0;
+                }
+
+                __instance.targetState = EjectorComponent.ETargetState.None;
+
+                //下面是因为 炮需要用orbitId记录索敌模式，而orbitId有可能超出已设定的轨道数，为了避免溢出，炮的orbitalId在参与计算时需要独立指定为1。
+                //后续所有的__instance.orbitId都被替换为此
+                if (__instance.orbitId <= 0 || __instance.orbitId > 4)
+                {
+                    __instance.orbitId = 1;
+                }
+
+                CannonFire(ref __instance, power, swarm, astroPoses, gmProtoId);
+                return false;
+            }
+
+            private static uint CannonFire(ref EjectorComponent __instance, float power, DysonSwarm swarm, AstroData[] astroPoses, int gmProtoId)
+            {
+                int planetId = __instance.planetId;
+                int entityId = __instance.entityId;
+                int starIndex = planetId / 100 - 1;
+                int calcOrbitId = __instance.orbitId;
+                uint result = 0;
+
+                float num2 = (float)Cargo.incTableMilli[__instance.incLevel];
+                int num3 = (int)(power * 10000f * (1f + num2) + 0.1f);
+
+                bool relic0_6Activated = Relic.HaveRelic(0, 6) && __instance.bulletId == 8001; // relic0-6 京级巨炮如果激活并且当前子弹确实是穿甲磁轨弹
+                if (relic0_6Activated) num3 = (int)(num3 * 0.1);
+
+                __instance.targetState = EjectorComponent.ETargetState.OK;
+                bool flag = true;
+                int num4 = __instance.planetId / 100 * 100;
+                float num5 = __instance.localAlt + __instance.pivotY + (__instance.muzzleY - __instance.pivotY) / Mathf.Max(0.1f, Mathf.Sqrt(1f - __instance.localDir.y * __instance.localDir.y));
+                Vector3 vector = new Vector3(__instance.localPosN.x * num5, __instance.localPosN.y * num5, __instance.localPosN.z * num5);
+                VectorLF3 vectorLF = astroPoses[__instance.planetId].uPos + Maths.QRotateLF(astroPoses[__instance.planetId].uRot, vector);
+                Quaternion q = astroPoses[__instance.planetId].uRot * __instance.localRot;
+                VectorLF3 uPos = astroPoses[num4].uPos;
+                VectorLF3 b = uPos - vectorLF;
+
+                List<EnemyShip> sortedShips = EnemyShips.sortedShips(calcOrbitId, starIndex, __instance.planetId);
+
+                //下面的参数根据是否是炮还是太阳帆的弹射器有不同的修改
+                double maxtDivisor = 5000.0; //决定子弹速度
+                int damage = 0;
+                int loopNum = sortedShips.Count;
+                double cannonSpeedScale = 1;
+                if (gmProtoId == 8012)
+                    cannonSpeedScale = 2;
+                EnemyShip curTarget = null;
+
+                if (__instance.bulletId == 8001)
+                {
+                    maxtDivisor = relic0_6Activated ? DSP_Battle.Configs.bullet4Speed : DSP_Battle.Configs.bullet1Speed * cannonSpeedScale; // relic0-6京级巨炮 还会大大加速此子弹速度
+                    damage = (int)DSP_Battle.Configs.bullet1Atk; //只有这个子弹能够因为引力弹射器而强化伤害。这个强化是不是取消了？
+                                                      //if (relic0_6Activated) // relic0-6 京级巨炮效果，由于这个伤害只在统计中计算为发射伤害，实际造成上海市还要再重新计算，因此这里不计算了，统计中记为发射了基础的伤害
+                                                      //    damage = Relic.BonusDamage(damage, 500); 
+                }
+                else if (__instance.bulletId == 8002)
+                {
+                    maxtDivisor = DSP_Battle.Configs.bullet2Speed * cannonSpeedScale;
+                    damage = DSP_Battle.Configs.bullet2Atk;
+                }
+                else if (__instance.bulletId == 8003)
+                {
+                    maxtDivisor = DSP_Battle.Configs.bullet3Speed * cannonSpeedScale;
+                    damage = DSP_Battle.Configs.bullet3Atk;
+                }
+                else if (__instance.bulletId == 8007)
+                {
+                    maxtDivisor = DSP_Battle.Configs.bullet4Speed; //没有速度加成
+                    damage = DSP_Battle.Configs.bullet4Atk;
+                }
+
+                //不该参与循环的部分，换到循环前了
+
+                bool flag2 = __instance.bulletCount > 0;
+                if (gmProtoId == 8014) //脉冲炮不需要子弹
+                    flag2 = true;
+                VectorLF3 vectorLF2 = VectorLF3.zero;
+
+                int begins = Cannon.indexBegins;
+                if (begins >= loopNum)
+                {
+                    Interlocked.Exchange(ref Cannon.indexBegins, 0);
+                    begins = 0;
+                }
+
+                bool needFindNewTarget = true;
+                EnemyShip lastTargetShip = null;
+                if (Cannon.cannonTargets.ContainsKey(planetId))
+                {
+                    if (Cannon.cannonTargets[planetId].ContainsKey(entityId))
+                    {
+                        int lastTargetShipIndex = Cannon.cannonTargets[planetId][entityId];
+                        if (EnemyShips.ships.ContainsKey(lastTargetShipIndex) && EnemyShips.ships[lastTargetShipIndex].state == EnemyShip.State.active)
+                        {
+                            lastTargetShip = EnemyShips.ships[lastTargetShipIndex];
+                            needFindNewTarget = false; // 老目标存在的话，在下面的循环中首先判断老目标是否合法（不被阻挡、俯仰角合适等）
+                        }
+                    }
+                }
+                for (int gm = begins; gm < loopNum && gm < begins + 3; gm++)
+                {
+                    if (!needFindNewTarget && gm > begins) // 说明上一个循环判定了原目标，且原目标无法作为合法目标，因此重新开始判定目标
+                    {
+                        needFindNewTarget = true;
+                        gm = begins;
+                    }
+
+                    //新增的，每次循环开始必须重置
+                    __instance.targetState = EjectorComponent.ETargetState.OK;
+                    flag = true;
+                    flag2 = __instance.bulletCount > 0;
+                    if (gmProtoId == 8014) //脉冲炮不需要子弹
+                        flag2 = true;
+                    else if (relic0_6Activated) // relic0-6 京级巨炮效果 每次消耗五发弹药
+                        flag2 = __instance.bulletCount > 4;
+
+                    int shipIdx = 0;//ship总表中的唯一标识：index
+                    EnemyShip targetShip = sortedShips[gm];
+                    if (!needFindNewTarget) // 如果原本的目标存在，则先判断原本的目标，此时在这个循环中，gm=begins的ship并没有真的被计算俯仰角等合法性判断，因此假若原本的目标失效，进入了下个循环后要根据情况重置gm=begins（见循环节开头）
+                    {
+                        targetShip = lastTargetShip;
+                    }
+                    vectorLF2 = targetShip.uPos;
+                    shipIdx = targetShip.shipIndex;
+
+                    if (needFindNewTarget && (!EnemyShips.ships.ContainsKey(shipIdx) || targetShip.state != EnemyShip.State.active)) continue;
+
+
+                    VectorLF3 vectorLF3 = vectorLF2 - vectorLF;
+                    __instance.targetDist = vectorLF3.magnitude;
+                    vectorLF3.x /= __instance.targetDist;
+                    vectorLF3.y /= __instance.targetDist;
+                    vectorLF3.z /= __instance.targetDist;
+                    Vector3 vector2 = Maths.QInvRotate(q, vectorLF3);
+                    __instance.localDir.x = __instance.localDir.x * 0.9f + vector2.x * 0.1f;
+                    __instance.localDir.y = __instance.localDir.y * 0.9f + vector2.y * 0.1f;
+                    __instance.localDir.z = __instance.localDir.z * 0.9f + vector2.z * 0.1f;
+                    if ((double)vector2.y < 0.08715574 || vector2.y > 0.8660254f)
+                    {
+                        __instance.targetState = EjectorComponent.ETargetState.AngleLimit;
+                        flag = false;
+                    }
+                    if (flag2 && flag)
+                    {
+                        for (int i = num4 + 1; i <= __instance.planetId + 2; i++)
+                        {
+                            if (i != __instance.planetId)
+                            {
+                                double num6 = (double)astroPoses[i].uRadius;
+                                if (num6 > 1.0)
+                                {
+                                    VectorLF3 vectorLF4 = astroPoses[i].uPos - vectorLF;
+                                    double num7 = vectorLF4.x * vectorLF4.x + vectorLF4.y * vectorLF4.y + vectorLF4.z * vectorLF4.z;
+                                    double num8 = vectorLF4.x * vectorLF3.x + vectorLF4.y * vectorLF3.y + vectorLF4.z * vectorLF3.z;
+                                    if (num8 > 0.0)
+                                    {
+                                        double num9 = num7 - num8 * num8;
+                                        num6 += 120.0;
+                                        if (num9 < num6 * num6)
+                                        {
+                                            flag = false;
+                                            __instance.targetState = EjectorComponent.ETargetState.Blocked;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (EnemyShips.ships.ContainsKey(shipIdx) && EnemyShips.ships[shipIdx].state == EnemyShip.State.active && __instance.targetState != EjectorComponent.ETargetState.Blocked && __instance.targetState != EjectorComponent.ETargetState.AngleLimit)
+                    {
+                        curTarget = EnemyShips.ships[shipIdx]; //设定目标
+                        if (!Cannon.cannonTargets.ContainsKey(planetId))
+                        {
+                            Cannon.cannonTargets.TryAdd(planetId, new ConcurrentDictionary<int, int>());
+                            Cannon.cannonTargets[planetId].TryAdd(entityId, shipIdx);
+                        }
+                        else
+                        {
+                            Cannon.cannonTargets[planetId].AddOrUpdate(entityId, shipIdx, (x, y) => shipIdx);
+                        }
+                        if (EjectorUIPatch.needToRefreshTarget) //如果需要刷新目标
+                        {
+                            if (EjectorUIPatch.curEjectorPlanetId == __instance.planetId && EjectorUIPatch.curEjectorEntityId == __instance.entityId)
+                            {
+                                EjectorUIPatch.curTarget = curTarget;
+                            }
+                        }
+                        break;
+                    }
+                }
+                //如果没有船/船没血了，就不打炮了
+                if (curTarget == null)
+                {
+                    Interlocked.Add(ref Cannon.indexBegins, 3);
+                    flag = false; //本身是由于俯仰限制或路径被阻挡的判断，现在找不到目标而不打炮也算做里面
+                }
+                else if (curTarget != null && curTarget.hp <= 0)
+                {
+                    flag = false;
+                }
+                else if (curTarget.state != EnemyShip.State.active)
+                {
+                    flag = false;
+                }
+
+                bool flag3 = flag && flag2;
+                result = (flag2 ? (flag ? 4U : 3U) : 2U);
+                if (__instance.direction == 1)
+                {
+                    if (!flag3)
+                    {
+                        __instance.time = (int)((long)__instance.time * (long)__instance.coldSpend / (long)__instance.chargeSpend);
+                        __instance.direction = -1;
+                    }
+                }
+                else if (__instance.direction == 0 && flag3)
+                {
+                    __instance.direction = 1;
+                }
+
+
+                if (__instance.direction == 1)
+                {
+                    __instance.time += num3;
+                    if (__instance.time >= __instance.chargeSpend)
+                    {
+                        __instance.fired = true;
+                        VectorLF3 uBeginChange = vectorLF;
+                        int bulletCost = relic0_6Activated ? 5 : 1;
+
+                        int bulletIndex = -1;
+
+                        if (gmProtoId != 8014 || GameMain.instance.timei % 5 == 1) // 相位炮五帧才发一个，但是伤害x5
+                        {
+                            //下面是添加子弹
+                            bulletIndex = swarm.AddBullet(new SailBullet
+                            {
+                                maxt = (float)(__instance.targetDist / maxtDivisor),
+                                lBegin = vector,
+                                uEndVel = VectorLF3.Cross(vectorLF2 - uPos, swarm.orbits[calcOrbitId].up).normalized * Math.Sqrt((double)(swarm.dysonSphere.gravity / swarm.orbits[calcOrbitId].radius)), //至少影响着形成的太阳帆的初速度方向
+                                uBegin = uBeginChange,
+                                uEnd = vectorLF2
+                            }, calcOrbitId);
+                        }
+
+                        //设定子弹目标以及伤害，并注册伤害
+                        try
+                        {
+                            if (bulletIndex != -1)
+                                swarm.bulletPool[bulletIndex].state = 0; //设置成0，该子弹将不会生成太阳帆
+                        }
+                        catch (Exception)
+                        {
+                            DspBattlePlugin.logger.LogInfo("bullet info1 set error.");
+                        }
+                        UIBattleStatistics.RegisterShootOrLaunch(__instance.bulletId, damage, bulletCost);
+
+                        if (bulletIndex != -1)
+                            Cannon.bulletTargets[swarm.starData.index].AddOrUpdate(bulletIndex, curTarget.shipIndex, (x, y) => curTarget.shipIndex);
+
+                        //Main.logger.LogInfo("bullet info2 set error.");
+
+
+                        try
+                        {
+                            int bulletId = __instance.bulletId;
+                            if (bulletIndex != -1)
+                                Cannon.bulletIds[swarm.starData.index].AddOrUpdate(bulletIndex, bulletId, (x, y) => bulletId);
+                            // bulletIds[swarm.starData.index][bulletIndex] = 1;//后续可以根据子弹类型/炮类型设定不同数值
+                        }
+                        catch (Exception)
+                        {
+                            DspBattlePlugin.logger.LogInfo("bullet info3 set error.");
+                        }
+                        int bulletIncCost = 0;
+                        if (__instance.bulletCount != 0)
+                        {
+                            bulletIncCost = bulletCost * __instance.bulletInc / __instance.bulletCount;
+                            __instance.bulletInc -= bulletIncCost;
+                        }
+                        __instance.bulletCount -= bulletCost;
+                        if (gmProtoId == 8012 && Relic.HaveRelic(2, 3) && Relic.Verify(0.75)) // relic2-3 回声 概率回填弹药
+                        {
+                            __instance.bulletCount += 1;
+                            __instance.bulletInc += bulletIncCost / bulletCost;
+                        }
+                        if (__instance.bulletCount <= 0)
+                        {
+                            __instance.bulletInc = 0;
+                            __instance.bulletCount = 0;
+                        }
+                        __instance.time = __instance.coldSpend;
+                        __instance.direction = -1;
+
+                        //if (gmProtoId == 8014) //激光炮为了视觉效果，取消冷却阶段每帧都发射（不能简单地将charge和cold的spend设置为0，因为会出现除以0的错误）
+                        //    __instance.direction = 1;
+
+                    }
+                }
+
+                else if (__instance.direction == -1)
+                {
+                    __instance.time -= num3;
+                    if (__instance.time <= 0)
+                    {
+                        __instance.time = 0;
+                        __instance.direction = (flag3 ? 1 : 0);
+                    }
+                }
+                else
+                {
+                    __instance.time = 0;
+
+                }
+
+                return result;
+            }
+
         }
     }
 }
