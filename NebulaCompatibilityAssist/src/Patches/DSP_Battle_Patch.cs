@@ -419,8 +419,8 @@ namespace NebulaCompatibilityAssist.Patches
 
                 // Client only put the station into distroyedStation to remove it from target
                 // The real building removing is performed by Host
-                Log.Debug("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
-                RemoveEntities.distroyedStation[ship.shipData.otherGId] = 0;
+                // Log.Debug("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
+                // RemoveEntities.distroyedStation[ship.shipData.otherGId] = 0;
                 ship.state = EnemyShip.State.distroyed;
                 ship.shipData.inc--;
                 if (ship.shipData.inc > 0)
@@ -439,7 +439,6 @@ namespace NebulaCompatibilityAssist.Patches
                     using var p = NebulaModAPI.GetBinaryWriter();
                     var w = p.BinaryWriter;
                     w.Write(ship.shipData.planetB);
-                    w.Write(station.entityId);
                     w.Write(ship.damageRange);
                     w.Write(station.id);
                     var packet = new NC_BattleEvent(NC_BattleEvent.EType.RemoveEntities, NebulaModAPI.MultiplayerSession.LocalPlayer.Id, p.CloseAndGetBytes());
@@ -453,7 +452,6 @@ namespace NebulaCompatibilityAssist.Patches
             public static void SyncRemoveEntities(BinaryReader r)
             {
                 int planetId = r.ReadInt32();
-                int entityId = r.ReadInt32();
                 int damageRange = r.ReadInt32();
                 int id = r.ReadInt32();
 
@@ -462,8 +460,12 @@ namespace NebulaCompatibilityAssist.Patches
                 PlanetFactory factory = planet.factory;
                 if (factory == null)
                     return;
-                Vector3 stationPos = factory.entityPool[entityId].pos;
+                StationComponent station = factory.transport.stationPool[id];
+                Vector3 stationPos = factory.entityPool[station.entityId].pos;
 
+                RemoveEntities.removingComponets = true;
+                RemoveEntities.RemoveStation(factory, station);
+                RemoveEntities.removingComponets = false;
                 if (!RemoveEntities.pendingDestroyedEntities.ContainsKey(planetId))
                     RemoveEntities.pendingDestroyedEntities.Add(planetId, new List<Tuple<Vector3, int>>());
                 RemoveEntities.pendingDestroyedEntities[planetId].Add(new Tuple<Vector3, int>(stationPos, damageRange));
@@ -684,10 +686,18 @@ namespace NebulaCompatibilityAssist.Patches
             [HarmonyPostfix, HarmonyPatch(typeof(EnemyShip), nameof(EnemyShip.FindAnotherStation))]
             static void OnTargetChange(EnemyShip __instance)
             {
-                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
+                if (NebulaModAPI.IsMultiplayerActive)
                 {
-                    Log.Dev($"[Battle] ship retarget [{__instance.shipIndex}]:{__instance.state} P{__instance.shipData.planetB} HP:{__instance.hp}");
-                    SendEnemyShipState(__instance);
+                    Log.Dev($"[Battle] ship retarget [{__instance.shipIndex}]:{__instance.state} P:{__instance.shipData.planetB} gid:{__instance.shipData.otherGId}");
+
+                    if (NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
+                    {
+                        SendEnemyShipState(__instance);
+                    }
+                    else // 客戶端重新找目標(塔被拆?)
+                    {
+                        __instance.maxSpeed = 0f; // 定住飛船, 等待主機同步新的目標
+                    }
                 }
             }
 
@@ -717,7 +727,8 @@ namespace NebulaCompatibilityAssist.Patches
                 w.Write(ship.shipData.stage);
                 w.Write(ship.shipData.otherGId);
                 w.Write(ship.shipData.planetB);
-                
+                w.Write(ship.maxSpeed);
+
                 // Positions
                 w.Write(ship.shipData.direction);
                 w.Write((float)ship.shipData.uPos.x);
@@ -748,7 +759,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.hp = r.ReadInt32();
                         ship.shipData.inc = r.ReadInt32();
 
-                        Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+                        //Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
 
                         if (ship.state == EnemyShip.State.distroyed)
                         {
@@ -772,6 +783,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.shipData.stage = r.ReadInt32();
                         ship.shipData.otherGId = r.ReadInt32();
                         ship.shipData.planetB = r.ReadInt32();
+                        ship.maxSpeed = r.ReadSingle();
 
                         Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
 
