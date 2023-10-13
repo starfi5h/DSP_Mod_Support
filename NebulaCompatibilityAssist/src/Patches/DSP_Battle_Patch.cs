@@ -672,7 +672,7 @@ namespace NebulaCompatibilityAssist.Patches
             [HarmonyPrefix, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.RemoveShip))]
             static bool RemoveShip()
             {
-                if (NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient)
+                if (NC_Patch.IsClient)
                 {
                     // Let ship destoryed in client stay until host send packet
                     return isIncomingPacket;
@@ -680,6 +680,38 @@ namespace NebulaCompatibilityAssist.Patches
                 return true;
             }
 
+            [HarmonyTranspiler, HarmonyPatch(typeof(EnemyShip), nameof(EnemyShip.BeAttacked))]
+            static IEnumerable<CodeInstruction> BeAttacked_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator iLGenerator)
+            {
+                try
+                {
+                    // 在客戶端當敵船要被擊落時, 留下一層血皮。直到主機通知再移除
+                    // Insert : if (NC_Patch.IsClient) { this.hp = 1; return result; }
+                    // Before : UIBattleStatistics.RegisterEliminate(this.intensity, 1);
+                    var codeMatcher = new CodeMatcher(instructions, iLGenerator)
+                        .MatchForward(false, new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(UIBattleStatistics), nameof(UIBattleStatistics.RegisterEliminate))))
+                        .MatchBack(false, new CodeMatch(OpCodes.Ldarg_0))
+                        .Insert(new CodeInstruction(OpCodes.Nop))
+                        .CreateLabel(out var label)
+                        .Insert(
+                            new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(NC_Patch), nameof(NC_Patch.IsClient))),
+                            new CodeInstruction(OpCodes.Brfalse_S, label),
+                            new CodeInstruction(OpCodes.Ldarg_0),
+                            new CodeInstruction(OpCodes.Ldc_I4_1),
+                            new CodeInstruction(OpCodes.Stfld, AccessTools.Field(typeof(EnemyShip), nameof(EnemyShip.hp))),
+                            new CodeInstruction(OpCodes.Ldloc_S, (byte)6),
+                            new CodeInstruction(OpCodes.Ret)
+                        );
+
+                    return codeMatcher.InstructionEnumeration();
+                }
+                catch (Exception e)
+                {
+                    Log.Warn("BeAttacked_Transpiler fail!");
+                    Log.Dev(e);
+                    return instructions;
+                }
+            }
 
             [HarmonyPostfix, HarmonyPatch(typeof(EnemyShip), nameof(EnemyShip.FindAnotherStation))]
             static void OnTargetChange(EnemyShip __instance)
@@ -773,7 +805,7 @@ namespace NebulaCompatibilityAssist.Patches
                         ship.shipData.otherGId = r.ReadInt32();
                         ship.shipData.planetB = r.ReadInt32();
 
-                        Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc}");
+                        Log.Dev($"[Battle] ship[{ship.shipIndex}]:{ship.state} HP:{ship.hp} INC:{ship.shipData.inc} Target:{ship.targetStation?.planetId}");
 
                         ship.shipData.direction = r.ReadInt32();
                         ship.shipData.uPos = new VectorLF3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
