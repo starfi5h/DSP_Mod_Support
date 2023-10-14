@@ -671,6 +671,17 @@ namespace NebulaCompatibilityAssist.Patches
 
             #region Sync EnemyShip state
 
+            [HarmonyPrefix, HarmonyPatch(typeof(EnemyShip), nameof(EnemyShip.BeAttacked))]
+            static bool BeAttacked(EnemyShip __instance, int atk, DamageType dmgType, ref int __result)
+            {
+                if (NC_Patch.IsClient)
+                {
+                    __result = CalculateAttack(__instance, atk, dmgType);
+                   return false;
+                }
+                return true;
+            }
+
             [HarmonyPrefix, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.RemoveShip))]
             static bool RemoveShip()
             {
@@ -800,6 +811,56 @@ namespace NebulaCompatibilityAssist.Patches
                 }
             }
 
+
+            static int CalculateAttack(EnemyShip __instance, int atk, DamageType dmgType) // [COPY] EnemyShip.BeAttacked 前面計算傷害的部分
+            {
+                try
+                {
+                    lock (__instance)
+                    {
+                        if (__instance.state != EnemyShip.State.active) return 0;
+
+                        double bonus = 0;
+                        if (DSP_Battle.Configs.isEnemyWeakenedByRelic) // relic1-3 战斗最开始的1min受到伤害增加
+                            bonus += 0.3;
+                        if (Relic.HaveRelic(2, 12) && Relic.Verify(0.1)) // relic2-12 有概率暴击
+                            bonus += 1;
+                        if (Relic.HaveRelic(0, 2) && Relic.relic0_2Version == 1)
+                            bonus += 0.0003 * Relic.relic0_2Charge;
+                        atk = Relic.BonusDamage(atk, bonus);
+                                                
+                        // 精英波次减伤
+                        if (DSP_Battle.Configs.nextWaveElite == 1)
+                        {
+                            int shipType = DSP_Battle.Configs.enemyIntensity2TypeMap[__instance.intensity];
+                            if (shipType == 1 && dmgType == DamageType.bullet && Utils.RandDouble() > 0.1)
+                                atk = 0;
+                            else if (shipType == 3 && (dmgType == DamageType.missileAoe || dmgType == DamageType.mega))
+                                atk = (int)(0.1 * atk);
+                            else if (shipType == 4 && (dmgType == DamageType.laser || dmgType == DamageType.mega || dmgType == DamageType.shield))
+                                atk = (int)(0.2 * atk);
+                        }
+                        if (Relic.GetCursedRelicCount() > 0) // 被诅咒的圣物的负面效果
+                        {
+                            atk = (int)(atk * (1 - Relic.GetCursedRelicCount() * 0.05));
+                        }
+                        if (atk >= __instance.hp) // [MOD] 即將被擊落時, 免疫這次攻擊。留下殘血的敵船等主機事件回收
+                        {
+                            atk = 0;
+                        }
+                        __instance.hp -= atk;
+                        RelicFunctionPatcher.ApplyBloodthirster(atk);
+                        return atk;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Dev($"CalculateAttack error! hp:{__instance.hp} atk:{atk}");
+                    Log.Dev(e);
+                    return 0;
+                }
+            }
+
             static void AfterShipDestoryed(EnemyShip ship) // [COPY] EnemyShip.BeAttacked if (hp <= 0)的部分
             {
                 try
@@ -867,8 +928,8 @@ namespace NebulaCompatibilityAssist.Patches
                 }
                 catch (Exception e)
                 {
-                    Log.Warn("AfterShipDestoryed error!");
-                    Log.Warn(e);
+                    Log.Dev("AfterShipDestoryed error!");
+                    Log.Dev(e);
                 }
             }
 
