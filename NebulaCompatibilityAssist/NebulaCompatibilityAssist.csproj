@@ -3,10 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>NebulaCompatibilityAssist</AssemblyName>
-    <Description>NebulaCompatibilityAssist</Description>
-    <Version>0.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
