@@ -419,8 +419,8 @@ namespace NebulaCompatibilityAssist.Patches
 
                 // Client only put the station into distroyedStation to remove it from target
                 // The real building removing is performed by Host
-                // Log.Debug("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
-                // RemoveEntities.distroyedStation[ship.shipData.otherGId] = 0;
+                Log.Debug("=========> Ship " + ship.shipIndex.ToString() + " landed at station " + ship.shipData.otherGId.ToString());
+                RemoveEntities.distroyedStation[ship.shipData.otherGId] = 0;
                 ship.state = EnemyShip.State.distroyed;
                 ship.shipData.inc--;
                 if (ship.shipData.inc > 0)
@@ -672,12 +672,15 @@ namespace NebulaCompatibilityAssist.Patches
             #region Sync EnemyShip state
 
             [HarmonyPrefix, HarmonyPatch(typeof(EnemyShips), nameof(EnemyShips.RemoveShip))]
-            static bool RemoveShip()
+            static bool RemoveShip(EnemyShip ship)
             {
                 if (NC_Patch.IsClient)
                 {
                     // Let ship destoryed in client stay until host send packet
-                    return isIncomingPacket;
+                    //return isIncomingPacket;
+                    Log.Warn($"[Battle] ship remove [{ship.shipIndex}]");
+                    Log.Dev(Environment.StackTrace);
+
                 }
                 return true;
             }
@@ -728,7 +731,7 @@ namespace NebulaCompatibilityAssist.Patches
                     }
                     else // 客戶端重新找目標(塔被拆?)
                     {
-                        __instance.maxSpeed = 0f; // 定住飛船, 等待主機同步新的目標
+                        __instance.maxSpeed = 0.01f; // 定住飛船, 等待主機同步新的目標
                     }
                 }
             }
