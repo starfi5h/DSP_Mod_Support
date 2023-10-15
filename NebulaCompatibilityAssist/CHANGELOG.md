@@ -1,5 +1,10 @@
 ## Changelog
 
+#### v0.3.1 (Nebula 0.8.14)
+\- Hotfix: Fix NRE error in `StationUIManager.UpdateStorage.`  
+\- Hotfix: Load dyson sphere when click on star view on the starmap.  
+\- TheyComeFromVoid v2.2.8: Add remote cannons to let planets not loaded yet to fire weapons. Bug fixes.  
+
 #### v0.3.0 (Nebula 0.8.14)
 \- TheyComeFromVoid v2.2.8: Add Droplet syncing and fixes  
 \- Remove BigFormingSize from incompat list  

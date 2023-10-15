@@ -1,5 +1,11 @@
 # Nebula Compatibility Assist
 
+Nebula 0.8.14 hotfix:  
+
+- Fix NRE error in `StationUIManager.UpdateStorage`.  
+- Load dyson sphere when click on star view on the starmap.  
+- Show the diff count of local & remote mod list in chat when client login.  
+
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/193h6sISVHSN_CX4N4XAm03pQYxNl-UfuN468o5ris1s)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are required to install on both client and host.  
@@ -68,7 +74,10 @@ DSP Belt Reverse Direction, MoreMegaStructure, TheyComeFromVoid, Dustbin are req
 - Sync enemy ship retarget/destroy/revive event.  
 - Sync star fortress.  
 - Sync droplet launch by other players.  
-- Note: Process of battle (ships, droplet) does not synced, only the final results are same.  
+Client behavior changes:  
+- The battle progress bar now represents (current enemies hp) / (total enemies hp).  
+- Add remote planet cannons for factories not loaded yet.  
+- Note: Process of battle (ships, droplet) does not synced, only the final results after battle are same. Expect enemies to disappear/reappear abruptly.   
 
 </details>
   
@@ -147,7 +156,8 @@ DSP Belt Reverse Direction、MoreMegaStructure、TheyComeFromVoid、Dustbin必�
 - 同步恒星要塞配置。  
 - 水滴机制重制: 同步水滴发射事件, 允许非本地星系水滴, 水滴在战斗结束后才会回收。  
 - 战斗进度条: 客户端的进度条只会以敌舰血量的比例计算。  
-- 注意：战斗过程（舰船，水滴）不会精准同步，只会同步最终结果。若客户端想要观看完整的战斗过程，需要在敌舰入侵前造访该星系的每一个有工厂的星球，以及用戴森球编辑器观看每一个有恒星炮的星系来载入相关的戴森球。  
+- 新增远端炮塔以让客户端未载入的星球可以发射炮弹/火箭。  
+- 注意：战斗过程（舰船，水滴）不会精准同步，只会同步最终结果。敌舰可能会突然消失或重新出现。  
 
 </details>
   
