@@ -26,7 +26,7 @@ namespace SF_ChinesePatch
             BulletTime_Patch.OnAwake();
             DSPStarMapMemo_Patch.OnAwake();
             GalacticScale_Patch.OnAwake(harmony);
-            LSTM_Patch.OnAwake();
+            LSTM_Patch.OnAwake(harmony);
             NebulaMultiplayer_Patch.OnAwake();
 
             harmony.PatchAll(typeof(StringManager));
