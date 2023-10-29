@@ -77,6 +77,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.2.1: Fix astro list in outersapce.  
 \- v1.2.0: Add `TimeSliderSlice` config options. Fix error when opening dyson tab when there is only one system.  
 \- v1.1.0: Add `ListWidthOffeset`, `NumericPlanetNo`, prefixes & postfixes config options. Stretch histogram.  
 \- v1.0.0: Initial released. (DSP 0.9.27.15466)  
