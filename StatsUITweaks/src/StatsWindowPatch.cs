@@ -238,11 +238,10 @@ namespace StatsUITweaks
 
         #region 列表修改
 
-        static List<ValueTuple<string, int>> systemList = new();
-        static List<string> newItems = new();
-        static List<int> newItemData = new();
+        static readonly List<ValueTuple<string, int>> systemList = new();
+        static readonly List<string> newItems = new();
+        static readonly List<int> newItemData = new();
         static string searchStr = "";
-        static int startIndex = 2;
 
         static void OnInputValueChanged(string value)
         {
@@ -256,10 +255,17 @@ namespace StatsUITweaks
         {
             if (!__instance.isStatisticsTab) return;
 
-            if (__instance.astroBox.Items.Count > 2 && __instance.astroBox.Items[2] == "localSystemLabel".Translate())
+            // 在遊戲中 UIStatisticsWindow.RefreshAstroBox() 設定前面固定的選項
+            // [0]:-1, "统计全星系"
+            // [1]:0, "统计当前星球" 只有在localPlanet!=null才會有
+            // [2]:?00, "localSystemLabel" Bottleneck新增的選項
+            // 其餘皆為 星系 + 星球1 + 星球2 ..., 以創建工廠的時間排序
+            int startIndex = 1;
+            if (!__instance.isDysonTab && __instance.gameData.localPlanet != null)
             {
-                //Plugin.Log.LogDebug("Bottleneck: localSystem enabled.");
-                startIndex = 3;
+                startIndex = 2;
+                if (__instance.astroBox.Items.Count > 2 && __instance.astroBox.Items[2] == "localSystemLabel".Translate())
+                    startIndex = 3; // new option in Bottleneck
             }
 
             if (__instance.astroBox.Items.Count > startIndex) // Planet filter
@@ -312,10 +318,10 @@ namespace StatsUITweaks
             {
                 for (int i = __instance.astroBox.Items.Count - 1; i >= startIndex; i--)
                 {
-                    int startIndex = __instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPrefix.Length : PlanetPrefix.Length;
-                    int endIndex = __instance.astroBox.Items[i].Length - (__instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPostfix.Length : PlanetPostfix.Length);
-                    int result = __instance.astroBox.Items[i].IndexOf(searchStr, startIndex, StringComparison.OrdinalIgnoreCase);
-                    if (result == -1 || (result + searchStr.Length) > endIndex)
+                    int nameStart = __instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPrefix.Length : PlanetPrefix.Length;
+                    int nameEnd = __instance.astroBox.Items[i].Length - (__instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPostfix.Length : PlanetPostfix.Length);
+                    int result = __instance.astroBox.Items[i].IndexOf(searchStr, nameStart, StringComparison.OrdinalIgnoreCase);
+                    if (result == -1 || (result + searchStr.Length) > nameEnd)
                     {
                         __instance.astroBox.Items.RemoveAt(i);
                         __instance.astroBox.ItemsData.RemoveAt(i);
