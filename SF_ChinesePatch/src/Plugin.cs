@@ -2,6 +2,8 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 namespace SF_ChinesePatch
 {
@@ -26,7 +28,7 @@ namespace SF_ChinesePatch
             BulletTime_Patch.OnAwake();
             DSPStarMapMemo_Patch.OnAwake();
             GalacticScale_Patch.OnAwake(harmony);
-            LSTM_Patch.OnAwake();
+            LSTM_Patch.OnAwake(harmony);
             NebulaMultiplayer_Patch.OnAwake();
 
             harmony.PatchAll(typeof(StringManager));
@@ -64,6 +66,19 @@ namespace SF_ChinesePatch
                 Log.LogError("Import strings from config file fail!");
                 Log.LogError(e);
             }
+        }
+
+        public static IEnumerable<CodeInstruction> TranslateStrings(IEnumerable<CodeInstruction> instructions)
+        {
+            // Add .Translate() behind every string
+            var codeMatcher = new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Ldstr))
+                .Repeat(matcher => matcher
+                        .Advance(1)
+                        .Insert(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StringTranslate), nameof(StringTranslate.Translate), new System.Type[] { typeof(string) })))
+                );
+
+            return codeMatcher.InstructionEnumeration();
         }
     }
 }
