@@ -15,8 +15,12 @@ namespace SF_ChinesePatch
 
         public static void RegisterString(string key, string cnTrans, string enTrans = "")
         {
-            if (nameIndices.Contains(key) || isInject)
+            if (isInject) return;
+            if (nameIndices.Contains(key))
+            {
+                Plugin.Log.LogInfo($"{key}:({cnTrans},{enTrans}) has already been registered!");
                 return;
+            }
 
             if (string.IsNullOrEmpty(enTrans)) enTrans = key;
             StringProto proto = new()
@@ -73,8 +77,9 @@ namespace SF_ChinesePatch
             {
                 protos[i].ID = FindAvailableStringID();
                 protoSet.dataArray[array.Length + i] = protos[i] as T;
-                Plugin.Log.LogDebug($"Add {protos[i].ID} {protos[i].Name.Translate()} to {protoSet.GetType().Name}.");
+                //Plugin.Log.LogDebug($"Add {protos[i].ID} {protos[i].Name.Translate()} to {protoSet.GetType().Name}.");
             }
+            Plugin.Log.LogDebug($"Add {protos.Count} to protoSet.");
 
             var dataIndices = new Dictionary<int, int>();
             for (int i = 0; i < protoSet.dataArray.Length; i++)

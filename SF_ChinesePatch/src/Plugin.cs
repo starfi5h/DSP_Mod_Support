@@ -2,6 +2,12 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+
+[assembly: AssemblyTitle(SF_ChinesePatch.Plugin.NAME)]
+[assembly: AssemblyVersion(SF_ChinesePatch.Plugin.VERSION)]
 
 namespace SF_ChinesePatch
 {
@@ -10,7 +16,7 @@ namespace SF_ChinesePatch
     {
         public const string GUID = "starfi5h.plugin.SF_ChinesePatch";
         public const string NAME = "SF_ChinesePatch";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.2.0";
 
         public static ManualLogSource Log;
         public static Plugin Instance;
@@ -23,11 +29,12 @@ namespace SF_ChinesePatch
             harmony = new(GUID);
 
             LoadConfigStrings();
+            NebulaMultiplayer_Patch.OnAwake();
+            GalacticScale_Patch.OnAwake(harmony);
             BulletTime_Patch.OnAwake();
             DSPStarMapMemo_Patch.OnAwake();
-            GalacticScale_Patch.OnAwake(harmony);
-            LSTM_Patch.OnAwake();
-            NebulaMultiplayer_Patch.OnAwake();
+            LSTM_Patch.OnAwake(harmony);
+            PlanetFinder_Patch.OnAwake(harmony);
 
             harmony.PatchAll(typeof(StringManager));
         }
@@ -64,6 +71,19 @@ namespace SF_ChinesePatch
                 Log.LogError("Import strings from config file fail!");
                 Log.LogError(e);
             }
+        }
+
+        public static IEnumerable<CodeInstruction> TranslateStrings(IEnumerable<CodeInstruction> instructions)
+        {
+            // Add .Translate() behind every string
+            var codeMatcher = new CodeMatcher(instructions)
+                .MatchForward(false, new CodeMatch(OpCodes.Ldstr))
+                .Repeat(matcher => matcher
+                        .Advance(1)
+                        .Insert(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StringTranslate), nameof(StringTranslate.Translate), new System.Type[] { typeof(string) })))
+                );
+
+            return codeMatcher.InstructionEnumeration();
         }
     }
 }
