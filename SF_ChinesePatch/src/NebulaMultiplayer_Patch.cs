@@ -33,8 +33,8 @@
             #endregion
 
             #region Options 設置
-            StringManager.RegisterString("General", "一般");
-            StringManager.RegisterString("Network", "網路");
+            StringManager.RegisterString("General", "常规");
+            StringManager.RegisterString("Network", "网络");
             StringManager.RegisterString("Chat", "聊天");
 
             StringManager.RegisterString("Nickname", "玩家名称");

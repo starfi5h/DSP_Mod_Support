@@ -3,7 +3,11 @@ using BepInEx.Logging;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
+
+[assembly: AssemblyTitle(SF_ChinesePatch.Plugin.NAME)]
+[assembly: AssemblyVersion(SF_ChinesePatch.Plugin.VERSION)]
 
 namespace SF_ChinesePatch
 {
@@ -12,7 +16,7 @@ namespace SF_ChinesePatch
     {
         public const string GUID = "starfi5h.plugin.SF_ChinesePatch";
         public const string NAME = "SF_ChinesePatch";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.2.0";
 
         public static ManualLogSource Log;
         public static Plugin Instance;
@@ -25,10 +29,10 @@ namespace SF_ChinesePatch
             harmony = new(GUID);
 
             LoadConfigStrings();
+            NebulaMultiplayer_Patch.OnAwake();
+            GalacticScale_Patch.OnAwake(harmony);
             BulletTime_Patch.OnAwake();
             DSPStarMapMemo_Patch.OnAwake();
-            GalacticScale_Patch.OnAwake(harmony);            
-            NebulaMultiplayer_Patch.OnAwake();
             LSTM_Patch.OnAwake(harmony);
             PlanetFinder_Patch.OnAwake(harmony);
 

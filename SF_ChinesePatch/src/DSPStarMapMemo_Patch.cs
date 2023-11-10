@@ -14,9 +14,9 @@
 
         private static void RegisterStrings()
         {
-            StringManager.RegisterString("Memo", "便笺");
+            StringManager.RegisterString("Memo", "备注");
             StringManager.RegisterString("Press [Enter] to insert a line break.", "按下 [Enter] 插入换行符。");
-            StringManager.RegisterString("Press [CTRL] to hide star memo.", "按下 [CTRL] 隐藏星球便笺。");
+            StringManager.RegisterString("Press [CTRL] to hide star memo.", "按下 [CTRL] 隐藏星球备注。");
         }
     }
 }
