@@ -1,7 +1,7 @@
 {
   "name": "SF_ChinesePatch",
   "description": "模组汉化补丁,提供NebulaMultiplayerMod(联机),GalacticScale(银河尺度)等mod的中文翻译。支援自定义字典",
-  "version_number": "1.1.0",
+  "version_number": "1.2.0",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/SF_ChinesePatch",
   "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }
