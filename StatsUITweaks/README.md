@@ -28,7 +28,9 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `ListWidthOffeset`| 70     | Increase width of the list |
 | `HotkeyListUp`  | PageUp   | Move to previous item in astro list |
 | `HotkeyListUp`  | PageDown | Move to next item in astro list |
-| `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers. |
+| `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
+| PerformancePanel | | |
+| `FoldButton`      | true    | Add a button to fold pie chart |
 
 ----
 
@@ -73,10 +75,14 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListUp`    | PageDown | 切换至列表中下一个项目的热键 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
+| PerformancePanel | | |
+| `FoldButton`      | true    | 在性能面板加入一个折叠饼图的按钮 |
 
+![demo3](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo3.jpg)  
 
 ## ChangeLogs
 
+\- v1.3.0: Add `FoldButton` config option.  
 \- v1.2.1: Fix astro list in outersapce.  
 \- v1.2.0: Add `TimeSliderSlice` config options. Fix error when opening dyson tab when there is only one system.  
 \- v1.1.0: Add `ListWidthOffeset`, `NumericPlanetNo`, prefixes & postfixes config options. Stretch histogram.  
