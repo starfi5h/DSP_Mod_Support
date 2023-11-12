@@ -14,7 +14,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.2.1";
+        public const string VERSION = "1.3.0";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -34,6 +34,9 @@ namespace StatsUITweaks
             var HotkeyListUp = Config.Bind("StatsUITweaks", "HotkeyListUp", "PageUp", "Move to previous item in list.\n切换至列表中上一个项目");
             var HotkeyListDown = Config.Bind("StatsUITweaks", "HotkeyListDown", "PageDown", "Move to next item in list.\n切换至列表中下一个项目");
             var NumericPlanetNo = Config.Bind("StatsUITweaks", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
+
+            var FoldButton = Config.Bind("PerformancePanel", "FoldButton", true, "Add a button to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
+
 
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
@@ -58,11 +61,14 @@ namespace StatsUITweaks
             harmony.PatchAll(typeof(StatsWindowPatch));
             if (NumericPlanetNo.Value)
                 harmony.PatchAll(typeof(PlanetNamePatch));
+            if (FoldButton.Value)
+                harmony.PatchAll(typeof(PerformancePanelPatch));
         }
 
         public void OnDestroy()
         {
             StatsWindowPatch.OnDestory();
+            PerformancePanelPatch.OnDestory();
             harmony.UnpatchSelf();
             harmony = null;
         }
