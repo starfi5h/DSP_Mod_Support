@@ -1,9 +1,7 @@
 ﻿using System;
 using HarmonyLib;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
 
 namespace StatsUITweaks
 {
@@ -14,12 +12,10 @@ namespace StatsUITweaks
         static bool folded;
         static float scrollHeight = 398f;
         static float scrollY = 23.5f;
-        static float activeButtonY = 53.5f;
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIPerformancePanel), nameof(UIPerformancePanel._OnOpen))]
         public static void Init(UIPerformancePanel __instance)
         {
-            Plugin.Log.LogDebug("PerformancePanelPatch initial");
             if (!initialized)
             {
                 try
@@ -40,13 +36,13 @@ namespace StatsUITweaks
                     foldBtn.tips.tipTitle = "Fold 折叠饼图";
                     foldBtn.tips.tipText = "Click to fold/unfold pie chart";
                     foldBtn.onClick += OnFoldButtonClick;
+                    if (foldBtn.transitions != null)
+                        foldBtn.transitions[0].highlightColorOverride = new Color(0.5f, 0.6f, 0.7f, 0.1f); //用於highlighted
                     go.SetActive(true);
 
                     // Record original values
                     scrollHeight = __instance.cpuScrollRect.rectTransform.sizeDelta.y;
                     scrollY = __instance.cpuScrollRect.transform.localPosition.y;
-                    activeButtonY = __instance.cpuActiveButton.transform.localPosition.y;
-                    Plugin.Log.LogDebug($"{scrollHeight} {scrollY} {activeButtonY}");
 
                     initialized = true;
                 }
@@ -56,15 +52,12 @@ namespace StatsUITweaks
                     Plugin.Log.LogError(e);
                 }
             }
-
-            if (initialized)
-            {
-
-            }
+            Toggle(folded);
         }
 
         public static void OnDestory()
         {
+            Toggle(false);
             GameObject.Destroy(foldBtn?.gameObject);
             initialized = false;
         }
@@ -73,7 +66,6 @@ namespace StatsUITweaks
         {
             folded = !folded;
             foldBtn.highlighted = folded;
-            Plugin.Log.LogDebug(folded);
             Toggle(folded);
         }
 
@@ -82,27 +74,21 @@ namespace StatsUITweaks
             if (initialized)
             {
                 var panel = UIRoot.instance.uiGame.statWindow.performancePanelUI;
-
-                Transform transform = panel.transform;
-                Adjust(panel.cpuScrollRect.rectTransform, panel.cpuActiveButton.transform, extendScroll);
-                Adjust(panel.gpuScrollRect.rectTransform, panel.gpuActiveButton.transform, extendScroll);
-                Adjust(panel.dataScrollRect.rectTransform, panel.dataActiveButton.transform, extendScroll);
+                Adjust(panel.cpuScrollRect.rectTransform, extendScroll);
+                Adjust(panel.gpuScrollRect.rectTransform, extendScroll);
+                Adjust(panel.dataScrollRect.rectTransform, extendScroll);
             }
         }
 
-        private static void Adjust(RectTransform scrollRect, Transform activeBtnRect, bool extendScroll)
+        private static void Adjust(RectTransform scrollRect, bool extendScroll)
         {
             foreach (Transform child in scrollRect.parent)
             {
                 child.gameObject.SetActive(!extendScroll);
             }
-
             scrollRect.gameObject.SetActive(true);
-            scrollRect.localPosition = new Vector3(scrollRect.localPosition.x, extendScroll ? scrollY + 346.5f : scrollY, 0f); // 370f
-            scrollRect.sizeDelta = new Vector2(scrollRect.sizeDelta.x, extendScroll ? scrollHeight + 300f : scrollHeight); //698f
-
-            activeBtnRect.gameObject.SetActive(true);
-            activeBtnRect.localPosition = new Vector3(activeBtnRect.localPosition.x, extendScroll ? activeButtonY - 583.5f : activeButtonY, 0f); // -530f
+            scrollRect.localPosition = new Vector3(scrollRect.localPosition.x, extendScroll ? scrollY + 362f : scrollY, 0f);
+            scrollRect.sizeDelta = new Vector2(scrollRect.sizeDelta.x, extendScroll ? scrollHeight + 372f : scrollHeight);
         }
     }
 }
