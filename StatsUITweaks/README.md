@@ -82,6 +82,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.3.1: Support DSP 0.10.28.20779 (no changes in functions)  
 \- v1.3.0: Add `FoldButton` config option.  
 \- v1.2.1: Fix astro list in outersapce.  
 \- v1.2.0: Add `TimeSliderSlice` config options. Fix error when opening dyson tab when there is only one system.  
