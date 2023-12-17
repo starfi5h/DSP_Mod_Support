@@ -7,6 +7,13 @@ using UnityEngine;
 using FactoryLocator.UI;
 using FactoryLocator.Compat;
 using CommonAPI.Systems.ModLocalization;
+using System.Reflection;
+
+[assembly: AssemblyFileVersion(FactoryLocator.Plugin.VERSION)]
+[assembly: AssemblyInformationalVersion(FactoryLocator.Plugin.VERSION)]
+[assembly: AssemblyVersion(FactoryLocator.Plugin.VERSION)]
+[assembly: AssemblyProduct(FactoryLocator.Plugin.NAME)]
+[assembly: AssemblyTitle(FactoryLocator.Plugin.NAME)]
 
 namespace FactoryLocator
 {
