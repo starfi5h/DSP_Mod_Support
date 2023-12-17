@@ -27,7 +27,7 @@ namespace FactoryLocator.UI
         private UIButtonTip statusTip = null; // show power network status
         private string statusText = "";
         private bool autoclear_enable = true; // clear previous results when close or make another query
-        private Language language = Language.enUS;
+        private int currentLanguageLCID = 0;
 
         public static UILocatorWindow CreateWindow()
         {
@@ -177,9 +177,9 @@ namespace FactoryLocator.UI
 
         public void SetText()
         {
-            if (language != Localization.language)
+            if (currentLanguageLCID != Localization.CurrentLanguageLCID)
             {
-                language = Localization.language;
+                currentLanguageLCID = Localization.CurrentLanguageLCID;
                 queryBtns[0].transform.Find("Text").GetComponent<Text>().text = "Building".Translate();
                 queryBtns[1].transform.Find("Text").GetComponent<Text>().text = "Vein".Translate();
                 queryBtns[2].transform.Find("Text").GetComponent<Text>().text = "Recipe".Translate();

@@ -6,17 +6,18 @@ using HarmonyLib;
 using UnityEngine;
 using FactoryLocator.UI;
 using FactoryLocator.Compat;
+using CommonAPI.Systems.ModLocalization;
 
 namespace FactoryLocator
 {
     [BepInPlugin(GUID, NAME, VERSION)]
     [BepInDependency(CommonAPIPlugin.GUID)]
-    [CommonAPISubmoduleDependency(nameof(ProtoRegistry), nameof(CustomKeyBindSystem))]
+    [CommonAPISubmoduleDependency(nameof(LocalizationModule), nameof(CustomKeyBindSystem), nameof(PickerExtensionsSystem))]
     public class Plugin : BaseUnityPlugin
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.2.0";
+        public const string VERSION = "1.2.1";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
@@ -33,6 +34,26 @@ namespace FactoryLocator
             Init();
 #else
             harmony.PatchAll(typeof(Plugin));
+            CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
+            {
+                key = new CombineKey((int)KeyCode.F, CombineKey.CTRL_COMB, ECombineKeyAction.OnceClick, false),
+                conflictGroup = 2052,
+                name = "ShowFactoryLocator",
+                canOverride = true
+            });
+            RegisterTranslation("KEYShowFactoryLocator", "Show Factory Locator Window", "打开FactoryLocator窗口");
+            RegisterTranslation("Building", "Building", "建筑");
+            RegisterTranslation("Vein", "Vein", "矿脉");
+            RegisterTranslation("Recipe", "Recipe", "配方");
+            RegisterTranslation("Warning", "Warning", "警报");
+            RegisterTranslation("Storage", "Storage", "储物仓");
+            RegisterTranslation("Station", "Station", "物流塔");
+            RegisterTranslation("Signal Icon", "Signal Icon", "信号图标");
+            RegisterTranslation("Clear All", "Clear All", "清空");
+            RegisterTranslation("Display All Warning", "Display All Warning", "显示所有警报提示");
+            RegisterTranslation("Auto Clear Query", "Auto Clear Query", "自动清除搜寻结果");
+            RegisterTranslation("Power Network Status", "Power Network Status", "电网状态");
+            RegisterTranslation("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
 #endif
         }
 
@@ -46,28 +67,12 @@ namespace FactoryLocator
             NebulaCompat.Init();
             DSPMoreRecipesCompat.Init();
             GenesisBookCompat.Init();
-#if !DEBUG
-            CustomKeyBindSystem.RegisterKeyBind<PressKeyBind>(new BuiltinKey
-            {
-                key = new CombineKey((int)KeyCode.F, CombineKey.CTRL_COMB, ECombineKeyAction.OnceClick, false),
-                conflictGroup = 2052,
-                name = "ShowFactoryLocator",
-                canOverride = true
-            });
-            ProtoRegistry.RegisterString("KEYShowFactoryLocator", "Show Factory Locator Window", "打开FactoryLocator窗口");
-            ProtoRegistry.RegisterString("Building", "Building", "建筑");
-            ProtoRegistry.RegisterString("Vein", "Vein", "矿脉");
-            ProtoRegistry.RegisterString("Recipe", "Recipe", "配方");
-            ProtoRegistry.RegisterString("Warning", "Warning", "警报");
-            ProtoRegistry.RegisterString("Storage", "Storage", "储物仓");
-            ProtoRegistry.RegisterString("Station", "Station", "物流塔");
-            ProtoRegistry.RegisterString("Signal Icon", "Signal Icon", "信号图标");
-            ProtoRegistry.RegisterString("Clear All", "Clear All", "清空");
-            ProtoRegistry.RegisterString("Display All Warning", "Display All Warning", "显示所有警报提示");
-            ProtoRegistry.RegisterString("Auto Clear Query", "Auto Clear Query", "自动清除搜寻结果");
-            ProtoRegistry.RegisterString("Power Network Status", "Power Network Status", "电网状态");
-            ProtoRegistry.RegisterString("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
-#endif
+        }
+
+        static void RegisterTranslation(string key, string enTrans, string cnTrans)
+        {
+            // Set fr as en
+            LocalizationModule.RegisterTranslation(key, enTrans, cnTrans, enTrans);
         }
 
         public void Update()

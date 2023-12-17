@@ -7,13 +7,13 @@ namespace FactoryLocator
 {
     public class UIentryCount
     {
-        public static int ItemCol { get; set; } = 12;
-        public static int RecipeCol { get; set; } = 12;
-        public static int SignalCol { get; set; } = 12;
+        public static int ItemCol { get; set; } = 14;
+        public static int RecipeCol { get; set; } = 14;
+        public static int SignalCol { get; set; } = 14;
 
         static Dictionary<int, int> filterIds;
         static Text[] countArray;
-        const int ARRAYLENGTH = 84;
+        const int ARRAYLENGTH = 112; //8*14
 
         public static void OnOpen(ESignalType signalType, Dictionary<int, int> filters)
         {
@@ -110,7 +110,7 @@ namespace FactoryLocator
 
         private static void SetPosition(Text text, int hoveredIndex, ESignalType signalType)
         {
-            int maxCol = 12;
+            int maxCol = 14;
             switch (signalType)
             {
                 case ESignalType.Item: maxCol = ItemCol; break;
