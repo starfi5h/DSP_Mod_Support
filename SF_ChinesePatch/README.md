@@ -3,7 +3,7 @@
 ![GS2 config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SF_ChinesePatch/img/demo1.jpg)  
 ![LSTM config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SF_ChinesePatch/img/demo2.jpg)  
   
-海星的个人汉化补丁。支援使用者自定义字典的功能。  
+个人汉化补丁。支援使用者自定义字典的功能。  
 翻译的文本对照可以在mod说明页面的wiki中查看。需要先将游戏语言设置成中文重启才会生效。  
 1. [NebulaMultiplayerMod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) 联机mod  
 2. [GalacticScale](https://dsp.thunderstore.io/package/Galactic_Scale/GalacticScale/) 银河尺度  
@@ -20,12 +20,11 @@
 `Enable`-`mod` : 个别mod的汉化开关  
 `自定义`-`字典` : 以类似json的形式输入"原文":"翻译"的配对即可新增或覆盖翻译。范例:```"Yes":"是","No":"否"```  
 
-其他使用LDBTool注册字串的mod可以透过`BepInEx\config\LDBTool\LDBTool.CustomLocalization.ZHCN.cfg`修改  
-
 ----
 
 ## Changelog
 
+v1.3.0 - 适应黑雾版本 (0.10.28.21014)  
 v1.2.0 - 增加PlanetFinder汉化(感谢nga V_itas的汉化版本), LSTM配置汉化  
 v1.1.0 - 修复自定义字典  
 v1.0.0 - Initial release. (DSPv0.9.27.15466)  
