@@ -7,6 +7,7 @@ namespace SF_ChinesePatch
 {
     // 部分翻譯取自貼吧GalacticScale2 自定义星系生成mod介绍 作者:轻型工业机甲
     // https://tieba.baidu.com/p/8297269758?pid=147231461365&cid=147274042722
+    #pragma warning disable IDE1006
 
     public class GalacticScale_Patch
     {
@@ -28,6 +29,7 @@ namespace SF_ChinesePatch
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PlanetData), "typeString", MethodType.Getter)]
         public static void typeString(ref string __result)
+
         {
             if (__result != null && typeStrings.ContainsKey(__result))
             {

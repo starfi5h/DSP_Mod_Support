@@ -1,116 +1,114 @@
 ﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 
 namespace SF_ChinesePatch
 {
 
-    // Reference source: https://github.com/xiaoye97/DSP_LDBTool
+    // Reference source: https://github.com/soarqin/DSP_Mods/blob/master/UXAssist/Common/I18N.cs
 
     public class StringManager
     {
         private static bool isInject = false;
-        private static int lastStringId = 1000;
-        private static List<Proto> protos = new ();
-        private static HashSet<string> nameIndices = new ();
+        private static readonly Dictionary<string, int> nameIndices = new (); // key, index to string tuples
+        private static readonly List<Tuple<int, string, string>> stringTuples = new(); // id, en, cn
 
         public static void RegisterString(string key, string cnTrans, string enTrans = "")
         {
             if (isInject) return;
-            if (nameIndices.Contains(key))
+            if (nameIndices.ContainsKey(key))
             {
                 Plugin.Log.LogInfo($"{key}:({cnTrans},{enTrans}) has already been registered!");
                 return;
             }
 
-            if (string.IsNullOrEmpty(enTrans)) enTrans = key;
-            StringProto proto = new()
-            {
-                Name = key,
-                ENUS = enTrans,
-                ZHCN = string.IsNullOrEmpty(cnTrans) ? enTrans : cnTrans,
-                FRFR = enTrans,
-                ID = -1
-            };
-            nameIndices.Add(key);
-            protos.Add(proto);
+            //Plugin.Log.LogDebug($"Register [{stringTuples.Count}] {key}:({cnTrans},{enTrans})");
+            nameIndices.Add(key, stringTuples.Count);
+            stringTuples.Add(Tuple.Create(-1, string.IsNullOrEmpty(enTrans) ? key : enTrans, cnTrans));
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(DSPGame), nameof(DSPGame.Awake))] // Before GS2 patch
-        public static void InjectStrings()
+        private static void AddNamesIndexer()
         {
-            if (!isInject)
+            var indexer = Localization.namesIndexer;
+            var indexCount = indexer.Count;
+            foreach (var keypair in nameIndices)
+            {
+                if (indexer.TryGetValue(keypair.Key, out int index))
+                {
+                    var (_, en, cn) = stringTuples[keypair.Value];
+                    stringTuples[keypair.Value] = Tuple.Create(index, en, cn);
+                    Plugin.Log.LogDebug($"Overwrite {keypair.Value} => {cn} {en}");
+                }
+                else
+                {
+                    var (_, en, cn) = stringTuples[keypair.Value];
+                    stringTuples[keypair.Value] = Tuple.Create(indexCount, en, cn);
+                    indexer[keypair.Key] = indexCount;
+                    indexCount++;
+                }
+            }
+        }
+
+        private static void ApplyLanguage(int index)
+        {
+            var strs = Localization.strings?[index];
+            if (strs == null)
+            {
+                Plugin.Log.LogWarning("Can't find Localization.strings " + index);
+                return;
+            }
+            var indexerLength = Localization.namesIndexer.Count;
+            if (strs.Length < indexerLength)
+            {
+                var newStrs = new string[indexerLength];
+                Array.Copy(strs, newStrs, strs.Length);
+                strs = newStrs;
+                Localization.strings[index] = newStrs;
+            }
+            var floats = Localization.floats[index];
+            if (floats != null)
+            {
+                if (floats.Length < indexerLength)
+                {
+                    var newFloats = new float[indexerLength];
+                    Array.Copy(floats, newFloats, floats.Length);
+                    Localization.floats[index] = newFloats;
+                }
+            }
+
+            var lcId = Localization.Languages[index].lcId;
+            if (lcId == Localization.LCID_ZHCN) //cn 2052
+            {
+                foreach (var tuple in stringTuples)
+                    strs[tuple.Item1] = tuple.Item3;
+                Plugin.Log.LogInfo($"Add {stringTuples.Count} strings to ZHCN");
+            }
+            else if (index == Localization.LCID_ENUS) //en 1033
+            {
+                foreach (var tuple in stringTuples)
+                    strs[tuple.Item1] = tuple.Item2;
+                Plugin.Log.LogInfo($"Add {stringTuples.Count} strings to ENUS");
+            }
+        }
+
+        [HarmonyPostfix, HarmonyAfter("dsp.common-api.CommonAPI")]
+        [HarmonyPatch(typeof(Localization), nameof(Localization.LoadSettings))]
+        private static void Localization_LoadSettings_Postfix()
+        {
+            if (isInject) return;
+            if (stringTuples.Count > 0)
             {
                 isInject = true;
-                bool hasLDBTool = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("me.xiaoye97.plugin.Dyson.LDBTool");
-
-                if (hasLDBTool)
-                {
-                    lastStringId = (int)AccessTools.Field(AccessTools.TypeByName("xiaoye97.LDBTool"), "lastStringId").GetValue(null);
-                    Plugin.Log.LogInfo("Starting with LDBTool lastStringId " + lastStringId);
-                }
-
-                // GalacticScale.GS2.Init() too early for Localization.language to load, so we assume the language is zhCN first
-                Localization.language = Language.zhCN;
-                AddProtosToSet(LDB.strings, protos);
-                protos = null;
-                nameIndices = null;
-
-                if (hasLDBTool)
-                {
-                    AccessTools.Field(AccessTools.TypeByName("xiaoye97.LDBTool"), "lastStringId").SetValue(null, lastStringId);
-                    Plugin.Log.LogInfo("End with LDBTool lastStringId " + lastStringId);
-                }
+                AddNamesIndexer();
             }
         }
 
-        private static void AddProtosToSet<T>(ProtoSet<T> protoSet, List<Proto> protos) where T : Proto
+        [HarmonyPostfix, HarmonyAfter("dsp.common-api.CommonAPI")]
+        [HarmonyPatch(typeof(Localization), nameof(Localization.LoadLanguage))]
+        private static void Localization_LoadLanguage_Postfix(int index)
         {
-            var array = protoSet.dataArray;
-            protoSet.Init(array.Length + protos.Count);
-            for (int i = 0; i < array.Length; i++)
-            {
-                protoSet.dataArray[i] = array[i];
-            }
-
-            for (int i = 0; i < protos.Count; i++)
-            {
-                protos[i].ID = FindAvailableStringID();
-                protoSet.dataArray[array.Length + i] = protos[i] as T;
-                //Plugin.Log.LogDebug($"Add {protos[i].ID} {protos[i].Name.Translate()} to {protoSet.GetType().Name}.");
-            }
-            Plugin.Log.LogDebug($"Add {protos.Count} to protoSet.");
-
-            var dataIndices = new Dictionary<int, int>();
-            for (int i = 0; i < protoSet.dataArray.Length; i++)
-            {
-                protoSet.dataArray[i].sid = protoSet.dataArray[i].SID;
-                dataIndices[protoSet.dataArray[i].ID] = i;
-            }
-
-            protoSet.dataIndices = dataIndices;
-            if (protoSet is StringProtoSet stringProtoSet)
-            {
-                for (int i = array.Length; i < protoSet.dataArray.Length; i++)
-                {
-                    stringProtoSet.nameIndices[protoSet.dataArray[i].Name] = i;
-                }
-            }
-        }
-
-        private static int FindAvailableStringID()
-        {
-            int id = lastStringId + 1;
-            while (true)
-            {
-                if (!LDB.strings.dataIndices.ContainsKey(id))
-                {
-                    break;
-                }
-                id++;
-            }
-            lastStringId = id;
-            return id;
+            if (!isInject) return;
+            ApplyLanguage(index);
         }
     }
 }

@@ -70,8 +70,8 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Ignore Supply Range", "忽略最大距离限制");
             StringManager.RegisterString("Smart Transport", "智能运输");
             StringManager.RegisterString("Consider Opposite Range", "考虑对向站点的距离限制");
-            StringManager.RegisterString("Remote Demand Delay (98%)", "远程需求延迟 (98%)");
-            StringManager.RegisterString("Local Demand Delay (99%)", "本地需求延迟 (99%)");
+            StringManager.RegisterString("Remote Demand Delay (96%)", "远程需求延迟 (96%)");
+            StringManager.RegisterString("Local Demand Delay (98%)", "本地需求延迟 (98%)");
             StringManager.RegisterString("Remote Cluster [C:]", "远程群集 [C:]");
             StringManager.RegisterString("Local Cluster [c:]", "本地群集 [c:]");
             StringManager.RegisterString("Remote Distance/Capacity Balance *", "远程距离/容量平衡 *");

@@ -16,7 +16,7 @@ namespace SF_ChinesePatch
     {
         public const string GUID = "starfi5h.plugin.SF_ChinesePatch";
         public const string NAME = "SF_ChinesePatch";
-        public const string VERSION = "1.2.0";
+        public const string VERSION = "1.3.0";
 
         public static ManualLogSource Log;
         public static Plugin Instance;
@@ -76,13 +76,14 @@ namespace SF_ChinesePatch
         public static IEnumerable<CodeInstruction> TranslateStrings(IEnumerable<CodeInstruction> instructions)
         {
             // Add .Translate() behind every string
+            var translateMethod = AccessTools.Method(typeof(Localization), nameof(Localization.Translate));
             var codeMatcher = new CodeMatcher(instructions)
                 .MatchForward(false, new CodeMatch(OpCodes.Ldstr))
                 .Repeat(matcher => matcher
                         .Advance(1)
-                        .Insert(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StringTranslate), nameof(StringTranslate.Translate), new System.Type[] { typeof(string) })))
+                        .Insert(new CodeInstruction(OpCodes.Call, translateMethod))
                 );
-
+            
             return codeMatcher.InstructionEnumeration();
         }
     }
