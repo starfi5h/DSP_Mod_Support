@@ -19,6 +19,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | :----- | :------ | :---------- |
 | AstroBox | | |
 | `OrderByName`     | true           | Order the list by system name |
+| `DropDownCount`   | 15             | Number of items shown in drop-down list |
 | `SystemPrefix`    | `<color=yellow>` | Prefix string of star system in the list |
 | `SystemPostfix`   | `</color>`       | Postfix string of star system in the list |
 | `PlanetPrefix`    | `ㅤ`             | Prefix string of planet in the list |
@@ -65,6 +66,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | :----- | :------ | :---------- |
 | AstroBox | | |
 | `OrderByName`     | true           | 以星系名称排序列表 |
+| `DropDownCount`   | 15             | 下拉列表显示的个数 |
 | `SystemPrefix`    | `<color=yellow>` | 星系名称前缀 |
 | `SystemPostfix`   | `</color>`       | 星系名称后缀 |
 | `PlanetPrefix`    | `ㅤ`             | 星球名称前缀 |
@@ -82,6 +84,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.4.0: Add `DropDownCount` config option. Fix compat with Bottleneck 1.0.16  
 \- v1.3.1: Support DSP 0.10.28.20779 (no changes in functions)  
 \- v1.3.0: Add `FoldButton` config option.  
 \- v1.2.1: Fix astro list in outersapce.  
