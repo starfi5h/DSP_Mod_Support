@@ -210,6 +210,7 @@ namespace StatsUITweaks
             int starIdx = astroId / 100 - 1;
             int planetIdx = astroId % 100 - 1;
             UIStarmap map = UIRoot.instance.uiGame.starmap;
+            if (starIdx < 0 || starIdx >= map.starUIs.Length) return;
 
             if (planetIdx >= 0)
             {
@@ -219,18 +220,14 @@ namespace StatsUITweaks
                     map.focusPlanet = null;
                     map.focusStar = map.starUIs[starIdx];
                     map.OnCursorFunction2Click(0);
-                    if (map.focusStar == null)
-                    {
-                        map.focusPlanet = map.planetUIs[planetIdx];
-                        map.OnCursorFunction2Click(0);
-                        //map.SetViewStar(star.star, true);
-                        map.focusPlanet = map.planetUIs[planetIdx]; //Function Panelを表示させるため
-                        map.focusStar = null;
-                    }
+                    // Extand max dist
+                    map.screenCameraController.SetViewTarget(planet, null, null, VectorLF3.zero, 
+                        planet.realRadius * 0.00025 * 6.0, planet.realRadius * 0.00025 * 16.0, true, false);
                 }
             }
             else
             {
+                map.focusPlanet = null;
                 map.focusStar = map.starUIs[starIdx];
                 map.OnCursorFunction2Click(0);
             }

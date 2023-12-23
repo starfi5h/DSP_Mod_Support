@@ -84,6 +84,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.4.1: Fix error in OnLocateButtonRightClick  
 \- v1.4.0: Add `DropDownCount` config option. Fix compat with Bottleneck 1.0.16  
 \- v1.3.1: Support DSP 0.10.28.20779 (no changes in functions)  
 \- v1.3.0: Add `FoldButton` config option.  
