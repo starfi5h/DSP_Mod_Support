@@ -12,6 +12,7 @@ namespace StatsUITweaks
         public static int TimeSliderSlice = 20;
         public static int ListWidthOffeset = 80;
         public static bool OrderByName = true;
+        public static int DropDownCount = 15;
         public static KeyCode HotkeyListUp = KeyCode.PageUp;
         public static KeyCode HotkeyListDown = KeyCode.PageDown;
 
@@ -45,6 +46,7 @@ namespace StatsUITweaks
                         uIComboBox.m_ListItemRes.GetComponentInChildren<Text>().supportRichText = true;
                         foreach (var button in uIComboBox.ItemButtons)
                             button.GetComponentInChildren<Text>().supportRichText = true;
+                        uIComboBox.DropDownCount = DropDownCount;
                     }
 
                     if (ListWidthOffeset > 0)
@@ -264,7 +266,8 @@ namespace StatsUITweaks
             if (!__instance.isDysonTab && __instance.gameData.localPlanet != null)
             {
                 startIndex = 2;
-                if (__instance.astroBox.Items.Count > 2 && __instance.astroBox.Items[2] == "localSystemLabel".Translate())
+                if (__instance.astroBox.Items.Count > 2 
+                    && (__instance.astroBox.Items[2] == "localSystemLabel".Translate() || __instance.astroBox.Items[2] == "本地系统"))
                     startIndex = 3; // new option in Bottleneck
             }
 

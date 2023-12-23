@@ -14,7 +14,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.3.1";
+        public const string VERSION = "1.4.0";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -24,6 +24,7 @@ namespace StatsUITweaks
             Log = Logger;
 
             var OrderByName = Config.Bind("AstroBox", "OrderByName", true, "Order list by system name.\n以星系名称排序列表");
+            var DropDownCount = Config.Bind("AstroBox", "DropDownCount", 15, "Number of items shown in drop-down list.\n下拉列表显示的个数");
             var SystemPrefix = Config.Bind("AstroBox", "SystemPrefix", "<color=yellow>", "Prefix string of star system in the list\n星系名称前缀");
             var SystemPostfix = Config.Bind("AstroBox", "SystemPostfix", "</color>", "Postfix string of star system in the list\n星系名称后缀");
             var PlanetPrefix = Config.Bind("AstroBox", "PlanetPrefix", "ㅤ", "Prefix string of planet in the list\n星球名称前缀"); //U+3164. Normal spaces will not load
@@ -41,6 +42,7 @@ namespace StatsUITweaks
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
             StatsWindowPatch.OrderByName = OrderByName.Value;
+            StatsWindowPatch.DropDownCount = DropDownCount.Value;
             StatsWindowPatch.SystemPrefix = SystemPrefix.Value;
             StatsWindowPatch.SystemPostfix = SystemPostfix.Value;
             StatsWindowPatch.PlanetPrefix = PlanetPrefix.Value;
