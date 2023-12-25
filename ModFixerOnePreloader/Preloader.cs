@@ -17,7 +17,7 @@ namespace ModFixerOne
 
         public static void Patch(AssemblyDefinition assembly)
         {
-            AddMemeber(assembly);
+            ModifyMainGame(assembly);
         }
 
         public static void Finish()
@@ -25,39 +25,40 @@ namespace ModFixerOne
             RemoveProcessFiler();
         }
 
-        private static void AddMemeber(AssemblyDefinition assembly)
+        private static void ModifyMainGame(AssemblyDefinition assembly)
         {
             try
             {
-                var gameModule = assembly.MainModule;
+                // Add field: UIStorageGrid UIGame.inventory as dummy field
+                assembly.MainModule.GetType("UIGame").AddFied("inventory", assembly.MainModule.GetType("UIStorageGrid"));
+                logSource.LogDebug("UIStorageGrid UIGame.inventory");
 
-                // Add field: UIStorageGrid UIGame.inventory
-                gameModule.GetType("UIGame").AddFied("inventory", gameModule.GetType("UIStorageGrid"));
+                // Add field: string StationComponent.name as dummy field
+                assembly.MainModule.GetType("StationComponent").AddFied("name", assembly.MainModule.TypeSystem.String);
+                logSource.LogDebug("string StationComponent.name");
 
-                // Add method: void PlanetTransport.RefreshTraffic(int)
-                gameModule.GetType("PlanetTransport").AddMethod("RefreshTraffic", gameModule.TypeSystem.Void, new TypeReference[] { gameModule.TypeSystem.Int32 });
+                // Add method: void PlanetTransport.RefreshTraffic(int) to call PlanetTransport.RefreshStationTraffic(int)
+                Injection.RefreshTraffic(assembly);
+                logSource.LogDebug("void PlanetTransport.RefreshTraffic(int)");
+
+                // Add enum Language { zhCN, enUS, frFR, Max } and Localization.language
+                var enumType = Injection.Language(assembly);
+                logSource.LogDebug("enum Language { zhCN, enUS, frFR, Max }");
+                logSource.LogDebug("public static Language Localization.get_language()");
+
+                // Add method StringTranslate.Translate(this string s, Language _ = null) to call Localization.Translate(this string s)
+                Injection.StringTranslate(assembly, enumType);
+                logSource.LogDebug("public static string StringTranslate.Translate(this string s)");
+
+                // Add StringProto
+                Injection.StringProto(assembly);
+                logSource.LogDebug("public StringProto");
             }
             catch (Exception e)
             {
-                logSource.LogError("Add UIStorageGrid UIGame.inventory fail!");
+                logSource.LogError("Error when patching!");
                 logSource.LogError(e);
             }
-        }
-
-        public static void AddFied(this TypeDefinition typeDefinition, string fieldName, TypeReference fieldType)
-        {
-            var newField = new FieldDefinition(fieldName, FieldAttributes.Public, fieldType);
-            typeDefinition.Fields.Add(newField);
-            logSource.LogDebug("Add " + newField);
-        }
-
-        public static void AddMethod(this TypeDefinition typeDefinition, string methodName, TypeReference returnType, TypeReference[] parmeterTypes)
-        {
-            var newMethod = new MethodDefinition(methodName, MethodAttributes.Public, returnType);
-            foreach (var p in parmeterTypes)
-                newMethod.Parameters.Add(new ParameterDefinition(p));
-            typeDefinition.Methods.Add(newMethod);
-            logSource.LogDebug("Add " + newMethod);
         }
 
         private static void RemoveProcessFiler()

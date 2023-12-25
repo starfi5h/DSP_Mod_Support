@@ -1,51 +1,82 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using ModFixerOne.Mods;
+using System;
 
 namespace ModFixerOne
 {
     public static class Fixer_Patch
     {
         public static string ErrorMessage = "";
-        public static bool initialized = false;
-        public static bool flag = false;
 
         public static void OnAwake()
         {
-            Plugin.Instance.Harmony.PatchAll(typeof(Fixer_Patch));
-#if DEBUG
-            Init();
-#endif
+            try
+            {
+                Harmony harmony = Plugin.Instance.Harmony;
+                if (!IsVaild())
+                {
+                    ErrorMessage = "Can't find injected fields or methods!\n Please make sure that ModFixerOnePreloader.dll is installed in BepInEx\\patchers.";
+                    Plugin.Log.LogWarning(ErrorMessage);
+                    harmony.PatchAll(typeof(Fixer_Patch));
+                    return;
+                }
+
+                harmony.PatchAll(typeof(Common_Patch));
+                LDBTool_Patch.Init(harmony);
+                PersonalLogistics.Init(harmony);
+                if (ErrorMessage != "")
+                {
+                    ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
+                    harmony.PatchAll(typeof(Fixer_Patch));
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError(e);
+            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(VFPreload), nameof(VFPreload.InvokeOnLoadWorkEnded))]
-        public static void Init()
+        internal static void InvokeOnLoadWorkEnded()
         {
-            if (initialized) return;
-
-            Harmony harmony = Plugin.Instance.Harmony;
-
-            if (typeof(UIGame).GetField("inventory") == null || typeof(PlanetTransport).GetMethod("RefreshTraffic") == null)
+            try
             {
-                ErrorMessage = "Can't find added fields or methods!\n Please check ModFixerOnePreloader.dll is installed correctly.";                
-                Plugin.Log.LogWarning(ErrorMessage);
-                UIMessageBox.Show("Mod Fixer One Preloader Error", ErrorMessage, "确定".Translate(), 3);
-                initialized = true;
-                return;
+                ShowMessageBox();
             }
-
-            LongArm.Init(harmony);
-            PersonalLogistics.Init(harmony);
-            AutoStationConfig.Init(harmony);
-            Dyson4DPocket.Init(harmony);
-
-            if (ErrorMessage != "")
+            catch (Exception e)
             {
-                ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
-                UIMessageBox.Show("Mod Fixer One Error", ErrorMessage, "确定".Translate(), 3);
+                Plugin.Log.LogError(e);
             }
-            initialized = true;
+        }
+
+        private static void ShowMessageBox()
+        {
+            UIMessageBox.Show("Mod Fixer One Error", ErrorMessage, "确定".Translate(), 3);
+        }
+
+        private static bool IsVaild()
+        {
+            if (typeof(UIGame).GetField("inventory") == null)
+                return false;
+
+            if (typeof(PlanetTransport).GetMethod("RefreshTraffic") == null)
+                return false;
+                
+            var type = AccessTools.TypeByName("Language");
+            if (type == null)
+                return false;
+
+            type = AccessTools.TypeByName("StringTranslate");
+            if (type == null)
+                return false;
+
+            type = AccessTools.TypeByName("StringProto");
+            if (type == null)
+                return false;
+
+            return true;
         }
     }
 }

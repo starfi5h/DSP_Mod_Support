@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 
 namespace ModFixerOne.Mods
 {
@@ -25,16 +26,21 @@ namespace ModFixerOne.Mods
                 // replace uiGame.inventory with uiGame.inventoryWindow
                 var transplier = new HarmonyMethod(typeof(Common_Patch).GetMethod("UIInventory_Transpiler"));
                 var postfix = new HarmonyMethod(typeof(PersonalLogistics).GetMethod("Postfix"));
+                var windowfix = new HarmonyMethod(typeof(PersonalLogistics).GetMethod("FixUIWindowDrag"));
 
                 var classType = assembly.GetType("PersonalLogistics.Scripts.RecycleWindow");
                 var methodInfo = AccessTools.Method(classType, "Update");
                 harmony.Patch(methodInfo, null, null, transplier);
                 methodInfo = AccessTools.Method(classType, "AddShowRecycleCheck");
                 harmony.Patch(methodInfo, null, null, transplier);
+                methodInfo = AccessTools.Method(classType, "UpdateMaterials");
+                harmony.Patch(methodInfo, null, windowfix);
 
                 classType = assembly.GetType("PersonalLogistics.Scripts.RequesterWindow");
                 methodInfo = AccessTools.Method(classType, "Update");
                 harmony.Patch(methodInfo, null, null, transplier);
+                methodInfo = AccessTools.Method(classType, "Toggle");
+                harmony.Patch(methodInfo, null, windowfix);
 
                 classType = assembly.GetType("PersonalLogistics.PersonalLogisticsPlugin");
                 methodInfo = AccessTools.Method(classType, "InitUi");
@@ -60,6 +66,19 @@ namespace ModFixerOne.Mods
         public static void Postfix()
         {
             Plugin.Log.LogDebug("init");
+        }
+
+        public static void FixUIWindowDrag(GameObject ____instanceGo)
+        {            
+            if (____instanceGo != null)
+            {
+                var uiWindowDrag = ____instanceGo.GetComponent<UIWindowDrag>();
+                if (uiWindowDrag != null && uiWindowDrag.screenRect == null)
+                {
+                    Plugin.Log.LogDebug("FixUIWindowDrag");
+                    uiWindowDrag.screenRect = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows")?.GetComponent<RectTransform>();
+                }
+            }
         }
 
         public static IEnumerable<CodeInstruction> RemoveTrash_Transpiler(IEnumerable<CodeInstruction> instructions)

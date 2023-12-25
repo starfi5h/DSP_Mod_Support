@@ -4,7 +4,7 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>ModFixerOne</AssemblyName>
     <Description></Description>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Authors />
@@ -20,11 +20,17 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.4.17" />
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.9.27.15466-r.0" />
+    <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.10.28.21014-r.0" />
 	<PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="LDBTool">
+      <HintPath>lib\LDBTool.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

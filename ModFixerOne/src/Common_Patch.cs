@@ -8,6 +8,25 @@ namespace ModFixerOne
 {
     public static class Common_Patch
     {
+
+        [HarmonyPostfix, HarmonyPatch(typeof(Localization), nameof(Localization.NotifyLanguageChange))]
+        public static void SwitchLanguage()
+        {
+            try
+            {
+                var field = AccessTools.Field(typeof(Localization), "lang");
+                if (field != null)
+                {
+                    object enumValue = Enum.ToObject(field.FieldType, Localization.isZHCN ? 0 : 1);
+                    field.SetValue(null, enumValue);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError(e);
+            }
+        }
+
         public static IEnumerable<CodeInstruction> UIInventory_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             try
