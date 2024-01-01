@@ -60,11 +60,13 @@ namespace StatsUITweaks
                         Reposition(__instance.powerAstroBox.transform, __instance.powerTimeBox.transform);
                         Reposition(__instance.researchAstroBox.transform, __instance.researchTimeBox.transform);
                         Reposition(__instance.dysonAstroBox.transform, __instance.dysonTimeBox.transform);
+                        Reposition(__instance.killAstroBox.transform, __instance.killTimeBox.transform);
                     }
                     EnableRichText(__instance.productAstroBox);
                     EnableRichText(__instance.powerAstroBox);
                     EnableRichText(__instance.researchAstroBox);
                     EnableRichText(__instance.dysonAstroBox);
+                    EnableRichText(__instance.killAstroBox);
 
                     Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                     GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Globe Panel/name-input");
