@@ -238,7 +238,7 @@ namespace StatsUITweaks
         #endregion
 
         #region 列表修改
-
+        static readonly Dictionary<int, int> astroIndex = new();
         static readonly List<ValueTuple<string, int>> systemList = new();
         static readonly List<string> newItems = new();
         static readonly List<int> newItemData = new();
@@ -266,20 +266,35 @@ namespace StatsUITweaks
             {
                 startIndex = 2;
                 if (__instance.astroBox.Items.Count > 2 
-                    && (__instance.astroBox.Items[2] == "localSystemLabel".Translate() || __instance.astroBox.Items[2] == "本地系统"))
+                    && (__instance.astroBox.Items[2] == "Local System"
+                    || __instance.astroBox.Items[2] == "本地系统"
+                    || __instance.astroBox.Items[2] == "localSystemLabel".Translate()))
                     startIndex = 3; // new option in Bottleneck
             }
 
             if (__instance.astroBox.Items.Count > startIndex) // Planet filter
             {
+                astroIndex.Clear();
                 systemList.Clear();
                 newItems.Clear();
                 newItemData.Clear();
 
                 for (int i = startIndex; i < __instance.astroBox.Items.Count; i++)
                 {
-                    if (__instance.astroBox.ItemsData[i] % 100 == 0)
-                        systemList.Add((__instance.astroBox.Items[i], __instance.astroBox.ItemsData[i]));
+                    int astroId = __instance.astroBox.ItemsData[i];
+                    if (astroId % 100 == 0)
+                    {
+                        if (astroIndex.ContainsKey(astroId))
+                        {
+                            Plugin.Log.LogDebug($"[{astroId}] => {__instance.astroBox.Items[i]}");
+                            systemList[astroIndex[astroId]] = (__instance.astroBox.Items[i], astroId); //以後來的名稱覆寫
+                        }
+                        else
+                        {
+                            astroIndex[astroId] = systemList.Count;
+                            systemList.Add((__instance.astroBox.Items[i], __instance.astroBox.ItemsData[i]));
+                        }
+                    }
                 }
                 if (OrderByName) // 以星系名稱排序
                     systemList.Sort();
