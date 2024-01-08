@@ -19,12 +19,13 @@ namespace FactoryLocator
 {
     [BepInPlugin(GUID, NAME, VERSION)]
     [BepInDependency(CommonAPIPlugin.GUID)]
-    [CommonAPISubmoduleDependency(nameof(LocalizationModule), nameof(CustomKeyBindSystem), nameof(PickerExtensionsSystem))]
+    [CommonAPISubmoduleDependency(nameof(LocalizationModule), 
+        nameof(CustomKeyBindSystem), nameof(PickerExtensionsSystem))]
     public class Plugin : BaseUnityPlugin
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.2.1";
+        public const string VERSION = "1.2.2";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
@@ -61,19 +62,24 @@ namespace FactoryLocator
             RegisterTranslation("Auto Clear Query", "Auto Clear Query", "自动清除搜寻结果");
             RegisterTranslation("Power Network Status", "Power Network Status", "电网状态");
             RegisterTranslation("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
+            BetterWarningIconsCompat.Preload();
 #endif
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIGame), nameof(UIGame._OnCreate))]
+        [HarmonyPatch(typeof(VFPreload), nameof(VFPreload.InvokeOnLoadWorkEnded))]
         internal static void Init()
         {
-            Log.Debug("Initing...");
-            mainLogic = new MainLogic();
-            mainWindow = UILocatorWindow.CreateWindow();
-            NebulaCompat.Init();
-            DSPMoreRecipesCompat.Init();
-            GenesisBookCompat.Init();
+            if (mainLogic == null)
+            {
+                Log.Debug("Initing...");
+                mainLogic = new MainLogic();
+                mainWindow = UILocatorWindow.CreateWindow();
+                //NebulaCompat.Init(); //TODO: Fix the compat when NebulaAPI update
+                DSPMoreRecipesCompat.Init();
+                GenesisBookCompat.Init();
+                BetterWarningIconsCompat.Postload();
+            }
         }
 
         static void RegisterTranslation(string key, string enTrans, string cnTrans)

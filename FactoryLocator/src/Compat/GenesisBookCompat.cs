@@ -5,11 +5,11 @@ namespace FactoryLocator.Compat
     public static class GenesisBookCompat
     {
         private const string GUID = "org.LoShin.GenesisBook";
-        // last target version: 2.6.0
+        // last target version: 2.9.8
 
         public static void Init()
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var _))
                 return;
 
             try
@@ -21,7 +21,7 @@ namespace FactoryLocator.Compat
             }
             catch (Exception e)
             {
-                Log.Warn($"Nebula hotfix patch fail! Current version: " + pluginInfo.Metadata.Version);
+                Log.Warn("GenesisBook compat fail! Last target version: 2.9.8");
                 Log.Debug(e);
             }
         }

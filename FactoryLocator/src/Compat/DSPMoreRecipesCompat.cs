@@ -9,17 +9,17 @@ namespace FactoryLocator.Compat
 
         public static void Init()
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var _))
                 return;
 
             try
             {
                 UIentryCount.RecipeCol = 17;
-                Log.Debug("DSPMoreRecipesCompat compat - OK");
+                Log.Debug("DSPMoreRecipes compat - OK");
             }
             catch (Exception e)
             {
-                Log.Warn($"Nebula hotfix patch fail! Current version: " + pluginInfo.Metadata.Version);
+                Log.Warn("DSPMoreRecipesCompat fail! Last target version: 1.0.3");
                 Log.Debug(e);
             }
         }
