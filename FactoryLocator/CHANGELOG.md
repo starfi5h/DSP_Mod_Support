@@ -1,3 +1,7 @@
+### v1.2.2 (DSP 0.10.28.21247)  
+\- Remove query warning group when right click.  
+\- Add BetterWarningIcons compat.  
+
 ### v1.2.1
 \- Adapt to CommonAPI 1.6.0 (DSP 0.10.28.20829)  
 
