@@ -84,7 +84,10 @@ namespace FactoryLocator
 					{
 						if (RectTransformUtility.RectangleContainsScreenPoint(__instance.itemEntries[i].rectTrans, Input.mousePosition, worldCamera))
 						{
-							UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
+							if (Input.GetKeyDown(KeyCode.Mouse0)) // Left click
+								UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
+							else // Right click
+								HideGroup(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
 							break;
 						}
 					}
@@ -199,6 +202,27 @@ namespace FactoryLocator
 			}
 			if (count > 0)
 				Log.Debug($"Remove {count}. Cursor = {warningSystem.warningCursor} RecycleCursor = {warningSystem.warningRecycleCursor} Capacity = {warningSystem.warningCapacity}");
+		}
+
+		public static void HideGroup(int signalId, int detailId)
+        {
+			var ws = GameMain.data.warningSystem;
+			if (signalId > 0)
+			{
+				for (int i = 1; i < ws.warningCursor; i++)
+				{
+					ref var warning = ref ws.warningPool[i];
+					if (warning.id == i && warning.state > 0 && warning.signalId == signalId && warning.detailId == detailId)
+					{
+						if (warning.factoryId <= INDEXUPPERBOND) // Only apply to query warning icons
+						{
+							var factoryId = warning.factoryId;
+							warning.SetEmpty();
+							warning.factoryId = factoryId; // To be clear by ClearAll()
+						}
+					}
+				}
+			}
 		}
 
 		public static void Debug()
