@@ -14,6 +14,7 @@ namespace ModFixerOne
     {
         public static ManualLogSource logSource = Logger.CreateLogSource("ModFixerOne Preloader");      
         public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
+        public static IEnumerable<string> Guids; //Chainloader.PluginInfos will only added after successful load
 
         public static void Patch(AssemblyDefinition assembly)
         {
@@ -70,6 +71,8 @@ namespace ModFixerOne
             }
         }
 
+#pragma warning disable IDE0001
+
         private static void RemoveProcessFiler()
         {
             try
@@ -80,10 +83,15 @@ namespace ModFixerOne
                         .MakeGenericMethod(typeof(PluginInfo)),
                     null,
                     new HarmonyMethod(AccessTools.Method(typeof(Preloader), nameof(PostFindPluginTypes))));
+
+                harmony.Patch(
+                    AccessTools.Method(typeof(BepInEx.Utility), nameof(Utility.TopologicalSort))
+                        .MakeGenericMethod(typeof(string)),
+                    null, new HarmonyMethod(AccessTools.Method(typeof(Preloader), nameof(PostTopologicalSort))));
             }
             catch (Exception e)
             {
-                logSource.LogError("Remove process filter fail!");
+                logSource.LogError("Remove process filter & change load order fail!");
                 logSource.LogError(e);
             }
         }
@@ -112,6 +120,17 @@ namespace ModFixerOne
                 logSource.LogWarning("Can't remove process filter!");
                 logSource.LogWarning(e);
             }
+        }
+    
+        private static void PostTopologicalSort(ref IEnumerable<string> __result)
+        {
+            var newList = __result.Where(item => item != "starfi5h.plugin.ModFixerOne");
+            if (newList.Count() != __result.Count())
+            {
+                __result = new string[] { "starfi5h.plugin.ModFixerOne" }.Concat(newList);
+                logSource.LogDebug("Move ModFixerOne to first plugin to load.");
+            }
+            Guids = __result;
         }
     }
 }
