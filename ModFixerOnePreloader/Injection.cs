@@ -30,8 +30,8 @@ namespace ModFixerOne
             ilProcessor.Emit(OpCodes.Ldarg_0);
             ilProcessor.Emit(OpCodes.Ldarg_1);
 
-            TypeDefinition localizationType = assembly.MainModule.Types.Single(t => t.FullName == "PlanetTransport");
-            MethodDefinition translateMethod = localizationType.Methods.Single(m => m.Name == "RefreshStationTraffic");
+            TypeDefinition localizationType = assembly.MainModule.Types.First(t => t.FullName == "PlanetTransport");
+            MethodDefinition translateMethod = localizationType.Methods.First(m => m.Name == "RefreshStationTraffic");
             ilProcessor.Emit(OpCodes.Call, translateMethod);
             ilProcessor.Emit(OpCodes.Ret);
         }
@@ -56,7 +56,7 @@ namespace ModFixerOne
             assembly.MainModule.Types.Add(enumType);
 
             // Add public static Language Localization.get_language() that return Localization.lang
-            TypeDefinition localizationType = assembly.MainModule.Types.Single(t => t.FullName == "Localization");
+            TypeDefinition localizationType = assembly.MainModule.Types.First(t => t.FullName == "Localization");
             var newField = new FieldDefinition("lang", FieldAttributes.Public | FieldAttributes.Static, enumType);
             localizationType.Fields.Add(newField);
             var newMethod = new MethodDefinition("get_language", MethodAttributes.Public | MethodAttributes.Static, enumType);
@@ -89,8 +89,8 @@ namespace ModFixerOne
             // Define the body of the method and call Localization.Translate(s) as return value
             ILProcessor ilProcessor = newMethod.Body.GetILProcessor();
             ilProcessor.Emit(OpCodes.Ldarg_0);
-            TypeDefinition localizationType = assembly.MainModule.Types.Single(t => t.FullName == "Localization");
-            MethodDefinition translateMethod = localizationType.Methods.Single(m => m.Name == "Translate");
+            TypeDefinition localizationType = assembly.MainModule.Types.First(t => t.FullName == "Localization");
+            MethodDefinition translateMethod = localizationType.Methods.First(m => m.Name == "Translate");
             ilProcessor.Emit(OpCodes.Call, translateMethod);
             ilProcessor.Emit(OpCodes.Ret);
 
@@ -108,15 +108,15 @@ namespace ModFixerOne
             // Define the body of the method and call Localization.Translate(s) as return value
             ilProcessor = newMethod.Body.GetILProcessor();
             ilProcessor.Emit(OpCodes.Ldarg_0);
-            localizationType = assembly.MainModule.Types.Single(t => t.FullName == "Localization");
-            translateMethod = localizationType.Methods.Single(m => m.Name == "Translate");
+            localizationType = assembly.MainModule.Types.First(t => t.FullName == "Localization");
+            translateMethod = localizationType.Methods.First(m => m.Name == "Translate");
             ilProcessor.Emit(OpCodes.Call, translateMethod);
             ilProcessor.Emit(OpCodes.Ret);
         }
 
         internal static void StringProto(AssemblyDefinition assembly)
         {
-            TypeDefinition protoClass = assembly.MainModule.Types.Single(t => t.FullName == "Proto");
+            TypeDefinition protoClass = assembly.MainModule.Types.First(t => t.FullName == "Proto");
             TypeDefinition stringProtoClass = new TypeDefinition(
                 "",
                 "StringProto",
@@ -142,6 +142,47 @@ namespace ModFixerOne
             stringProtoClass.AddFied("ZHCN", assembly.MainModule.TypeSystem.String);
             stringProtoClass.AddFied("ENUS", assembly.MainModule.TypeSystem.String);
             stringProtoClass.AddFied("FRFR", assembly.MainModule.TypeSystem.String);
+        }
+
+        internal static bool UIStatisticsWindow_Patch(AssemblyDefinition assembly)
+        {
+            // For XGP that is still in 0.10.28.21014, add the following new methods
+            bool result = false;
+            TypeDefinition typeDefinition = assembly.MainModule.GetType("UIStatisticsWindow");  
+            
+            MethodDefinition oldMethod = typeDefinition.Methods.FirstOrDefault(m => m.Name == "AddStatGroup");
+            if (oldMethod != null)
+            {
+                // Add method: AddFactoryStatGroup(int _factoryIndex) to call AddStatGroup(int _factoryIndex)
+                var newMethod = typeDefinition.AddMethod("AddFactoryStatGroup", 
+                    assembly.MainModule.TypeSystem.Void, 
+                    new TypeReference[] { assembly.MainModule.TypeSystem.Int32 });
+
+                newMethod.Parameters[0].Name = "_factoryIndex";
+                ILProcessor ilProcessor = newMethod.Body.GetILProcessor();
+                ilProcessor.Emit(OpCodes.Ldarg_0);
+                ilProcessor.Emit(OpCodes.Ldarg_1);
+                ilProcessor.Emit(OpCodes.Callvirt, oldMethod);
+                ilProcessor.Emit(OpCodes.Ret);
+                result = true;
+            }
+
+            oldMethod = typeDefinition.Methods.FirstOrDefault(m => m.Name == "ComputeDisplayEntries");
+            if (oldMethod != null)
+            {
+                // Add method: ComputeDisplayProductEntries() to call ComputeDisplayEntries()
+                var newMethod = typeDefinition.AddMethod("ComputeDisplayProductEntries",
+                    assembly.MainModule.TypeSystem.Void,
+                    new TypeReference[] {});
+
+                ILProcessor ilProcessor = newMethod.Body.GetILProcessor();
+                ilProcessor.Emit(OpCodes.Ldarg_0);
+                ilProcessor.Emit(OpCodes.Callvirt, oldMethod);
+                ilProcessor.Emit(OpCodes.Ret);
+                result = true;
+            }
+
+            return result;
         }
     }
 }
