@@ -26,6 +26,11 @@ namespace ModFixerOne
             Fixer_Patch.OnAwake();
         }
 
+        public void Start()
+        {
+            Fixer_Patch.OnStart();
+        }
+
         [Conditional("DEBUG")]
         public void OnDestroy()
         {

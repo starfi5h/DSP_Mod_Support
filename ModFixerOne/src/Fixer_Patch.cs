@@ -22,6 +22,32 @@ namespace ModFixerOne
                     return;
                 }
 
+                Nebula_Patch.OnAwake(harmony);
+                if (ErrorMessage != "")
+                {
+                    ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
+                    harmony.PatchAll(typeof(Fixer_Patch));
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError(e);
+            }
+        }
+
+        public static void OnStart()
+        {
+            try
+            {
+                Harmony harmony = Plugin.Instance.Harmony;
+                if (!IsVaild())
+                {
+                    ErrorMessage = "Can't find injected fields or methods!\n Please make sure that ModFixerOnePreloader.dll is installed in BepInEx\\patchers.";
+                    Plugin.Log.LogWarning(ErrorMessage);
+                    harmony.PatchAll(typeof(Fixer_Patch));
+                    return;
+                }
+
                 harmony.PatchAll(typeof(Common_Patch));
                 LDBTool_Patch.Init(harmony);
                 PersonalLogistics.Init(harmony);

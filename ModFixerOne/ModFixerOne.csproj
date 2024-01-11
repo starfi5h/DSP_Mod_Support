@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.4.17" />
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.10.28.21014-r.0" />
+    <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.10.28.21247-r.0" />
 	<PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
   </ItemGroup>
   
@@ -29,8 +29,15 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\ModFixerOnePreloader\ModFixerOnePreloader.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Reference Include="LDBTool">
       <HintPath>lib\LDBTool.dll</HintPath>
+    </Reference>
+    <Reference Include="NebulaPatcher">
+      <HintPath>lib\NebulaPatcher-publicized.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
