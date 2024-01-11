@@ -1,7 +1,7 @@
 {
   "name": "ModFixerOne",
-  "description": "v1.3.0 - Solve TypeLoadException of StringTranslate, Language, StringProto. Partially fix PersonalLogistics, AutoStationConfig. Remove process filters of old mods that block game pass version.",
-  "version_number": "1.3.0",
+  "description": "v1.3.1 - Solve TypeLoadException of StringTranslate, Language, StringProto. Partially fix PersonalLogistics, AutoStationConfig. Remove process filters of old mods that block game pass version.",
+  "version_number": "1.3.1",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
   "dependencies": ["xiaoye97-BepInEx-5.4.17"]
 }

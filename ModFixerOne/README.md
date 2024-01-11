@@ -29,7 +29,11 @@ public StringProto
 - Fix `MissingMethodExcpetion: void PlanetTransport.Refresh(int)` when loading. ([#19](https://github.com/Pasukaru/DSP-Mods/issues/19))  
 You can also use the [1.4.0-fix version](https://github.com/soarqin/DSP_AutoStationConfig/releases/tag/1.4.0-fix) by soarqin for more features.   
 
-Also CanNotShowItem, RebindBuildBar, MineralExhaustionNotifier, Upgrade Amount are fixed. Check the wiki in this mod page for more detail!
+### Nebula multiplayer mod (pre-release)
+This make game version 10.28.21015 compatible with the mod.  
+It is a temporary fix before PC game pass version is updated.  
+
+Some other mods are fixed too. Check the wiki in this mod page for more detail!
 
 ## Installation
   
@@ -38,11 +42,12 @@ Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman) or [Thundersto
   
 ### Manual Download  
 Download and unzip content from the mod zip file by clicking `Manual Download` button on Thunderstore mod webpage.   
-Drag `patchers/ModFixerOnePreloader.dll` file into `BepInEx/patchers/` folder.  
-Drag `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.  
+Move `patchers/ModFixerOnePreloader.dll` file into `BepInEx/patchers/` folder.  
+Move `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.  
 
 ## Changelog
 
+v1.3.1 - Let ModFixerOne load first. Add Nebula multiplayer mod pre-release version support. (DSP0.10.28.21247)    
 v1.3.0 - Update to Dark Fog version. Remove LongArm, 4DPocket support. (DSP0.10.28.21014)  
 v1.2.0 - Add 4DPocket support. Fix litter warning icon in PersonalLogistics. (DSP0.9.27.15466)  
 v1.1.0 - Remove process filter. Add AutoStationConfig support.  

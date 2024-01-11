@@ -22,11 +22,11 @@ namespace ModFixerOne.Mods
 
             try
             {
-                if (GameConfig.gameVersion.Build < 21150) //DSP version 0.10.28.21150
+                if (typeof(UIStatisticsWindow).GetMethod("ComputeDisplayEntries") != null)
                 {
                     harmony.PatchAll(typeof(Warper));
+                    Plugin.Log.LogInfo($"{NAME} - OK");
                 }
-                Plugin.Log.LogInfo($"{NAME} - OK");
             }
             catch (Exception e)
             {
