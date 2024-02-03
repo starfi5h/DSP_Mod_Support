@@ -1,7 +1,7 @@
 {
     "name": "StatsUITweaks",
     "description": "Adds QoL features to statistics panel. 统计面板UI增强: 以星系名排序,过滤星球名称,可控时距,热键切换,导航按钮",
-    "version_number": "1.4.2",
+    "version_number": "1.4.3",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/StatsUITweaks",
     "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

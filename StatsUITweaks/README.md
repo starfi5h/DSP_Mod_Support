@@ -8,7 +8,7 @@ Adds QoL features to the statistics panel.
 - Type in the input field to filter the astro list.  
 - Custom prefix/postfix for planet/system names in the astro list. Use [Unity rich text](https://docs.unity3d.com/2018.4/Documentation/Manual/StyledText.html) to change text.  
 - PageUp/PageDown to go to the next item on the list. Ctrl + PageUp/PageDown to go to the next system.  
-- Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap.  
+- Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap. Show astroId and index of factory in the button tip.  
 
 
 ## Configuration
@@ -52,7 +52,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 使用者可以用[Unity富文本](https://docs.unity3d.com/2018.4/Documentation/Manual/StyledText.html)自由配置字体样式
 
 - 导航按钮  
-左键点击会导航至选取的星球。右键点击会开启星图模式显示该星球位置。
+左键点击会导航至选取的星球。右键点击会开启星图模式显示该星球位置。按钮提示astroId和factory.index(idx)方便除错  
 
 - 热键切换  
 PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会切换至上/下一个星系。
@@ -84,6 +84,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.4.3: Fix right-click on navi button. Display astorId and factoryIdx on its tip (DSP 0.10.29.21904)  
 \- v1.4.2: Fix star system duplicate in the filter with Bottleneck local system label (DSP 0.10.28.21172)  
 \- v1.4.1: Fix error in OnLocateButtonRightClick  
 \- v1.4.0: Add `DropDownCount` config option. Fix compat with Bottleneck 1.0.16  
