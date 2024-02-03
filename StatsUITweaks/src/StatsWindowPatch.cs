@@ -222,8 +222,8 @@ namespace StatsUITweaks
                     map.focusPlanet = null;
                     map.focusStar = map.starUIs[starIdx];
                     map.OnCursorFunction2Click(0);
-                    // Extand max dist
-                    map.screenCameraController.SetViewTarget(planet, null, null, VectorLF3.zero, 
+                    // Extend max dist
+                    map.screenCameraController.SetViewTarget(planet, null, null, null, VectorLF3.zero, 
                         planet.realRadius * 0.00025 * 6.0, planet.realRadius * 0.00025 * 16.0, true, false);
                 }
             }
@@ -371,6 +371,20 @@ namespace StatsUITweaks
                 Plugin.Log.LogDebug(e);
 #endif
             }
+
+            if (locateBtn == null) return;
+            var astroId = __instance.astroFilter;
+            if (astroId <= 0 )
+            {
+                locateBtn.tips.tipTitle = "Locate";
+                return;
+            }
+
+            string locateString = "Locate " + astroId;
+            var planet = GameMain.galaxy.PlanetById(astroId);
+            if (planet?.factory != null)
+                locateString += " idx=" + planet.factory.index;
+            locateBtn.tips.tipTitle = locateString;
         }
         #endregion
 
