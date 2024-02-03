@@ -15,6 +15,27 @@ namespace ErrorAnalyzer
         private static GameObject button1;
 
         [HarmonyPostfix]
+        [HarmonyPatch("_OnRegEvent")]
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
+        private static void _OnRegEvent_Postfix()
+        {
+            if (!Plugin.isRegisitered)
+                return;
+            Plugin.isRegisitered = false;
+
+            try
+            {
+                Application.logMessageReceived -= Plugin.HandleLog;
+                if (!string.IsNullOrEmpty(Plugin.errorString))
+                    UIFatalErrorTip.instance.ShowError(Plugin.errorString, Plugin.errorStackTrace);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError(e);
+            }
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch("_OnOpen")]
         [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
         private static void _OnOpen_Postfix()

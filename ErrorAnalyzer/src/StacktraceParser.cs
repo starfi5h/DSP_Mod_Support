@@ -111,7 +111,7 @@ namespace ErrorAnalyzer
 
             if (sb.Length > 0)
             {
-                sb.Insert(0, "\n== Related patches on the stack ==\n");
+                sb.Insert(0, "\n== Mod patches on the stack ==\n");
             }
 
             return sb.ToString();
