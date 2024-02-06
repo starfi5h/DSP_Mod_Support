@@ -1,5 +1,13 @@
 ## Changelog
 
+#### v0.4.0 (Nebula 0.9.0 pre-release)
+\- Hotfix: Tempoarily disable drone syncing.  
+\- Remove Bottleneck, DSPTransportStat, Dustbin, TheyComeFromVoid support.  
+\- Temporily disable BlueprintTweaks, DSPMarker, MoreMegaStructure, PlanetFinder support.  
+
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.3.1 (Nebula 0.8.14)
 \- Hotfix: Fix NRE error in `StationUIManager.UpdateStorage.`  
 \- Hotfix: Load dyson sphere when click on star view on the starmap.  
@@ -8,9 +16,6 @@
 #### v0.3.0 (Nebula 0.8.14)
 \- TheyComeFromVoid v2.2.8: Add Droplet syncing and fixes  
 \- Remove BigFormingSize from incompat list  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.2.3 (Nebula 0.8.13)
 \- Hotfix: Add compat to mods that increase reform brush size.  
