@@ -10,7 +10,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "SplitterOverBelt";
         public const string GUID = "com.hetima.dsp.SplitterOverBelt";
-        public const string VERSION = "1.1.3";
+        public const string VERSION = "1.1.6";
 
         private static List<int> removingBeltEids;
 

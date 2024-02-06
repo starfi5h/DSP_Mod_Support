@@ -11,7 +11,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSPMarker";
         private const string GUID = "Appun.DSP.plugin.Marker";
-        private const string VERSION = "0.0.8";
+        private const string VERSION = "0.0.9";
 
         private static IModCanSave Save;
         private static Action MarkerPool_Refresh;

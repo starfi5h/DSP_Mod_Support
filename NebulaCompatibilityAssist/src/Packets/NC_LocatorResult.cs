@@ -1,4 +1,6 @@
-﻿using NebulaAPI;
+﻿using NebulaAPI.DataStructures;
+using NebulaAPI.Networking;
+using NebulaAPI.Packets;
 using NebulaCompatibilityAssist.Patches;
 using System;
 using System.Collections.Generic;

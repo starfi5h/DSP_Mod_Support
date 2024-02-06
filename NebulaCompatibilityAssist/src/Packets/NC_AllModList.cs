@@ -1,5 +1,6 @@
-﻿using HarmonyLib;
-using NebulaAPI;
+﻿
+using NebulaAPI.Networking;
+using NebulaAPI.Packets;
 using NebulaCompatibilityAssist.Hotfix;
 
 namespace NebulaCompatibilityAssist.Packets

@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using NebulaAPI;
+using NebulaAPI.Interfaces;
 using System.Diagnostics;
 using System.Reflection;
 

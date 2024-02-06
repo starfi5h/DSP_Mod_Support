@@ -3,6 +3,8 @@ using FactoryLocator;
 using FactoryLocator.UI;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.DataStructures;
+using NebulaAPI.Networking;
 using NebulaCompatibilityAssist.Packets;
 using System;
 using UnityEngine;
@@ -13,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "FactoryLocator";
         public const string GUID = "starfi5h.plugin.FactoryLocator";
-        public const string VERSION = "1.2.0";
+        public const string VERSION = "1.2.2";
         public static bool Enable { get; private set; }
 
         public static void Init(Harmony harmony)

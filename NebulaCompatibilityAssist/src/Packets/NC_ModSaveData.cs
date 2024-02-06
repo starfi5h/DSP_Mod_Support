@@ -1,4 +1,6 @@
 ﻿using NebulaAPI;
+using NebulaAPI.Networking;
+using NebulaAPI.Packets;
 using System;
 
 namespace NebulaCompatibilityAssist.Packets
@@ -25,10 +27,7 @@ namespace NebulaCompatibilityAssist.Packets
             if (IsHost)
             {
                 // Broadcast changes to other users
-                // NebulaModAPI.MultiplayerSession.Network.SendPacketExclude(packet, conn); //this method is tempoarily broken before fix in 0.8.12
-                var playerManager = NebulaModAPI.MultiplayerSession.Network.PlayerManager;
-                INebulaPlayer player = playerManager.GetPlayer(conn);
-                playerManager.SendPacketToOtherPlayers(packet, player);
+                NebulaModAPI.MultiplayerSession.Network.SendPacketExclude(packet, conn);
             }
             Log.Debug($"Receive ModSave Data Packet - {packet.Guid}");
             NC_ModSaveData.OnReceive?.Invoke(packet.Guid, packet.Bytes);

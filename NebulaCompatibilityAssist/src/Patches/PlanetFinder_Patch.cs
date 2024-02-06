@@ -15,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "PlanetFinder";
         public const string GUID = "com.hetima.dsp.PlanetFinder";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.1.3";
         public static bool Enable { get; private set; }
 
 

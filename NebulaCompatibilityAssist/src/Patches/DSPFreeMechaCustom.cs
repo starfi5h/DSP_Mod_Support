@@ -7,7 +7,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSPFreeMechaCustom";
         private const string GUID = "Appun.DSP.plugin.FreeMechaCustom";
-        private const string VERSION = "0.0.1";
+        private const string VERSION = "0.0.2";
 
         public static void Init(Harmony harmony)
         {

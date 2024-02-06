@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using NebulaAPI.Networking;
+using NebulaAPI.Packets;
 
 namespace NebulaCompatibilityAssist.Packets
 {

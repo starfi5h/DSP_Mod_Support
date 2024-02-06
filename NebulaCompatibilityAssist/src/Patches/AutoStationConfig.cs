@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaCompatibilityAssist.Packets;
 using System;
 using System.Reflection;

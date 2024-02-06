@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using NebulaCompatibilityAssist.Packets;
-using NebulaModel.DataStructures;
 using NebulaAPI;
 using NebulaModel.DataStructures.Chat;
+using NebulaAPI.GameState;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -16,10 +16,8 @@ namespace NebulaCompatibilityAssist.Hotfix
         public static void Init(Harmony harmony)
         {
             // === Mod list check ===
-            NebulaModAPI.OnPlayerJoinedGame += OnPlayerJoined;
-            var classType = AccessTools.TypeByName("NebulaWorld.Chat.Commands.InfoCommandHandler");
-            harmony.Patch(AccessTools.Method(classType, "GetClientInfoText"),
-                null, new HarmonyMethod(AccessTools.Method(typeof(ChatManager),nameof(GetClientInfoText_Postfix))));
+            NebulaModAPI.OnPlayerJoinedGame += OnPlayerJoined;           
+            harmony.PatchAll(typeof(ChatManager));
         }
 
         public static void OnDestory()
@@ -29,7 +27,7 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         private static void OnPlayerJoined (IPlayerData player)
         {
-            NebulaModAPI.MultiplayerSession.Network.PlayerManager.GetPlayerById(player.PlayerId).SendPacket(new NC_AllModList(0));
+            NebulaModAPI.MultiplayerSession.Network.SendToMatching(new NC_AllModList(0), iplayer => iplayer.Id == player.PlayerId);
         }
 
         public static void ShowMessageInChat(string message)
@@ -37,6 +35,8 @@ namespace NebulaCompatibilityAssist.Hotfix
             NebulaWorld.MonoBehaviours.Local.Chat.ChatManager.Instance?.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(NebulaWorld.Chat.Commands.InfoCommandHandler), "GetClientInfoText")]
         private static void GetClientInfoText_Postfix(bool full, ref string __result)
         {
             if (ServerModList == null || ServerModList.GUIDs == null || ServerModList.GUIDs.Length == 0)

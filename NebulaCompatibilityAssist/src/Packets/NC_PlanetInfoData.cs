@@ -1,4 +1,5 @@
-﻿using NebulaAPI;
+﻿using NebulaAPI.Networking;
+using NebulaAPI.Packets;
 using NebulaCompatibilityAssist.Patches;
 using System.Collections.Generic;
 

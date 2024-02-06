@@ -11,7 +11,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSPStarMapMemo";
         private const string GUID = "Appun.DSP.plugin.StarMapMemo";
-        private const string VERSION = "0.0.1";
+        private const string VERSION = "0.0.5";
 
         private static IModCanSave Save;
 

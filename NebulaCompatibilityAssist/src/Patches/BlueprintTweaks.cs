@@ -9,7 +9,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "BlueprintTweaks";
         public const string GUID = "org.kremnev8.plugin.BlueprintTweaks";
-        public const string VERSION = "1.5.9";
+        public const string VERSION = "1.6.3";
 
         public static void Init(Harmony _)
         {

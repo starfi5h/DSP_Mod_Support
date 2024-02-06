@@ -32,17 +32,16 @@ namespace NebulaCompatibilityAssist.Patches
 
             Harmony harmony = Plugin.Instance.Harmony;
             LSTM.Init(harmony);
-            DSPMarker.Init(harmony);
+            //DSPMarker.Init(harmony);
             DSPStarMapMemo.Init(harmony);
-            //DSPTransportStat_Patch.Init(harmony);
-            PlanetFinder_Patch.Init(harmony);
+            //PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
             AutoStationConfig.Init(harmony);
             Auxilaryfunction.Init(harmony);
             DSPOptimizations.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
-            MoreMegaStructure.Init(harmony);
+            //MoreMegaStructure.Init(harmony);
             BlueprintTweaks.Init(harmony);
             NebulaHotfix.Init(harmony);
 
