@@ -34,7 +34,7 @@ namespace NebulaCompatibilityAssist.Patches
             LSTM.Init(harmony);
             DSPMarker.Init(harmony);
             DSPStarMapMemo.Init(harmony);
-            DSPTransportStat_Patch.Init(harmony);
+            //DSPTransportStat_Patch.Init(harmony);
             PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
             AutoStationConfig.Init(harmony);
@@ -43,16 +43,13 @@ namespace NebulaCompatibilityAssist.Patches
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
             MoreMegaStructure.Init(harmony);
-            DSP_Battle_Patch.Init(harmony);
             BlueprintTweaks.Init(harmony);
-            Dustbin_Patch.Init(harmony);
-            Bottleneck_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
-            var title = Localization.language == Language.zhCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
-            var errorMessage = Localization.language == Language.zhCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行" : "Error occurred when patching the following mods:";
-            var incompatMessage = Localization.language == Language.zhCN ? "以下mod和联机mod不相容, 可能将导致错误或不同步\n" : "The following mods are not compatible with multiplayer mod:\n";
-            var warnMessage = Localization.language == Language.zhCN ? "以下mod的部分功能可能导致联机不同步\n" : "The following mods have some functions that don't sync in multiplayer game:\n";
+            var title = Localization.isZHCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
+            var errorMessage = Localization.isZHCN ? "修改以下mod时出错, 在联机模式中可能无法正常运行" : "Error occurred when patching the following mods:";
+            var incompatMessage = Localization.isZHCN ? "以下mod和联机mod不相容, 可能将导致错误或不同步\n" : "The following mods are not compatible with multiplayer mod:\n";
+            var warnMessage = Localization.isZHCN ? "以下mod的部分功能可能导致联机不同步\n" : "The following mods have some functions that don't sync in multiplayer game:\n";
             var message = "";
 
             if (ErrorMessage != "")
@@ -79,8 +76,6 @@ namespace NebulaCompatibilityAssist.Patches
 
         public static void OnDestory()
         {
-            DSP_Battle_Patch.OnDestory();
-            Dustbin_Patch.OnDestory();
             ChatManager.OnDestory();
         }
 
