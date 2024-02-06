@@ -18,7 +18,6 @@
     <PackageReference Include="BepInEx.Core" Version="5.4.17" />
     <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.10.29.21904-r.0" />
     <PackageReference Include="DysonSphereProgram.Modding.CommonAPI" Version="1.5.6" />
-    <PackageReference Include="DysonSphereProgram.Modding.NebulaMultiplayerModApi" Version="1.3.1" />
 	<PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
   </ItemGroup>
   
@@ -29,6 +28,9 @@
   <ItemGroup>
     <Reference Include="FactoryLocator">
       <HintPath>reference\FactoryLocator-nstrip.dll</HintPath>
+    </Reference>
+    <Reference Include="NebulaAPI">
+      <HintPath>reference\NebulaAPI.dll</HintPath>
     </Reference>
     <Reference Include="NebulaModel">
       <HintPath>reference\NebulaModel-nstrip.dll</HintPath>

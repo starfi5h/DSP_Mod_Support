@@ -5,6 +5,7 @@ using System.Linq;
 using NebulaCompatibilityAssist.Packets;
 using NebulaModel.DataStructures;
 using NebulaAPI;
+using NebulaModel.DataStructures.Chat;
 
 namespace NebulaCompatibilityAssist.Hotfix
 {
@@ -33,7 +34,7 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         public static void ShowMessageInChat(string message)
         {
-            NebulaWorld.MonoBehaviours.Local.ChatManager.Instance?.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
+            NebulaWorld.MonoBehaviours.Local.Chat.ChatManager.Instance?.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
 
         private static void GetClientInfoText_Postfix(bool full, ref string __result)
