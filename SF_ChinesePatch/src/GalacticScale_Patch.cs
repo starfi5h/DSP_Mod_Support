@@ -50,6 +50,7 @@ namespace SF_ChinesePatch
         {
             if (typeStrings.ContainsKey(key)) return;
             typeStrings.Add(key, cnTrans);
+            StringManager.RegisterString(key, cnTrans);
         }
 
         private static void RegisterStrings()
@@ -70,7 +71,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("WARNING - Galactic Scale savegames can be broken by updates.Read the FAQ @ http://customizing.space\r\n", "警告 - Galactic Scale 存档可能会因更新而损坏。请阅读常见问题解答 @ http://customizing.space\r\n");
             StringManager.RegisterString("BACKUP YOUR SAVES. This version has potentially BREAKING CHANGES.\r\nNote: Settings for this mod are in the settings menu. Make sure to change the Generator to get the full Galactic Scale experience.\r\n", "备份您的存档。此版本可能存在破坏性变更。\r\n注意：此 mod 的设置位于设置菜单中。请确保更改生成器以获得完整的体验。\r\n");
             StringManager.RegisterString("Update Detected. Please do not save over existing saves \r\nuntil you are sure you can load saves saved with this version!\r\nPlease Click GS2 Help and click the link to join our community on discord for preview builds and to help shape the mod going forward", "检测到更新。请不要在现有存档上保存，\r\n直到您确信可以加载使用此版本保存的存档！");
-            StringManager.RegisterString("The latest DSP update has added additional planet themes which are yet to be included in GS2. \r\nI'm working on getting them added to the GS2 themeset, as well as implementing their new subtheme system", "最新的 DSP 更新添加了其他行星主题，但尚未包含在 GS2 中。\r\n");
+            StringManager.RegisterString("The latest DSP update has added additional planet themes which are yet to be included in GS2. \r\nI'm working on getting them added to the GS2 themeset, as well as implementing their new subtheme system", "最新的游戏更新添加了其他行星种类，但尚未包含在 GS2 中。\r\n");
             #endregion
 
             #region GS2 Theme GS2行星種類
@@ -105,7 +106,7 @@ namespace SF_ChinesePatch
 
             RegisterPlanetType("Gobi Desert", "戈壁");
             RegisterPlanetType("Barren Desert", "贫瘠荒漠");
-            RegisterPlanetType("AridDesert", "干旱沙漠");
+            RegisterPlanetType("Arid Desert", "干旱沙漠");
             RegisterPlanetType("Crystal Desert", "橙晶荒漠");
             RegisterPlanetType("Rocky Salt Lake", "黑石盐滩");
             RegisterPlanetType("Hurricane Stone Forest", "飓风石林");
@@ -129,12 +130,53 @@ namespace SF_ChinesePatch
             RegisterPlanetType("Ice Giant IV", "冰巨星IV");
             #endregion
 
+            #region Original Theme New Name 新星球名称
+            // https://github.com/Touhma/DSP_Galactic_Scale/tree/main/Scripts/Themes
+            RegisterPlanetType("Scorchedia", "干旱荒漠"); //Arid Desert
+            RegisterPlanetType("Geloterra", "灰烬冻土"); //Ashen Gelisol
+            RegisterPlanetType("Desolus", "贫瘠荒漠"); //Barren
+            RegisterPlanetType("Onyxtopia", "橙晶荒漠"); //Crystal Desert
+            RegisterPlanetType("Icefrostia", "极寒冻土"); //Frozen Tundra
+
+            //RegisterPlanetType("Gas Giant", "气态巨星A");
+            //RegisterPlanetType("Gas Giant II", "气态巨星B");
+            //RegisterPlanetType("Gas Giant III", "气态巨星C");
+            //RegisterPlanetType("Gas Giant IV", "气态巨星D");
+            //RegisterPlanetType("Gas Giant V", "气态巨星E");
+
+            RegisterPlanetType("Gobi Desert", "戈壁");
+            RegisterPlanetType("Cyclonius", "飓风石林"); //Hurricane
+
+            RegisterPlanetType("Glacieon", "冰原冻土I"); //IceGelisol
+            RegisterPlanetType("Glacieon II", "冰原冻土II");
+            RegisterPlanetType("Glacieon III", "冰原冻土III");
+
+            //RegisterPlanetType("Ice Giant", "冰巨星A");
+            //RegisterPlanetType("Ice Giant II", "冰巨星B");
+            //RegisterPlanetType("Ice Giant III", "冰巨星C");
+            //RegisterPlanetType("Ice Giant IV", "冰巨星D");
+
+            RegisterPlanetType("Maroonfrost", "猩红冰湖"); //IceLake
+            RegisterPlanetType("Lava", "熔岩");
+            RegisterPlanetType("Mariterra", "地中海"); //Mediterranean
+            RegisterPlanetType("Aquatica", "水世界"); //Ocean World
+            RegisterPlanetType("Tropicana", "海洋丛林"); //Oceanic Jungle
+            RegisterPlanetType("Pandora Swamp", "潘多拉沼泽A");
+            RegisterPlanetType("Pandora Swamp II", "潘多拉沼泽B");
+            RegisterPlanetType("Prairie", "草原");
+            RegisterPlanetType("Crimsonis", "红石"); //Red Stone
+            RegisterPlanetType("Sakura Ocean", "樱林海");
+            RegisterPlanetType("Halitum", "黑石盐滩"); //SaltLake
+            RegisterPlanetType("Savanna", "热带草原");
+            RegisterPlanetType("Sulfuria", "火山灰"); //VolcanicAsh       
+            #endregion
+
             #region Left-side options
             StringManager.RegisterString("Generator", "星系生成器");
             StringManager.RegisterString("Try them all!", "选择自定义星系的生成器(Generator)");
             StringManager.RegisterString("You cannot change the generator while in game.", "您不能在游戏中更改生成器。");
 
-            StringManager.RegisterString("Quality of Life", "生活质量");
+            StringManager.RegisterString("Quality of Life", "便捷功能");
             StringManager.RegisterString("Skip Prologue", "跳过序章");
             StringManager.RegisterString("Skip Tutorials", "跳过教程");
             StringManager.RegisterString("Show/Hide Vein Labels", "显示/隐藏矿脉标签");
@@ -155,15 +197,29 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Show Unipolar Vein Labels", "显示单极磁石标签");
 
             StringManager.RegisterString("Debug Options", "调试选项");
-            StringManager.RegisterString("Useful for testing galaxies/themes", "用于测试星系/主题的实用功能");
+            StringManager.RegisterString("Useful for testing galaxies/themes", "用于测试星系的实用功能");
+            StringManager.RegisterString("Pause DarkFog", "暂停黑雾");
+            StringManager.RegisterString("Skip DF Hive Logic", "跳过黑雾太空巢穴逻辑");
+            StringManager.RegisterString("Distance to start Pausing(LY)", "开始暂停的距离（LY）");
+            StringManager.RegisterString("Distance (LY) before skipping", "距离（LY）超过此值跳过黑雾太空巢穴逻辑");
             StringManager.RegisterString("Debug Log", "调试日志");
             StringManager.RegisterString("Print extra logs to BepInEx console", "将额外日志打印到BepInEx控制台");
+            StringManager.RegisterString("Dev Log", "开发者日志");
+            StringManager.RegisterString("Print stupid amount of logs to BepInEx console (SLOW)", "将大量日志打印到BepInEx控制台（较慢）");
+            StringManager.RegisterString("Generation Log", "生成日志");
+            StringManager.RegisterString("Print generation logs to BepInEx console (SLOW)", "将生成日志打印到BepInEx控制台（较慢）");
+            StringManager.RegisterString("New Gravity Mechanics", "新引力机制");
+            StringManager.RegisterString("Large planets attract a lot more. Can cause issues with large planets", "大行星吸引力更强。可能会导致大行星的问题");
             StringManager.RegisterString("Force Rare Spawn", "强制稀有矿物生成");
-            StringManager.RegisterString("Ignore randomness/distance checks", "忽略随机性/距离检查");
+            StringManager.RegisterString("Ignore randomness/distance checks", "忽略稀有矿物的生成检测(随机性/距离)");
             StringManager.RegisterString("Enable Teleport", "启用传送");
+
+            StringManager.RegisterString("Cheat Mode", "作弊模式");
             StringManager.RegisterString("TP by ctrl-click nav arrow in star map", "在星图中通过Ctrl+单击导航箭头进行传送");
             StringManager.RegisterString("Mecha Scale", "机甲比例");
             StringManager.RegisterString("How big Icarus should be. 1 = default", "伊卡洛斯机甲的大小。1 = 默认");
+            StringManager.RegisterString("Reset Binary Star Position", "重置双星位置");
+            StringManager.RegisterString("Try and move binary stars to new position relative to main star", "尝试将双星移动到相对于主星的新位置");
             StringManager.RegisterString("Ship Speed Multiplier", "飞船曲速倍率");
             StringManager.RegisterString("Multiplier for Warp Speed of Ships", "运输船曲速速度倍率");
             StringManager.RegisterString("GalaxySelect Planet ScaleFactor", "初始界面星球显示倍率");
@@ -176,6 +232,8 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("How close to a star/planet your mouse needs to be to register a click", "鼠标距离星星/行星多近才能注册点击");
             StringManager.RegisterString("Set ResourceMulti Infinite", "使当前存档的资源无限");
             StringManager.RegisterString("Will need to be saved and loaded to apply", "需要保存和加载才能应用");
+            StringManager.RegisterString("Dev Mode", "开发者模式");
+            StringManager.RegisterString("Enable Keybinds for Refreshing Working Theme", "启用用于刷新工作主题的快捷键");
             StringManager.RegisterString("Revert Scarlet Ice Lake", "重生成猩红冰湖矿物");
             StringManager.RegisterString("2.2.0.23 Had a bug where Ice Lake had no terrain. Enable this to fix issues with saves started prior to .24", "2.2.0.23版本存在冰湖没有地形的错误。启用此选项以解决在24之前开始的存档问题");
             StringManager.RegisterString("Reset Logistic Bot Speed", "重置物流机器人速度");
@@ -189,13 +247,28 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Export Custom Galaxy", "导出自定义星系");
             StringManager.RegisterString("Save Galaxy to File", "保存星系到文件");
             StringManager.RegisterString("Custom Galaxy", "自定义星系");
+
+            StringManager.RegisterString("Enable Dark Fog", "启用黑雾");
+            StringManager.RegisterString("Enable Enemies", "启用敌人");
+            StringManager.RegisterString("Aggressiveness", "黑雾攻击性");
+            StringManager.RegisterString("Initial Level", "初始等级");
+            StringManager.RegisterString("Initial Growth", "初始生长情况");
+            StringManager.RegisterString("Initial Colonize", "初始占领情况");
+            StringManager.RegisterString("Max Density", "最大黑雾密度");
+            StringManager.RegisterString("Growth Speed Factor", "黑雾生长速度");
+            StringManager.RegisterString("Power Threat Factor", "电力威胁系数");
+            StringManager.RegisterString("Battle Threat Factor", "战斗威胁系数");
+            StringManager.RegisterString("Battle Exp Factor", "战斗经验系数");
+            StringManager.RegisterString("Combat Settings", "战斗设置");
+            StringManager.RegisterString("How the AI behaves", "AI 的行为方式");
+
             StringManager.RegisterString("Load Custom Galaxy", "导入自定义星系");
             StringManager.RegisterString("Will end current game", "将结束当前游戏");
 
-            StringManager.RegisterString("External Themes", "外部主题");
-            StringManager.RegisterString("Export All Themes", "导出所有主题");
+            StringManager.RegisterString("External Themes", "外部星球种类");
+            StringManager.RegisterString("Export All Themes", "导出所有星球种类");
             StringManager.RegisterString("Success", "成功");
-            StringManager.RegisterString("Themes have been exported to ", "主题已导出至");
+            StringManager.RegisterString("Themes have been exported to ", "星球种类已导出至");
             StringManager.RegisterString("Galaxy Saved to ", "星系保存至");
             StringManager.RegisterString("Error", "错误");
             StringManager.RegisterString("Please try again after creating a galaxy :)\r\nStart a game, then press ESC and click settings.", "请在创建星系后再试一次：）\r\n开始游戏，然后按 ESC 键并点击设置。");
@@ -216,6 +289,7 @@ namespace SF_ChinesePatch
             #endregion
 
             #region GS2 Generator - Overview
+            // https://github.com/Touhma/DSP_Galactic_Scale/blob/main/Scripts/Generators/GS2/Settings.cs
             StringManager.RegisterString("Galaxy Settings", "星系设置");
             StringManager.RegisterString("Settings that control Galaxy formation", "控制星系形成的设置");
             StringManager.RegisterString("Birth Planet Settings", "起始星球设置");
@@ -230,9 +304,9 @@ namespace SF_ChinesePatch
             #endregion
 
             #region GS2 Generator - Galaxy Settings
-            StringManager.RegisterString("Galaxy Spread", "星系扩散程度");
-            StringManager.RegisterString("Lower = Stars are closer to each other. Default is 5", "较低值 = 星系更接近。默认值为5");
-            StringManager.RegisterString("Default StarCount", "默认恒星数量");
+            StringManager.RegisterString("Galaxy Spread", "星系离散程度");
+            StringManager.RegisterString("Lower = Stars are closer to each other. Default is 5", "星系扩散程度越大，星系间就越远。默认值为5");
+            StringManager.RegisterString("Default StarCount", "初始界面默认恒星数量");
             StringManager.RegisterString("How many stars should the slider default to", "新游戏滑动条默认恒星数量");
             StringManager.RegisterString("Star Size Multiplier", "恒星大小倍率");
             StringManager.RegisterString("GS2 uses 10x as standard. They just look cooler.", "GS2设为原版10倍。看起来更酷。");
@@ -262,14 +336,20 @@ namespace SF_ChinesePatch
             #region GS2 Generator - Birth Planet Settings
             StringManager.RegisterString("Starting Planet Size", "起始星球大小");
             StringManager.RegisterString("How big the starting planet is. Default is 200", "起始星球的大小。默认值为200");
-            StringManager.RegisterString("Starting Planet Unlock", "解锁其他主题的起始星球");
-            StringManager.RegisterString("Allow other habitable themes for starting planet", "允许起始星球使用其他宜居主题");
+            StringManager.RegisterString("Starting Planet Orbit", "起始星球轨道半径");
+            StringManager.RegisterString("How big the starting planet is.", "你的起始行星距离恒星有多远");
+
+            StringManager.RegisterString("Starting Planet Unlock", "解锁其他种类的起始星球");
+            StringManager.RegisterString("Allow other habitable themes for starting planet", "允许起始星球使用其他宜居星球种类");
+            StringManager.RegisterString("Starting Planet Unlock", "解锁其他种类的起始星球");
+            StringManager.RegisterString("Starting Planet Theme", "起始星球种类");
+
             StringManager.RegisterString("Starting planet Si/Ti", "起始星球解锁硅和钛");
             StringManager.RegisterString("Force Silicon and Titanium on the starting planet", "在起始星球上强制生成硅和钛");
             StringManager.RegisterString("Allow Rares in Starting System", "起始星系中允许稀有资源");
-            StringManager.RegisterString("Allow Rares other than Oil and FireIce", "允许起始系统中除了原油和可燃冰之外的稀有资源");
+            StringManager.RegisterString("Allow Rares other than Oil and FireIce", "允许起始星系有除了原油和可燃冰之外的稀有资源");
             StringManager.RegisterString("Starting Planet Star", "起始恒星类型");
-            StringManager.RegisterString("Type of Star to Start at", "起始星系中星体的类型");
+            StringManager.RegisterString("Type of Star to Start at", "初始星球所属恒星系的类型");
             StringManager.RegisterString("Tidal Lock Starting Planet", "强制起始星球潮汐锁定");
             StringManager.RegisterString("Force the starting planet to be tidally locked", "将起始星球锁定为潮汐锁定");
             StringManager.RegisterString("Birth Planet is a Moon", "起始星球是一个卫星");
@@ -287,9 +367,9 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("None", "无");
             StringManager.RegisterString("Min/Max Solar", "最小/最大光能利用率");
 
-            StringManager.RegisterString("Orbit Spacing", "轨道间距");
+            StringManager.RegisterString("Orbit Spacing", "行星轨道间距");
             StringManager.RegisterString("Minimum gap between planet orbits", "行星轨道间的最小间隔");
-            StringManager.RegisterString("Planet Naming Scheme", "行星命名方案");
+            StringManager.RegisterString("Planet Naming Scheme", "行星命名策略");
             StringManager.RegisterString("How to determine planet names", "行星命名的规则");
             StringManager.RegisterString("Default", "原版");
             StringManager.RegisterString("Alpha", "Alpha");
@@ -323,13 +403,13 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("% Chance of a planet being a Gas Giant", "行星是气态行星的概率%");
             StringManager.RegisterString("Chance Moon", "卫星概率");
             StringManager.RegisterString("% Chance of a rocky planet being a moon", "岩石行星是卫星的概率%");
-            StringManager.RegisterString("Enable Comets", "启用小行星");
-            StringManager.RegisterString("Star has a small planetoid with a random rare resource", "恒星附近有一颗带有随机稀有资源的小行星");
-            StringManager.RegisterString("Comet Chance", "小行星概率");
-            StringManager.RegisterString("% Chance of a star spawning a comet", "恒星生成小行星的几率");
+            StringManager.RegisterString("Enable Comets", "启用彗星");
+            StringManager.RegisterString("Star has a small planetoid with a random rare resource", "恒星附近有一颗带有随机稀有资源的彗星");
+            StringManager.RegisterString("Comet Chance", "彗星概率");
+            StringManager.RegisterString("% Chance of a star spawning a comet", "恒星生成彗星的几率");
             StringManager.RegisterString("Override Habitable Zone", "覆盖适居带");
             StringManager.RegisterString("Enable the slider below", "启用下方的滑块");
-            StringManager.RegisterString("Habitable Zone", "适居带");
+            StringManager.RegisterString("Habitable Zone", "适居带范围");
             StringManager.RegisterString("Force habitable zone between these distances", "在这些距离间强制适居带");
             StringManager.RegisterString("Override Orbits", "覆盖轨道");
             StringManager.RegisterString("Orbit Range", "轨道范围");
