@@ -29,7 +29,7 @@ namespace SF_ChinesePatch
             harmony = new(GUID);
 
             LoadConfigStrings();
-            NebulaMultiplayer_Patch.OnAwake();
+            NebulaMultiplayer_Patch.OnAwake(harmony);
             GalacticScale_Patch.OnAwake(harmony);
             BulletTime_Patch.OnAwake();
             DSPStarMapMemo_Patch.OnAwake();

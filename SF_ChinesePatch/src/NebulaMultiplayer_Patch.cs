@@ -1,15 +1,27 @@
-﻿namespace SF_ChinesePatch
+﻿using HarmonyLib;
+
+namespace SF_ChinesePatch
 {
     public class NebulaMultiplayer_Patch
     {
         public const string NAME = "NebulaMultiplayerMod";
         public const string GUID = "dsp.nebula-multiplayer";
 
-        public static void OnAwake()
+        public static void OnAwake(Harmony harmony)
         {
             if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID)) return;
             if (!Plugin.Instance.Config.Bind("Enable", NAME, true).Value) return;
             RegisterStrings();
+
+            try
+            {
+                harmony.Patch(AccessTools.Method("NebulaPatcher.Patches.Dynamic.UIGalaxySelect_Patch.DisableDarkFogToggle"),
+                    null, null, new HarmonyMethod(typeof(Plugin).GetMethod(nameof(Plugin.TranslateStrings))));
+            }
+            catch
+            {
+                Plugin.Log.LogWarning("Skip DisableDarkFogToggle translate");
+            }
         }
 
         private static void RegisterStrings()
@@ -38,6 +50,7 @@
             StringManager.RegisterString("Chat", "聊天");
 
             StringManager.RegisterString("Nickname", "玩家名称");
+            StringManager.RegisterString("NameTagSize", "玩家名称尺寸");
             StringManager.RegisterString("Show Lobby Hints", "显示大厅说明");
             StringManager.RegisterString("Sync Ups", "同步逻辑帧");
             StringManager.RegisterString("If enabled the UPS of each player is synced. This ensures a similar amount of GameTick() calls.", "启用后，会调整本地的逻辑帧率以和远端主机同步");
@@ -45,6 +58,7 @@
             StringManager.RegisterString("If enabled the soil count of each players is added together and used as one big pool for everyone. Note that this is a server side setting applied to all clients.", "启用后，砂土设置将从个人转变为群体共享。此项为主机设置");
             StringManager.RegisterString("Streamer mode", "直播模式");
             StringManager.RegisterString("If enabled specific personal information like your IP address is hidden from the ingame chat and input fields.", "直播模式中，隐私数据（IP地址等）将会用星号隐藏");
+            StringManager.RegisterString("Enable Achievement", "启用成就");
 
             StringManager.RegisterString("Server Password", "服务器密码");
             StringManager.RegisterString("If provided, this will set a password for your hosted server.", "设置不为空时，玩家需输入密码才能进入服务器");
@@ -66,6 +80,7 @@
             StringManager.RegisterString("Cleanup inactive sessions", "清除不活跃的sessions");
             StringManager.RegisterString("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.", "启用后会自动清除不活跃的会话，可能解决客户端随机断开连接和主机出现“System.ObjectDisposedException”错误的问题");
 
+            StringManager.RegisterString("Chat Hotkey", "聊天窗口热键");
             StringManager.RegisterString("Auto Open Chat", "自动开启聊天窗口");
             StringManager.RegisterString("Auto open chat window when receiving message from other players", "收到其他玩家消息时自动开启聊天窗口");
             StringManager.RegisterString("Show system warn message", "显示系统警告消息");
@@ -73,6 +88,7 @@
             StringManager.RegisterString("Default chat position", "聊天窗口位置");
             StringManager.RegisterString("Default chat size", "聊天字体大小");
             StringManager.RegisterString("Notification duration", "通知停留时间");
+            StringManager.RegisterString("Chat Window Opacity", "聊天窗口不透明度");
             #endregion
 
             #region Server 主機提示
@@ -89,6 +105,10 @@
             "当出错或失去同步时可以让客户端重连,或主机保存重开。祝游戏愉快!";
             StringManager.RegisterString("The Lobby", "大厅说明");
             StringManager.RegisterString("Nebula_LobbyMessage", Nebula_LobbyMessage);
+
+            StringManager.RegisterString("Not supported in multiplayer", "尚未支援");
+            StringManager.RegisterString("Enabling enemy forces is currently not supported in multiplayer.", "目前多人游戏不支持启用战斗模式");
+            StringManager.RegisterString("Loading saved games with combat mode enabled is currently not supported in multiplayer.", "目前多人游戏不支持加载已启用战斗模式的存档");
             #endregion
 
             #region Disconnect reasons 斷線原因
