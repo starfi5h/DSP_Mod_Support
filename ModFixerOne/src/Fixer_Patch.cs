@@ -22,7 +22,7 @@ namespace ModFixerOne
                     return;
                 }
 
-                Nebula_Patch.OnAwake(harmony);
+                //Nebula_Patch.OnAwake(harmony);
                 if (ErrorMessage != "")
                 {
                     ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
