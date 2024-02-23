@@ -50,7 +50,6 @@ namespace ModFixerOne
 
                 harmony.PatchAll(typeof(Common_Patch));
                 LDBTool_Patch.Init(harmony);
-                PersonalLogistics.Init(harmony);
                 if (ErrorMessage != "")
                 {
                     ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
