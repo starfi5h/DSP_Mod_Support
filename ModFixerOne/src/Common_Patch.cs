@@ -8,6 +8,15 @@ namespace ModFixerOne
 {
     public static class Common_Patch
     {
+        [HarmonyPostfix, HarmonyPatch(typeof(GameData), nameof(GameData.Import))]
+        public static void CheckAferImport()
+        {
+            if (GameMain.history.constructionDroneMovement > 4)
+            {
+                Plugin.Log.LogWarning($"Drone Task Points fix: {GameMain.history.constructionDroneMovement} => 4");
+                GameMain.history.constructionDroneMovement = 4;
+            }
+        }
 
         [HarmonyPostfix, HarmonyPatch(typeof(Localization), nameof(Localization.NotifyLanguageChange))]
         public static void SwitchLanguage()
