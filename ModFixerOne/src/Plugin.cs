@@ -10,7 +10,7 @@ namespace ModFixerOne
     {
         public const string GUID = "starfi5h.plugin.ModFixerOne";
         public const string NAME = "ModFixerOne";
-        public const string VERSION = "1.3.1";
+        public const string VERSION = "1.3.2";
 
         public static Plugin Instance { get; private set; }
         public Harmony Harmony { get; private set; }
