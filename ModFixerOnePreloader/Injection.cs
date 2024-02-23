@@ -143,46 +143,5 @@ namespace ModFixerOne
             stringProtoClass.AddFied("ENUS", assembly.MainModule.TypeSystem.String);
             stringProtoClass.AddFied("FRFR", assembly.MainModule.TypeSystem.String);
         }
-
-        internal static bool UIStatisticsWindow_Patch(AssemblyDefinition assembly)
-        {
-            // For XGP that is still in 0.10.28.21014, add the following new methods
-            bool result = false;
-            TypeDefinition typeDefinition = assembly.MainModule.GetType("UIStatisticsWindow");  
-            
-            MethodDefinition oldMethod = typeDefinition.Methods.FirstOrDefault(m => m.Name == "AddStatGroup");
-            if (oldMethod != null)
-            {
-                // Add method: AddFactoryStatGroup(int _factoryIndex) to call AddStatGroup(int _factoryIndex)
-                var newMethod = typeDefinition.AddMethod("AddFactoryStatGroup", 
-                    assembly.MainModule.TypeSystem.Void, 
-                    new TypeReference[] { assembly.MainModule.TypeSystem.Int32 });
-
-                newMethod.Parameters[0].Name = "_factoryIndex";
-                ILProcessor ilProcessor = newMethod.Body.GetILProcessor();
-                ilProcessor.Emit(OpCodes.Ldarg_0);
-                ilProcessor.Emit(OpCodes.Ldarg_1);
-                ilProcessor.Emit(OpCodes.Callvirt, oldMethod);
-                ilProcessor.Emit(OpCodes.Ret);
-                result = true;
-            }
-
-            oldMethod = typeDefinition.Methods.FirstOrDefault(m => m.Name == "ComputeDisplayEntries");
-            if (oldMethod != null)
-            {
-                // Add method: ComputeDisplayProductEntries() to call ComputeDisplayEntries()
-                var newMethod = typeDefinition.AddMethod("ComputeDisplayProductEntries",
-                    assembly.MainModule.TypeSystem.Void,
-                    new TypeReference[] {});
-
-                ILProcessor ilProcessor = newMethod.Body.GetILProcessor();
-                ilProcessor.Emit(OpCodes.Ldarg_0);
-                ilProcessor.Emit(OpCodes.Callvirt, oldMethod);
-                ilProcessor.Emit(OpCodes.Ret);
-                result = true;
-            }
-
-            return result;
-        }
     }
 }

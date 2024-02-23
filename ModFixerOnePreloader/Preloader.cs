@@ -54,15 +54,6 @@ namespace ModFixerOne
                 // Add StringProto
                 Injection.StringProto(assembly);
                 logSource.LogDebug("public StringProto");
-
-                // For XGP that is still in 0.10.28.21014, add the following new methods
-                // Add method: UIStatisticsWindow.AddFactoryStatGroup
-                // Add method: UIStatisticsWindow.ComputeDisplayProductEntries
-                if (Injection.UIStatisticsWindow_Patch(assembly))
-                {
-                    logSource.LogDebug("UIStatisticsWindow.AddFactoryStatGroup");
-                    logSource.LogDebug("UIStatisticsWindow.ComputeDisplayProductEntries");
-                }
             }
             catch (Exception e)
             {
