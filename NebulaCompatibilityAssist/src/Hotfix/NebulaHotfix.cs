@@ -17,11 +17,14 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 
+                /*
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 0)
                 {
                     harmony.PatchAll(typeof(Warper0900));
                     Log.Info("Nebula hotfix 0.9.0 - OK");
                 }
+                */
+
                 ChatManager.Init(harmony);
                 harmony.PatchAll(typeof(Analysis.StacktraceParser));
                 Log.Info("Nebula extra features - OK");

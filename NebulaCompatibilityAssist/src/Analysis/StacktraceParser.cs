@@ -149,20 +149,5 @@ namespace NebulaCompatibilityAssist.Analysis
             }
             return false;
         }
-
-        /*
-        static bool flag;
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIEscMenu), nameof(UIEscMenu.OnButton1Click))]
-        [HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
-        public static void TestError()
-        {
-            if (flag)
-                return;
-            flag = true;
-            int a = 0;
-            int b = 1 / a;
-        }
-        */
     }
 }
