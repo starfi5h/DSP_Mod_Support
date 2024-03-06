@@ -32,7 +32,6 @@ namespace NebulaCompatibilityAssist.Patches
 
             Harmony harmony = Plugin.Instance.Harmony;
             LSTM.Init(harmony);
-            //DSPMarker.Init(harmony);
             DSPStarMapMemo.Init(harmony);
             //PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
