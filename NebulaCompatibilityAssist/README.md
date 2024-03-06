@@ -46,7 +46,8 @@ Check the mod wiki or join Nebula discord for more info!
 - Sync data when player change mega structure type in the editor.  
 - Sync data when player change star assembler slider.  
 
-### ~~[PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)~~
+### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
+- Fix error in multiplayer lobby.  
 - Client can now see vein amount and power status on planets not loaded yet. 
 - The data is updated everytime client open the window.  
 
@@ -103,7 +104,8 @@ Check the mod wiki or join Nebula discord for more info!
 - 当巨构类型或星际组装厂配方更改时同步资料  
 - 修复客户端戴森球电力供给和需求不正确的问题  
 
-### ~~[PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)~~
+### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
+- 修正在联机大厅(选择星球介面)时的UI错误  
 - 让客户端能显示远端星球的资源储量和电力状态  
 
 ### [SplitterOverBelt](https://dsp.thunderstore.io/package/hetima/SplitterOverBelt/)

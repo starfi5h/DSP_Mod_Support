@@ -53,6 +53,9 @@ namespace NebulaCompatibilityAssist.Patches
                 // Show power network information on client
                 harmony.Patch(classType.GetMethod("RefreshValues"), null, new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("RefreshValues_Postfix")));
 
+                classType = assembly.GetType("PlanetFinderMod.PLFN+Patch");
+                harmony.Patch(classType.GetMethod("UIPlanetDetail_RefreshDynamicProperties"), new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("UIPlanetDetail_RefreshDynamicProperties_Prefix")));
+
                 Log.Info($"{NAME} - OK");
             }
             catch (Exception e)
@@ -88,12 +91,13 @@ namespace NebulaCompatibilityAssist.Patches
 
         public static void RefreshValues_Postfix(GameObject ___baseObj, int ____itemId, PlanetData ___planetData, Text ___valueText, Text ___valueSketchText)
         {
-            if (!___baseObj.activeSelf || ____itemId != 0)
+            if (!___baseObj.activeSelf || ____itemId != 0 || ___planetData == null)
                 return;
 
             if (!NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost)
                 return;
 
+            // PowerState
             if (___planetData.factory == null && planetInfos.ContainsKey(___planetData.id))
             {
                 long energyRequired = planetInfos[___planetData.id].energyRequired;
@@ -139,6 +143,12 @@ namespace NebulaCompatibilityAssist.Patches
                 d.shouldShow = planetInfos.ContainsKey(d.planetData.id);
             }
             return false;
+        }
+
+        public static bool UIPlanetDetail_RefreshDynamicProperties_Prefix()
+        {
+            // Skip when it is in multiplayer lobby
+            return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.IsGameLoaded;
         }
     }
 }
