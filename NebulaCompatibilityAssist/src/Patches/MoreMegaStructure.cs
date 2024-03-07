@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.1.11";
+        private const string VERSION = "1.3.9";
 
         private static IModCanSave Save;
 
@@ -41,9 +41,11 @@ namespace NebulaCompatibilityAssist.Patches
                     Import(bytes);
                 };
                 
+                var sendDataMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData"));
+
                 // Sync MegaStructure type
                 Type classType = assembly.GetType("MoreMegaStructure.MoreMegaStructure");
-                harmony.Patch(AccessTools.Method(classType, "SetMegaStructure"), null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData")));
+                harmony.Patch(AccessTools.Method(classType, "SetMegaStructure"), null, sendDataMethod);
                 harmony.Patch(AccessTools.Method(classType, "BeforeGameTickPostPatch"), new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressOnClient")));
 
                 // Fix RequestDysonSpherePower patch
@@ -52,7 +54,7 @@ namespace NebulaCompatibilityAssist.Patches
 
                 // Sync StarAssembly recipeIds & weights 
                 classType = assembly.GetType("MoreMegaStructure.StarAssembly");
-                harmony.Patch(AccessTools.Method(classType, "OnRecipePickerReturn"), null, new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData")));
+                harmony.Patch(AccessTools.Method(classType, "OnRecipePickerReturn"), null, sendDataMethod);
                 var sliders = AccessTools.StaticFieldRefAccess<List<Slider>>(classType, "sliders");
                 foreach (var slider in sliders)
                 {
@@ -61,9 +63,21 @@ namespace NebulaCompatibilityAssist.Patches
                     var handler = go.AddComponent<PointerDownUpHandler>();
                     handler.onPointerUp += (_) => SendData();
                 }
-
                 // Disable UI update when editor window is closed
                 harmony.Patch(AccessTools.Method(classType, "UIFrameUpdate"),  new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressUIupdate")));
+
+                // Sync Starcannon fire event
+                classType = assembly.GetType("MoreMegaStructure.StarCannon");
+                harmony.Patch(AccessTools.Method(classType, "StartAiming"), null, sendDataMethod);
+
+                // Suppress UIStatisticsWindow patches in MP
+                var suppressPrefixMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressPrefixOnMultiplayer"));
+                var suppressPostfixMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressPostfixOnMultiplayer"));
+                classType = assembly.GetType("MoreMegaStructure.UIStatisticsPatcher");                
+                harmony.Patch(AccessTools.Method(classType, "RefreshAstroBoxPostPatch"), suppressPrefixMethod);
+                harmony.Patch(AccessTools.Method(classType, "PlanetByIdPostPatch"), suppressPostfixMethod);
+                harmony.Patch(AccessTools.Method(classType, "ComputeDisplayEntriesPrePatch"), suppressPrefixMethod);
+                harmony.Patch(AccessTools.Method(classType, "ProductionStatisticsGameTickPostPatch"), suppressPostfixMethod);
 
                 Log.Info($"{NAME} - OK");
                 NC_Patch.RequriedPlugins += " +" + NAME;
@@ -115,9 +129,22 @@ namespace NebulaCompatibilityAssist.Patches
             }
         }
 
+        public static bool SuppressPrefixOnMultiplayer(ref bool __result)
+        {
+            if (!NebulaModAPI.IsMultiplayerActive) return true;
+
+            __result = true;
+            return false;
+        }
+
+        public static bool SuppressPostfixOnMultiplayer()
+        {
+            return !NebulaModAPI.IsMultiplayerActive;
+        }
+
         public static bool SuppressOnClient()
         {
-            return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost;
+            return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.IsServer;
         }
 
         public static bool SuppressUIupdate()

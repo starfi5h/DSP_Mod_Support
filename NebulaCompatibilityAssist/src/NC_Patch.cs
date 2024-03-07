@@ -40,7 +40,7 @@ namespace NebulaCompatibilityAssist.Patches
             DSPOptimizations.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
-            //MoreMegaStructure.Init(harmony);
+            MoreMegaStructure.Init(harmony);
             BlueprintTweaks.Init(harmony);
             NebulaHotfix.Init(harmony);
 

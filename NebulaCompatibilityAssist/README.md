@@ -42,9 +42,11 @@ Check the mod wiki or join Nebula discord for more info!
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
 - Client can now see all ILS stations when choosing system/global tab.  
 
-### ~~[MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/)~~
+### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/)
 - Sync data when player change mega structure type in the editor.  
 - Sync data when player change star assembler slider.  
+- Sync data when player fire star cannon.  
+- Disable modification of the stats panel to avoid conflicts.  
 
 ### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
 - Fix error in multiplayer lobby.  
@@ -100,9 +102,11 @@ Check the mod wiki or join Nebula discord for more info!
 ### [LSTM](https://dsp.thunderstore.io/package/hetima/LSTM/)
 - 让客户端显示所有星际物流塔的内容  
 
-### ~~[MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑~~
-- 当巨构类型或星际组装厂配方更改时同步资料  
+### [MoreMegaStructure](https://dsp.thunderstore.io/package/jinxOAO/MoreMegaStructure/) 更多巨构建筑
+- 当巨构类型或星际组装厂配方更改时同步数据  
+- 恒星炮开火时同步数据  
 - 修复客户端戴森球电力供给和需求不正确的问题  
+- 取消统计页面的修改防止冲突  
 
 ### [PlanetFinder](https://dsp.thunderstore.io/package/hetima/PlanetFinder/)
 - 修正在联机大厅(选择星球介面)时的UI错误  
