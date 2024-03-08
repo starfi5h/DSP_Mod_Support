@@ -1,7 +1,7 @@
 {
     "name": "NebulaCompatibilityAssist",
-    "description": "Extension to hotfix Nebula multiplayer pre-release version (0.9.0) and improve compatibility with other mods. Check README for more info. 联机mod扩充补丁 - 修复联机内测版(0.9.0)的bug,兼容其他mod",
-    "version_number": "0.4.0",
+    "description": "Extension to hotfix Nebula multiplayer mod (public & combat-enabled prerelease) and improve compatibility with other mods. Check README for more info. 联机mod扩充补丁 - 修复联机mod(0.9.0及战斗测试版)的bug,兼容其他mod",
+    "version_number": "0.4.1",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
     "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

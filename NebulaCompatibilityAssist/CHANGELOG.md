@@ -1,12 +1,17 @@
 ## Changelog
 
+#### v0.4.1 (Nebula 0.9.0)
+\- MoreMegaStructure v1.3.8: Sync star cannon and fix errors.  
+\- PlanetFinder v1.1.3: Fix error in multiplayer lobby.  
+\- Remove DSPMarker support.  
+
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.4.0 (Nebula 0.9.0 pre-release)
 \- Hotfix: Tempoarily disable drone syncing.  
 \- Remove Bottleneck, DSPTransportStat, Dustbin, TheyComeFromVoid support.  
 \- Temporily disable BlueprintTweaks, DSPMarker, MoreMegaStructure, PlanetFinder support.  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.3.1 (Nebula 0.8.14)
 \- Hotfix: Fix NRE error in `StationUIManager.UpdateStorage.`  
