@@ -558,18 +558,25 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
             return false;
         }
 
-        [HarmonyPostfix, HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry.ShowInText))]
-        static void ShowInText(UIProductEntry __instance, int level)
+        [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))]
+        static void UIProductEntry_ShowInText(UIProductEntry __instance)
         {
             if (ratio == 1.0f || __instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
             if (!dict.TryGetValue(__instance.entryData.detail, out var value)) return;
 
+            int level = __instance.productionStatWindow.timeLevel;
             double production = value.production;
             double consumption = value.consumption;
             if (level != 5)
             {
                 production /= __instance.lvDivisors[level] * ratio; //依照時間範圍校正
                 consumption /= __instance.lvDivisors[level] * ratio;
+            }
+            if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
+            {
+                production /= 60;
+                consumption /= 60;
             }
             __instance.productText.text = __instance.ToLevelString(production, level);
             __instance.consumeText.text = __instance.ToLevelString(consumption, level);

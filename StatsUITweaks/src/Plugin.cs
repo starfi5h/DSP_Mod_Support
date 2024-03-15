@@ -1,6 +1,8 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using System;
 using System.Reflection;
 using UnityEngine;
 
@@ -17,6 +19,7 @@ namespace StatsUITweaks
         public const string VERSION = "1.4.3";
 
         public static ManualLogSource Log;
+        public static ConfigEntry<bool> DisplayPerSecond;
         static Harmony harmony;
 
         public void Awake()
@@ -38,6 +41,8 @@ namespace StatsUITweaks
 
             var FoldButton = Config.Bind("PerformancePanel", "FoldButton", true, "Add a button to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
 
+            // Bottleneck compatibility for displayPerSecond            
+            BottleneckCompat();
 
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
@@ -65,6 +70,24 @@ namespace StatsUITweaks
                 harmony.PatchAll(typeof(PlanetNamePatch));
             if (FoldButton.Value)
                 harmony.PatchAll(typeof(PerformancePanelPatch));
+        }
+
+        static void BottleneckCompat()
+        {
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("Bottleneck", out var pluginInfo))
+                return;
+
+            try
+            {
+                var assembly = pluginInfo.Instance.GetType().Assembly;
+                var pluginConfig = assembly.GetType("Bottleneck.PluginConfig");
+                DisplayPerSecond = (ConfigEntry<bool>)(AccessTools.Field(pluginConfig, "displayPerSecond")?.GetValue(null) ?? null);
+            }
+            catch (Exception e)
+            {
+                Log.LogWarning("Can't find Bottleneck.PluginConfig.displayPerSecond");
+                Log.LogWarning(e);
+            }
         }
 
         public void OnDestroy()
