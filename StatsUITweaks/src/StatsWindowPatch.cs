@@ -61,6 +61,11 @@ namespace StatsUITweaks
                         Reposition(__instance.researchAstroBox.transform, __instance.researchTimeBox.transform);
                         Reposition(__instance.dysonAstroBox.transform, __instance.dysonTimeBox.transform);
                         Reposition(__instance.killAstroBox.transform, __instance.killTimeBox.transform);
+                        if (ListWidthOffeset > 40)
+                        {
+                            ((RectTransform)__instance.killSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
+                            __instance.killSortBox.transform.localPosition = new Vector3(135f - (ListWidthOffeset - 40), __instance.killSortBox.transform.localPosition.y);
+                        }
                     }
                     EnableRichText(__instance.productAstroBox);
                     EnableRichText(__instance.powerAstroBox);
@@ -388,7 +393,7 @@ namespace StatsUITweaks
         }
         #endregion
 
-        #region 時間範圍
+        #region 時間範圍 
 
         static void OnSliderChange(float value)
         {
@@ -457,6 +462,7 @@ namespace StatsUITweaks
             dict.Clear();
         }
 
+        // FirstHalf = 直方圖上半部分
         [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
             new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
         static bool ComputeFirstHalfDetail(int lastCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
@@ -508,6 +514,7 @@ namespace StatsUITweaks
             return false;
         }
 
+        // SecondHalf = 直方圖下半部分
         [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
     new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
         static bool ComputeSecondHalfDetail(int lastCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
@@ -559,7 +566,7 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
         }
 
         [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
-        [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))]
+        [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //生產統計
         static void UIProductEntry_ShowInText(UIProductEntry __instance)
         {
             if (ratio == 1.0f || __instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
@@ -580,6 +587,26 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
             }
             __instance.productText.text = __instance.ToLevelString(production, level);
             __instance.consumeText.text = __instance.ToLevelString(consumption, level);
+        }
+
+        [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
+        [HarmonyPatch(typeof(UIKillEntry), nameof(UIKillEntry._OnUpdate))] //擊殺統計
+        static void UIKillEntry_ShowInText(UIKillEntry __instance)
+        {
+            if (ratio == 1.0f) return;
+            if (!dict.TryGetValue(__instance.entryData.detail, out var value)) return;
+
+            int timeLevel = __instance.productionStatWindow.timeLevel;
+            double production = value.production;
+            if (timeLevel != 5)
+            {
+                production /= __instance.lvDivisors[timeLevel] * ratio; //依照時間範圍校正除數
+            }
+            if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
+            {
+                production /= 60;
+            }
+            __instance.killText.text = __instance.ToLevelString(production, timeLevel);
         }
 
         #endregion
