@@ -84,6 +84,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.4.4: Add compat to Bottleneck's displayPerSecond. Support time slider in kill count (DSP 0.10.29.21950)  
 \- v1.4.3: Fix right-click on navi button. Display astorId and factoryIdx on its tip (DSP 0.10.29.21904)  
 \- v1.4.2: Fix star system duplicate in the filter with Bottleneck local system label (DSP 0.10.28.21172)  
 \- v1.4.1: Fix error in OnLocateButtonRightClick  
