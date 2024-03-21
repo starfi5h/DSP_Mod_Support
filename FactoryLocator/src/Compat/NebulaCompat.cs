@@ -23,7 +23,7 @@ namespace FactoryLocator.Compat
             try
             {
                 // Initial patching version: 0.8.12
-                Patch0812();
+                Patch();
                 Log.Debug("Nebula compat - OK");
             }
             catch (Exception e)
@@ -95,7 +95,7 @@ namespace FactoryLocator.Compat
             }
         }
 
-        public static void Patch0812()
+        public static void Patch()
         {
             Type classType;
             classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");

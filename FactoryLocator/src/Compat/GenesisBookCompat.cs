@@ -5,7 +5,7 @@ namespace FactoryLocator.Compat
     public static class GenesisBookCompat
     {
         private const string GUID = "org.LoShin.GenesisBook";
-        // last target version: 2.9.8
+        // last target version: 2.9.12
 
         public static void Init()
         {
@@ -21,7 +21,7 @@ namespace FactoryLocator.Compat
             }
             catch (Exception e)
             {
-                Log.Warn("GenesisBook compat fail! Last target version: 2.9.8");
+                Log.Warn("GenesisBook compat fail! Last target version: 2.9.12");
                 Log.Debug(e);
             }
         }

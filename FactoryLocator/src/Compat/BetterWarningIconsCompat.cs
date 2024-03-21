@@ -9,7 +9,7 @@ namespace FactoryLocator.Compat
     public static class BetterWarningIconsCompat
     {
         private const string GUID = "dev.raptor.dsp.BetterWarningIcons";
-        // last target version: 0.0.4
+        // last target version: 0.0.5
 
         private const int InsufficientInputSignalId = 531;
 
@@ -41,7 +41,7 @@ namespace FactoryLocator.Compat
             }
             catch (Exception e)
             {
-                Log.Warn($"BetterWarningIcons compat fail! Last target version: 0.0.4");
+                Log.Warn($"BetterWarningIcons compat fail! Last target version: 0.0.5");
                 Log.Debug(e);
             }
         }

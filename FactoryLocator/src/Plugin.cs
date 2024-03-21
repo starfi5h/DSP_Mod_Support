@@ -75,7 +75,7 @@ namespace FactoryLocator
                 Log.Debug("Initing...");
                 mainLogic = new MainLogic();
                 mainWindow = UILocatorWindow.CreateWindow();
-                //NebulaCompat.Init(); //TODO: Fix the compat when NebulaAPI update
+                NebulaCompat.Init();
                 DSPMoreRecipesCompat.Init();
                 GenesisBookCompat.Init();
                 BetterWarningIconsCompat.Postload();
