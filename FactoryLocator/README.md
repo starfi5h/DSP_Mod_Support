@@ -25,10 +25,10 @@ Requrie [CommonAPI](https://dsp.thunderstore.io/package/CommonAPI/CommonAPI/) as
 
 ## Mod compatibility
 This mod is compat with the following mods:
-- [GenesisBook](https://dsp.thunderstore.io/package/HiddenCirno/GenesisBook/) v2.9.8  
-- [BetterWarningIcons](https://dsp.thunderstore.io/package/Raptor/BetterWarningIcons/) v0.0.4  
+- [GenesisBook](https://dsp.thunderstore.io/package/HiddenCirno/GenesisBook/) v2.9.12  
+- [BetterWarningIcons](https://dsp.thunderstore.io/package/Raptor/BetterWarningIcons/) v0.0.5  
 
-### Nebula multiplayer mod compat (currently unusable)
+### Nebula multiplayer mod compat  
 The mod don't have to install on both host and client. Some behaviors will be different though.  
 - Host : The temporary guiding warning will sync with clients.  
 - Client : Only loaded planets are searchable. When the mod window is opened, the warning icon will stop syncing with host temporarily.   

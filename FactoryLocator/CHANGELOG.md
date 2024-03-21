@@ -1,9 +1,12 @@
+### v1.2.3 (DSP 0.10.29.21950)  
+\- Add Nebula 0.9.1 compat.  
+
 ### v1.2.2 (DSP 0.10.28.21247)  
 \- Remove query warning group when right click.  
 \- Add BetterWarningIcons compat.  
 
-### v1.2.1
-\- Adapt to CommonAPI 1.6.0 (DSP 0.10.28.20829)  
+### v1.2.1 (DSP 0.10.28.20829)  
+\- Adapt to CommonAPI 1.6.0  
 
 <details>
 <summary>Previous Changelog</summary>
