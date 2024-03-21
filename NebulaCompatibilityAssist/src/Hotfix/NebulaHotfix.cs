@@ -148,16 +148,31 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         #endregion
 
-        #region SaveManager
+        static bool suppressed = false;
 
-        [HarmonyPrefix, HarmonyPatch(typeof(Server), nameof(Server.Start))]
-        public static void Server_Start_Prefix()
+        [HarmonyPostfix, HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
+        public static void OnGameBegin()
         {
             // Reset saved player data
             SaveManager.playerSaves.Clear();
+            suppressed = false;
         }
 
-        #endregion
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.GameTickLogic))]
+        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.KeyTickLogic))]
+        [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.GameTickLogic))]
+        [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.KeyTickLogic))]
+        public static Exception EnemyGameTick_Finalizer(Exception __exception)
+        {
+            if (__exception != null && !suppressed)
+            {
+                suppressed = true;
+                var msg = "NebulaCompatibilityAssist suppressed the following exception: \n" + __exception.ToString();
+                Log.Error(msg);
+            }
+            return null;
+        }
 
     }
 }
