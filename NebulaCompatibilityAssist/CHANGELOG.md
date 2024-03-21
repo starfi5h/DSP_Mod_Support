@@ -1,5 +1,11 @@
 ## Changelog
 
+#### v0.4.2 (Nebula 0.9.1)
+\- Add new dependency DSPModSave.  
+\- Make construction drones only launch if the current player is the cloest one or within 15m.  
+\- Clear old playerSaves when server start.  
+\- Suppress Enemy TickLogic excpetion to show only once per session.
+
 #### v0.4.1 (Nebula 0.9.0)
 \- MoreMegaStructure v1.3.8: Sync star cannon and fix errors.  
 \- PlanetFinder v1.1.3: Fix error in multiplayer lobby.  

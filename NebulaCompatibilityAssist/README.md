@@ -1,10 +1,12 @@
 # Nebula Compatibility Assist
 
+Nebula 0.9.1 hotfix:
+- Make construction drones only launch if the current player is the cloest one or within 15m.  
+- Clear old playerSaves when server start.  
+- Suppress Enemy TickLogic excpetion to show only once per session.  
+
+[Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
-To play multiplayer mod, you can either:  
-(A) install the public version 0.9.0, but combat is not available.  
-(B) install the pre-release version with combat option enabled.  
-Check the wiki page of this mod, or join Nebula discord for more info!
 
 <details>
 <summary>Supported Mods List (click to expand)</summary>
@@ -55,10 +57,11 @@ Check the wiki page of this mod, or join Nebula discord for more info!
 ----
 
 # 联机mod扩充模组(热修补丁+兼容支援)
-联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/)0.9.0可以在最新版的游戏中运行, 但尚未支援战斗  
-想要安装允许战斗模式的测试版可以查看[这篇说明](https://www.bilibili.com/read/cv32374921/?spm_id_from=333.999.0.0)  
+联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) v0.9.1可以在最新版的游戏中运行并且支援战斗  
 
 有些mod和联机模组有冲突，可能造成红字错误或预期效果不正确。  
+[联机兼容的模组列表](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k)  
+绿勾=无问题, 蓝勾=需两端皆安装, 红标=有严重冲突  
 此模组提供以下mod的兼容支援, 主要是让主机和客户端显示的内容可以一致，或著修復建築不同步的問題:  
 
 <details>

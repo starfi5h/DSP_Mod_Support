@@ -16,11 +16,12 @@ namespace NebulaCompatibilityAssist
     [BepInPlugin(GUID, NAME, VERSION)]
     [BepInDependency("dsp.nebula-multiplayer")]
     [BepInDependency("dsp.nebula-multiplayer-api")]
+    [BepInDependency("crecheng.DSPModSave")]
     public class Plugin : BaseUnityPlugin, IMultiplayerMod
     {
         public const string GUID = "NebulaCompatibilityAssist";
         public const string NAME = "NebulaCompatibilityAssist";
-        public const string VERSION = "0.4.1";
+        public const string VERSION = "0.4.2";
 
         public static Plugin Instance { get; private set; }
         public Harmony Harmony { get; private set; }
