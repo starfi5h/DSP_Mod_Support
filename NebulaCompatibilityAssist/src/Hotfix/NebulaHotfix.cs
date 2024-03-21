@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using NebulaModel.Utils;
+using NebulaNetwork;
 using NebulaWorld;
 using NebulaWorld.Player;
 using System;
@@ -146,6 +148,16 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         #endregion
 
+        #region SaveManager
+
+        [HarmonyPrefix, HarmonyPatch(typeof(Server), nameof(Server.Start))]
+        public static void Server_Start_Prefix()
+        {
+            // Reset saved player data
+            SaveManager.playerSaves.Clear();
+        }
+
+        #endregion
 
     }
 }
