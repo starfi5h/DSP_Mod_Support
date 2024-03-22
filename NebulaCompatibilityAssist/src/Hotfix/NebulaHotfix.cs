@@ -153,9 +153,14 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPostfix, HarmonyPatch(typeof(GameMain), nameof(GameMain.Begin))]
         public static void OnGameBegin()
         {
+            suppressed = false;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(SaveManager), nameof(SaveManager.LoadServerData))]
+        public static void LoadServerData_Prefix()
+        {
             // Reset saved player data
             SaveManager.playerSaves.Clear();
-            suppressed = false;
         }
 
         [HarmonyFinalizer]
