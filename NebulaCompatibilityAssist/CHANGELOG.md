@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v0.4.3 (Nebula 0.9.1)
+\- Fix an issue that player data is clean up wrongly in server.  
+
 #### v0.4.2 (Nebula 0.9.1)
 \- Add new dependency DSPModSave.  
 \- Make construction drones only launch if the current player is the cloest one or within 15m.  
