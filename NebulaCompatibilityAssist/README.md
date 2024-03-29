@@ -1,9 +1,10 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.1 hotfix:
-- Make construction drones only launch if the current player is the cloest one or within 15m.  
-- Clear old playerSaves when server start.  
+Nebula 0.9.2 hotfix:
 - Suppress Enemy TickLogic excpetion to show only once per session.  
+- Fix NRE in EnemyDFGroundSystem.KeyTickLogic (System.Int64 time);(IL_0929)  
+- Fix NRE in DFSTurretComponent.InternalUpdate (PrefabDesc pdesc);(IL_0017)  
+- Fix IdxErr in UIZS_FighterEntry._OnUpdate () [0x001bb] ;IL_01BB  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  

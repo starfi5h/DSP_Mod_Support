@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v0.4.4 (Nebula 0.9.2)
+\- Attempt to fix some issues in client.  
+
 #### v0.4.3 (Nebula 0.9.1)
 \- Fix an issue that player data is clean up wrongly in server.  
 
