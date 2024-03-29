@@ -35,6 +35,11 @@ namespace NebulaCompatibilityAssist.Hotfix
             NebulaWorld.MonoBehaviours.Local.Chat.ChatManager.Instance?.SendChatMessage(message, ChatMessageType.SystemInfoMessage);
         }
 
+        public static void ShowWarningInChat(string message)
+        {
+            NebulaWorld.MonoBehaviours.Local.Chat.ChatManager.Instance?.SendChatMessage(message, ChatMessageType.SystemWarnMessage);
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(NebulaWorld.Chat.Commands.InfoCommandHandler), "GetClientInfoText")]
         private static void GetClientInfoText_Postfix(bool full, ref string __result)
