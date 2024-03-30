@@ -104,6 +104,8 @@ namespace NebulaCompatibilityAssist.Hotfix
                         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
                         {
                             __instance.factory.KillEnemyFinally(GameMain.mainPlayer, builder.enemyId, ref CombatStat.empty);
+                            __instance.factory.enemyPool[builder.enemyId].SetEmpty();
+                            __instance.builders.Remove(builderId);
                         }
                     }
                 }
@@ -131,9 +133,25 @@ namespace NebulaCompatibilityAssist.Hotfix
                     using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
                     {
                         __instance.KillEnemyFinal(enemyId, ref CombatStat.empty);
+                        __instance.enemyPool[enemyId].SetEmpty();
                     }
                 }
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnemyFormation), nameof(EnemyFormation.RemoveUnit))]
+        public static bool RemoveUnit_Prefix(EnemyFormation __instance, int port)
+        {
+            if (__instance.units[port] != 0)
+            {
+                if (__instance.vacancyCursor < __instance.vacancies.Length) // guard
+                {
+                    __instance.vacancies[__instance.vacancyCursor++] = port;
+                }
+                __instance.units[port] = 0;
+            }
+            return false;
         }
 
         [HarmonyPostfix]
@@ -143,12 +161,23 @@ namespace NebulaCompatibilityAssist.Hotfix
             // Fix IdxErr in UIZS_FighterEntry._OnUpdate () [0x001bb] ;IL_01BB 
             if (Multiplayer.Session.IsServer) return;
 
+            FixInventory();
+
             //Log.Debug("CheckCombatModuleDataIsValidPatch");
             GameMain.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
 
             // CombatModuleComponent.RemoveFleetDirectly
             CleanFighterCraftId(GameMain.mainPlayer.mecha.groundCombatModule);
             CleanFighterCraftId(GameMain.mainPlayer.mecha.spaceCombatModule);
+        }
+
+        static void FixInventory()
+        {
+            // Inventory Capacity level 7 will increase package columncount from 10 -> 12
+            int packageRowCount = (GameMain.mainPlayer.package.size - 1) / GameMain.mainPlayer.GetPackageColumnCount() + 1;
+            GameMain.mainPlayer.package.SetSize(GameMain.mainPlayer.packageColCount * packageRowCount); // Make sure all slots are available on UI
+            GameMain.mainPlayer.deliveryPackage.rowCount = packageRowCount;
+            GameMain.mainPlayer.deliveryPackage.NotifySizeChange();
         }
 
         static void CleanFighterCraftId(CombatModuleComponent combatModuleComponent)
