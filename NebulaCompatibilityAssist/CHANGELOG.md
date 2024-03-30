@@ -1,7 +1,14 @@
 ## Changelog
 
+#### v0.4.5 (Nebula 0.9.2)
+\- Fix inventory size error in client.  
+\- Fix EnemyFormation.RemoveUnit error in client.  
+
 #### v0.4.4 (Nebula 0.9.2)
 \- Attempt to fix some issues in client.  
+
+<details>
+<summary>Previous Changelog</summary>
 
 #### v0.4.3 (Nebula 0.9.1)
 \- Fix an issue that player data is clean up wrongly in server.  
@@ -16,9 +23,6 @@
 \- MoreMegaStructure v1.3.8: Sync star cannon and fix errors.  
 \- PlanetFinder v1.1.3: Fix error in multiplayer lobby.  
 \- Remove DSPMarker support.  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.4.0 (Nebula 0.9.0 pre-release)
 \- Hotfix: Tempoarily disable drone syncing.  
