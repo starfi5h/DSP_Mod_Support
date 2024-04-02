@@ -1,5 +1,8 @@
 ## Changelog
 
+#### v0.4.6 (Nebula 0.9.2)
+\- Fix ILS errors in client.  
+
 #### v0.4.5 (Nebula 0.9.2)
 \- Fix inventory size error in client.  
 \- Fix EnemyFormation.RemoveUnit error in client.  

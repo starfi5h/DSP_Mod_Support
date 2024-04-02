@@ -7,6 +7,7 @@ Nebula 0.9.2 hotfix:
 - Fix IdxErr in UIZS_FighterEntry._OnUpdate () [0x001bb] ;IL_01BB  
 - Fix EnemyFormation.RemoveUnit (System.Int32 port) [0x0000a] ;IL_000A  
 - Fix UIStorageGrid error in player inventory of client  
+- Try to fix ILS related issues  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
