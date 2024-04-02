@@ -1,7 +1,10 @@
 ﻿using HarmonyLib;
+using NebulaModel.Networking;
+using NebulaModel.Packets.Logistics;
 using NebulaModel.Utils;
 using NebulaNetwork;
 using NebulaWorld;
+using NebulaWorld.Logistics;
 using NebulaWorld.Player;
 using System;
 using System.Collections.Generic;
@@ -103,7 +106,7 @@ namespace NebulaCompatibilityAssist.Hotfix
 
                         using (Multiplayer.Session.Combat.IsIncomingRequest.On())
                         {
-                            __instance.factory.KillEnemyFinally(GameMain.mainPlayer, builder.enemyId, ref CombatStat.empty);
+                            //__instance.factory.KillEnemyFinally(GameMain.mainPlayer, builder.enemyId, ref CombatStat.empty);
                             __instance.factory.enemyPool[builder.enemyId].SetEmpty();
                             __instance.builders.Remove(builderId);
                         }
@@ -132,7 +135,7 @@ namespace NebulaCompatibilityAssist.Hotfix
 
                     using (Multiplayer.Session.Enemies.IsIncomingRequest.On())
                     {
-                        __instance.KillEnemyFinal(enemyId, ref CombatStat.empty);
+                        //__instance.KillEnemyFinal(enemyId, ref CombatStat.empty);
                         __instance.enemyPool[enemyId].SetEmpty();
                     }
                 }
@@ -161,35 +164,158 @@ namespace NebulaCompatibilityAssist.Hotfix
             // Fix IdxErr in UIZS_FighterEntry._OnUpdate () [0x001bb] ;IL_01BB 
             if (Multiplayer.Session.IsServer) return;
 
-            FixInventory();
-
-            //Log.Debug("CheckCombatModuleDataIsValidPatch");
-            GameMain.mainPlayer.mecha.CheckCombatModuleDataIsValidPatch();
-
-            // CombatModuleComponent.RemoveFleetDirectly
-            CleanFighterCraftId(GameMain.mainPlayer.mecha.groundCombatModule);
-            CleanFighterCraftId(GameMain.mainPlayer.mecha.spaceCombatModule);
+            FixPlayerAfterImport();
         }
 
-        static void FixInventory()
+        static void FixPlayerAfterImport()
         {
+            var player = GameMain.mainPlayer;
+
             // Inventory Capacity level 7 will increase package columncount from 10 -> 12
-            int packageRowCount = (GameMain.mainPlayer.package.size - 1) / GameMain.mainPlayer.GetPackageColumnCount() + 1;
-            GameMain.mainPlayer.package.SetSize(GameMain.mainPlayer.packageColCount * packageRowCount); // Make sure all slots are available on UI
-            GameMain.mainPlayer.deliveryPackage.rowCount = packageRowCount;
-            GameMain.mainPlayer.deliveryPackage.NotifySizeChange();
+            var packageRowCount = (player.package.size - 1) / player.GetPackageColumnCount() + 1;
+            // Make sure all slots are available on UI
+            player.package.SetSize(player.packageColCount * packageRowCount);
+            player.deliveryPackage.rowCount = packageRowCount;
+            player.deliveryPackage.NotifySizeChange();
+
+            // Set fleetId = 0, fleetAstroId = 0 and fighter.craftId = 0
+            var moduleFleets = player.mecha.groundCombatModule.moduleFleets;
+            for (var index = 0; index < moduleFleets.Length; index++)
+            {
+                moduleFleets[index].ClearFleetForeignKey();
+            }
+            moduleFleets = player.mecha.spaceCombatModule.moduleFleets;
+            for (var index = 0; index < moduleFleets.Length; index++)
+            {
+                moduleFleets[index].ClearFleetForeignKey();
+            }
         }
 
-        static void CleanFighterCraftId(CombatModuleComponent combatModuleComponent)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ILSShipManager), nameof(ILSShipManager.CreateFakeStationComponent))]
+        static void CreateFakeStationComponent_Prefix(int gId, int maxShipCount)
         {
-            for (int fleetIndex = 0; fleetIndex < combatModuleComponent.moduleFleets.Length; fleetIndex++)
+            var stationComponent = GameMain.data.galacticTransport.stationPool[gId];
+            stationComponent.idleShipCount = maxShipCount; // add dummy idle ship count to use in ILSShipManager
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ILSShipManager), nameof(ILSShipManager.IdleShipGetToWork))]
+        static bool IdleShipGetToWork_Prefix(ILSIdleShipBackToWork packet)
+        {
+            IdleShipGetToWork(packet);
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ILSShipManager), nameof(ILSShipManager.WorkShipBackToIdle))]
+        static bool WorkShipBackToIdle_Prefix(ILSWorkShipBackToIdle packet)
+        {
+            WorkShipBackToIdle(packet);
+            return false;
+        }
+
+        static void IdleShipGetToWork(ILSIdleShipBackToWork packet)
+        {
+            var planetA = GameMain.galaxy.PlanetById(packet.PlanetA);
+            var planetB = GameMain.galaxy.PlanetById(packet.PlanetB);
+
+            if (planetA == null || planetB == null)
             {
-                ref var moduleFleet = ref combatModuleComponent.moduleFleets[fleetIndex];
-                for (int fighterId = 0; fighterId < moduleFleet.fighters.Length; fighterId++)
-                {
-                    moduleFleet.fighters[fighterId].craftId = 0;
-                }
+                return;
             }
+            var stationPool = GameMain.data.galacticTransport.stationPool;
+            if (stationPool.Length <= packet.ThisGId)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+            }
+            else if (stationPool[packet.ThisGId] == null)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.ThisGId, packet.PlanetA, packet.StationMaxShipCount);
+            }
+            if (stationPool.Length <= packet.OtherGId)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
+            }
+            else if (stationPool[packet.OtherGId] == null)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.OtherGId, packet.PlanetB, packet.StationMaxShipCount);
+            }
+
+            var stationComponent = stationPool[packet.ThisGId];
+            if (stationComponent == null)
+            {
+                return; // This shouldn't happen, but guard just in case
+            }
+            if (stationComponent.idleShipCount <= 0 || stationComponent.workShipCount >= stationComponent.workShipDatas.Length)
+            {
+                return; // Ship count is outside the range
+            }
+
+            stationComponent.workShipDatas[stationComponent.workShipCount].stage = -2;
+            stationComponent.workShipDatas[stationComponent.workShipCount].planetA = packet.PlanetA;
+            stationComponent.workShipDatas[stationComponent.workShipCount].planetB = packet.PlanetB;
+            stationComponent.workShipDatas[stationComponent.workShipCount].otherGId = packet.OtherGId;
+            stationComponent.workShipDatas[stationComponent.workShipCount].direction = 1;
+            stationComponent.workShipDatas[stationComponent.workShipCount].t = 0f;
+            stationComponent.workShipDatas[stationComponent.workShipCount].itemId = packet.ItemId;
+            stationComponent.workShipDatas[stationComponent.workShipCount].itemCount = packet.ItemCount;
+            stationComponent.workShipDatas[stationComponent.workShipCount].inc = packet.Inc;
+            stationComponent.workShipDatas[stationComponent.workShipCount].gene = packet.Gene;
+            stationComponent.workShipDatas[stationComponent.workShipCount].shipIndex = packet.ShipIndex;
+            stationComponent.workShipDatas[stationComponent.workShipCount].warperCnt = packet.ShipWarperCount;
+            stationComponent.warperCount = packet.StationWarperCount;
+
+            stationComponent.workShipCount++;
+            stationComponent.idleShipCount--;
+            stationComponent.IdleShipGetToWork(packet.ShipIndex);
+
+            var shipSailSpeed = GameMain.history.logisticShipSailSpeedModified;
+            var shipWarpSpeed = GameMain.history.logisticShipWarpDrive
+                ? GameMain.history.logisticShipWarpSpeedModified
+                : shipSailSpeed;
+            var astroPoses = GameMain.galaxy.astrosData;
+
+            var canWarp = shipWarpSpeed > shipSailSpeed + 1f;
+            var trip = (astroPoses[packet.PlanetB].uPos - astroPoses[packet.PlanetA].uPos).magnitude +
+                       astroPoses[packet.PlanetB].uRadius + astroPoses[packet.PlanetA].uRadius;
+            stationComponent.energy -= stationComponent.CalcTripEnergyCost(trip, shipSailSpeed, canWarp);
+        }
+
+        public static void WorkShipBackToIdle(ILSWorkShipBackToIdle packet)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost)
+            {
+                return;
+            }
+
+            var stationPool = GameMain.data.galacticTransport.stationPool;
+            if (stationPool.Length <= packet.GId)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
+            }
+            else if (stationPool[packet.GId] == null)
+            {
+                ILSShipManager.CreateFakeStationComponent(packet.GId, packet.PlanetA, packet.StationMaxShipCount);
+            }
+
+            var stationComponent = stationPool[packet.GId];
+            if (stationComponent == null)
+            {
+                return; // This shouldn't happen, but guard just in case
+            }
+            if (stationComponent.workShipCount <= 0 || stationComponent.workShipDatas.Length <= packet.WorkShipIndex)
+            {
+                return; // Ship count is outside the range
+            }
+
+            Array.Copy(stationComponent.workShipDatas, packet.WorkShipIndex + 1, stationComponent.workShipDatas,
+                packet.WorkShipIndex, stationComponent.workShipDatas.Length - packet.WorkShipIndex - 1);
+            stationComponent.workShipCount--;
+            stationComponent.idleShipCount++;
+            stationComponent.WorkShipBackToIdle(packet.ShipIndex);
+            Array.Clear(stationComponent.workShipDatas, stationComponent.workShipCount,
+                stationComponent.workShipDatas.Length - stationComponent.workShipCount);
         }
     }
 }
