@@ -1,14 +1,23 @@
-## Changelog
+# Changelog
 
-#### v0.4.6 (Nebula 0.9.2)
+## Nebula version 0.9.2
+
+#### v0.4.7
+\- Add DSPAutoSorter v1.2.11 compat  
+\- Add AssemblerVerticalConstruction v1.1.4 compat  
+\- Fix hp bar remain after the game first load  
+
+#### v0.4.6
 \- Fix ILS errors in client.  
 
-#### v0.4.5 (Nebula 0.9.2)
+#### v0.4.5
 \- Fix inventory size error in client.  
 \- Fix EnemyFormation.RemoveUnit error in client.  
 
-#### v0.4.4 (Nebula 0.9.2)
+#### v0.4.4
 \- Attempt to fix some issues in client.  
+
+## Old versions
 
 <details>
 <summary>Previous Changelog</summary>
@@ -31,6 +40,14 @@
 \- Hotfix: Tempoarily disable drone syncing.  
 \- Remove Bottleneck, DSPTransportStat, Dustbin, TheyComeFromVoid support.  
 \- Temporily disable BlueprintTweaks, DSPMarker, MoreMegaStructure, PlanetFinder support.  
+
+</details>
+
+
+## Nebula version 0.8.14
+
+<details>
+<summary>Previous Changelog</summary>
 
 #### v0.3.1 (Nebula 0.8.14)
 \- Hotfix: Fix NRE error in `StationUIManager.UpdateStorage.`  

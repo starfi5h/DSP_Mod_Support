@@ -8,12 +8,16 @@ Nebula 0.9.2 hotfix:
 - Fix EnemyFormation.RemoveUnit (System.Int32 port) [0x0000a] ;IL_000A  
 - Fix UIStorageGrid error in player inventory of client  
 - Try to fix ILS related issues  
+- Fix health bar of damaged building presist after repairing when client first join  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 
 <details>
 <summary>Supported Mods List (click to expand)</summary>
+
+### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/)
+- Sync saved settings and recipe id changes.  
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
 - Sync station configuration and drone, ship, warper count.   
@@ -26,6 +30,10 @@ This mod tries to patch some mods to make them work better in Nebula Multiplayer
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - Set `useFastDismantle` = false in config file to prevent host from crashing.  
 - Note: Some players reported issues when using this mod in multiplayer.  
+
+### [DSPAutoSorter](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPAutoSorter/)
+- Fix error in client when opening storage UI.  
+DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __instance) [0x0004b]  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - Free mecha appearance now sync correctly.  
@@ -61,7 +69,7 @@ This mod tries to patch some mods to make them work better in Nebula Multiplayer
 ----
 
 # 联机mod扩充模组(热修补丁+兼容支援)
-联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) v0.9.1可以在最新版的游戏中运行并且支援战斗  
+联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) v0.9.2可以在最新版的游戏中运行并且支援战斗  
 
 有些mod和联机模组有冲突，可能造成红字错误或预期效果不正确。  
 [联机兼容的模组列表](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k)  
@@ -70,6 +78,9 @@ This mod tries to patch some mods to make them work better in Nebula Multiplayer
 
 <details>
 <summary>MOD列表 (点击展开)</summary>
+
+### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/)
+- 同步保存的设置和配方更改  
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
@@ -82,6 +93,10 @@ This mod tries to patch some mods to make them work better in Nebula Multiplayer
 ### [BlueprintTweaks](https://dsp.thunderstore.io/package/kremnev8/BlueprintTweaks/)
 - 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。  
 - 注意: 此mod在多人游戏中不稳定, 请谨慎使用  
+
+### [DSPAutoSorter](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPAutoSorter/)
+- 修复打开储物箱时客机的错误  
+DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __instance) [0x0004b]  
 
 ### [DSPFreeMechaCustom](https://dsp.thunderstore.io/package/appuns/DSPFreeMechaCustom/)
 - 同步免费的机甲外观  
