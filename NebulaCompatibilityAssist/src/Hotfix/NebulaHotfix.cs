@@ -4,6 +4,7 @@ using NebulaModel.Packets.Logistics;
 using NebulaModel.Utils;
 using NebulaNetwork;
 using NebulaWorld;
+using NebulaWorld.Combat;
 using NebulaWorld.Logistics;
 using NebulaWorld.Player;
 using System;
@@ -189,6 +190,69 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 moduleFleets[index].ClearFleetForeignKey();
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CombatManager), nameof(CombatManager.OnFactoryLoadFinished))]
+        public static bool OnFactoryLoadFinished(PlanetFactory factory)
+        {
+            var turretsCursor = factory.defenseSystem.turrets.cursor;
+            var turretsBuffer = factory.defenseSystem.turrets.buffer;
+            for (var id = 1; id < turretsCursor; id++)
+            {
+                if (turretsBuffer[id].id == id)
+                {
+                    //Remove turretLaserContinuous
+                    turretsBuffer[id].projectileId = 0;
+                }
+            }
+
+            // Return if the game is not fully loaded yet
+            /*
+            if (!Multiplayer.Session.IsGameLoaded)
+            {
+                return false;
+            }
+            */
+
+            // Clear all combatStat to avoid collision or index out of range error (mimic CombatStat.HandleFullHp)
+            for (var i = 1; i < factory.entityCursor; i++)
+            {
+                factory.entityPool[i].combatStatId = 0;
+            }
+            for (var i = 1; i < factory.craftCursor; i++)
+            {
+                factory.craftPool[i].combatStatId = 0;
+            }
+            for (var i = 1; i < factory.vegeCursor; i++)
+            {
+                factory.vegePool[i].combatStatId = 0;
+            }
+            for (var i = 1; i < factory.enemyCursor; i++)
+            {
+                factory.enemyPool[i].combatStatId = 0;
+            }
+            for (var i = 1; i < factory.veinCursor; i++)
+            {
+                factory.veinPool[i].combatStatId = 0;
+            }
+
+            // Clear the combatStat pool
+            var astroId = factory.planet.id;
+            var count = 0;
+            var combatStats = GameMain.data.spaceSector.skillSystem.combatStats;
+            int CombatStatCursor = combatStats.cursor;
+            CombatStat[] buffer = combatStats.buffer;
+            for (int i = 1; i < CombatStatCursor; i++)
+            {
+                if (buffer[i].id == i && buffer[i].astroId == astroId)
+                {
+                    combatStats.Remove(i);
+                    count++;
+                }
+            }
+            Log.Info($"CombatManager: Clear {count} combatStat on {astroId}");
+            return false;
         }
 
         [HarmonyPostfix]
