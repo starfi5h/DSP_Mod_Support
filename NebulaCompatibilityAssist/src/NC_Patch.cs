@@ -43,6 +43,7 @@ namespace NebulaCompatibilityAssist.Patches
             MoreMegaStructure.Init(harmony);
             BlueprintTweaks.Init(harmony);
             DSPAutoSorter.Init(harmony);
+            AssemblerVerticalConstruction.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             var title = Localization.isZHCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
