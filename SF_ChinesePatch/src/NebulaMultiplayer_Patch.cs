@@ -12,16 +12,7 @@ namespace SF_ChinesePatch
             if (!BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(GUID)) return;
             if (!Plugin.Instance.Config.Bind("Enable", NAME, true).Value) return;
             RegisterStrings();
-
-            try
-            {
-                harmony.Patch(AccessTools.Method("NebulaPatcher.Patches.Dynamic.UIGalaxySelect_Patch.DisableDarkFogToggle"),
-                    null, null, new HarmonyMethod(typeof(Plugin).GetMethod(nameof(Plugin.TranslateStrings))));
-            }
-            catch
-            {
-                Plugin.Log.LogWarning("Skip DisableDarkFogToggle translate");
-            }
+            _ = harmony;
         }
 
         private static void RegisterStrings()
@@ -83,10 +74,12 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Chat Hotkey", "聊天窗口热键");
             StringManager.RegisterString("Auto Open Chat", "自动开启聊天窗口");
             StringManager.RegisterString("Auto open chat window when receiving message from other players", "收到其他玩家消息时自动开启聊天窗口");
+            StringManager.RegisterString("Show Timestamp", "显示时间戳");
             StringManager.RegisterString("Show system warn message", "显示系统警告消息");
             StringManager.RegisterString("Show system info message", "显示系统通知消息");
+            StringManager.RegisterString("Show battle notification message", "显示战斗提示信息");
             StringManager.RegisterString("Default chat position", "聊天窗口位置");
-            StringManager.RegisterString("Default chat size", "聊天字体大小");
+            StringManager.RegisterString("Default chat size", "聊天窗口大小");
             StringManager.RegisterString("Notification duration", "通知停留时间");
             StringManager.RegisterString("Chat Window Opacity", "聊天窗口不透明度");
             #endregion
@@ -95,6 +88,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("No UPnp or Pmp compatible/enabled NAT device found", "未找到支持/启用UPnp或Pmp的NAT设备");
             StringManager.RegisterString("Could not create UPnp or Pmp port mapping", "无法创建UPnp或Pmp端口映射");
             StringManager.RegisterString("An error occurred while hosting the game: ", "在创建服务器时发生错误: ");
+            StringManager.RegisterString("This setting can only be changed while not in game", "此设置只能在不在游戏中时更改");
 
             var Nebula_LobbyMessage = "当玩家首次进入游戏时会进入大厅，在这里可以预览星球资源和选择起始星球\n" +
             "点击恒星可以展开其行星系。行星系中点击星球能查看其详细信息。\n" +
@@ -105,10 +99,8 @@ namespace SF_ChinesePatch
             "当出错或失去同步时可以让客户端重连,或主机保存重开。祝游戏愉快!";
             StringManager.RegisterString("The Lobby", "大厅说明");
             StringManager.RegisterString("Nebula_LobbyMessage", Nebula_LobbyMessage);
-
-            StringManager.RegisterString("Not supported in multiplayer", "尚未支援");
-            StringManager.RegisterString("Enabling enemy forces is currently not supported in multiplayer.", "目前多人游戏不支持启用战斗模式");
-            StringManager.RegisterString("Loading saved games with combat mode enabled is currently not supported in multiplayer.", "目前多人游戏不支持加载已启用战斗模式的存档");
+            StringManager.RegisterString("Welcome to Nebula multiplayer mod! Press {0} to open chat window, type /help to see all commands.",
+                "欢迎! 按 {0} 打开聊天窗口, 输入 /help 查看所有命令");
             #endregion
 
             #region Disconnect reasons 斷線原因
@@ -145,11 +137,12 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Loading", "加载中");
             StringManager.RegisterString("Loading state from server, please wait", "正在从服务器加载状态，请稍候");
             StringManager.RegisterString("Loading Dyson sphere {0}, please wait", "正在加载戴森球 {0}，请稍候");
-            StringManager.RegisterString("{0} joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", "{0} 正在加入游戏，请稍候\n（使用BulletTime模组解除冻结）");
+            StringManager.RegisterString("{0} joining the game, please wait\n(Use BulletTime mod to unfreeze the game)", "{0} 正在加入游戏，请稍候\n（使用BulletTime模组可避免游戏冻结）");
 
             StringManager.RegisterString("Unavailable", "无法使用");
             StringManager.RegisterString("The host is not ready to let you in, please wait!", "主机尚未准备好让您进入，请稍候！");
             StringManager.RegisterString("Milky Way is disabled in multiplayer game.", "银河系功能在多人游戏中禁用");
+            StringManager.RegisterString("Dark Fog Communicator is disabled in multiplayer game.", "黑雾通信器在多人游戏中被禁用");
 
             StringManager.RegisterString("Desync", "失去同步");
             StringManager.RegisterString("Dyson sphere id[{0}] {1} is desynced.", "戴森球 id[{0}] {1} 不同步。");
@@ -157,6 +150,15 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Please wait for server respond", "请等待服务器响应");
             StringManager.RegisterString("(Desync) EntityId mismatch {0} != {1} on planet {2}. Clients should reconnect!", "(不同步) EntityId不匹配 {0} != {1} 在星球 {2} 上。请重新连接！");
             StringManager.RegisterString("(Desync) PrebuildId mismatch {0} != {1} on planet {2}. Please reconnect!", "(不同步) PrebuildId不匹配 {0} != {1} 在星球 {2} 上。请重新连接！");
+            #endregion
+
+            #region Battle notification 戰鬥提示
+            StringManager.RegisterString("DF seed sent out from", "黑雾火种发射于");
+            StringManager.RegisterString("DF relay landed on planet", "中继站登陆星球");
+            StringManager.RegisterString("DF relay left from planet", "中继站离开星球");
+            StringManager.RegisterString("Space hive is attacking", "太空巢穴袭击");
+            StringManager.RegisterString("Planetary base is attacking", "地面基地袭击");
+
             #endregion
 
             #region Remote Commands 遠端命令
@@ -174,6 +176,20 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("{0} doesn't exist", "{0} 不存在");
             #endregion
 
+            #region ChatLink 聊天連結
+            StringManager.RegisterString("Copy", "复制");
+            StringManager.RegisterString("Click to copy to clipboard", "点击复制到剪贴板");
+
+            StringManager.RegisterString("Navigate", "导航");
+            StringManager.RegisterString("Left click to create a navigate line to the target.\nRight click to track the target.", "左键单击:创建到目标的导航线\n右键单击:镜头追踪目标。");
+            StringManager.RegisterString("Navigate to ", "导航至 ");
+            StringManager.RegisterString("Tracking mode (ESC or click again to exit)", "追踪模式(ESC或再次点击退出)");
+
+            StringManager.RegisterString("Can't find player {0}", "找不到玩家 {0}");
+            StringManager.RegisterString("Player {0} is on a different planet", "玩家 {0} 在另一个星球上");
+            StringManager.RegisterString("Player {0} is too far away", "玩家 {0} 距离太远");
+            #endregion
+
             #region Chat 聊天命令
             StringManager.RegisterString("SYSTEM", "系统");
             StringManager.RegisterString("[{0:HH:mm}] {1} connected ({2})", "[{0:HH:mm}] {1} 加入游戏 ({2})");
@@ -181,10 +197,6 @@ namespace SF_ChinesePatch
                         
             StringManager.RegisterString("User not found {0}", "未找到用户 {0}");
             StringManager.RegisterString("Unknown command", "未知命令");
-            StringManager.RegisterString("Copy", "复制");
-            StringManager.RegisterString("Click to copy to clipboard", "点击复制到剪贴板");
-            StringManager.RegisterString("Navigate", "导航");
-            StringManager.RegisterString("Click to create a navigate line to the target.", "点击创建导航线到目标");
 
             StringManager.RegisterString("Clear all chat messages (locally)", "清除所有聊天消息（本地）");
 
@@ -247,6 +259,9 @@ namespace SF_ChinesePatch
             StringManager.RegisterString(">> Bad command. Use /x -help to get list of known commands.", ">> 错误的命令。使用 /x -help 获取已知命令列表。");
             StringManager.RegisterString("Execute developer console command", "执行开发者控制台命令");
 
+            StringManager.RegisterString("Manage the stored multiplayer player data", "管理玩家数据");
+
+            StringManager.RegisterString("Developer/Sandbox tool commands", "执行沙盒命令");
             #endregion
         }
     }
