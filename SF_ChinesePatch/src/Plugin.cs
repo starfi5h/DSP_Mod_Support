@@ -16,7 +16,7 @@ namespace SF_ChinesePatch
     {
         public const string GUID = "starfi5h.plugin.SF_ChinesePatch";
         public const string NAME = "SF_ChinesePatch";
-        public const string VERSION = "1.3.1";
+        public const string VERSION = "1.3.2";
 
         public static ManualLogSource Log;
         public static Plugin Instance;

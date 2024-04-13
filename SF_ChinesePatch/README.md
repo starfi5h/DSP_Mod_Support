@@ -3,7 +3,7 @@
 ![GS2 config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SF_ChinesePatch/img/demo1.jpg)  
 ![LSTM config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SF_ChinesePatch/img/demo2.jpg)  
   
-个人汉化补丁。支援使用者自定义字典的功能。  
+MOD汉化补丁。支援使用者自定义字典的功能。  
 翻译的文本对照可以在mod说明页面的wiki中查看。需要先将游戏语言设置成中文重启才会生效。  
 1. [NebulaMultiplayerMod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) 联机mod  
 2. [GalacticScale](https://dsp.thunderstore.io/package/Galactic_Scale/GalacticScale/) 银河尺度  
@@ -24,6 +24,7 @@
 
 ## Changelog
 
+v1.3.2 - 更新联机版本v0.9.3  
 v1.3.1 - 更新GS版本至v2.13.1以及联机版本v0.9.0  
 v1.3.0 - 适应黑雾版本 (0.10.28.21014)  
 v1.2.0 - 增加PlanetFinder汉化(感谢nga V_itas的汉化版本), LSTM配置汉化  
