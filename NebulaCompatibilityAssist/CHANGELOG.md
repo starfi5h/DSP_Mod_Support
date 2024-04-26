@@ -1,26 +1,28 @@
 # Changelog
 
-## Nebula version 0.9.2
+## Nebula version 0.9.3
 
-#### v0.4.7
-\- Add DSPAutoSorter v1.2.11 compat  
-\- Add AssemblerVerticalConstruction v1.1.4 compat  
-\- Fix hp bar remain after the game first load  
-
-#### v0.4.6
-\- Fix ILS errors in client.  
-
-#### v0.4.5
-\- Fix inventory size error in client.  
-\- Fix EnemyFormation.RemoveUnit error in client.  
-
-#### v0.4.4
-\- Attempt to fix some issues in client.  
-
-## Old versions
+#### v0.4.8 (Nebula 0.9.3)
+\- Add TheyComeFromVoid 3.1.0 compat (WIP)  
+\- Fix divide by zero error in AssemblerVerticalConstruction  
 
 <details>
 <summary>Previous Changelog</summary>
+
+#### v0.4.7 (Nebula 0.9.2)
+\- Add DSPAutoSorter v1.2.11 compat  
+\- Add AssemblerVerticalConstruction v1.1.4 compat (WIP)  
+\- Fix hp bar remain after the game first load  
+
+#### v0.4.6 (Nebula 0.9.2)
+\- Fix ILS errors in client.  
+
+#### v0.4.5 (Nebula 0.9.2)
+\- Fix inventory size error in client.  
+\- Fix EnemyFormation.RemoveUnit error in client.  
+
+#### v0.4.4 (Nebula 0.9.2)
+\- Attempt to fix some issues in client.  
 
 #### v0.4.3 (Nebula 0.9.1)
 \- Fix an issue that player data is clean up wrongly in server.  
