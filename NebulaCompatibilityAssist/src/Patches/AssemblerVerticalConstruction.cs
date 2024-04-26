@@ -44,6 +44,10 @@ namespace NebulaCompatibilityAssist.Patches
                 harmony.Patch(AccessTools.Method(classType, "SyncAssemblerFunctions"), 
                     new HarmonyMethod(typeof(AssemblerVerticalConstruction).GetMethod("SyncAssemblerFunctions_Prefix")));
 
+                classType = assembly.GetType("AssemblerVerticalConstruction.AssemblerComponentEx");
+                harmony.Patch(AccessTools.Method(classType, "UpdateOutputToNextInner"),
+                    new HarmonyMethod(typeof(AssemblerVerticalConstruction).GetMethod("UpdateOutputToNextInner_Prefix")));
+
                 Log.Info($"{NAME} - OK");
             }
             catch (Exception e)
@@ -174,6 +178,13 @@ namespace NebulaCompatibilityAssist.Patches
             while (num != 0);
 
             return false;
+        }
+    
+        public static bool UpdateOutputToNextInner_Prefix(int assemblerNextId, AssemblerComponent[] assemblerPool)
+        {
+            if (assemblerPool[assemblerNextId].timeSpend == 0) return false;
+
+            return true;
         }
     }
 }
