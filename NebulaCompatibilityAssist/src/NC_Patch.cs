@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Configuration;
+using HarmonyLib;
 using NebulaAPI;
 using NebulaCompatibilityAssist.Hotfix;
 using System;
@@ -31,8 +32,11 @@ namespace NebulaCompatibilityAssist.Patches
             if (initialized) return;
 
             Harmony harmony = Plugin.Instance.Harmony;
+            ConfigFile config = Plugin.Instance.Config;
+
             LSTM.Init(harmony);
-            DSPStarMapMemo.Init(harmony);
+            if (config.Bind("Sync Patch", "DSPStarMapMemo", true, "Enable patching DSPStarMapMemo").Value)
+                DSPStarMapMemo.Init(harmony);
             PlanetFinder_Patch.Init(harmony);
             DSPFreeMechaCustom.Init(harmony);
             AutoStationConfig.Init(harmony);
@@ -40,11 +44,15 @@ namespace NebulaCompatibilityAssist.Patches
             DSPOptimizations.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
-            MoreMegaStructure.Init(harmony);
+            if (config.Bind("Sync Patch", "MoreMegaStructure", true, "Enable patching MoreMegaStructure").Value)
+                MoreMegaStructure.Init(harmony);
             BlueprintTweaks.Init(harmony);
             DSPAutoSorter.Init(harmony);
-            AssemblerVerticalConstruction.Init(harmony);
-            DSP_Battle_Patch.Init(harmony);
+            if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
+                AssemblerVerticalConstruction.Init(harmony);
+            if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
+                DSP_Battle_Patch.Init(harmony);
+
             NebulaHotfix.Init(harmony);
 
             var title = Localization.isZHCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
