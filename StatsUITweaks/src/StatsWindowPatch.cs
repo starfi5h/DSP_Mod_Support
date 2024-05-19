@@ -9,6 +9,7 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
+        public static int SignificantDigits = 0;
         public static int TimeSliderSlice = 20;
         public static int ListWidthOffeset = 80;
         public static bool OrderByName = true;
@@ -569,12 +570,45 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
         [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //生產統計
         static void UIProductEntry_ShowInText(UIProductEntry __instance)
         {
-            if (ratio == 1.0f || __instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
-            if (!dict.TryGetValue(__instance.entryData.detail, out var value)) return;
+            if (__instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
 
             int level = __instance.productionStatWindow.timeLevel;
-            double production = value.production;
-            double consumption = value.consumption;
+            double production, consumption;
+
+            if (ratio == 1.0f || !dict.TryGetValue(__instance.entryData.detail, out var value))
+            {
+                if (SignificantDigits > 0) //自訂有效位數
+                {
+                    // 以下從UIProductEntry.ShowInText修改
+                    production = __instance.entryData.production;
+                    consumption = __instance.entryData.consumption;
+                    if (production < 0.0)
+                    {
+                        production = -production;
+                    }
+                    if (consumption < 0.0)
+                    {
+                        consumption = -consumption;
+                    }
+
+                    if (level < 5)
+                    {
+                        production /= __instance.lvDivisors[level];
+                        consumption /= __instance.lvDivisors[level];
+                    }
+                    if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
+                    {
+                        production /= 60;
+                        consumption /= 60;
+                    }
+                    __instance.productText.text = ToLevelString(production); //自定義函數
+                    __instance.consumeText.text = ToLevelString(consumption);
+                }
+                return;
+            }
+
+            production = value.production;
+            consumption = value.consumption;
             if (level != 5)
             {
                 production /= __instance.lvDivisors[level] * ratio; //依照時間範圍校正
@@ -585,8 +619,54 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
                 production /= 60;
                 consumption /= 60;
             }
-            __instance.productText.text = __instance.ToLevelString(production, level);
-            __instance.consumeText.text = __instance.ToLevelString(consumption, level);
+            if (SignificantDigits <= 0)
+            {
+                __instance.productText.text = __instance.ToLevelString(production, level);
+                __instance.consumeText.text = __instance.ToLevelString(consumption, level);
+            }
+            else
+            {
+                __instance.productText.text = ToLevelString(production);
+                __instance.consumeText.text = ToLevelString(consumption);
+            }
+        }
+
+        readonly static string[] formatF = { "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10" };
+        static string ToLevelString(double value) //輸出: {有效位數}+{單位}(K,M)
+        {
+            if (value == 0.0) return "0";
+
+            string unit = "";
+            if (value >= 1000000.0) // value >= 1M
+            {
+                value /= 1000000.0;
+                unit = " M";
+            }
+            else if (value >= 10000.0) // value >= 10k
+            {
+                value /= 1000.0;
+                unit = " k";
+            }
+
+            int digit = 0;
+            if (value >= 1000.0) digit = 3;
+            else if (value >= 100.0) digit = 2;
+            else if (value >= 10.0) digit = 1;
+
+            digit = SignificantDigits - digit - 1;
+            if (digit < 0) digit = 0;
+            if (digit >= formatF.Length) digit = formatF.Length - 1;
+
+            if (digit > 0)
+            {
+                double fraction = 0.1;
+                for (int i = 0; i < digit; i++)
+                {
+                    fraction *= 0.1;
+                }
+                if (value - (int)value < fraction) return value.ToString("F1") + unit; //小數部分皆為0,只保留1位
+            }
+            return value.ToString(formatF[digit]) + unit;
         }
 
         [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]

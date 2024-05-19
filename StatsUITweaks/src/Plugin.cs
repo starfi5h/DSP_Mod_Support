@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.4.4";
+        public const string VERSION = "1.4.5";
 
         public static ManualLogSource Log;
         public static ConfigEntry<bool> DisplayPerSecond;
@@ -33,6 +33,7 @@ namespace StatsUITweaks
             var PlanetPrefix = Config.Bind("AstroBox", "PlanetPrefix", "ㅤ", "Prefix string of planet in the list\n星球名称前缀"); //U+3164. Normal spaces will not load
             var PlanetPostfix = Config.Bind("AstroBox", "PlanetPostfix", "", "Postfix string of planet in the list\n星球名称后缀");
 
+            var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
             var TimeSliderSlice = Config.Bind("StatsUITweaks", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
             var ListWidthOffeset = Config.Bind("StatsUITweaks", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
             var HotkeyListUp = Config.Bind("StatsUITweaks", "HotkeyListUp", "PageUp", "Move to previous item in list.\n切换至列表中上一个项目");
@@ -44,6 +45,7 @@ namespace StatsUITweaks
             // Bottleneck compatibility for displayPerSecond            
             BottleneckCompat();
 
+            StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
             StatsWindowPatch.OrderByName = OrderByName.Value;
