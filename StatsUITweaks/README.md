@@ -25,6 +25,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `PlanetPrefix`    | `ㅤ`             | Prefix string of planet in the list |
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
 | StatsUITweaks | | |
+| `SignificantDigits`| 0     | Significant figures of production/consumption (Default=0) |
 | `TimeSliderSlice`| 20      | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
 | `HotkeyListUp`  | PageUp   | Move to previous item in astro list |
@@ -72,6 +73,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `PlanetPrefix`    | `ㅤ`             | 星球名称前缀 |
 | `PlanetPostfix`   |                | 星球名称后缀 |
 | StatsUITweaks | | |
+| `SignificantDigits`| 0       | 产量有效位数(默认=0) |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
@@ -84,6 +86,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.4.5: Add `SignificantDigits` config option (DSP 0.10.29.22015)  
 \- v1.4.4: Add compat to Bottleneck's displayPerSecond. Support time slider in kill count (DSP 0.10.29.21950)  
 \- v1.4.3: Fix right-click on navi button. Display astorId and factoryIdx on its tip (DSP 0.10.29.21904)  
 \- v1.4.2: Fix star system duplicate in the filter with Bottleneck local system label (DSP 0.10.28.21172)  
