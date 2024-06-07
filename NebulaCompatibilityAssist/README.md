@@ -1,6 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.3 hotfix:  
+Nebula 0.9.4 hotfix:  
+- Fix `NgrokManager.IsNgrokActive` crash
 - Suppress Enemy TickLogic excpetion to show only once per session.  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
@@ -60,8 +61,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - Fix that splitters and pilers put by clients can't reconnect belts.  
 
 ### [TheyComeFromVoid](https://thunderstore.io/c/dyson-sphere-program/p/ckcz123/TheyComeFromVoid/) (WIP)
-- Early testing. There may be many bugs.  
+- Early testing. There may be bugs.  
 - When clint joins, sync the progress from host  
+- Sync add/remove meta drives (relic)
+- Sync apply/reset authorization point (buff)
 
 </details>
   
@@ -130,8 +133,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - 让客机在传送带上放置分流器/集装机时,可以正确地重新连接传送带  
 
 ### [TheyComeFromVoid](https://thunderstore.io/c/dyson-sphere-program/p/ckcz123/TheyComeFromVoid/) 深空来敌 (WIP)
-- 早期测试中, 可能会出现很多错误  
+- 早期测试中, 可能会出现错误  
 - 当客机登陆时, 同步主机进度  
+- 同步新增/移除元驱动（圣物）
+- 同步部属/重置授权点（强化）
 
 </details>
   

@@ -1,5 +1,11 @@
 # Changelog
 
+## Nebula version 0.9.4
+
+#### v0.4.9 (Nebula 0.9.4)
+\- Fix `NgrokManager.IsNgrokActive` crash  
+\- Add syncing for relics and skillpoints in TheyComeFromVoid 3.1.2 (WIP)  
+
 ## Nebula version 0.9.3
 
 #### v0.4.8 (Nebula 0.9.3)
