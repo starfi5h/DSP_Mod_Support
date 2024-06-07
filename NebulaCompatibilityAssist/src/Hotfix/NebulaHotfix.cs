@@ -28,14 +28,15 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 
-                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 2)
+                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 4)
                 {
-                    harmony.PatchAll(typeof(Waraper093));
-                    Log.Info("Nebula hotfix 0.9.3 - OK");
+                    //harmony.PatchAll(typeof(Waraper094));
+                    Log.Info("Nebula hotfix 0.9.4 - OK");
                 }
 
                 ChatManager.Init(harmony);
                 harmony.PatchAll(typeof(Analysis.StacktraceParser));
+                harmony.PatchAll(typeof(SuppressErrors));
                 Log.Info("Nebula extra features - OK");
             }
             catch (Exception e)
@@ -55,7 +56,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         */
     }
 
-    public static class Waraper093
+    public static class SuppressErrors
     {
         static bool suppressed = false;
 
@@ -70,6 +71,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.KeyTickLogic))]
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.GameTickLogic))]
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.KeyTickLogic))]
+        [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.GameTick))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
