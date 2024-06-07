@@ -30,7 +30,7 @@ namespace NebulaCompatibilityAssist.Hotfix
                 
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 4)
                 {
-                    //harmony.PatchAll(typeof(Waraper094));
+                    harmony.PatchAll(typeof(Warper094));
                     Log.Info("Nebula hotfix 0.9.4 - OK");
                 }
 
@@ -82,6 +82,52 @@ namespace NebulaCompatibilityAssist.Hotfix
                 Log.Error(msg);
             }
             return null;
+        }
+    }
+
+    public static class Warper094
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(NebulaModel.Logger.Log), nameof(NebulaModel.Logger.Log.Error), new Type[] { typeof(string) })]
+        static bool LogError_Prefix(string message)
+        {
+            NebulaModel.Logger.Log.logger.LogError(message);
+            NebulaModel.Logger.Log.LastErrorMsg = message;
+            if (UIFatalErrorTip.instance != null)
+            {
+                // Test if current code is executing on the main unity thread
+                if (BepInEx.ThreadingHelper.Instance.InvokeRequired)
+                {
+                    // ShowError has Unity API and needs to call on the main thread
+                    BepInEx.ThreadingHelper.Instance.StartSyncInvoke(() =>
+                        UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "")
+                    );
+                    return false;
+                }
+                UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
+            }
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(NebulaNetwork.Ngrok.NgrokManager), nameof(NebulaNetwork.Ngrok.NgrokManager.IsNgrokActive))]
+        static bool IsNgrokActive(NebulaNetwork.Ngrok.NgrokManager __instance, ref bool __result)
+        {
+            if (__instance._ngrokProcess == null)
+            {
+                __result = false;
+                return false;
+            }
+            try
+            {
+                __instance._ngrokProcess.Refresh();
+                __result = !__instance._ngrokProcess.HasExited;
+            }
+            catch
+            {
+                __result = false;
+            }
+            return false;
         }
     }
 }
