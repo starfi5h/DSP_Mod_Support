@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
 using NebulaModel.Networking;
+using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Utils;
 using NebulaNetwork;
 using NebulaWorld;
 using NebulaWorld.Combat;
+using NebulaWorld.GameStates;
 using NebulaWorld.Logistics;
 using NebulaWorld.Player;
 using System;
@@ -28,10 +30,10 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 
-                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 4)
+                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 5)
                 {
-                    harmony.PatchAll(typeof(Warper094));
-                    Log.Info("Nebula hotfix 0.9.4 - OK");
+                    harmony.PatchAll(typeof(Warper095));
+                    Log.Info("Nebula hotfix 0.9.5 - OK");
                 }
 
                 ChatManager.Init(harmony);
@@ -85,49 +87,40 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper094
+    public static class Warper095
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(NebulaModel.Logger.Log), nameof(NebulaModel.Logger.Log.Error), new Type[] { typeof(string) })]
-        static bool LogError_Prefix(string message)
+        // Change GameStatesManager.LastSaveTime to DateTimeOffset.UtcNow.ToUnixTimeSeconds (real time) instead of UPS
+
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(typeof(GameSave), nameof(GameSave.LoadCurrentGame))]
+        static void LoadCurrentGame_Postfix()
         {
-            NebulaModel.Logger.Log.logger.LogError(message);
-            NebulaModel.Logger.Log.LastErrorMsg = message;
-            if (UIFatalErrorTip.instance != null)
-            {
-                // Test if current code is executing on the main unity thread
-                if (BepInEx.ThreadingHelper.Instance.InvokeRequired)
-                {
-                    // ShowError has Unity API and needs to call on the main thread
-                    BepInEx.ThreadingHelper.Instance.StartSyncInvoke(() =>
-                        UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "")
-                    );
-                    return false;
-                }
-                UIFatalErrorTip.instance.ShowError("[Nebula Error] " + message, "");
-            }
-            return false;
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
+            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(NebulaNetwork.Ngrok.NgrokManager), nameof(NebulaNetwork.Ngrok.NgrokManager.IsNgrokActive))]
-        static bool IsNgrokActive(NebulaNetwork.Ngrok.NgrokManager __instance, ref bool __result)
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(typeof(GameSave), nameof(GameSave.SaveCurrentGame))]
+        static void SaveCurrentGame_Postfix()
         {
-            if (__instance._ngrokProcess == null)
-            {
-                __result = false;
-                return false;
-            }
-            try
-            {
-                __instance._ngrokProcess.Refresh();
-                __result = !__instance._ngrokProcess.HasExited;
-            }
-            catch
-            {
-                __result = false;
-            }
-            return false;
+            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
+            // Update last save time in clients
+            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            Multiplayer.Session.Server.SendPacket(new GameStateSaveInfoPacket(GameStatesManager.LastSaveTime));
+        }
+
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(typeof(UIEscMenu), nameof(UIEscMenu._OnOpen))]
+        public static void UIEscMenu_OnOpen_Postfix(UIEscMenu __instance)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
+
+            var timeSinceSave = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - GameStatesManager.LastSaveTime;
+            var second = (int)(timeSinceSave);
+            var minute = second / 60;
+            var hour = minute / 60;
+            var saveBtnText = "存档时间".Translate() + $" {hour}h{minute % 60}m{second % 60}s ago";
+            __instance.button2Text.text = saveBtnText;
         }
     }
 }
