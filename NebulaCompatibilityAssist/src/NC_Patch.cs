@@ -42,6 +42,7 @@ namespace NebulaCompatibilityAssist.Patches
             AutoStationConfig.Init(harmony);
             Auxilaryfunction.Init(harmony);
             DSPOptimizations.Init(harmony);
+            SphereOpt_Patch.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
             if (config.Bind("Sync Patch", "MoreMegaStructure", true, "Enable patching MoreMegaStructure").Value)
