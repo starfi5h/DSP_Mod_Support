@@ -1,12 +1,13 @@
 # Changelog
 
-## Nebula version 0.9.4
+#### v0.4.10 (Nebula 0.9.5)
+\- Fix Last Save Time to use real world time  
+\- Add SphereOpt v0.9.1 compat  
+\- Add UXAssist v1.0.26 compat  
 
 #### v0.4.9 (Nebula 0.9.4)
 \- Fix `NgrokManager.IsNgrokActive` crash  
 \- Add syncing for relics and skillpoints in TheyComeFromVoid 3.1.2 (WIP)  
-
-## Nebula version 0.9.3
 
 #### v0.4.8 (Nebula 0.9.3)
 \- Add TheyComeFromVoid 3.1.0 compat (WIP)  

@@ -1,7 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.4 hotfix:  
-- Fix `NgrokManager.IsNgrokActive` crash
+Nebula 0.9.5 hotfix:  
+- Fix "Last Save Time" in client to use real world time.  
 - Suppress Enemy TickLogic excpetion to show only once per session.  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
@@ -57,6 +57,9 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - Client can now see vein amount and power status on planets not loaded yet. 
 - The data is updated everytime client open the window.  
 
+### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/)
+- Fix `SphereOpt.InstDysonShellRenderer.RenderShells` NRE in client when they join game.  
+
 ### [SplitterOverBelt](https://thunderstore.io/c/dyson-sphere-program/p/hetima/SplitterOverBelt/)
 - Fix that splitters and pilers put by clients can't reconnect belts.  
 
@@ -65,6 +68,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - When clint joins, sync the progress from host  
 - Sync add/remove meta drives (relic)
 - Sync apply/reset authorization point (buff)
+
+### [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)
+- Sync `Quick dismantle all buildings`, `Quick build Orbital Collectors`, `Re-initialize Dyson Spheres`, `Quick dismantle Dyson Shells`  
+- `Re-intialize planet` is not available in multiplayer mode.  
 
 </details>
   
@@ -75,7 +82,7 @@ When disable, the syncing patch will no longer functional. The host's mod data w
 ----
 
 # 联机mod扩充模组(热修补丁+兼容支援)
-联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/) v0.9.2可以在最新版的游戏中运行并且支援战斗  
+联机公开版[Nebula multiplayer mod](https://dsp.thunderstore.io/package/nebula/NebulaMultiplayerMod/)可以在最新版的游戏中运行并且支援战斗  
 
 有些mod和联机模组有冲突，可能造成红字错误或预期效果不正确。  
 [联机兼容的模组列表](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k)  
@@ -86,7 +93,7 @@ When disable, the syncing patch will no longer functional. The host's mod data w
 <summary>MOD列表 (点击展开)</summary>
 
 ### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/)
-- 同步保存的设置和配方更改  
+- 同步保存的设置和配方更改(测试中, 可能会出现错误)  
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
@@ -129,6 +136,9 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - 修正在联机大厅(选择星球介面)时的UI错误  
 - 让客机能显示远端星球的资源储量和电力状态  
 
+### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/)
+- 修复客机加入游戏后的NRE错误(`SphereOpt.InstDysonShellRenderer.RenderShells`)  
+
 ### [SplitterOverBelt](https://thunderstore.io/c/dyson-sphere-program/p/hetima/SplitterOverBelt/)
 - 让客机在传送带上放置分流器/集装机时,可以正确地重新连接传送带  
 
@@ -137,6 +147,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - 当客机登陆时, 同步主机进度  
 - 同步新增/移除元驱动（圣物）
 - 同步部属/重置授权点（强化）
+
+### [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)
+- 同步`快速拆除所有建筑`, `快速建造轨道采集器`, `初始化戴森球`, `快速拆除戴森壳`
+- `初始化本行星`功能在联机中不可用  
 
 </details>
   
