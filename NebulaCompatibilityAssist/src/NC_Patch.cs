@@ -55,6 +55,7 @@ namespace NebulaCompatibilityAssist.Patches
             if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
                 DSP_Battle_Patch.Init(harmony);
 
+            GalacticScale_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
             var title = Localization.isZHCN ? "联机补丁提示" : "Nebula Compatibility Assist Report";
