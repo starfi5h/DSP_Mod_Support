@@ -1,9 +1,17 @@
 # Changelog
 
+#### v0.4.11 (Nebula 0.9.5)
+\- Temporarily disable ACH_BroadcastStar.OnGameTick  
+\- Temporarily disable DF Relay landing message in client  
+\- Add GalacticScale v2.14.1 compat  
+
 #### v0.4.10 (Nebula 0.9.5)
 \- Fix Last Save Time to use real world time  
 \- Add SphereOpt v0.9.1 compat  
 \- Add UXAssist v1.0.26 compat  
+
+<details>
+<summary>Previous Changelog</summary>
 
 #### v0.4.9 (Nebula 0.9.4)
 \- Fix `NgrokManager.IsNgrokActive` crash  
@@ -12,9 +20,6 @@
 #### v0.4.8 (Nebula 0.9.3)
 \- Add TheyComeFromVoid 3.1.0 compat (WIP)  
 \- Fix divide by zero error in AssemblerVerticalConstruction  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.4.7 (Nebula 0.9.2)
 \- Add DSPAutoSorter v1.2.11 compat  
