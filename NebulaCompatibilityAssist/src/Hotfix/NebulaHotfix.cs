@@ -122,5 +122,21 @@ namespace NebulaCompatibilityAssist.Hotfix
             var saveBtnText = "存档时间".Translate() + $" {hour}h{minute % 60}m{second % 60}s ago";
             __instance.button2Text.text = saveBtnText;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ACH_BroadcastStar), nameof(ACH_BroadcastStar.OnGameTick))]
+        static bool ACH_BroadcastStar_OnGameTick_Prefix()
+        {
+            // Temporarily disable until it's fix
+            return !Multiplayer.IsActive;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(NebulaPatcher.Patches.Dynamic.DFRelayComponent_Patch), "ArriveBase_Postfix")]
+        static bool ArriveBase_Postfix()
+        {
+            // Temporarily disable message in client
+            return Multiplayer.IsActive && Multiplayer.Session.IsServer;
+        }
     }
 }
