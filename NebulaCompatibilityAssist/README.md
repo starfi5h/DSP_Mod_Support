@@ -43,10 +43,6 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
 
-### [GalacticScale](https://thunderstore.io/c/dyson-sphere-program/p/Galactic_Scale/GalacticScale/) (WIP)
-- Fix enmey drop will appear in client's mecha.  
-- Fix `GalacticScale.PatchOnGameLoader.FixedUpdate` error when client rejoin in space.  
-
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - Client can now see all ILS stations when choosing system/global tab.  
 
@@ -126,10 +122,6 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - 让客机能显示远端星球的建物讯息(需求主机也安装mod)  
-
-### [GalacticScale](https://thunderstore.io/c/dyson-sphere-program/p/Galactic_Scale/GalacticScale/) (WIP)
-- 修复敌人掉落物品会出现在客户端机甲上的问题  
-- 修复客户端在太空中重新加入时出现的 `GalacticScale.PatchOnGameLoader.FixedUpdate` 错误  
 
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - 让客机显示所有星际物流塔的内容  

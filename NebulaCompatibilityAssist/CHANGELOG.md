@@ -1,5 +1,9 @@
 # Changelog
 
+#### v0.4.12 (Nebula 0.9.5)
+\- Update MoreMegaStructure v1.5.3 compat  
+\- Remove GalacticScale v2.14.1 compat  
+
 #### v0.4.11 (Nebula 0.9.5)
 \- Temporarily disable ACH_BroadcastStar.OnGameTick  
 \- Temporarily disable DF Relay landing message in client  
