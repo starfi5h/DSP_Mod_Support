@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.3.9";
+        private const string VERSION = "1.5.3";
 
         private static IModCanSave Save;
 
@@ -75,7 +75,7 @@ namespace NebulaCompatibilityAssist.Patches
                 var suppressPostfixMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressPostfixOnMultiplayer"));
                 classType = assembly.GetType("MoreMegaStructure.UIStatisticsPatcher");                
                 harmony.Patch(AccessTools.Method(classType, "RefreshAstroBoxPostPatch"), suppressPrefixMethod);
-                harmony.Patch(AccessTools.Method(classType, "PlanetByIdPostPatch"), suppressPostfixMethod);
+                harmony.Patch(AccessTools.Method(classType, "MMSPlanetById"), suppressPostfixMethod);
                 harmony.Patch(AccessTools.Method(classType, "ComputeDisplayEntriesPrePatch"), suppressPrefixMethod);
                 harmony.Patch(AccessTools.Method(classType, "ProductionStatisticsGameTickPostPatch"), suppressPostfixMethod);
 
