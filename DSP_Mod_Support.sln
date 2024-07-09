@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SF_ChinesePatch", "SF_Chine
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatsUITweaks", "StatsUITweaks\StatsUITweaks.csproj", "{1E7B7FAE-C806-43CA-BE3D-D937D7100783}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorAnalyzer", "ErrorAnalyzer\ErrorAnalyzer.csproj", "{DA417FCA-942F-4928-867B-7DF0D9BA0CDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErrorAnalyzer", "ErrorAnalyzer\ErrorAnalyzer.csproj", "{DA417FCA-942F-4928-867B-7DF0D9BA0CDC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassRecipePaste", "MassRecipePaste\MassRecipePaste.csproj", "{3DD57F28-F167-4729-A348-F927FD5F0915}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{DA417FCA-942F-4928-867B-7DF0D9BA0CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA417FCA-942F-4928-867B-7DF0D9BA0CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA417FCA-942F-4928-867B-7DF0D9BA0CDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DD57F28-F167-4729-A348-F927FD5F0915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DD57F28-F167-4729-A348-F927FD5F0915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DD57F28-F167-4729-A348-F927FD5F0915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DD57F28-F167-4729-A348-F927FD5F0915}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

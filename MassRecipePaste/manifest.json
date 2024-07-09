@@ -1,0 +1,7 @@
+{
+    "name": "MassRecipePaste",
+    "description": "`Ctrl + >` to drag and paste copied settings over multiple machines of the same type in the selected area. Copy ILS priority settings too `Ctrl + >` 范围配方黏贴+复制物流塔优先级设置",
+    "version_number": "1.0.0",
+    "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/MassRecipePaste",
+    "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
+}
