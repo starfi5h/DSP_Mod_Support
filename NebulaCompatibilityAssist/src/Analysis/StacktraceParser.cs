@@ -110,7 +110,7 @@ namespace NebulaCompatibilityAssist.Analysis
             }
 
             if (sb.Length > 0)
-                sb.Insert(0, "\nPossible related patches:\n");
+                sb.Insert(0, "\n[== mod patches ==]\n");
 
             return sb.ToString();
         }

@@ -30,10 +30,10 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 
-                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 5)
+                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 6)
                 {
-                    harmony.PatchAll(typeof(Warper095));
-                    Log.Info("Nebula hotfix 0.9.5 - OK");
+                    harmony.PatchAll(typeof(Warper096));
+                    Log.Info("Nebula hotfix 0.9.6 - OK");
                 }
 
                 ChatManager.Init(harmony);
@@ -87,56 +87,38 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper095
+    public static class Warper096
     {
-        // Change GameStatesManager.LastSaveTime to DateTimeOffset.UtcNow.ToUnixTimeSeconds (real time) instead of UPS
-
-        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
-        [HarmonyPatch(typeof(GameSave), nameof(GameSave.LoadCurrentGame))]
-        static void LoadCurrentGame_Postfix()
+        // Fix error when client load planet. 
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // EnemyUnitComponent.RunBehavior_Defense_Ground(System.Int32 formTick, SkillSystem skillSystem, EnemyData[] enemyPool, DFGBaseComponent[] bases, System.Single altitude, EnemyData& enemy);(IL_028B)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EnemyManager), nameof(EnemyManager.OnFactoryLoadFinished))]
+        public static void OnFactoryLoadFinished_Postfix(PlanetFactory factory)
         {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
-            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var unitCursor = factory.enemySystem.units.cursor;
+            var unitBuffer = factory.enemySystem.units.buffer;
+            for (var i = 1; i < unitCursor; i++)
+            {
+                // clear the blocking skill to prevent error due to skills are not all present in client
+                unitBuffer[i].ClearBlockSkill();
+            }
         }
 
-        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
-        [HarmonyPatch(typeof(GameSave), nameof(GameSave.SaveCurrentGame))]
-        static void SaveCurrentGame_Postfix()
-        {
-            if (!Multiplayer.IsActive || !Multiplayer.Session.LocalPlayer.IsHost) return;
-            // Update last save time in clients
-            GameStatesManager.LastSaveTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            Multiplayer.Session.Server.SendPacket(new GameStateSaveInfoPacket(GameStatesManager.LastSaveTime));
-        }
-
-        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
-        [HarmonyPatch(typeof(UIEscMenu), nameof(UIEscMenu._OnOpen))]
-        public static void UIEscMenu_OnOpen_Postfix(UIEscMenu __instance)
-        {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return;
-
-            var timeSinceSave = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - GameStatesManager.LastSaveTime;
-            var second = (int)(timeSinceSave);
-            var minute = second / 60;
-            var hour = minute / 60;
-            var saveBtnText = "存档时间".Translate() + $" {hour}h{minute % 60}m{second % 60}s ago";
-            __instance.button2Text.text = saveBtnText;
-        }
-
+        // Fix error when bomb from other player from accessing the null planetfactory
+        // NullReferenceException: Object reference not set to an instance of an object
+        // Bomb_Explosive.TickSkillLogic (SkillSystem skillSystem, System.Int64 time);(IL_03BE)
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(ACH_BroadcastStar), nameof(ACH_BroadcastStar.OnGameTick))]
-        static bool ACH_BroadcastStar_OnGameTick_Prefix()
+        [HarmonyPatch(typeof(Bomb_Explosive), nameof(Bomb_Explosive.TickSkillLogic))]
+        [HarmonyPatch(typeof(Bomb_Liquid), nameof(Bomb_Liquid.TickSkillLogic))]
+        [HarmonyPatch(typeof(Bomb_EMCapsule), nameof(Bomb_EMCapsule.TickSkillLogic))]
+        public static void Bomb_TickSkillLogic(ref int ___nearPlanetAstroId, ref int ___life)
         {
-            // Temporarily disable until it's fix
-            return !Multiplayer.IsActive;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(NebulaPatcher.Patches.Dynamic.DFRelayComponent_Patch), "ArriveBase_Postfix")]
-        static bool ArriveBase_Postfix()
-        {
-            // Temporarily disable message in client
-            return Multiplayer.IsActive && Multiplayer.Session.IsServer;
+            if (___nearPlanetAstroId > 0 && GameMain.spaceSector.skillSystem.astroFactories[___nearPlanetAstroId] == null)
+            {
+                // The nearest planetFactory hasn't loaded yet, skip and remove
+                ___life = 0;
+            }
         }
     }
 }
