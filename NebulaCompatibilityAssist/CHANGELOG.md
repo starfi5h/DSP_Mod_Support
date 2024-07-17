@@ -1,5 +1,9 @@
 # Changelog
 
+#### v0.4.13 (Nebula 0.9.6)
+\- Fix IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
+\- Fix NRE in Bomb_Explosive.TickSkillLogic(IL_03BE)  
+
 #### v0.4.12 (Nebula 0.9.5)
 \- Update MoreMegaStructure v1.5.3 compat  
 \- Remove GalacticScale v2.14.1 compat  

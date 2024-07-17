@@ -1,8 +1,10 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.5 hotfix:  
-- Fix "Last Save Time" in client to use real world time.  
-- Suppress Enemy TickLogic excpetion to show only once per session.  
+Nebula 0.9.6 hotfix:  
+- Fix error when client load planet.  
+IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
+- Fix Fix error when bomb from other player from accessing the null planetfactory.  
+NRE in Bomb_Explosive.TickSkillLogic(IL_03BE)  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
