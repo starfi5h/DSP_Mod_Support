@@ -14,7 +14,7 @@ namespace MassRecipePaste
     {
         public const string GUID = "starfi5h.plugin.MassRecipePaste";
         public const string NAME = "MassRecipePaste";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.1.0";
 
         public static ManualLogSource Log;
         public static Plugin instance;

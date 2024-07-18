@@ -16,6 +16,13 @@ When pasting with this tool, priority settings of ILS will be copied too.
 
 Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/), or manually download the file and put `MassRecipePaste.dll` in `BepInEx/plugins` folder.  
 通过管理器[r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/)，或者手动下载文件并将`SphereEditorTools.dll`放入`BepInEx/plugins`文件夹。  
+## CommonAPI soft compatibility
+
+![CommonAPI-Keybind](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/MassRecipePaste/img/demo2.png)  
+When CommonAPI is installed too, you can go to settings - keybinds to custom Mass Recipe Paste hotkey at the bottom of the list.  
+This settings will overwrite `MassPasteKey` in the config file.  
+當CommonAPI也安裝時，在设置-键位可修改范围配方黏贴的热键。此配置将覆盖cfg配置文件中的热键设定。  
+
 ## Configuration 配置文件
 
 Run the game one time to generate `BepInEx\config\starfi5h.plugin.MassRecipePaste.cfg` file.  
@@ -29,7 +36,7 @@ The changes will take effects after reboost, or go to game settings and click 'A
 
 
 ```
-## Settings file was created by plugin MassRecipePaste v1.0.0
+## Settings file was created by plugin MassRecipePaste
 ## Plugin GUID: starfi5h.plugin.MassRecipePaste
 
 [ExtraCopy]
@@ -62,6 +69,13 @@ CopyStationP2P = true
 # Default value: 
 MassPasteKey = 
 ```
+
+----
+
+## Changelog
+
+v1.1.0 - Add CommonAPI compat to enable custom keybind in game.  
+v1.0.0 - Initial release. (DSP-0.10.30.22292)  
 
 ----
 
