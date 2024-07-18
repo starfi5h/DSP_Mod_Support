@@ -49,7 +49,11 @@ namespace MassRecipePaste
         static bool IsHotKey()
         {
             // Modify from VFInput._pasteKey, as it doesn't support modified key
-            if (isCustomHotkey)
+            if (PluginCAPIcompat.IsRegisiter)
+            {
+                return PluginCAPIcompat.IsPressed();
+            }
+            else if (isCustomHotkey)
             {
                 return Plugin.MassPasteKey.Value.IsPressed();
             }
