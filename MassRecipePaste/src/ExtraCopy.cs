@@ -9,8 +9,15 @@ namespace MassRecipePaste
         [HarmonyPatch(typeof(UIOptionWindow), nameof(UIOptionWindow.OnApplyClick))]
         internal static void OnApplyClick()
         {
-            Plugin.instance.Config.Reload(); // Reload config file when clicking 'Apply' in game settings
-            Plugin.instance.LoadConfigs();
+            try
+            {
+                Plugin.instance.Config.Reload(); // Reload config file when clicking 'Apply' in game settings
+                Plugin.instance.LoadConfigs();
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Log.LogWarning(e);
+            }
         }
 
         [HarmonyPostfix]

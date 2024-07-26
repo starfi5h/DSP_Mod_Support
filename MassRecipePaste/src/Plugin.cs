@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Reflection;
+using UnityEngine;
 
 [assembly: AssemblyTitle(MassRecipePaste.Plugin.NAME)]
 [assembly: AssemblyVersion(MassRecipePaste.Plugin.VERSION)]
@@ -14,7 +15,7 @@ namespace MassRecipePaste
     {
         public const string GUID = "starfi5h.plugin.MassRecipePaste";
         public const string NAME = "MassRecipePaste";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.1.1";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -38,8 +39,8 @@ namespace MassRecipePaste
 
         public void LoadConfigs()
         {
-            MassPasteKey = Config.Bind("KeyBinds", "MassPasteKey", new KeyboardShortcut(), "Custom keybind. Default is ctrl + >(paste recipe)\n没有设置时, 默认为Ctrl + >(配方黏贴键)");
-            if (!MassPasteKey.Value.Equals(default(KeyboardShortcut)))
+            MassPasteKey = Config.Bind("KeyBinds", "MassPasteKey", new KeyboardShortcut(KeyCode.Period, KeyCode.LeftControl), "Custom keybind. Default is ctrl + >(paste recipe)\n没有设置时, 默认为Ctrl + >(配方黏贴键)");
+            if (!MassPasteKey.Value.Equals(default(KeyboardShortcut)) && !MassPasteKey.Value.Equals(new KeyboardShortcut(KeyCode.Period, KeyCode.LeftControl)))
             {
                 Patches.isCustomHotkey = true;
                 Logger.LogDebug("MassPasteKey: " + MassPasteKey.Value);

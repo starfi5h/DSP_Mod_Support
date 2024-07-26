@@ -66,14 +66,15 @@ CopyStationP2P = true
 ## Custom keybind. Default is ctrl + >(paste recipe)
 ## 没有设置时, 默认为Ctrl + >(配方黏贴键)
 # Setting type: KeyboardShortcut
-# Default value: 
-MassPasteKey = 
+# Default value: Period + LeftControl
+MassPasteKey = Period + LeftControl
 ```
 
 ----
 
 ## Changelog
 
+v1.1.1 - Fix KeyboardShortcut error in BepInEx version 5.4.22  
 v1.1.0 - Add CommonAPI compat to enable custom keybind in game.  
 v1.0.0 - Initial release. (DSP-0.10.30.22292)  
 
