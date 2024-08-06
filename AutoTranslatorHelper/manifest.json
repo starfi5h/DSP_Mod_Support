@@ -1,0 +1,7 @@
+{
+  "name": "XUnity_AutoTranslator",
+  "version_number": "5.3.100",
+  "website_url": "https://github.com/bbepis/XUnity.AutoTranslator",
+  "description": "Translate Unity-based games automatically via online translation services. Check README for user guide!",
+  "dependencies": ["xiaoye97-BepInEx-5.4.17"]
+}
