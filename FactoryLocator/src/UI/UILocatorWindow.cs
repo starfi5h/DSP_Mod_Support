@@ -36,7 +36,8 @@ namespace FactoryLocator.UI
         private static int buildingIndex; // All, Power network #(id)
         private static int veinIndex;     // All, Planned, Unplanned
         private static int assemblerIndex;// All, Lack of material, Product overflow
-        private static int stationIndex;  // All, Local, Interstellar
+        private static int storageIndex;  // All, Demand, Supply
+        private static int stationIndex;  // All, Local Station, Interstellar Station, Local demand, Local supply, Remote demand, Remote supply
 
         public static UILocatorWindow CreateWindow()
         {
@@ -299,7 +300,7 @@ namespace FactoryLocator.UI
                 case 1: Plugin.mainLogic.PickVein(veinIndex); break;
                 case 2: Plugin.mainLogic.PickAssembler(assemblerIndex); break;
                 case 3: Plugin.mainLogic.PickWarning(0); break;
-                case 4: Plugin.mainLogic.PickStorage(0); break;
+                case 4: Plugin.mainLogic.PickStorage(storageIndex); break;
                 case 5: Plugin.mainLogic.PickStation(stationIndex); break;
             }
         }
@@ -369,13 +370,31 @@ namespace FactoryLocator.UI
                     comboBox.itemIndex = assemblerIndex;
                     break;
 
+                case 4: // PickStorage
+                    comboBox.Items.Add("All".Translate());
+                    comboBox.ItemsData.Add(0);
+                    comboBox.Items.Add("需求".Translate());
+                    comboBox.ItemsData.Add(1);
+                    comboBox.Items.Add("供应".Translate());
+                    comboBox.ItemsData.Add(2);
+                    comboBox.itemIndex = storageIndex;
+                    break;
+
                 case 5: // PickStation
                     comboBox.Items.Add("All".Translate());
                     comboBox.ItemsData.Add(0);
-                    comboBox.Items.Add("Local".Translate());
+                    comboBox.Items.Add("本地站点号".Translate());
                     comboBox.ItemsData.Add(1);
-                    comboBox.Items.Add("Interstellar".Translate());
+                    comboBox.Items.Add("星际站点号".Translate());
                     comboBox.ItemsData.Add(2);
+                    comboBox.Items.Add("本地需求".Translate());
+                    comboBox.ItemsData.Add(3);
+                    comboBox.Items.Add("本地供应".Translate());
+                    comboBox.ItemsData.Add(4);
+                    comboBox.Items.Add("星际需求".Translate());
+                    comboBox.ItemsData.Add(5);
+                    comboBox.Items.Add("星际供应".Translate());
+                    comboBox.ItemsData.Add(6);
                     comboBox.itemIndex = stationIndex;
                     break;
 
@@ -420,6 +439,16 @@ namespace FactoryLocator.UI
                         Plugin.mainLogic.OnAssemblerPickReturn(null);
                         UIRecipePicker.Close();
                         Plugin.mainLogic.PickAssembler(assemblerIndex);
+                    }
+                    return;
+
+                case 4: // PickStorage
+                    storageIndex = comboBox.itemIndex;
+                    if (isPickingItem)
+                    {
+                        Plugin.mainLogic.OnStoragePickReturn(null);
+                        UIItemPicker.Close();
+                        Plugin.mainLogic.PickStorage(storageIndex);
                     }
                     return;
 

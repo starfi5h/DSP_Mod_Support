@@ -151,10 +151,13 @@ namespace FactoryLocator
             WarningSystemPatch.AddWarningData(SignalId, signalId, planetIds, localPos, detailIds);
         }
 
-        public void PickStorage(int _)
+        public void PickStorage(int mode)
         {
-            state = 0;
-            RefreshStorage(-1);
+            state = mode;
+            if (mode == 0)
+                RefreshStorage(-1);
+            else
+                RefreshDispenser(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(windowPos, OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
@@ -166,7 +169,10 @@ namespace FactoryLocator
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
-            RefreshStorage(itemId);
+            if (state == 0)
+                RefreshStorage(itemId);
+            else
+                RefreshDispenser(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
         }
 
@@ -540,6 +546,71 @@ namespace FactoryLocator
             }
         }
 
+        public void RefreshDispenser(int itemId, int mode = 0)
+        {
+            filterIds.Clear();
+            localPos.Clear();
+            planetIds.Clear();
+
+            foreach (var factory in factories)
+            {
+                for (int id = 1; id < factory.transport.dispenserCursor; id++)
+                {
+                    var dispenser = factory.transport.dispenserPool[id];
+                    if (dispenser != null && dispenser.id == id && dispenser.storage != null)
+                    {
+                        if (mode == 1) // Demand
+                        {
+                            if (dispenser.storageMode != EStorageDeliveryMode.Demand) continue;
+                        }
+                        else if (mode == 2) // Supply
+                        {
+                            if (dispenser.storageMode != EStorageDeliveryMode.Supply) continue;
+                        }
+                        
+                        if (itemId == -1)
+                        {
+                            // Add an entry for the dispenser item filter
+                            if (!filterIds.ContainsKey(dispenser.filter)) filterIds[dispenser.filter] = 0;
+
+                            // Calculate item count in storge of dispenser from top to bottom
+                            // Modfiy from DispenserComponent.GuessFilter
+                            var loopCount = 0;
+                            var storage = dispenser.storage.topStorage;
+                            while (storage != null)
+                            {
+                                for (int i = 0; i < storage.size; i++)
+                                {
+                                    if (storage.grids[i].itemId > 0)
+                                    {
+                                        int key = storage.grids[i].itemId;
+                                        if (key != dispenser.filter) continue; // Vanilla 1-1 settings
+
+                                        if (!filterIds.ContainsKey(key))
+                                            filterIds[key] = storage.grids[i].count;
+                                        else
+                                            filterIds[key] += storage.grids[i].count;
+                                    }
+                                }
+                                storage = storage.previousStorage;
+                                if (loopCount++ > 50) break; // Prevent endless loop
+                            }
+                        }
+                        else
+                        {
+                            // Locate the dispensers matches the search criteria
+                            if (dispenser.filter == itemId) // Vanilla 1-1 settings
+                            {
+                                ref EntityData entity = ref factory.entityPool[dispenser.entityId];
+                                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                                planetIds.Add(factory.planetId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public void RefreshStation(int itemId, int mode = 0)
         {
             filterIds.Clear();
@@ -566,6 +637,8 @@ namespace FactoryLocator
                         {
                             for (int i = 0; i < station.storage.Length; i++)
                             {
+                                if (!TestStationStore(in station.storage[i], mode)) continue;
+
                                 int key = station.storage[i].itemId;
                                 if (filterIds.ContainsKey(key))
                                     filterIds[key] += station.storage[i].count;
@@ -578,7 +651,7 @@ namespace FactoryLocator
                             bool flag = false;
                             for (int i = 0; i < station.storage.Length; i++)
                             {
-                                if (station.storage[i].itemId == itemId)
+                                if (station.storage[i].itemId == itemId && TestStationStore(in station.storage[i], mode))
                                 {
                                     ref EntityData entity = ref factory.entityPool[station.entityId];
                                     localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
@@ -594,5 +667,17 @@ namespace FactoryLocator
             }
         }
 
+        public static bool TestStationStore(in StationStore store, int mode)
+        {
+            // return true if StationStore fits the mode
+            switch (mode)
+            {
+                case 3: return store.localLogic == ELogisticStorage.Demand;
+                case 4: return store.localLogic == ELogisticStorage.Supply;
+                case 5: return store.remoteLogic == ELogisticStorage.Demand;
+                case 6: return store.remoteLogic == ELogisticStorage.Supply;
+                default: return true;
+            }
+        }
     }
 }

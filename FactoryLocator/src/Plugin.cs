@@ -62,10 +62,7 @@ namespace FactoryLocator
             RegisterTranslation("Auto Clear Query", "Auto Clear Query", "自动清除搜寻结果");
             RegisterTranslation("Power Network Status", "Power Network Status", "电网状态");
             RegisterTranslation("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
-
             RegisterTranslation("All", "All", "全部");
-            RegisterTranslation("Local", "Local", "本地");
-            RegisterTranslation("Interstellar", "Interstellar", "星际");
 
             BetterWarningIconsCompat.Preload();
 #endif

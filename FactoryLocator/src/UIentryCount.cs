@@ -26,6 +26,7 @@ namespace FactoryLocator
             for (int i = 0; i < ARRAYLENGTH; i++)
                 Init(ref countArray[i], signalType, i);
             Active = true;
+            UIItemPicker.showAll = true; // Show all item including not researched one
         }
 
         public static void OnClose()
