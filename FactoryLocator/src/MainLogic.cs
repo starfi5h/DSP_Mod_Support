@@ -109,10 +109,10 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public void PickAssembler(int _)
+        public void PickAssembler(int mode)
         {
-            state = 0;
-            RefreshAssemblers(-1);
+            state = mode;
+            RefreshAssemblers(-1, state);
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
             UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
         }
@@ -122,7 +122,7 @@ namespace FactoryLocator
             if (recipeProto == null) // Return by ESC
                 return;
             int recipeId = recipeProto.ID;
-            RefreshAssemblers(recipeId);
+            RefreshAssemblers(recipeId, state);
             WarningSystemPatch.AddWarningData(SignalId, SignalProtoSet.SignalId(ESignalType.Recipe, recipeId), planetIds, localPos);
             UIentryCount.OnClose();
         }
@@ -309,7 +309,7 @@ namespace FactoryLocator
             }
         }
 
-        public void RefreshAssemblers(int recipeId)
+        public void RefreshAssemblers(int recipeId, int mode = 0)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -319,11 +319,15 @@ namespace FactoryLocator
             {
                 for (int id = 1; id < factory.factorySystem.assemblerCursor; id++)
                 {
-                    if (id == factory.factorySystem.assemblerPool[id].id)
+                    ref var assembler = ref factory.factorySystem.assemblerPool[id];
+                    if (id == assembler.id)
                     {
+                        if (mode != 0 && mode != GetAssemblerMode(in assembler))
+                            continue;
+
                         if (recipeId == -1)
                         {
-                            int key = factory.factorySystem.assemblerPool[id].recipeId;
+                            int key = assembler.recipeId;
                             if (filterIds.ContainsKey(key))
                                 ++filterIds[key];
                             else
@@ -331,9 +335,9 @@ namespace FactoryLocator
                         }
                         else
                         {
-                            if (recipeId == factory.factorySystem.assemblerPool[id].recipeId)
+                            if (recipeId == assembler.recipeId)
                             {
-                                ref EntityData entity = ref factory.entityPool[factory.factorySystem.assemblerPool[id].entityId];
+                                ref EntityData entity = ref factory.entityPool[assembler.entityId];
                                 localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
                                 planetIds.Add(factory.planetId);
                             }
@@ -344,11 +348,15 @@ namespace FactoryLocator
                 // For labs in production mode
                 for (int id = 1; id < factory.factorySystem.labCursor; id++)
                 {
-                    if (id == factory.factorySystem.labPool[id].id)
+                    ref var lab = ref factory.factorySystem.labPool[id];
+                    if (id == lab.id)
                     {
+                        if (mode != 0 && mode != GetLabMode(in lab))
+                            continue;
+
                         if (recipeId == -1)
                         {
-                            int key = factory.factorySystem.labPool[id].recipeId;
+                            int key = lab.recipeId;
                             if (filterIds.ContainsKey(key))
                                 ++filterIds[key];
                             else
@@ -356,15 +364,61 @@ namespace FactoryLocator
                         }
                         else
                         {
-                            if (recipeId == factory.factorySystem.labPool[id].recipeId)
+                            if (recipeId == lab.recipeId)
                             {
-                                ref EntityData entity = ref factory.entityPool[factory.factorySystem.labPool[id].entityId];
+                                ref EntityData entity = ref factory.entityPool[lab.entityId];
                                 localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
                                 planetIds.Add(factory.planetId);
                             }
                         }
                     }
                 }
+            }
+        }
+
+        public static int GetAssemblerMode(in AssemblerComponent assembler)
+        {
+            if (assembler.replicating)
+            {
+                return 0;
+            }
+            else
+            {
+                if (assembler.time >= assembler.timeSpend) //产物堆积 Product overflow
+                {
+                    return 2;
+                }
+                for (int j = 0; j < assembler.requireCounts.Length; j++)
+                {
+                    if (assembler.served[j] < assembler.requireCounts[j])
+                    {
+                        return 1; //缺少原材料	Lack of material
+                    }
+                }
+                return 3; // 其他?
+            }
+        }
+
+        public static int GetLabMode(in LabComponent lab)
+        {
+            if (lab.replicating)
+            {
+                return 0;
+            }
+            else
+            {
+                if (lab.time >= lab.timeSpend) //产物堆积 Product overflow
+                {
+                    return 2;
+                }
+                for (int j = 0; j < lab.requireCounts.Length; j++)
+                {
+                    if (lab.served[j] < lab.requireCounts[j])
+                    {
+                        return 1; //缺少原材料	Lack of material
+                    }
+                }
+                return 3; // 其他?
             }
         }
 

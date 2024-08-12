@@ -35,6 +35,7 @@ namespace FactoryLocator.UI
         private static int queryingType = 0;
         private static int buildingIndex; // All, Power network #(id)
         private static int veinIndex;     // All, Planned, Unplanned
+        private static int assemblerIndex;// All, Lack of material, Product overflow
         private static int stationIndex;  // All, Local, Interstellar
 
         public static UILocatorWindow CreateWindow()
@@ -296,7 +297,7 @@ namespace FactoryLocator.UI
             {
                 case 0: Plugin.mainLogic.PickBuilding(buildingIndex); break;
                 case 1: Plugin.mainLogic.PickVein(veinIndex); break;
-                case 2: Plugin.mainLogic.PickAssembler(0); break;
+                case 2: Plugin.mainLogic.PickAssembler(assemblerIndex); break;
                 case 3: Plugin.mainLogic.PickWarning(0); break;
                 case 4: Plugin.mainLogic.PickStorage(0); break;
                 case 5: Plugin.mainLogic.PickStation(stationIndex); break;
@@ -312,15 +313,20 @@ namespace FactoryLocator.UI
         {
             if (comboBox == null)
             {
-                comboBox = UI.Util.CreateComboBox(OnComboBoxIndexChange, 200f);
-                UI.Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.itemPicker.transform);
+                comboBox = Util.CreateComboBox(OnComboBoxIndexChange, 200f);                
+            }
+            if (queryType == 2)
+            {
+                Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.recipePicker.transform);
+            }
+            else
+            {
+                Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.itemPicker.transform);
             }
 
             queryingType = queryType;
             comboBox.Items.Clear();
             comboBox.ItemsData.Clear();
-            comboBox.gameObject.SetActive(queryType == 0 || queryType == 1 || queryType == 5);
-
             switch (queryType)
             {
                 case 0: // PickBuilding
@@ -353,6 +359,16 @@ namespace FactoryLocator.UI
                     comboBox.itemIndex = veinIndex;
                     break;
 
+                case 2: // PickAssembler
+                    comboBox.Items.Add("All".Translate());
+                    comboBox.ItemsData.Add(0);
+                    comboBox.Items.Add("缺少原材料".Translate());
+                    comboBox.ItemsData.Add(1);
+                    comboBox.Items.Add("产物堆积".Translate());
+                    comboBox.ItemsData.Add(2);
+                    comboBox.itemIndex = assemblerIndex;
+                    break;
+
                 case 5: // PickStation
                     comboBox.Items.Add("All".Translate());
                     comboBox.ItemsData.Add(0);
@@ -362,19 +378,26 @@ namespace FactoryLocator.UI
                     comboBox.ItemsData.Add(2);
                     comboBox.itemIndex = stationIndex;
                     break;
+
+                default:
+                    comboBox.gameObject.SetActive(false);
+                    return;
             }
+            comboBox.gameObject.SetActive(true);
         }
 
         private void OnComboBoxIndexChange()
         {
-            bool isPicking = UIRoot.instance.uiGame.itemPicker.active;
+            bool isPickingItem = UIRoot.instance.uiGame.itemPicker.active;
+            bool isPickingRecipe = UIRoot.instance.uiGame.recipePicker.active;
 
             switch (queryingType)
             {
                 case 0: // PickBuilding
                     buildingIndex = comboBox.itemIndex;
-                    if (isPicking)
+                    if (isPickingItem)
                     {
+                        Plugin.mainLogic.OnBuildingPickReturn(null);
                         UIItemPicker.Close();
                         Plugin.mainLogic.PickBuilding(buildingIndex);
                     }
@@ -382,17 +405,29 @@ namespace FactoryLocator.UI
 
                 case 1: // PickVein
                     veinIndex = comboBox.itemIndex;
-                    if (isPicking)
+                    if (isPickingItem)
                     {
+                        Plugin.mainLogic.OnVeinPickReturn(null);
                         UIItemPicker.Close();
                         Plugin.mainLogic.PickVein(veinIndex);
-                    }                    
+                    }
+                    return;
+
+                case 2: // PickAssembler
+                    assemblerIndex = comboBox.itemIndex;
+                    if (isPickingRecipe)
+                    {
+                        Plugin.mainLogic.OnAssemblerPickReturn(null);
+                        UIRecipePicker.Close();
+                        Plugin.mainLogic.PickAssembler(assemblerIndex);
+                    }
                     return;
 
                 case 5: // PickStation
                     stationIndex = comboBox.itemIndex;
-                    if (isPicking)
+                    if (isPickingItem)
                     {
+                        Plugin.mainLogic.OnStationPickReturn(null);
                         UIItemPicker.Close();
                         Plugin.mainLogic.PickStation(stationIndex);
                     }
