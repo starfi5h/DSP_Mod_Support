@@ -1,4 +1,5 @@
 ﻿using FactoryLocator.Compat;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +30,13 @@ namespace FactoryLocator.UI
         private bool autoclear_enable = true; // clear previous results when close or make another query
         private int currentLanguageLCID = 0;
 
+        private static UIComboBox comboBox = null; // subcatagory 子目錄
+        private static List<int> networkIds = null;
+        private static int queryingType = 0;
+        private static int buildingIndex; // All, Power network #(id)
+        private static int veinIndex;     // All, Planned, Unplanned
+        private static int stationIndex;  // All, Local, Interstellar
+
         public static UILocatorWindow CreateWindow()
         {
             UILocatorWindow win = MyWindowCtl.CreateWindow<UILocatorWindow>("FactoryLocator Window", "Factory Locator");
@@ -46,6 +54,16 @@ namespace FactoryLocator.UI
             windowTrans.sizeDelta = new Vector2(260f, 290f);
 
             CreateUI();
+        }
+
+        public override void _OnDestroy()
+        {
+            if (comboBox != null)
+            {
+                Destroy(comboBox.gameObject);
+                comboBox = null;
+                Log.Debug("_OnDestroy");
+            }
         }
 
         internal void CreateUI()
@@ -173,6 +191,7 @@ namespace FactoryLocator.UI
                 WarningSystemPatch.ClearAll();
             UIentryCount.OnClose();
             NebulaCompat.OnClose();
+            comboBox?.gameObject.SetActive(false);
         }
 
         public void SetText()
@@ -272,14 +291,112 @@ namespace FactoryLocator.UI
         {
             if (autoclear_enable)
                 WarningSystemPatch.ClearAll();
+            SetSubcategory(queryType);
             switch (queryType)
             {
-                case 0: Plugin.mainLogic.PickBuilding(0); break;
-                case 1: Plugin.mainLogic.PickVein(0); break;
+                case 0: Plugin.mainLogic.PickBuilding(buildingIndex); break;
+                case 1: Plugin.mainLogic.PickVein(veinIndex); break;
                 case 2: Plugin.mainLogic.PickAssembler(0); break;
                 case 3: Plugin.mainLogic.PickWarning(0); break;
                 case 4: Plugin.mainLogic.PickStorage(0); break;
-                case 5: Plugin.mainLogic.PickStation(0); break;
+                case 5: Plugin.mainLogic.PickStation(stationIndex); break;
+            }
+        }
+
+        public void SetPowerNetworkDropdownList(List<int> ids)
+        {
+            networkIds = ids;
+        }
+
+        public void SetSubcategory(int queryType)
+        {
+            if (comboBox == null)
+            {
+                comboBox = UI.Util.CreateComboBox(OnComboBoxIndexChange, 200f);
+                UI.Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.itemPicker.transform);
+            }
+
+            queryingType = queryType;
+            comboBox.Items.Clear();
+            comboBox.ItemsData.Clear();
+            comboBox.gameObject.SetActive(queryType == 0 || queryType == 1 || queryType == 5);
+
+            switch (queryType)
+            {
+                case 0: // PickBuilding
+                    buildingIndex = 0;
+                    if (networkIds == null) // DropList is not available (multiple factories)
+                    {
+                        comboBox.Items.Add("All".Translate());
+                        comboBox.ItemsData.Add(0);
+                        comboBox.itemIndex = 0;
+                        comboBox.gameObject.SetActive(false);
+                        return;
+                    }
+                    comboBox.Items.Add("All".Translate() + $" ({networkIds.Count})");
+                    comboBox.ItemsData.Add(0);
+                    for (int i = 0; i < networkIds.Count; i++)
+                    {
+                        comboBox.Items.Add("电网号".Translate() + networkIds[i]);
+                        comboBox.ItemsData.Add(i + 1);
+                    }
+                    comboBox.itemIndex = 0;
+                    break;
+
+                case 1: // PickVein
+                    comboBox.Items.Add("All".Translate());
+                    comboBox.ItemsData.Add(0);
+                    comboBox.Items.Add("显示正在采集".Translate());
+                    comboBox.ItemsData.Add(1);
+                    comboBox.Items.Add("显示尚未采集".Translate());
+                    comboBox.ItemsData.Add(2);
+                    comboBox.itemIndex = veinIndex;
+                    break;
+
+                case 5: // PickStation
+                    comboBox.Items.Add("All".Translate());
+                    comboBox.ItemsData.Add(0);
+                    comboBox.Items.Add("Local".Translate());
+                    comboBox.ItemsData.Add(1);
+                    comboBox.Items.Add("Interstellar".Translate());
+                    comboBox.ItemsData.Add(2);
+                    comboBox.itemIndex = stationIndex;
+                    break;
+            }
+        }
+
+        private void OnComboBoxIndexChange()
+        {
+            bool isPicking = UIRoot.instance.uiGame.itemPicker.active;
+
+            switch (queryingType)
+            {
+                case 0: // PickBuilding
+                    buildingIndex = comboBox.itemIndex;
+                    if (isPicking)
+                    {
+                        UIItemPicker.Close();
+                        Plugin.mainLogic.PickBuilding(buildingIndex);
+                    }
+                    return;
+
+                case 1: // PickVein
+                    veinIndex = comboBox.itemIndex;
+                    if (isPicking)
+                    {
+                        UIItemPicker.Close();
+                        Plugin.mainLogic.PickVein(veinIndex);
+                    }                    
+                    return;
+
+                case 5: // PickStation
+                    stationIndex = comboBox.itemIndex;
+                    if (isPicking)
+                    {
+                        UIItemPicker.Close();
+                        Plugin.mainLogic.PickStation(stationIndex);
+                    }
+                    return;
             }
         }
 

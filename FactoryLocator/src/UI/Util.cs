@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace FactoryLocator.UI
@@ -61,7 +62,7 @@ namespace FactoryLocator.UI
             btn.gameObject.name = "btn_" + label;
             if (btn.transitions.Length >= 1)
             {
-                btn.transitions[0].target.color = new Color(0.2392f, 0.6f, 0.9f, 0.078f);
+                btn.transitions[0].normalColor = new Color(0.2392f, 0.6f, 0.9f, 0.078f);
             }
 
             Text btnText = btn.transform.Find("Text").GetComponent<Text>();
@@ -97,6 +98,37 @@ namespace FactoryLocator.UI
             iconButton.tips.tipText = "Select a signal to display.".Translate();
 
             iconImage = rect.GetComponent<Image>();
+        }
+
+        public static UIComboBox CreateComboBox(UnityAction OnComboBoxIndexChange, float width, float height = 30f)
+        {
+            // 創建一個下拉表單
+            var comboBoxTemple = UIRoot.instance.uiGame.statWindow.timeBox;
+            var go = GameObject.Instantiate(comboBoxTemple);
+            go.name = "FactoryLocator comboBox";
+            var transform = go.transform.Find("Dropdown List ScrollBox/Mask/Content Panel/");
+            for (var i = transform.childCount - 1; i >= 0; i--)
+            {
+                if (transform.GetChild(i).name == "Item Button(Clone)")
+                {
+                    // Clean up old itemButtons
+                    GameObject.Destroy(transform.GetChild(i).gameObject);
+                }
+            }
+            ((RectTransform)go.transform).sizeDelta = new Vector2(width, height);
+
+            var comboBox = go.GetComponentInChildren<UIComboBox>();
+            comboBox.onItemIndexChange.RemoveAllListeners();
+            //comboBox.m_Text.supportRichText = true;
+            //comboBox.m_EmptyItemRes.supportRichText = true;
+            //comboBox.m_ListItemRes.GetComponentInChildren<Text>().supportRichText = true;
+            //foreach (var button in comboBox.ItemButtons) button.GetComponentInChildren<Text>().supportRichText = true;
+            //comboBox.DropDownCount = 20;
+            comboBox.itemIndex = 0;
+            comboBox.m_Input.text = "";
+            comboBox.onItemIndexChange.AddListener(OnComboBoxIndexChange);
+
+            return comboBox;
         }
     }
 

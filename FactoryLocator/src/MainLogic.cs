@@ -14,8 +14,13 @@ namespace FactoryLocator
         private readonly List<Vector3> localPos = new();
         private readonly List<int> detailIds = new();
 
+        private int state; // Internal state to record the last catagory
+        private readonly List<int> networkIds = new();
+        private readonly HashSet<int> tmp_ids = new();
+
         public int SetFactories(StarData star, PlanetData planet)
         {
+            state = 0;
             factories.Clear();
             if (star != null)
             {
@@ -32,7 +37,8 @@ namespace FactoryLocator
             }
 
             var ratios = new List<float>();
-            var counts = new List<int>();
+            var consumersCount = new List<int>();
+            networkIds.Clear();
             foreach (var factory in factories)
             {
                 if (factory.powerSystem != null)
@@ -43,12 +49,17 @@ namespace FactoryLocator
                         if (powerNetwork != null && powerNetwork.id == i)
                         {
                             ratios.Add((float)powerNetwork.consumerRatio);
-                            counts.Add(powerNetwork.consumers.Count);
+                            consumersCount.Add(powerNetwork.consumers.Count);
+                            networkIds.Add(i);
                         }
                     }
                 }
             }
-            Plugin.mainWindow.SetStatusTipText(ratios.ToArray(), counts.ToArray());
+            if (Plugin.mainWindow.active && Plugin.mainLogic == this)
+            {
+                Plugin.mainWindow.SetStatusTipText(ratios.ToArray(), consumersCount.ToArray());
+                Plugin.mainWindow.SetPowerNetworkDropdownList(factories.Count == 1 ? networkIds : null);
+            }
 
 #if DEBUG
             string s = $"SetFactories {factories.Count}:";
@@ -59,10 +70,11 @@ namespace FactoryLocator
 
             return factories.Count;
         }
-        
-        public void PickBuilding(int _)
+
+        public void PickBuilding(int networkId)
         {
-            RefreshBuilding(-1);
+            state = networkId;
+            RefreshBuilding(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
@@ -73,14 +85,15 @@ namespace FactoryLocator
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
-            RefreshBuilding(itemId);
+            RefreshBuilding(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
             UIentryCount.OnClose();
         }
 
-        public void PickVein(int _)
+        public void PickVein(int mode)
         {
-            RefreshVein(-1);
+            state = mode;
+            RefreshVein(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
@@ -91,13 +104,14 @@ namespace FactoryLocator
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
-            RefreshVein(itemId);
+            RefreshVein(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
             UIentryCount.OnClose();
         }
 
         public void PickAssembler(int _)
         {
+            state = 0;
             RefreshAssemblers(-1);
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
             UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
@@ -115,6 +129,7 @@ namespace FactoryLocator
 
         public void PickWarning(int _)
         {
+            state = 0;
             RefreshSignal(-1);
             UIentryCount.OnOpen(ESignalType.Signal, filterIds);
             UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
@@ -132,6 +147,7 @@ namespace FactoryLocator
 
         public void PickStorage(int _)
         {
+            state = 0;
             RefreshStorage(-1);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
@@ -147,9 +163,10 @@ namespace FactoryLocator
             UIentryCount.OnClose();
         }
 
-        public void PickStation(int _)
+        public void PickStation(int mode)
         {
-            RefreshStation(-1);
+            state = mode;
+            RefreshStation(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
             UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
@@ -159,14 +176,14 @@ namespace FactoryLocator
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
-            RefreshStation(itemId);
+            RefreshStation(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
             UIentryCount.OnClose();
         }
 
         // Internal functions
 
-        public void RefreshBuilding(int itemId)
+        public void RefreshBuilding(int itemId, int comboIndex = 0)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -178,9 +195,15 @@ namespace FactoryLocator
                 {
                     if (id == factory.entityPool[id].id)
                     {
-                        if (itemId == -1)
+                        ref var entity = ref factory.entityPool[id];
+                        if (comboIndex != 0 && comboIndex <= networkIds.Count && networkIds[comboIndex - 1] != GetPowerNetworkId(factory, in entity))
                         {
-                            int key = factory.entityPool[id].protoId;
+                            continue;
+                        }
+
+                        if (itemId == -1) // picking
+                        {
+                            int key = entity.protoId;
                             if (filterIds.ContainsKey(key))
                                 ++filterIds[key];
                             else
@@ -188,9 +211,9 @@ namespace FactoryLocator
                         }
                         else
                         {
-                            if (itemId == factory.entityPool[id].protoId)
+                            if (itemId == entity.protoId)
                             {
-                                localPos.Add(factory.entityPool[id].pos + factory.entityPool[id].pos.normalized * 0.5f);
+                                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
                                 planetIds.Add(factory.planetId);
                             }
                         }
@@ -199,7 +222,32 @@ namespace FactoryLocator
             }
         }
 
-        public void RefreshVein(int itemId)
+        public static int GetPowerNetworkId(PlanetFactory factory, in EntityData entity)
+        {
+            if (entity.powerConId > 0)
+            {
+                return factory.powerSystem.consumerPool[entity.powerConId].networkId;
+            }
+            if (entity.powerNodeId > 0)
+            {
+                return factory.powerSystem.nodePool[entity.powerNodeId].networkId;
+            }
+            if (entity.powerGenId > 0)
+            {
+                return factory.powerSystem.genPool[entity.powerGenId].networkId;
+            }
+            if (entity.powerExcId > 0)
+            {
+                return factory.powerSystem.excPool[entity.powerExcId].networkId;
+            }
+            if (entity.powerAccId > 0)
+            {
+                return factory.powerSystem.accPool[entity.powerAccId].networkId;
+            }
+            return 0;
+        }
+
+        public void RefreshVein(int itemId, int mode = 0)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -209,12 +257,28 @@ namespace FactoryLocator
             if (itemId > 0)
                 veinTypeByItemId = LDB.veins.GetVeinTypeByItemId(itemId);
 
+
             foreach (var factory in factories)
             {
+                if (mode != 0)
+                {
+                    tmp_ids.Clear();
+                    for (int id = 1; id < factory.veinPool.Length; id++)
+                    {
+                        if (factory.veinPool[id].id == id && factory.veinPool[id].minerCount != 0)
+                        {
+                            tmp_ids.Add(factory.veinPool[id].groupIndex);
+                        }
+                    }
+                }
+
                 for (int id = 1; id < factory.veinGroups.Length; id++)
                 {
                     if (factory.veinGroups[id].type != EVeinType.None)
                     {
+                        if (mode == 1 && !tmp_ids.Contains(id)) continue; // planned
+                        if (mode == 2 && tmp_ids.Contains(id)) continue;  // unplanned
+
                         if (itemId == -1)
                         {
                             int key;
@@ -414,7 +478,7 @@ namespace FactoryLocator
             }
         }
 
-        public void RefreshStation(int itemId)
+        public void RefreshStation(int itemId, int mode = 0)
         {
             filterIds.Clear();
             localPos.Clear();
@@ -427,6 +491,15 @@ namespace FactoryLocator
                     StationComponent station = factory.transport.stationPool[id];
                     if (station != null && station.id == id && station.storage != null)
                     {
+                        if (mode == 1) // Local (PLS, Miner Mk.2)
+                        {
+                            if (station.gid > 0) continue;
+                        }
+                        else if (mode == 2) // Interstellar (ILS, collectors)
+                        {
+                            if (station.gid <= 0) continue;
+                        }
+
                         if (itemId == -1)
                         {
                             for (int i = 0; i < station.storage.Length; i++)
