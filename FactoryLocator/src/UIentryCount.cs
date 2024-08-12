@@ -10,8 +10,8 @@ namespace FactoryLocator
         public static int ItemCol { get; set; } = 14;
         public static int RecipeCol { get; set; } = 14;
         public static int SignalCol { get; set; } = 14;
+        public static bool Active { get; private set; }
 
-        static bool active;
         static Dictionary<int, int> filterIds;
         static Text[] countArray;
         const int ARRAYLENGTH = 112; //8*14
@@ -25,12 +25,12 @@ namespace FactoryLocator
                 countArray = new Text[ARRAYLENGTH];
             for (int i = 0; i < ARRAYLENGTH; i++)
                 Init(ref countArray[i], signalType, i);
-            active = true;
+            Active = true;
         }
 
         public static void OnClose()
         {
-            active = false;
+            Active = false;
             if (countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
@@ -49,7 +49,7 @@ namespace FactoryLocator
         [HarmonyPatch(typeof(UIItemPicker), nameof(UIItemPicker.OnTypeButtonClick))]
         static void OnTypeButtonClick1(UIItemPicker __instance)
         {
-            if (active && countArray != null)
+            if (Active && countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {
@@ -63,7 +63,7 @@ namespace FactoryLocator
         [HarmonyPatch(typeof(UIRecipePicker), nameof(UIRecipePicker.OnTypeButtonClick))]
         static void OnTypeButtonClick2(UIRecipePicker __instance)
         {
-            if (active && countArray != null)
+            if (Active && countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {
@@ -77,7 +77,7 @@ namespace FactoryLocator
         [HarmonyPatch(typeof(UISignalPicker), nameof(UISignalPicker.OnTypeButtonClick))]
         static void OnTypeButtonClick3(UISignalPicker __instance)
         {
-            if (active && countArray != null)
+            if (Active && countArray != null)
             {
                 for (int i = 0; i < ARRAYLENGTH; i++)
                 {

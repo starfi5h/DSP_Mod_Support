@@ -84,7 +84,28 @@ namespace FactoryLocator
                 DSPMoreRecipesCompat.Init();
                 GenesisBookCompat.Init();
                 BetterWarningIconsCompat.Postload();
+
+                // Make picker dragAble
+                try
+                {
+                    AddUIWindowDrag(UIRoot.instance.uiGame.signalPicker.gameObject);
+                    AddUIWindowDrag(UIRoot.instance.uiGame.recipePicker.gameObject);
+                    AddUIWindowDrag(UIRoot.instance.uiGame.itemPicker.gameObject);
+                }
+                catch (System.Exception e)
+                {
+                    Log.Error("Error when adding UIWindowDrag\n" + e);
+                }
             }
+        }
+
+        static void AddUIWindowDrag(GameObject gameObject)
+        {
+            var dragTrigger = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/FactoryLocator Window/panel-bg/drag-trigger");
+            var dragTriggerGo = Object.Instantiate(dragTrigger, gameObject.transform.Find("bg"));
+            var uiWindowDrag = gameObject.AddComponent<UIWindowDrag>();
+            uiWindowDrag.dragTrigger = dragTriggerGo.GetComponent<UnityEngine.EventSystems.EventTrigger>();
+            uiWindowDrag.screenRect = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows").GetComponent<RectTransform>();
         }
 
         static void RegisterTranslation(string key, string enTrans, string cnTrans)
@@ -119,8 +140,12 @@ namespace FactoryLocator
                 mainWindow._OnUpdate();
                 if (VFInput.escape)
                 {
-                    VFInput.UseEscape();
-                    mainWindow._Close();
+                    // When still in picking, close the picking window first
+                    if (!UIentryCount.Active)
+                    {
+                        VFInput.UseEscape();
+                        mainWindow._Close();
+                    }                    
                 }
             }
         }

@@ -18,6 +18,8 @@ namespace FactoryLocator
         private readonly List<int> networkIds = new();
         private readonly HashSet<int> tmp_ids = new();
 
+        private Vector2 windowPos = new Vector2(-300f, 250f); //Roughly center of the screen
+
         public int SetFactories(StarData star, PlanetData planet)
         {
             state = 0;
@@ -76,18 +78,19 @@ namespace FactoryLocator
             state = networkId;
             RefreshBuilding(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIItemPickerExtension.Popup(windowPos, OnBuildingPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(2);
         }
 
         public void OnBuildingPickReturn(ItemProto itemProto)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
             RefreshBuilding(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
-            UIentryCount.OnClose();
         }
 
         public void PickVein(int mode)
@@ -95,18 +98,19 @@ namespace FactoryLocator
             state = mode;
             RefreshVein(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIItemPickerExtension.Popup(windowPos, OnVeinPickReturn, true, itemProto => filterIds.ContainsKey(itemProto.ID));
             UIRoot.instance.uiGame.itemPicker.OnTypeButtonClick(1);
         }
 
         public void OnVeinPickReturn(ItemProto itemProto)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
             RefreshVein(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
-            UIentryCount.OnClose();
         }
 
         public void PickAssembler(int mode)
@@ -114,17 +118,18 @@ namespace FactoryLocator
             state = mode;
             RefreshAssemblers(-1, state);
             UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
-            UIRecipePickerExtension.Popup(new Vector2(-300f, 250f), OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
+            UIRecipePickerExtension.Popup(windowPos, OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
         }
 
         public void OnAssemblerPickReturn(RecipeProto recipeProto)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.recipePicker.pickerTrans.anchoredPosition;
             if (recipeProto == null) // Return by ESC
                 return;
             int recipeId = recipeProto.ID;
             RefreshAssemblers(recipeId, state);
             WarningSystemPatch.AddWarningData(SignalId, SignalProtoSet.SignalId(ESignalType.Recipe, recipeId), planetIds, localPos);
-            UIentryCount.OnClose();
         }
 
         public void PickWarning(int _)
@@ -138,11 +143,12 @@ namespace FactoryLocator
 
         public void OnWarningPickReturn(int signalId)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.signalPicker.pickerTrans.anchoredPosition;
             if (signalId <= 0) // Return by ESC
                 return;
             RefreshSignal(signalId);
             WarningSystemPatch.AddWarningData(SignalId, signalId, planetIds, localPos, detailIds);
-            UIentryCount.OnClose();
         }
 
         public void PickStorage(int _)
@@ -150,17 +156,18 @@ namespace FactoryLocator
             state = 0;
             RefreshStorage(-1);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIItemPickerExtension.Popup(windowPos, OnStoragePickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStoragePickReturn(ItemProto itemProto)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
             RefreshStorage(itemId);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
-            UIentryCount.OnClose();
         }
 
         public void PickStation(int mode)
@@ -168,17 +175,18 @@ namespace FactoryLocator
             state = mode;
             RefreshStation(-1, state);
             UIentryCount.OnOpen(ESignalType.Item, filterIds);
-            UIItemPickerExtension.Popup(new Vector2(-300f, 250f), OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
+            UIItemPickerExtension.Popup(windowPos, OnStationPickReturn, itemProto => filterIds.ContainsKey(itemProto.ID));
         }
 
         public void OnStationPickReturn(ItemProto itemProto)
         {
+            UIentryCount.OnClose();
+            windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
             int itemId = itemProto.ID;
             RefreshStation(itemId, state);
             WarningSystemPatch.AddWarningData(SignalId, itemId, planetIds, localPos);
-            UIentryCount.OnClose();
         }
 
         // Internal functions
