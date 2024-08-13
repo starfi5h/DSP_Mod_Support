@@ -17,6 +17,10 @@ Right Click on the query warning will remove the group.
 ![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
 Mouse over name to show power status of all networks.  
   
+![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.jpg)  
+The item picker window is draggable. The dropdown can select the subcategory.  
+The icon show all available options, the yellow numbers indicate building or item count.  
+
 Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI design and Raptor for mod idea.  
 
 ## Installation
@@ -38,17 +42,19 @@ Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h
 ----
 
 ![互动窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/icon_c.jpg)  
-查找特定建筑物的位置，并用警报图标指示它们。
-
-![键位设置](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/keybind_c.jpg)  
-打开窗口的默认热键是Ctrl + F。可以在"游戏设置-键位-打开FactoryLocator窗口"更改。  
-在选择窗口中，将显示所有可能的搜索选项。黄色数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
+查找特定建筑物的位置，并用警报图标指示它们。  
+鼠标悬停星球名称可以显示所有电网的电力供应状态。  
 显示所有警报提示: 关闭时会隐藏所有警报。  
 自动清除搜寻结果: 关闭窗口时搜寻的信标将会保留, 直到按下清空按钮。  
 
+![键位设置](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/keybind_c.jpg)  
+打开窗口的默认热键是Ctrl + F。可以在"游戏设置-键位-打开FactoryLocator窗口"更改。  
 默认情况下，该模组将在本地星球上搜索建筑物。  
 在星图视图中，如果选中的星球上有工厂，该模组将更改搜索星球。选择恒星时，它将搜索星系中的所有星球。  
-鼠标悬停星球可以显示所有电网的电力供应状态。  
+
+![选择窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory_c.jpg)  
+在选择窗口中，将显示所有可能的搜索选项。黄色数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
+选择窗口可以拖曳移动，下拉列表可以选择子类别。  
 
 左键单击警报详细信息图标可以显示警报位置。单击其他区域以关闭它。  
 右键单击搜索信标可以移除该群组。  

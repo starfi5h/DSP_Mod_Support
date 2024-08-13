@@ -1,3 +1,7 @@
+### v1.3.0 (DSP 0.10.30.22292)
+\- Add subcategory dropdown.  
+\- Make picker window draggable.  
+
 ### v1.2.3 (DSP 0.10.29.21950)  
 \- Add Nebula 0.9.1 compat.  
 
