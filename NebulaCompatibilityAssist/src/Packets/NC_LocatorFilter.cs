@@ -9,14 +9,16 @@ namespace NebulaCompatibilityAssist.Packets
     {
         public int AstroId { get; set; }
         public int QueryType { get; set; }
+        public int Mode { get; set; }
         public int[] Ids { get; set; }
         public int[] Counts { get; set; }
 
         public NC_LocatorFilter() { }
-        public NC_LocatorFilter(int astroId, int queryType, Dictionary<int, int> filter)
+        public NC_LocatorFilter(int astroId, int queryType, int mode, Dictionary<int, int> filter)
         {
             AstroId = astroId;
             QueryType = queryType;
+            Mode = mode;
             if (filter != null)
             {
                 Ids = new int[filter.Count];

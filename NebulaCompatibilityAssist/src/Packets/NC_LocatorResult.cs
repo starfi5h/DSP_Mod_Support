@@ -12,16 +12,18 @@ namespace NebulaCompatibilityAssist.Packets
     {
         public int AstroId { get; set; }
         public int QueryType { get; set; }
+        public int Mode { get; set; }
         public int ProtoId { get; set; }
         public int[] PlanetIds { get; set; }
         public Float3[] LocalPos { get; set; }
         public int[] DetailIds { get; set; }
 
         public NC_LocatorResult() { }
-        public NC_LocatorResult(int astroId, int queryType, int protoId)
+        public NC_LocatorResult(int astroId, int queryType, int mode, int protoId)
         {
             AstroId = astroId;
             QueryType = queryType;
+            Mode = mode;
             ProtoId = protoId;
             PlanetIds = Array.Empty<int>();
             LocalPos = Array.Empty<Float3>();

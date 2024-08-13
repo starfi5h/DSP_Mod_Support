@@ -7,7 +7,6 @@ using NebulaAPI.DataStructures;
 using NebulaAPI.Networking;
 using NebulaCompatibilityAssist.Packets;
 using System;
-using UnityEngine;
 
 namespace NebulaCompatibilityAssist.Patches
 {
@@ -15,7 +14,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "FactoryLocator";
         public const string GUID = "starfi5h.plugin.FactoryLocator";
-        public const string VERSION = "1.2.2";
+        public const string VERSION = "1.3.0";
         public static bool Enable { get; private set; }
 
         public static void Init(Harmony harmony)
@@ -90,6 +89,7 @@ namespace NebulaCompatibilityAssist.Patches
                     int newAstroId = mainWindow.veiwPlanet?.id ?? mainWindow.veiwStar?.id * 100 ?? 0;
                     if (mainWindow.veiwPlanet != null && FactoryLocator.Plugin.mainLogic.factories.Count == 0)
                     {
+                        // Request for remote planet that is not loaded in client
                         NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_PlanetInfoRequest(newAstroId));
                         if (newAstroId != astroId)
                             mainWindow.nameText.text = "Loading...";
@@ -130,25 +130,77 @@ namespace NebulaCompatibilityAssist.Patches
             [HarmonyPrefix, HarmonyPatch(typeof(UILocatorWindow), nameof(UILocatorWindow.OnQueryClick))]
             public static bool OnQueryClick(UILocatorWindow __instance, int queryType)
             {
+                bool isClient = NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient;
+                if (!isClient || (FactoryLocator.Plugin.mainLogic.factories.Count > 0 && __instance.veiwStar == null)) return true;
+
                 if (__instance.autoclear_enable)
                     WarningSystemPatch.ClearAll();
 
+                UILocatorWindow.networkIds = null; // Don't show power network list for remote planets in client
+                __instance.SetSubcategory(queryType);
+                NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, queryType, UILocatorWindow.comboBox.itemIndex, null));
+                return false;
+            }
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UILocatorWindow), nameof(UILocatorWindow.OnComboBoxIndexChange))]
+            public static bool OnComboBoxIndexChange()
+            {
                 bool isClient = NebulaModAPI.IsMultiplayerActive && NebulaModAPI.MultiplayerSession.LocalPlayer.IsClient;
-                if (!isClient || (FactoryLocator.Plugin.mainLogic.factories.Count > 0 && __instance.veiwStar == null))
+                if (!isClient || (FactoryLocator.Plugin.mainLogic.factories.Count > 0 && FactoryLocator.Plugin.mainWindow.veiwStar == null)) return true;
+
+                bool isPickingItem = UIRoot.instance.uiGame.itemPicker.active;
+                bool isPickingRecipe = UIRoot.instance.uiGame.recipePicker.active;
+                switch (UILocatorWindow.queryingType)
                 {
-                    switch (queryType)
-                    {
-                        case 0: FactoryLocator.Plugin.mainLogic.PickBuilding(0); break;
-                        case 1: FactoryLocator.Plugin.mainLogic.PickVein(0); break;
-                        case 2: FactoryLocator.Plugin.mainLogic.PickAssembler(0); break;
-                        case 3: FactoryLocator.Plugin.mainLogic.PickWarning(0); break;
-                        case 4: FactoryLocator.Plugin.mainLogic.PickStorage(0); break;
-                        case 5: FactoryLocator.Plugin.mainLogic.PickStation(0); break;
-                    }
-                }
-                else
-                {
-                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, queryType, null));
+                    case 0: // PickBuilding
+                        UILocatorWindow.buildingIndex = UILocatorWindow.comboBox.itemIndex;
+                        if (isPickingItem)
+                        {
+                            FactoryLocator.Plugin.mainLogic.OnBuildingPickReturn(null);
+                            UIItemPicker.Close();
+                            NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, UILocatorWindow.queryingType, UILocatorWindow.comboBox.itemIndex, null));
+                        }
+                        break;
+
+                    case 1: // PickVein
+                        UILocatorWindow.veinIndex = UILocatorWindow.comboBox.itemIndex;
+                        if (isPickingItem)
+                        {
+                            FactoryLocator.Plugin.mainLogic.OnVeinPickReturn(null);
+                            UIItemPicker.Close();
+                            NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, UILocatorWindow.queryingType, UILocatorWindow.comboBox.itemIndex, null));
+                        }
+                        break;
+
+                    case 2: // PickAssembler
+                        UILocatorWindow.assemblerIndex = UILocatorWindow.comboBox.itemIndex;
+                        if (isPickingRecipe)
+                        {
+                            FactoryLocator.Plugin.mainLogic.OnAssemblerPickReturn(null);
+                            UIRecipePicker.Close();
+                            NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, UILocatorWindow.queryingType, UILocatorWindow.comboBox.itemIndex, null));
+                        }
+                        break;
+
+                    case 4: // PickStorage
+                        UILocatorWindow.storageIndex = UILocatorWindow.comboBox.itemIndex;
+                        if (isPickingItem)
+                        {
+                            FactoryLocator.Plugin.mainLogic.OnStoragePickReturn(null);
+                            UIItemPicker.Close();
+                            NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, UILocatorWindow.queryingType, UILocatorWindow.comboBox.itemIndex, null));
+                        }
+                        break;
+
+                    case 5: // PickStation
+                        UILocatorWindow.stationIndex = UILocatorWindow.comboBox.itemIndex;
+                        if (isPickingItem)
+                        {
+                            FactoryLocator.Plugin.mainLogic.OnStationPickReturn(null);
+                            UIItemPicker.Close();
+                            NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorFilter(astroId, UILocatorWindow.queryingType, UILocatorWindow.comboBox.itemIndex, null));
+                        }
+                        break;
                 }
                 return false;
             }
@@ -166,14 +218,14 @@ namespace NebulaCompatibilityAssist.Patches
                 logic.SetFactories(star, planet);
                 switch (packet.QueryType)
                 {
-                    case 0: logic.RefreshBuilding(-1); break;
-                    case 1: logic.RefreshVein(-1); break;
-                    case 2: logic.RefreshAssemblers(-1); break;
+                    case 0: logic.RefreshBuilding(-1, packet.Mode); break;
+                    case 1: logic.RefreshVein(-1, packet.Mode); break;
+                    case 2: logic.RefreshAssemblers(-1, packet.Mode); break;
                     case 3: logic.RefreshSignal(-1); break;
-                    case 4: logic.RefreshStorage(-1); break;
-                    case 5: logic.RefreshStation(-1); break;
+                    case 4: if (packet.Mode == 0) logic.RefreshStorage(-1); else logic.RefreshDispenser(-1, packet.Mode); break;
+                    case 5: logic.RefreshStation(-1, packet.Mode); break;
                 }
-                conn.SendPacket(new NC_LocatorFilter(packet.AstroId, packet.QueryType, logic.filterIds));
+                conn.SendPacket(new NC_LocatorFilter(packet.AstroId, packet.QueryType, packet.Mode, logic.filterIds));
             }
 
             public static void ShowPickerWindow(NC_LocatorFilter packet)
@@ -186,6 +238,7 @@ namespace NebulaCompatibilityAssist.Patches
                 filterIds.Clear();
                 for (int i = 0; i < packet.Ids.Length; i++)
                     filterIds[packet.Ids[i]] = packet.Counts[i];
+                var windowPos = FactoryLocator.Plugin.mainLogic.windowPos;
 
                 switch (packet.QueryType)
                 {
@@ -195,11 +248,11 @@ namespace NebulaCompatibilityAssist.Patches
                     
                     case 0:
                         UIentryCount.OnOpen(ESignalType.Item, filterIds);
-                        UIItemPickerExtension.Popup(new Vector2(-300f, 250f), 
+                        UIItemPickerExtension.Popup(windowPos, 
                             (itemProto) => {
                                 if (itemProto != null)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, itemProto.ID));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, itemProto.ID));
                                     detailId = itemProto.ID;
                                 }
                                 UIentryCount.OnClose();
@@ -210,11 +263,11 @@ namespace NebulaCompatibilityAssist.Patches
                     
                     case 1:
                         UIentryCount.OnOpen(ESignalType.Item, filterIds);
-                        UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
+                        UIItemPickerExtension.Popup(windowPos,
                             (itemProto) => {
                                 if (itemProto != null)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, itemProto.ID));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, itemProto.ID));
                                     detailId = itemProto.ID;
                                 }
                                 UIentryCount.OnClose();
@@ -225,11 +278,11 @@ namespace NebulaCompatibilityAssist.Patches
                     
                     case 2:
                         UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
-                        UIRecipePickerExtension.Popup(new Vector2(-300f, 250f),
+                        UIRecipePickerExtension.Popup(windowPos,
                             (recipeProto) => {
                                 if (recipeProto != null)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, recipeProto.ID));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, recipeProto.ID));
                                     detailId = SignalProtoSet.SignalId(ESignalType.Recipe, recipeProto.ID);
                                 }
                                 UIentryCount.OnClose();
@@ -239,11 +292,11 @@ namespace NebulaCompatibilityAssist.Patches
                     
                     case 3:
                         UIentryCount.OnOpen(ESignalType.Signal, filterIds);
-                        UISignalPickerExtension.Popup(new Vector2(-300f, 250f),
+                        UISignalPickerExtension.Popup(windowPos,
                             (signalId) => {
                                 if (signalId > 0)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, signalId));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, signalId));
                                     detailId = signalId;
                                 }
                                 UIentryCount.OnClose();
@@ -254,11 +307,11 @@ namespace NebulaCompatibilityAssist.Patches
 
                     case 4:
                         UIentryCount.OnOpen(ESignalType.Item, filterIds);
-                        UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
+                        UIItemPickerExtension.Popup(windowPos,
                             (itemProto) => {
                                 if (itemProto != null)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, itemProto.ID));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, itemProto.ID));
                                     detailId = itemProto.ID;
                                 }
                                 UIentryCount.OnClose();
@@ -268,11 +321,11 @@ namespace NebulaCompatibilityAssist.Patches
 
                     case 5:
                         UIentryCount.OnOpen(ESignalType.Item, filterIds);
-                        UIItemPickerExtension.Popup(new Vector2(-300f, 250f),
+                        UIItemPickerExtension.Popup(windowPos,
                             (itemProto) => {
                                 if (itemProto != null)
                                 {
-                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, itemProto.ID));
+                                    NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_LocatorResult(astroId, packet.QueryType, packet.Mode, itemProto.ID));
                                     detailId = itemProto.ID;
                                 }
                                 UIentryCount.OnClose();
@@ -295,12 +348,12 @@ namespace NebulaCompatibilityAssist.Patches
                 logic.SetFactories(star, planet);
                 switch (packet.QueryType)
                 {
-                    case 0: logic.RefreshBuilding(packet.ProtoId); break;
-                    case 1: logic.RefreshVein(packet.ProtoId); break;
-                    case 2: logic.RefreshAssemblers(packet.ProtoId); break;
+                    case 0: logic.RefreshBuilding(packet.ProtoId, packet.Mode); break;
+                    case 1: logic.RefreshVein(packet.ProtoId, packet.Mode); break;
+                    case 2: logic.RefreshAssemblers(packet.ProtoId, packet.Mode); break;
                     case 3: logic.RefreshSignal(packet.ProtoId); break;
-                    case 4: logic.RefreshStorage(packet.ProtoId); break;
-                    case 5: logic.RefreshStation(packet.ProtoId); break;
+                    case 4: if (packet.Mode == 0) logic.RefreshStorage(packet.ProtoId); else logic.RefreshDispenser(packet.ProtoId, packet.Mode); break;
+                    case 5: logic.RefreshStation(packet.ProtoId, packet.Mode); break;
                 }
                 conn.SendPacket(new NC_LocatorResult(packet.QueryType, logic.planetIds, logic.localPos, logic.detailIds));
             }
