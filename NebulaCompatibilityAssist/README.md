@@ -1,10 +1,9 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.6 hotfix:  
-- Fix error when client load planet.  
-IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
-- Fix Fix error when bomb from other player from accessing the null planetfactory.  
-NRE in Bomb_Explosive.TickSkillLogic(IL_03BE)  
+Nebula 0.9.7 hotfix:  
+\- Fix multiplayer chat settings - `show battle message` doesn't work  
+\- Fix NRE in NebulaPatcher.Patches.Transpilers.UIStatisticsWindow_Transpiler+<>c.<ComputePowerTab_Transpiler>b__2_9 (System.Int64 factoryIndex) [0x00025]  
+\- Suppress IndexOutOfRangeException in EnemyDFGroundSystem.CalcFormsSupply  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -59,7 +58,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - Client can now see vein amount and power status on planets not loaded yet. 
 - The data is updated everytime client open the window.  
 
-### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/)
+### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/) (WIP)
 - Fix `SphereOpt.InstDysonShellRenderer.RenderShells` NRE in client when they join game.  
 
 ### [SplitterOverBelt](https://thunderstore.io/c/dyson-sphere-program/p/hetima/SplitterOverBelt/)
@@ -94,7 +93,7 @@ When disable, the syncing patch will no longer functional. The host's mod data w
 <details>
 <summary>MOD列表 (点击展开)</summary>
 
-### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/)
+### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/) (WIP)
 - 同步保存的设置和配方更改(测试中, 可能会出现错误)  
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
@@ -138,8 +137,8 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 - 修正在联机大厅(选择星球介面)时的UI错误  
 - 让客机能显示远端星球的资源储量和电力状态  
 
-### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/)
-- 修复客机加入游戏后的NRE错误(`SphereOpt.InstDysonShellRenderer.RenderShells`)  
+### [SphereOpt](https://thunderstore.io/c/dyson-sphere-program/p/Andy/SphereOpt/) (WIP)
+- 修复客机加入游戏后的NRE错误(`SphereOpt.InstDysonShellRenderer.RenderShells`) (测试中, 可能会出现错误)  
 
 ### [SplitterOverBelt](https://thunderstore.io/c/dyson-sphere-program/p/hetima/SplitterOverBelt/)
 - 让客机在传送带上放置分流器/集装机时,可以正确地重新连接传送带  

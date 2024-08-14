@@ -153,7 +153,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChatUtils), nameof(ChatUtils.IsCommandMessage))]
+        [HarmonyPatch(typeof(ChatUtils), "IsCommandMessage")]
         public static bool IsCommandMessage(this ChatMessageType type, ref bool __result)
         {
             __result = !(type is ChatMessageType.PlayerMessage or ChatMessageType.PlayerMessagePrivate);

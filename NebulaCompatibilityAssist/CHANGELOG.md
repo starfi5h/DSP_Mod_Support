@@ -1,5 +1,11 @@
 # Changelog
 
+#### v0.4.14 (Nebula 0.9.7)
+\- Update FactoryLocator support version to 1.3.0.  
+\- Fix multiplayer chat settings - `show battle message` doesn't work  
+\- Fix NRE in NebulaPatcher.Patches.Transpilers.UIStatisticsWindow_Transpiler+<>c.<ComputePowerTab_Transpiler>b__2_9 (System.Int64 factoryIndex) [0x00025]  
+\- Suppress IndexOutOfRangeException in EnemyDFGroundSystem.CalcFormsSupply  
+
 #### v0.4.13 (Nebula 0.9.6)
 \- Fix IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
 \- Fix NRE in Bomb_Explosive.TickSkillLogic(IL_03BE)  
