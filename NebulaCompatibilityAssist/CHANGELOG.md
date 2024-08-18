@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.4.15 (Nebula 0.9.8)
+\- Suppress IndexOutOfRangeException in BuildTool_Path.DeterminePreviews  
+\- Suppress IndexOutOfRangeException in CargoTraffic.SetBeltState  
+\- Suppress NREin BGMController.UpdateLogic  
+
 #### v0.4.14 (Nebula 0.9.7)
 \- Update FactoryLocator support version to 1.3.0.  
 \- Fix multiplayer chat settings - `show battle message` doesn't work  

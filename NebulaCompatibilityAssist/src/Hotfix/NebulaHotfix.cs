@@ -35,10 +35,10 @@ namespace NebulaCompatibilityAssist.Hotfix
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 
-                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 7)
+                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 8)
                 {
-                    harmony.PatchAll(typeof(Warper097));
-                    Log.Info("Nebula hotfix 0.9.7 - OK");
+                    harmony.PatchAll(typeof(Warper098));
+                    Log.Info("Nebula hotfix 0.9.8 - OK");
                 }
 
                 ChatManager.Init(harmony);
@@ -80,6 +80,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.KeyTickLogic))]
         [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.GameTick))]
         [HarmonyPatch(typeof(DefenseSystem), nameof(DefenseSystem.GameTick))]
+        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
@@ -93,126 +94,52 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper097
+    public static class Warper098
     {
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // at BuildTool.GetPrefabDesc (System.Int32 objId)[0x0000e] ; IL_000E
+        // at BuildTool_Path.DeterminePreviews()[0x0008f] ;IL_008F
+        // This means BuildTool_Path.startObjectId has a positive id that is exceed entity pool
+        // May due to local buildTool affect by other player's build request
         [HarmonyFinalizer]
-        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
-        public static Exception CalcFormsSupply_Finalizer(Exception __exception)
-        {
+        [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.DeterminePreviews))]
+        public static Exception DeterminePreviews(Exception __exception, BuildTool_Path __instance)
+        {            
             if (__exception != null)
             {
-                var msg = "Exception during loading: \n" + __exception.ToString();
-                ChatManager.ShowWarningInChat(msg);
-                Log.Error(msg);
+                // Reset state
+                __instance.startObjectId = 0;
+                __instance.startNearestAddonAreaIdx = 0;
+                __instance.startTarget = Vector3.zero;
+                __instance.pathPointCount = 0;
             }
             return null;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputePowerTab))]
-        public static bool ComputePowerTab_Prefix(UIStatisticsWindow __instance, PowerStat[] powerPool, long energyConsumption, long factoryIndex)
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // at CargoTraffic.SetBeltState(System.Int32 beltId, System.Int32 state); (IL_002D)
+        // at CargoTraffic.SetBeltSelected(System.Int32 beltId); (IL_0000)
+        // at PlayerAction_Inspect.GameTick(System.Int64 timei); (IL_053E)
+        // 
+        // Worst outcome when suppressed: Belt highlight is incorrect
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.SetBeltState))]
+        public static Exception SetBeltState()
         {
-            if (!Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost) return true;
-
-            /* This is fix for the power statistics.
-               Originally, this function is iterating through all factories and manually summing up "energyStored" values from their PowerSystems.
-               Since client does not have all factories loaded it would cause exceptions.
-             * This fix is basically replacing this:
-
-                PowerSystem powerSystem = this.gameData.factories[i].powerSystem;
-                int netCursor = powerSystem.netCursor;
-                PowerNetwork[] netPool = powerSystem.netPool;
-                for (int j = 1; j < netCursor; j++)
-                {
-                    num2 += netPool[j].energyStored;
-                }
-
-                With: Multiplayer.Session.Statistics.UpdateTotalChargedEnergy(factoryIndex);
-
-             * In the UpdateTotalChargedEnergy(), the total energyStored value is being calculated no clients based on the data received from the server. */
-
-            long num = __instance.ComputePower(powerPool[0]);
-            __instance.productEntryList.Add(1, num, 0L, energyConsumption);
-            num = __instance.ComputePower(powerPool[1]);
-            __instance.productEntryList.Add(1, 0L, num);
-            num = __instance.ComputePower(powerPool[3]);
-
-            long num2 = UpdateTotalChargedEnergy((int)factoryIndex);
-
-            __instance.productEntryList.Add(2, num, 0L, num2);
-            num = __instance.ComputePower(powerPool[2]);
-            __instance.productEntryList.Add(2, 0L, num);
-            return false;
+            return null;
         }
 
-        public static long UpdateTotalChargedEnergy(int factoryIndex)
+        // NullReferenceException: Object reference not set to an instance of an object
+        // at BGMController.UpdateLogic();(IL_03BC)
+        // at BGMController.LateUpdate(); (IL_0000)
+        //
+        // This means if (DSPGame.Game.running) is null
+        // Worst outcome when suppressed: BGM stops
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(BGMController), nameof(BGMController.UpdateLogic))]
+        public static Exception UpdateLogic()
         {
-            var powerEnergyStoredData = Multiplayer.Session.Statistics.PowerEnergyStoredData;
-            if (powerEnergyStoredData == null || factoryIndex >= powerEnergyStoredData.Length) return 0;
-            return powerEnergyStoredData[factoryIndex];
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChatUtils), "IsCommandMessage")]
-        public static bool IsCommandMessage(this ChatMessageType type, ref bool __result)
-        {
-            __result = !(type is ChatMessageType.PlayerMessage or ChatMessageType.PlayerMessagePrivate);
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChatWindow), nameof(ChatWindow.SendLocalChatMessage))]
-        public static bool SendLocalChatMessage_Prefix(ChatWindow __instance, string text, ChatMessageType messageType, ref ChatMessage __result)
-        {
-            __result = SendLocalChatMessage(__instance, text, messageType);
-            return false;
-        }
-
-        public static ChatMessage SendLocalChatMessage(ChatWindow @this, string text, ChatMessageType messageType)
-        {
-            if (!messageType.IsCommandMessage())
-            {
-                text = ChatUtils.SanitizeText(text);
-            }
-            else
-            {
-                switch (messageType)
-                {
-                    case ChatMessageType.SystemInfoMessage when !Config.Options.EnableInfoMessage:
-                    case ChatMessageType.SystemWarnMessage when !Config.Options.EnableWarnMessage:
-                    case ChatMessageType.BattleMessage when !Config.Options.EnableBattleMessage:
-                        return null;
-                }
-            }
-
-            text = RichChatLinkRegistry.ExpandRichTextTags(text);
-
-            if (@this.messages.Count > ChatWindow.MAX_MESSAGES)
-            {
-                @this.messages[0].DestroyMessage();
-                @this.messages.Remove(@this.messages[0]);
-            }
-
-            var textObj = UnityEngine.Object.Instantiate(@this.textObject, @this.chatPanel);
-            var newMsg = new ChatMessage(textObj, text, messageType);
-
-            var notificationMsg = UnityEngine.Object.Instantiate(textObj, @this.notifier);
-            newMsg.notificationText = notificationMsg.GetComponent<TMP_Text>();
-            var message = notificationMsg.AddComponent<NotificationMessage>();
-            message.Init(Config.Options.NotificationDuration);
-
-            @this.messages.Add(newMsg);
-
-            if (@this.chatWindow.activeSelf)
-            {
-                return newMsg;
-            }
-            if (Config.Options.AutoOpenChat && !messageType.IsCommandMessage())
-            {
-                @this.Toggle(false, false);
-            }
-
-            return newMsg;
+            return null;
         }
     }
 }
