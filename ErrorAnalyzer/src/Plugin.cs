@@ -16,7 +16,7 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.2.0";
 
         public static ManualLogSource Log;
         public static bool isRegisitered;
@@ -56,11 +56,15 @@ namespace ErrorAnalyzer
             }
         }
 
+#if DEBUG
         public void OnDestroy()
         {
+            UIFatalErrorTip_Patch.OnCloseClick(0);
+            TrackEntity_Patch.Enable(false);
             harmony.UnpatchSelf();
             harmony = null;
         }
+#endif
 
         public static void HandleLog(string logString, string stackTrace, LogType type)
         {

@@ -111,7 +111,7 @@ namespace ErrorAnalyzer
 
             if (sb.Length > 0)
             {
-                sb.Insert(0, "\n== Mod patches on the stack ==\n");
+                sb.Insert(0, "\n[== Mod patches on the stack ==]\n");
             }
 
             return sb.ToString();
@@ -124,18 +124,21 @@ namespace ErrorAnalyzer
                 if (IsWhitelist(name, patch))
                     continue;
 
-                sb.Append(name)
-                  .Append("(")
-                  .Append(prefix)
-                  .Append("): ");
                 if (prefix != "Transpiler")
-                    sb.AppendLine(patch.PatchMethod.FullDescription());
+                    sb.Append(patch.PatchMethod.FullDescription());
                 else
                 {
-                    sb.AppendLine(patch.PatchMethod.FullDescription()
+                    sb.Append(patch.PatchMethod.FullDescription()
                         .Replace("System.Collections.Generic.IEnumerable<HarmonyLib.CodeInstruction>", "var")
                         .Replace("System.Reflection.Emit.ILGenerator", "var"));
                 }
+                sb.Replace("static ", ""); // the PatchMethod is always static function
+
+                sb.Append("; ")
+                  .Append(name)
+                  .Append("(")
+                  .Append(prefix)
+                  .AppendLine(")");
             }
         }
 
@@ -154,11 +157,12 @@ namespace ErrorAnalyzer
             return false;
         }
 
-        /*
+#if DEBUG
+
         static bool flag;
-        [HarmonyPostfix]
+        //[HarmonyPostfix]
         //[HarmonyPatch(typeof(UIEscMenu), "OnButton1Click")]
-        [HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
+        //[HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
         public static void TestError()
         {
             if (flag)
@@ -167,7 +171,7 @@ namespace ErrorAnalyzer
             int a = 0;
             int b = 1 / a;
         }
-        */
-        
+#endif
+
     }
 }
