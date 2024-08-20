@@ -25,7 +25,7 @@ namespace FactoryLocator
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.3.0";
+        public const string VERSION = "1.3.1";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
@@ -103,6 +103,7 @@ namespace FactoryLocator
             var uiWindowDrag = gameObject.AddComponent<UIWindowDrag>();
             uiWindowDrag.dragTrigger = dragTriggerGo.GetComponent<UnityEngine.EventSystems.EventTrigger>();
             uiWindowDrag.screenRect = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows").GetComponent<RectTransform>();
+            Destroy(dragTriggerGo.GetComponent<UIBlockZone>()); // disable to make UIBlockZone.anyBlockZoneWindowActive normal
         }
 
         static void RegisterTranslation(string key, string enTrans, string cnTrans)

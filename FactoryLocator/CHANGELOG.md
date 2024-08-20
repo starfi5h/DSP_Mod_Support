@@ -1,3 +1,7 @@
+### v1.3.1 (DSP 0.10.30.23350)
+\- Fix a bug that make Interstellar Routes button not work.  
+\- (Nebula client) Fix top warning doesn't refresh when the mod window closes.  
+
 ### v1.3.0 (DSP 0.10.30.22292)
 \- Add subcategory dropdown.  
 \- Make picker window draggable.  

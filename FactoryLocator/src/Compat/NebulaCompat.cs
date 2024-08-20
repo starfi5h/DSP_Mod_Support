@@ -1,7 +1,9 @@
 ﻿using HarmonyLib;
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Warning;
 
@@ -54,7 +56,15 @@ namespace FactoryLocator.Compat
             if (IsClient)
             {
                 SyncWarning = true;
+                SendUpdateRequest();
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void SendUpdateRequest()
+        {
+            // Request latest warning signal
+            NebulaModAPI.MultiplayerSession.Network.SendPacket(new WarningDataRequest(WarningRequestEvent.Signal));
         }
 
         public static void OnUpdate()
