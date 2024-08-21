@@ -117,5 +117,25 @@ namespace ErrorAnalyzer
             }
             return __exception;
         }
+
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // at CargoTraffic.SetBeltState(System.Int32 beltId, System.Int32 state); (IL_002D)
+        // Worst outcome when suppressed: Belt highlight is incorrect
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(CargoTraffic), "SetBeltState")]
+        static Exception SetBeltState()
+        {
+            return null;
+        }
+
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // CargoContainer.RemoveCargo (System.Int32 index) [0x0001e] ;IL_001E => (cargoPool[index])
+        // Worst outcome when suppressed: may hide the cargoPool memory leak issue
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(CargoContainer), "RemoveCargo")]
+        static Exception RemoveCargo()
+        {
+            return null;
+        }
     }
 }

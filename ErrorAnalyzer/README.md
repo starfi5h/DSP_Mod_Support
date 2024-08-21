@@ -29,9 +29,10 @@ Explanation:
 Notes:
 - The namespace of the function typically corresponds to the mod name, making it easier to identify which mod caused the error.
 - The functions listed in the patch section may not directly relate to the error’s root cause. Generally, functions higher in the stack are more likely to be the cause, but other patches not listed in the stack trace may also be involved.
-- Removing the erroring machine may or may not solve the issues. Sometimes you'll need more powerful purge tools e.g. `Re-intialize planet` in [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/) or dev commands in [DSPOptimizations](https://thunderstore.io/c/dyson-sphere-program/p/Selsion/DSPOptimizations/). If they still not work then you'll have to roll back to the previous normal save.  
+- Removing the erroring machine may or may not solve the issues, so backup the save before dismantling. Sometimes you'll need more powerful purge tools e.g. `Re-intialize planet` in [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/). If they still not work then you'll have to roll back to the previous normal save.  
 
 ## ChangeLogs
+- v1.2.1: Suppress `CargoTraffic.SetBeltState` and `CargoContainer.RemoveCargo` error in tracking mode to dismantle the belts.  
 - v1.2.0: Add close button and navi button. (DSP 0.10.30.23350)  
 - v1.1.0: Display the first exception that trigger during mods loading. (DSP 0.10.29.21904)  
 - v1.0.0: Initial released. (DSP 0.10.28.20779)  
@@ -71,4 +72,4 @@ void DemoPlugin.Plugin::InternalTickRemote_Postfix(); InternalTickRemote(Postfix
 **注意**
 - 通常，函数的命名空间通常对应模组名称，因此可以根据函数名称来判断哪个模组可能引发了错误。
 - 补丁部分列出的函数可能与错误的根本原因无关。一般来说，堆栈中更高的函数更有可能是原因，但堆栈跟踪中未列出的其他补丁也可能涉及。
-- 删除出错的机器可能无法解决问题。有时需要更强大的清理工具，例如[UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)中的“重新初始化星球”功能或[DSPOptimizations](https://thunderstore.io/c/dyson-sphere-program/p/Selsion/DSPOptimizations/)中的开发者命令。如果这些方法仍然无效，就只能回滚之前正常的存档。
+- 删除出错的机器可能无法解决问题，建议在尝试拆除前先手动备份存档。有时需要更强大的清理工具，例如[UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)中的“重新初始化星球”功能。如果这些方法仍然无效，就只能回滚之前正常的存档。
