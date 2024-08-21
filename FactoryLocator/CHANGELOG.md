@@ -1,3 +1,6 @@
+### v1.3.2 (DSP 0.10.30.23350)
+\- Fix a bug that subtype comboBox doesn't initialize.  
+
 ### v1.3.1 (DSP 0.10.30.23350)
 \- Fix a bug that make Interstellar Routes button not work.  
 \- (Nebula client) Fix top warning doesn't refresh when the mod window closes.  

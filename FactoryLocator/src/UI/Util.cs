@@ -103,7 +103,7 @@ namespace FactoryLocator.UI
         public static UIComboBox CreateComboBox(UnityAction OnComboBoxIndexChange, float width, float height = 30f)
         {
             // 創建一個下拉表單
-            var comboBoxTemple = UIRoot.instance.uiGame.statWindow.timeBox;
+            var comboBoxTemple = UIRoot.instance.uiGame.statWindow.productSortBox; //常駐選項
             var go = GameObject.Instantiate(comboBoxTemple);
             go.name = "FactoryLocator comboBox";
             var transform = go.transform.Find("Dropdown List ScrollBox/Mask/Content Panel/");
