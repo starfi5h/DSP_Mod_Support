@@ -16,41 +16,40 @@ namespace StatsUITweaks
         [HarmonyPostfix, HarmonyPatch(typeof(UIPerformancePanel), nameof(UIPerformancePanel._OnOpen))]
         public static void Init(UIPerformancePanel __instance)
         {
-            if (!initialized)
+            if (initialized) return;
+
+            try
             {
-                try
+                UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
+
+                var go = GameObject.Instantiate(uIButton0.gameObject, __instance.transform);
+                go.name = "CustomStats_Fold";
+                go.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                go.transform.localPosition = new Vector3(-550f, 390f, 0f);
+                Image img = go.transform.Find("icon")?.GetComponent<Image>();
+                if (img != null)
                 {
-                    UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
-
-                    var go = GameObject.Instantiate(uIButton0.gameObject, __instance.transform);
-                    go.name = "CustomStats_Fold";
-                    go.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-                    go.transform.localPosition = new Vector3(-550f, 390f, 0f);
-                    Image img = go.transform.Find("icon")?.GetComponent<Image>();
-                    if (img != null)
-                    {
-                        UIStarmap starmap = UIRoot.instance.uiGame.starmap;
-                        img.sprite = starmap.cursorFunctionButton2.transform.Find("icon")?.GetComponent<Image>()?.sprite;
-                    }
-                    foldBtn = go.GetComponent<UIButton>();
-                    foldBtn.tips.tipTitle = "Fold 折叠饼图";
-                    foldBtn.tips.tipText = "Click to fold/unfold pie chart";
-                    foldBtn.onClick += OnFoldButtonClick;
-                    if (foldBtn.transitions != null)
-                        foldBtn.transitions[0].highlightColorOverride = new Color(0.5f, 0.6f, 0.7f, 0.1f); //用於highlighted
-                    go.SetActive(true);
-
-                    // Record original values
-                    scrollHeight = __instance.cpuScrollRect.rectTransform.sizeDelta.y;
-                    scrollY = __instance.cpuScrollRect.transform.localPosition.y;
-
-                    initialized = true;
+                    UIStarmap starmap = UIRoot.instance.uiGame.starmap;
+                    img.sprite = starmap.cursorFunctionButton2.transform.Find("icon")?.GetComponent<Image>()?.sprite;
                 }
-                catch (Exception e)
-                {
-                    Plugin.Log.LogError("PerformancePanelPatch initial fail!");
-                    Plugin.Log.LogError(e);
-                }
+                foldBtn = go.GetComponent<UIButton>();
+                foldBtn.tips.tipTitle = "Fold 折叠饼图";
+                foldBtn.tips.tipText = "Click to fold/unfold pie chart";
+                foldBtn.onClick += OnFoldButtonClick;
+                if (foldBtn.transitions != null)
+                    foldBtn.transitions[0].highlightColorOverride = new Color(0.5f, 0.6f, 0.7f, 0.1f); //用於highlighted
+                go.SetActive(true);
+
+                // Record original values
+                scrollHeight = __instance.cpuScrollRect.rectTransform.sizeDelta.y;
+                scrollY = __instance.cpuScrollRect.transform.localPosition.y;
+
+                initialized = true;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError("PerformancePanelPatch initial fail!");
+                Plugin.Log.LogError(e);
             }
             Toggle(folded);
         }

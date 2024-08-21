@@ -11,125 +11,104 @@ namespace StatsUITweaks
     {
         public static int SignificantDigits = 0;
         public static int TimeSliderSlice = 20;
-        public static int ListWidthOffeset = 80;
-        public static bool OrderByName = true;
-        public static int DropDownCount = 15;
-        public static KeyCode HotkeyListUp = KeyCode.PageUp;
-        public static KeyCode HotkeyListDown = KeyCode.PageDown;
-
-        public static string PlanetPrefix  = "ㅤ";
-        public static string PlanetPostfix = "";
-        public static string SystemPrefix  = "<color=yellow>";
-        public static string SystemPostfix = "</color>";
+        public static int ListWidthOffeset = 70;
 
         static bool initialized;
+        static bool enable;
         static Slider timerSlider;
         static InputField filterInput;
         static UIButton locateBtn;
+        static GameObject filterGo;
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnOpen))]
         public static void Init(UIStatisticsWindow __instance)
         {
-            if (!initialized)
+            if (initialized) return;
+            initialized = true;
+
+            try
             {
-                try
+                static void Reposition(Transform astroBoxtTansform, Transform timeBoxTransform)
                 {
-                    static void Reposition(Transform astroBoxtTansform, Transform timeBoxTransform)
-                    {
-                        ((RectTransform)astroBoxtTansform).sizeDelta = new Vector2(200f + ListWidthOffeset, 30f);
-                        timeBoxTransform.localPosition = new Vector3(310 + 20 - ListWidthOffeset, timeBoxTransform.localPosition.y);
-                    }
-
-                    static void EnableRichText(UIComboBox uIComboBox)
-                    {
-                        uIComboBox.m_Text.supportRichText = true;
-                        uIComboBox.m_EmptyItemRes.supportRichText = true;
-                        uIComboBox.m_ListItemRes.GetComponentInChildren<Text>().supportRichText = true;
-                        foreach (var button in uIComboBox.ItemButtons)
-                            button.GetComponentInChildren<Text>().supportRichText = true;
-                        uIComboBox.DropDownCount = DropDownCount;
-                    }
-
-                    if (ListWidthOffeset > 0)
-                    {
-                        Reposition(__instance.productAstroBox.transform, __instance.productTimeBox.transform);
-                        if (ListWidthOffeset > 40)
-                        {
-                            ((RectTransform)__instance.productSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
-                            __instance.productSortBox.transform.localPosition = new Vector3(135f - ( ListWidthOffeset - 40 ), __instance.productSortBox.transform.localPosition.y);
-                        }
-                        Reposition(__instance.powerAstroBox.transform, __instance.powerTimeBox.transform);
-                        Reposition(__instance.researchAstroBox.transform, __instance.researchTimeBox.transform);
-                        Reposition(__instance.dysonAstroBox.transform, __instance.dysonTimeBox.transform);
-                        Reposition(__instance.killAstroBox.transform, __instance.killTimeBox.transform);
-                        if (ListWidthOffeset > 40)
-                        {
-                            ((RectTransform)__instance.killSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
-                            __instance.killSortBox.transform.localPosition = new Vector3(135f - (ListWidthOffeset - 40), __instance.killSortBox.transform.localPosition.y);
-                        }
-                    }
-                    EnableRichText(__instance.productAstroBox);
-                    EnableRichText(__instance.powerAstroBox);
-                    EnableRichText(__instance.researchAstroBox);
-                    EnableRichText(__instance.dysonAstroBox);
-                    EnableRichText(__instance.killAstroBox);
-
-                    Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
-                    GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Globe Panel/name-input");
-                    UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
-
-                    var go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
-                    go.name = "CustomStats_Ratio";
-                    go.transform.localPosition = new Vector3(-153f, 8f, 0);
-                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
-                    timerSlider = go.GetComponent<Slider>();
-                    timerSlider.minValue = 0;
-                    timerSlider.maxValue = TimeSliderSlice;
-                    timerSlider.wholeNumbers = true;
-                    timerSlider.value = timerSlider.maxValue;
-                    timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
-                    //tmp.transform.GetChild(1).GetComponent<Image>().color = new Color(0.3f, 1.0f, 1.0f, 0.47f); //改成亮藍色
-                    go.SetActive(true);
-
-                    go = GameObject.Instantiate(inputObj, __instance.productAstroBox.transform);
-                    go.name = "CustomStats_Fliter";
-                    go.transform.localPosition = new Vector3(-201.5f - ListWidthOffeset, 30f, 0);
-                    filterInput = go.GetComponent<InputField>();
-                    filterInput.text = "";
-                    filterInput.onValueChanged.AddListener(new UnityAction<string>(OnInputValueChanged));
-                    go.GetComponent<RectTransform>().sizeDelta = new Vector2(((RectTransform)__instance.productAstroBox.transform).sizeDelta.x + 3f, 28f);
-                    go.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
-                    // 在聚焦輸入框時無法使用滾輪, 因此不套用以下的聚焦設定
-                    // tmp.transform.parent.GetChild(0).GetComponent<Button>().onClick.AddListener(new UnityAction(OnComboBoxClicked));
-                    go.SetActive(true);
-
-                    go = GameObject.Instantiate(uIButton0.gameObject, __instance.productAstroBox.transform);
-                    go.name = "CustomStats_Navi";
-                    go.transform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
-                    go.transform.localPosition = new Vector3(2f, -6f, 0f);
-                    Image img = go.transform.Find("icon")?.GetComponent<Image>();
-                    if (img != null)
-                    {
-                        UIStarmap starmap = UIRoot.instance.uiGame.starmap;
-                        img.sprite = starmap.cursorFunctionButton3.transform.Find("icon")?.GetComponent<Image>()?.sprite;
-                    }
-                    locateBtn = go.GetComponent<UIButton>();
-                    locateBtn.tips.tipTitle = "Locate";
-                    locateBtn.tips.tipText = "Left click: Navigate to planet\nRight click: Show planet in starmap";
-                    locateBtn.onClick += OnLocateButtonClick;
-                    locateBtn.onRightClick += OnLocateButtonRightClick;
-                    go.SetActive(true);
-
-                    initialized = true;
-
-                    if (__instance.astroBox != __instance.productAstroBox)
-                        OnTabButtonClick(__instance);
+                    ((RectTransform)astroBoxtTansform).sizeDelta = new Vector2(200f + ListWidthOffeset, 30f);
+                    timeBoxTransform.localPosition = new Vector3(310 + 20 - ListWidthOffeset, timeBoxTransform.localPosition.y);
                 }
-                catch (Exception e)
+
+                if (ListWidthOffeset > 0)
                 {
-                    Plugin.Log.LogError("UI component initial fail!");
-                    Plugin.Log.LogError(e);
+                    Reposition(__instance.productAstroBox.transform, __instance.productTimeBox.transform);
+                    if (ListWidthOffeset > 40)
+                    {
+                        ((RectTransform)__instance.productSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
+                        __instance.productSortBox.transform.localPosition = new Vector3(135f - ( ListWidthOffeset - 40 ), __instance.productSortBox.transform.localPosition.y);
+                    }
+                    Reposition(__instance.powerAstroBox.transform, __instance.powerTimeBox.transform);
+                    Reposition(__instance.researchAstroBox.transform, __instance.researchTimeBox.transform);
+                    Reposition(__instance.dysonAstroBox.transform, __instance.dysonTimeBox.transform);
+                    Reposition(__instance.killAstroBox.transform, __instance.killTimeBox.transform);
+                    if (ListWidthOffeset > 40)
+                    {
+                        ((RectTransform)__instance.killSortBox.transform).sizeDelta = new Vector2(200f - (ListWidthOffeset - 40), 30f);
+                        __instance.killSortBox.transform.localPosition = new Vector3(135f - (ListWidthOffeset - 40), __instance.killSortBox.transform.localPosition.y);
+                    }
                 }
+                Utils.EnableRichText(__instance.productAstroBox);
+                Utils.EnableRichText(__instance.powerAstroBox);
+                Utils.EnableRichText(__instance.researchAstroBox);
+                Utils.EnableRichText(__instance.dysonAstroBox);
+                Utils.EnableRichText(__instance.killAstroBox);
+
+                Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
+                GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
+                UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
+
+                var go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
+                go.name = "CustomStats_Ratio";
+                go.transform.localPosition = new Vector3(-153f, 8f, 0);
+                go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
+                timerSlider = go.GetComponent<Slider>();
+                timerSlider.minValue = 0;
+                timerSlider.maxValue = TimeSliderSlice;
+                timerSlider.wholeNumbers = true;
+                timerSlider.value = timerSlider.maxValue;
+                timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
+                //tmp.transform.GetChild(1).GetComponent<Image>().color = new Color(0.3f, 1.0f, 1.0f, 0.47f); //改成亮藍色
+                go.SetActive(true);
+
+                filterGo = GameObject.Instantiate(inputObj, __instance.productAstroBox.transform);
+                filterGo.name = "CustomStats_Fliter";
+                filterGo.transform.localPosition = new Vector3(0f, 20f, 0);
+                filterInput = filterGo.GetComponentInChildren<InputField>();
+                filterInput.text = "";
+                filterInput.onValueChanged.AddListener(new UnityAction<string>(OnInputValueChanged));
+                filterGo.GetComponent<RectTransform>().sizeDelta = new Vector2(((RectTransform)__instance.productAstroBox.transform).sizeDelta.x, 28f);
+                filterGo.SetActive(true);
+
+                go = GameObject.Instantiate(uIButton0.gameObject, __instance.productAstroBox.transform);
+                go.name = "CustomStats_Navi";
+                go.transform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
+                go.transform.localPosition = new Vector3(2f, -6f, 0f);
+                Image img = go.transform.Find("icon")?.GetComponent<Image>();
+                if (img != null)
+                {
+                    UIStarmap starmap = UIRoot.instance.uiGame.starmap;
+                    img.sprite = starmap.cursorFunctionButton3.transform.Find("icon")?.GetComponent<Image>()?.sprite;
+                }
+                locateBtn = go.GetComponent<UIButton>();
+                locateBtn.tips.tipTitle = "Locate";
+                locateBtn.tips.tipText = "Left click: Navigate to planet\nRight click: Show planet in starmap";
+                locateBtn.onClick += OnLocateButtonClick;
+                locateBtn.onRightClick += OnLocateButtonRightClick;
+                go.SetActive(true);
+
+                enable = true;
+                if (__instance.astroBox != __instance.productAstroBox)
+                    OnTabButtonClick(__instance);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError("UI component initial fail!");
+                Plugin.Log.LogError(e);
             }
         }
 
@@ -138,18 +117,19 @@ namespace StatsUITweaks
             GameObject.Destroy(timerSlider?.gameObject);
             GameObject.Destroy(filterInput?.gameObject);
             GameObject.Destroy(locateBtn?.gameObject);
+            GameObject.Destroy(filterGo);
             initialized = false;
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.OnTabButtonClick))]
         static void OnTabButtonClick(UIStatisticsWindow __instance) // 切換頁面時, 重新設置UI元件的父元件
         {
-            if (!initialized) return;
+            if (!enable) return;
             if (__instance.timeBox != null)
                 timerSlider.gameObject.transform.SetParent(__instance.timeBox.transform);
             if (__instance.astroBox != null)
             {
-                filterInput.gameObject.transform.SetParent(__instance.astroBox.transform);
+                filterGo.transform.SetParent(__instance.astroBox.transform);
                 locateBtn.gameObject.transform.SetParent(__instance.astroBox.transform);
             }
         }
@@ -159,43 +139,7 @@ namespace StatsUITweaks
         {
             if (__instance.isStatisticsTab)
             {
-                int itemIndex = __instance.astroBox.itemIndex;
-                if (Input.GetKeyDown(HotkeyListUp))
-                {
-                    if (VFInput.control) // 上一個星系
-                    {
-                        do
-                        {
-                            itemIndex = itemIndex > 0 ? itemIndex - 1 : __instance.astroBox.ItemsData.Count - 1;
-                            int astroFilter = __instance.astroBox.ItemsData[itemIndex];
-                            if ((astroFilter % 100 == 0 && astroFilter > 0) || astroFilter == -1)
-                                break;
-                        } while (itemIndex != __instance.astroBox.itemIndex);
-                        __instance.astroBox.itemIndex = itemIndex;
-                    }
-                    else // 上一個列表
-                    {
-                        __instance.astroBox.itemIndex = itemIndex > 0 ? itemIndex - 1 : __instance.astroBox.ItemsData.Count - 1;
-                    }
-                }
-                else if (Input.GetKeyDown(HotkeyListDown))
-                {
-                    if (VFInput.control)
-                    {
-                        do
-                        {
-                            itemIndex = (itemIndex + 1) % __instance.astroBox.ItemsData.Count;
-                            int astroFilter = __instance.astroBox.ItemsData[itemIndex];
-                            if ((astroFilter % 100 == 0 && astroFilter > 0) || astroFilter == -1)
-                                break;
-                        } while (itemIndex != __instance.astroBox.itemIndex);
-                        __instance.astroBox.itemIndex = itemIndex;
-                    }
-                    else
-                    {
-                        __instance.astroBox.itemIndex = (itemIndex + 1) % __instance.astroBox.ItemsData.Count;
-                    }
-                }
+                Utils.DetermineAstroBoxIndex(__instance.astroBox);
             }
         }
 
@@ -244,10 +188,7 @@ namespace StatsUITweaks
         #endregion
 
         #region 列表修改
-        static readonly Dictionary<int, int> astroIndex = new();
-        static readonly List<ValueTuple<string, int>> systemList = new();
-        static readonly List<string> newItems = new();
-        static readonly List<int> newItemData = new();
+
         static string searchStr = "";
 
         static void OnInputValueChanged(string value)
@@ -265,8 +206,9 @@ namespace StatsUITweaks
             // 在遊戲中 UIStatisticsWindow.RefreshAstroBox() 設定前面固定的選項
             // [0]:-1, "统计全星系"
             // [1]:0, "统计当前星球" 只有在localPlanet!=null才會有
+            // [1~2]:-2 "统计玩家" 在isKillTab
             // [2]:?00, "localSystemLabel" Bottleneck新增的選項
-            // 其餘皆為 星系 + 星球1 + 星球2 ..., 以創建工廠的時間排序
+            // 其餘皆為 星系 + 星球1 + 星球2 ..., 以星系的ID排序
             int startIndex = 1;
             if (!__instance.isDysonTab && __instance.gameData.localPlanet != null)
             {
@@ -277,81 +219,7 @@ namespace StatsUITweaks
                     || __instance.astroBox.Items[2] == "localSystemLabel".Translate()))
                     startIndex = 3; // new option in Bottleneck
             }
-
-            if (__instance.astroBox.Items.Count > startIndex) // Planet filter
-            {
-                astroIndex.Clear();
-                systemList.Clear();
-                newItems.Clear();
-                newItemData.Clear();
-
-                for (int i = startIndex; i < __instance.astroBox.Items.Count; i++)
-                {
-                    int astroId = __instance.astroBox.ItemsData[i];
-                    if (astroId % 100 == 0)
-                    {
-                        if (astroIndex.ContainsKey(astroId))
-                        {
-                            Plugin.Log.LogDebug($"[{astroId}] => {__instance.astroBox.Items[i]}");
-                            systemList[astroIndex[astroId]] = (__instance.astroBox.Items[i], astroId); //以後來的名稱覆寫
-                        }
-                        else
-                        {
-                            astroIndex[astroId] = systemList.Count;
-                            systemList.Add((__instance.astroBox.Items[i], __instance.astroBox.ItemsData[i]));
-                        }
-                    }
-                }
-                if (OrderByName) // 以星系名稱排序
-                    systemList.Sort();
-
-                foreach (var tuple in systemList)
-                {
-                    int starId = tuple.Item2 / 100;
-                    for (int i = startIndex; i < __instance.astroBox.Items.Count; i++)
-                    {
-                        int astroId = __instance.astroBox.ItemsData[i];
-                        if (astroId / 100 == starId)
-                        {
-                            string itemName = __instance.astroBox.Items[i];
-
-                            if (astroId % 100 != 0)
-                            {
-                                if (!itemName.StartsWith(PlanetPrefix) || !itemName.EndsWith(PlanetPostfix))
-                                    itemName = PlanetPrefix + itemName + PlanetPostfix;
-                            }
-                            else
-                            {
-                                if (!itemName.StartsWith(SystemPrefix) || !itemName.EndsWith(SystemPostfix))
-                                    itemName = SystemPrefix + itemName + SystemPostfix;
-                            }
-                            
-                            newItems.Add(itemName);
-                            newItemData.Add(__instance.astroBox.ItemsData[i]);
-                        }
-                    }
-                }
-                __instance.astroBox.Items.RemoveRange(startIndex, __instance.astroBox.Items.Count - startIndex);
-                __instance.astroBox.ItemsData.RemoveRange(startIndex, __instance.astroBox.ItemsData.Count - startIndex);
-                __instance.astroBox.Items.AddRange(newItems);
-                __instance.astroBox.ItemsData.AddRange(newItemData);
-            }
-
-            if (!string.IsNullOrEmpty(searchStr))
-            {
-                for (int i = __instance.astroBox.Items.Count - 1; i >= startIndex; i--)
-                {
-                    int nameStart = __instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPrefix.Length : PlanetPrefix.Length;
-                    int nameEnd = __instance.astroBox.Items[i].Length - (__instance.astroBox.ItemsData[i] % 100 == 0 ? SystemPostfix.Length : PlanetPostfix.Length);
-                    int result = __instance.astroBox.Items[i].IndexOf(searchStr, nameStart, StringComparison.OrdinalIgnoreCase);
-                    if (result == -1 || (result + searchStr.Length) > nameEnd)
-                    {
-                        __instance.astroBox.Items.RemoveAt(i);
-                        __instance.astroBox.ItemsData.RemoveAt(i);
-                    }
-                }
-            }
-
+            Utils.UpdateAstroBox(__instance.astroBox, startIndex, searchStr);
             __state = __instance.astroBox.itemIndex;
             //Plugin.Log.LogDebug(System.Environment.StackTrace);
         }

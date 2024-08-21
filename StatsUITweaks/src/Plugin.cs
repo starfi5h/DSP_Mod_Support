@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.4.5";
+        public const string VERSION = "1.5.0";
 
         public static ManualLogSource Log;
         public static ConfigEntry<bool> DisplayPerSecond;
@@ -32,12 +32,12 @@ namespace StatsUITweaks
             var SystemPostfix = Config.Bind("AstroBox", "SystemPostfix", "</color>", "Postfix string of star system in the list\n星系名称后缀");
             var PlanetPrefix = Config.Bind("AstroBox", "PlanetPrefix", "ㅤ", "Prefix string of planet in the list\n星球名称前缀"); //U+3164. Normal spaces will not load
             var PlanetPostfix = Config.Bind("AstroBox", "PlanetPostfix", "", "Postfix string of planet in the list\n星球名称后缀");
+            var HotkeyListUp = Config.Bind("AstroBox", "HotkeyListUp", KeyCode.PageUp, "Move to previous item in list.\n切换至列表中上一个项目");
+            var HotkeyListDown = Config.Bind("AstroBox", "HotkeyListDown", KeyCode.PageDown, "Move to next item in list.\n切换至列表中下一个项目");
 
             var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
             var TimeSliderSlice = Config.Bind("StatsUITweaks", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
             var ListWidthOffeset = Config.Bind("StatsUITweaks", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
-            var HotkeyListUp = Config.Bind("StatsUITweaks", "HotkeyListUp", "PageUp", "Move to previous item in list.\n切换至列表中上一个项目");
-            var HotkeyListDown = Config.Bind("StatsUITweaks", "HotkeyListDown", "PageDown", "Move to next item in list.\n切换至列表中下一个项目");
             var NumericPlanetNo = Config.Bind("StatsUITweaks", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
 
             var FoldButton = Config.Bind("PerformancePanel", "FoldButton", true, "Add a button to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
@@ -45,26 +45,18 @@ namespace StatsUITweaks
             // Bottleneck compatibility for displayPerSecond            
             BottleneckCompat();
 
+            Utils.OrderByName = OrderByName.Value;
+            Utils.DropDownCount = DropDownCount.Value;
+            Utils.HotkeyListUp = HotkeyListUp.Value;
+            Utils.HotkeyListDown = HotkeyListDown.Value;
+            Utils.SystemPrefix = SystemPrefix.Value;
+            Utils.SystemPostfix = SystemPostfix.Value;
+            Utils.PlanetPrefix = PlanetPrefix.Value;
+            Utils.PlanetPostfix = PlanetPostfix.Value;
+
             StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
-            StatsWindowPatch.OrderByName = OrderByName.Value;
-            StatsWindowPatch.DropDownCount = DropDownCount.Value;
-            StatsWindowPatch.SystemPrefix = SystemPrefix.Value;
-            StatsWindowPatch.SystemPostfix = SystemPostfix.Value;
-            StatsWindowPatch.PlanetPrefix = PlanetPrefix.Value;
-            StatsWindowPatch.PlanetPostfix = PlanetPostfix.Value;
-            try
-            {
-                StatsWindowPatch.HotkeyListUp = (KeyCode)System.Enum.Parse(typeof(KeyCode), HotkeyListUp.Value, true);
-                StatsWindowPatch.HotkeyListDown = (KeyCode)System.Enum.Parse(typeof(KeyCode), HotkeyListDown.Value, true);
-            }
-            catch
-            {
-                Logger.LogWarning("Can't parse HotkeyListUp or HotkeyListDown. Revert back to default values.");
-                StatsWindowPatch.HotkeyListUp = KeyCode.PageUp;
-                StatsWindowPatch.HotkeyListDown = KeyCode.PageDown;
-            }
 
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(StatsWindowPatch));
@@ -72,6 +64,7 @@ namespace StatsUITweaks
                 harmony.PatchAll(typeof(PlanetNamePatch));
             if (FoldButton.Value)
                 harmony.PatchAll(typeof(PerformancePanelPatch));
+            harmony.PatchAll(typeof(UIControlPanelPatch));
         }
 
         static void BottleneckCompat()
@@ -92,6 +85,7 @@ namespace StatsUITweaks
             }
         }
 
+#if DEBUG
         public void OnDestroy()
         {
             StatsWindowPatch.OnDestory();
@@ -99,5 +93,6 @@ namespace StatsUITweaks
             harmony.UnpatchSelf();
             harmony = null;
         }
+#endif
     }
 }
