@@ -1,6 +1,6 @@
 # StatsUITweaks
 
-![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo1.jpg)  
+![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo4.jpg)  
 
 Adds QoL features to the statistics panel.  
 - Drag the slider to change time interval.  
@@ -10,6 +10,8 @@ Adds QoL features to the statistics panel.
 - PageUp/PageDown to go to the next item on the list. Ctrl + PageUp/PageDown to go to the next system.  
 - Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap. Show astroId and index of factory in the button tip.  
 
+![demo5](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo5.jpg)  
+Support astro list in Logistics Control Panel (I) too.  
 
 ## Configuration
 Run the game one time to generate `BepInEx\config\starfi5h.plugin.StatsUITweaks.cfg` file.  
@@ -24,12 +26,12 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `SystemPostfix`   | `</color>`       | Postfix string of star system in the list |
 | `PlanetPrefix`    | `ㅤ`             | Prefix string of planet in the list |
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
+| `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
+| `HotkeyListDown`    | PageDown | Move to next item in astro list |
 | StatsUITweaks | | |
 | `SignificantDigits`| 0     | Significant figures of production/consumption (Default=0) |
 | `TimeSliderSlice`| 20      | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
-| `HotkeyListUp`  | PageUp   | Move to previous item in astro list |
-| `HotkeyListUp`  | PageDown | Move to next item in astro list |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
 | PerformancePanel | | |
 | `FoldButton`      | true    | Add a button to fold pie chart |
@@ -72,12 +74,12 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `SystemPostfix`   | `</color>`       | 星系名称后缀 |
 | `PlanetPrefix`    | `ㅤ`             | 星球名称前缀 |
 | `PlanetPostfix`   |                | 星球名称后缀 |
+| `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
+| `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
 | StatsUITweaks | | |
 | `SignificantDigits`| 0       | 产量有效位数(默认=0) |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
-| `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
-| `HotkeyListUp`    | PageDown | 切换至列表中下一个项目的热键 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
 | PerformancePanel | | |
 | `FoldButton`      | true    | 在性能面板加入一个折叠饼图的按钮 |
@@ -86,6 +88,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 
 ## ChangeLogs
 
+\- v1.5.0: Move hotkey config to AstroBox category. Support Logistics Control Panel. (DSP 0.10.30.23350)  
 \- v1.4.5: Add `SignificantDigits` config option (DSP 0.10.29.22015)  
 \- v1.4.4: Add compat to Bottleneck's displayPerSecond. Support time slider in kill count (DSP 0.10.29.21950)  
 \- v1.4.3: Fix right-click on navi button. Display astorId and factoryIdx on its tip (DSP 0.10.29.21904)  
