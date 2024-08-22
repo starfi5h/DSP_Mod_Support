@@ -16,7 +16,7 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.2.1";
+        public const string VERSION = "1.2.2";
 
         public static ManualLogSource Log;
         public static bool isRegisitered;
@@ -28,6 +28,9 @@ namespace ErrorAnalyzer
         {
             Log = Logger;
             harmony = new Harmony(GUID);
+            var enableDebug = Config.Bind("DEBUG Mode", "Enable", false, "Enable DEBUG mode to track the entity when starting up the game").Value;
+            var showFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)").Value;
+
             if (!Chainloader.PluginInfos.TryGetValue("dsp.nebula-multiplayer", out var _))
             {
                 try
@@ -53,6 +56,10 @@ namespace ErrorAnalyzer
                     Log.LogError("Error when patching StacktraceParser");
                     Log.LogError(e);
                 }
+            }
+            if (enableDebug)
+            {
+                TrackEntity_Patch.Enable(true);
             }
         }
 

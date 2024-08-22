@@ -118,6 +118,8 @@ namespace ErrorAnalyzer
             return __exception;
         }
 
+        #region Dismantle Belt
+
         // IndexOutOfRangeException: Index was outside the bounds of the array.
         // at CargoTraffic.SetBeltState(System.Int32 beltId, System.Int32 state); (IL_002D)
         // Worst outcome when suppressed: Belt highlight is incorrect
@@ -137,5 +139,18 @@ namespace ErrorAnalyzer
         {
             return null;
         }
+
+        // IndexOutOfRangeException: Index was outside the bounds of the array.
+        // CargoPath.TryPickItem (System.Int32 index, System.Int32 length, System.Byte& stack, System.Byte& inc) [0x000b6]
+        // CargoTraffic.PickupBeltItems (Player player, System.Int32 beltId, System.Boolean all) [0x000cf]
+        // Worst outcome when suppressed: player don't get item from the belt;
+        [HarmonyFinalizer]
+        [HarmonyPatch(typeof(CargoTraffic), "PickupBeltItems")]
+        static Exception PickupBeltItems()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }
