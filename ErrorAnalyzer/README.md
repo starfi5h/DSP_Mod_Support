@@ -5,7 +5,7 @@ The Error Analyzer mod enhances the error reporting in game by adding useful fea
 ## Features
 - **Close button**: The top-left X button can close the error window.
 - **Copy button**: The middle button can copy the error message to the clipboard in style format.
-- **Navi button**: Left click to navigate to the erroring machine, right click to toggle the tracking mode.
+- **Navi button**: Left click to navigate to the erroring machine, right click to toggle the DEBUG tracking mode.
 - **Mod Function Listing**: Displays a list of mod functions on the call stack within the stack trace, helping to identify which mods might be causing errors.  
 ![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/ErrorAnalyzer/img/demo2.png)   
 
@@ -31,8 +31,39 @@ Notes:
 - The functions listed in the patch section may not directly relate to the error’s root cause. Generally, functions higher in the stack are more likely to be the cause, but other patches not listed in the stack trace may also be involved.
 - Removing the erroring machine may or may not solve the issues, so backup the save before dismantling. Sometimes you'll need more powerful purge tools e.g. `Re-intialize planet` in [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/). If they still not work then you'll have to roll back to the previous normal save.  
 
+
+## Config
+The config file is `BepInEx\config\aaa.dsp.plugin.ErrorAnalyzer.cfg`, which can be found in mod manager's Config editor.  
+```
+## Settings file was created by plugin ErrorAnalyzer v1.2.2
+## Plugin GUID: aaa.dsp.plugin.ErrorAnalyzer
+
+[DEBUG Mode]
+
+## Enable DEBUG mode to track the entity when starting up the game
+# Setting type: Boolean
+# Default value: false
+Enable = false
+
+[Message]
+
+## Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)
+# Setting type: Boolean
+# Default value: false
+Show All Patches = false
+
+## Dump Harmony patches of all mods when the game load in BepInEx\LogOutput.log
+# Setting type: Boolean
+# Default value: false
+Dump All Patches = false
+```
+When the DEBUG tracking mode is on, the navigate button will change color. In this mode, it will track the entity that throws errors and move the player to the location when it is on the same planet. Errors in the following methods will be handled too in this mode to let the player dismantle the corrupted building:  
+`CargoTraffic.SetBeltState`, `CargoContainer.RemoveCargo`, `CargoTraffic.PickupBeltItems`  
+
+
 ## ChangeLogs
-- v1.2.1: Suppress `CargoTraffic.SetBeltState` and `CargoContainer.RemoveCargo` error in tracking mode to dismantle the belts.  
+- v1.2.2: Add config. Suppress `CargoTraffic.PickupBeltItems` error in debug tracking mode.  
+- v1.2.1: Suppress `CargoTraffic.SetBeltState` and `CargoContainer.RemoveCargo` error in debug tracking mode to dismantle the belts.  
 - v1.2.0: Add close button and navi button. (DSP 0.10.30.23350)  
 - v1.1.0: Display the first exception that trigger during mods loading. (DSP 0.10.29.21904)  
 - v1.0.0: Initial released. (DSP 0.10.28.20779)  
@@ -46,7 +77,7 @@ Notes:
 ## 功能
 - **关闭按钮(Close)**：左上角的X按钮可以关闭错误窗口。
 - **复制按钮(Copy)**：中间的按钮可以将错误信息以格式化的方式复制到剪贴板。
-- **导航按钮(Navi)**：左键单击可导航至出错的机器，右键单击可切换追踪模式。
+- **导航按钮(Navi)**：左键单击可导航至出错的机器，右键单击可切换DEBUG追踪模式。
 - **模组功能列表**：显示调用堆栈(call stack)内的模组函数名称，帮助识别可能导致错误的模组。
 ![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/ErrorAnalyzer/img/demo2.png)  
 
