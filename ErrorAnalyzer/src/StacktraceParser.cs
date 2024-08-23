@@ -23,7 +23,6 @@ namespace ErrorAnalyzer
         public static void OnClose_Postfix()
         {
             IsChecked = false;
-            patchMap = null;
         }
 
         [HarmonyPostfix]
@@ -33,18 +32,7 @@ namespace ErrorAnalyzer
             if (IsChecked) return;
             if (patchMap == null)
             {
-                patchMap = new();
-                foreach (MethodBase patchedMethod in PatchProcessor.GetAllPatchedMethods())
-                {
-                    string key = patchedMethod.DeclaringType.FullName;
-                    if (!patchMap.TryGetValue(key, out List<MethodBase> methods))
-                    {
-                        methods = new List<MethodBase>();
-                        patchMap[key] = methods;
-                    }
-                    methods.Add(patchedMethod);
-                }
-                Plugin.Log.LogDebug("Patched type count: " + patchMap.Count);
+                GeneratePatchMap();
             }
 
             List<string> callStackTypeNames = new();
@@ -63,6 +51,43 @@ namespace ErrorAnalyzer
             __instance.rectTrans.sizeDelta = new Vector2(__instance.rectTrans.sizeDelta.x, __instance.errorLogText.preferredHeight + 45f);
             __instance.errorLogText.rectTransform.sizeDelta = new Vector2(__instance.errorLogText.rectTransform.sizeDelta.x, __instance.errorLogText.preferredHeight + 2f);
             IsChecked = true;
+        }
+
+        public static void DumpPatchMap()
+        {
+            var sb = new StringBuilder();
+            sb.Append("DumpPatchMap type count: ").Append(patchMap.Keys.Count).AppendLine();
+            foreach (var kvp in patchMap)
+            {
+                sb.Append("\n[Type: ").Append(kvp.Key).AppendLine("]"); // DeclaringType.FullName
+                foreach (var method in kvp.Value)
+                {
+                    sb.Append("-- ").Append(kvp.Key).Append(".").Append(method.Name).AppendLine(" --");
+                    var patchInfo = PatchProcessor.GetPatchInfo(method);
+                    PatchesToString(sb, "", "Prefix", patchInfo.Prefixes);
+                    PatchesToString(sb, "", "Postfix", patchInfo.Postfixes);
+                    PatchesToString(sb, "", "Transpiler", patchInfo.Transpilers);
+                    PatchesToString(sb, "", "Finalizer", patchInfo.Finalizers);
+                    //PatchesToString(sb, "", "ILManipulator", patchInfo.ILManipulators);
+                }
+            }
+            Plugin.Log.LogInfo(sb.ToString());
+        }
+
+        public static void GeneratePatchMap()
+        {
+            patchMap = new();
+            foreach (MethodBase patchedMethod in PatchProcessor.GetAllPatchedMethods())
+            {
+                string key = patchedMethod.DeclaringType.FullName;
+                if (!patchMap.TryGetValue(key, out List<MethodBase> methods))
+                {
+                    methods = new List<MethodBase>();
+                    patchMap[key] = methods;
+                }
+                methods.Add(patchedMethod);
+            }
+            Plugin.Log.LogDebug("Patched type count: " + patchMap.Count);
         }
 
         private static void ParseStackTraceLines(string source, Action<string, string> validate)
@@ -89,7 +114,7 @@ namespace ErrorAnalyzer
             if (stackTypeNames.Count == 0) return "";
 
             List<MethodBase> onStackModMethods = new();
-            //List<MethodBase> firstClassModifiedMethods = null;
+            List<MethodBase> firstClassModifiedMethods = null;
             for (int i = 0; i < stackTypeNames.Count; i++)
             {
                 //Plugin.Log.LogDebug($"[{stackTypeNames[i]}] {stackMethodNames[i]}");
@@ -110,7 +135,7 @@ namespace ErrorAnalyzer
                     }
                     if (i == 0)
                     {
-                        //firstClassModifiedMethods = list;
+                        firstClassModifiedMethods = list;
                         Plugin.Log.LogInfo($"{stackTypeNames[i]} modified methods count = " + list.Count);
                     }
                 }
@@ -130,7 +155,6 @@ namespace ErrorAnalyzer
             {
                 sb.Insert(0, "\n[== Mod patches on the stack ==]\n");
             }
-            /* Abort 棄案
             if (firstClassModifiedMethods?.Count > 0)
             {
                 HashSet<string> modFullTypeNames = new();
@@ -147,7 +171,6 @@ namespace ErrorAnalyzer
                     sb.AppendLine(name);
                 }
             }
-            */
             return sb.ToString();
         }
 

@@ -30,6 +30,7 @@ namespace ErrorAnalyzer
             harmony = new Harmony(GUID);
             var enableDebug = Config.Bind("DEBUG Mode", "Enable", false, "Enable DEBUG mode to track the entity when starting up the game").Value;
             var showFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)").Value;
+            var dumpPatchMap = Config.Bind("Message", "Dump All Patches", false, "Dump Harmony patches of all mods when the game load in BepInEx\\LogOutput.log").Value;
 
             if (!Chainloader.PluginInfos.TryGetValue("dsp.nebula-multiplayer", out var _))
             {
@@ -61,6 +62,21 @@ namespace ErrorAnalyzer
             {
                 TrackEntity_Patch.Enable(true);
             }
+            if (dumpPatchMap)
+            {
+                harmony.PatchAll(typeof(Plugin));
+            }
+        }
+
+        static bool init = false;
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        [HarmonyPatch(typeof(GameMain), "Begin")]
+        static void OnBegin()
+        {
+            if (init) return;
+            init = true;
+            StacktraceParser.GeneratePatchMap();
+            StacktraceParser.DumpPatchMap();
         }
 
 #if DEBUG
