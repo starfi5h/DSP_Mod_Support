@@ -10,6 +10,7 @@ namespace FactoryLocator
 
         private readonly List<PlanetFactory> factories = new();
         private readonly Dictionary<int, int> filterIds = new();
+        private readonly Dictionary<int, Color> filterColors = new();
         private readonly List<int> planetIds = new();
         private readonly List<Vector3> localPos = new();
         private readonly List<int> detailIds = new();
@@ -19,6 +20,10 @@ namespace FactoryLocator
         private readonly HashSet<int> tmp_ids = new();
 
         private Vector2 windowPos = new Vector2(-300f, 250f); //Roughly center of the screen
+
+        readonly static Color ORANGE   = new(0.9906f, 0.5897f, 0.3691f, 0.7059f); // warningCount (original)
+        readonly static Color CYAN     = new(0.2821f, 0.7455f, 1.0000f, 0.7059f); // itemCount (more blue)
+        readonly static Color PINK     = new(1.0000f, 0.5000f, 0.5000f, 0.7059f); // new color
 
         public int SetFactories(StarData star, PlanetData planet)
         {
@@ -84,7 +89,6 @@ namespace FactoryLocator
 
         public void OnBuildingPickReturn(ItemProto itemProto)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
@@ -104,7 +108,6 @@ namespace FactoryLocator
 
         public void OnVeinPickReturn(ItemProto itemProto)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
@@ -117,13 +120,12 @@ namespace FactoryLocator
         {
             state = mode;
             RefreshAssemblers(-1, state);
-            UIentryCount.OnOpen(ESignalType.Recipe, filterIds);
+            UIentryCount.OnOpen(ESignalType.Recipe, filterIds, filterColors);
             UIRecipePickerExtension.Popup(windowPos, OnAssemblerPickReturn, recipeProto => filterIds.ContainsKey(recipeProto.ID));
         }
 
         public void OnAssemblerPickReturn(RecipeProto recipeProto)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.recipePicker.pickerTrans.anchoredPosition;
             if (recipeProto == null) // Return by ESC
                 return;
@@ -143,7 +145,6 @@ namespace FactoryLocator
 
         public void OnWarningPickReturn(int signalId)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.signalPicker.pickerTrans.anchoredPosition;
             if (signalId <= 0) // Return by ESC
                 return;
@@ -164,7 +165,6 @@ namespace FactoryLocator
 
         public void OnStoragePickReturn(ItemProto itemProto)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
@@ -186,7 +186,6 @@ namespace FactoryLocator
 
         public void OnStationPickReturn(ItemProto itemProto)
         {
-            UIentryCount.OnClose();
             windowPos = UIRoot.instance.uiGame.itemPicker.pickerTrans.anchoredPosition;
             if (itemProto == null) // Return by ESC
                 return;
@@ -326,6 +325,7 @@ namespace FactoryLocator
         public void RefreshAssemblers(int recipeId, int mode = 0)
         {
             filterIds.Clear();
+            filterColors.Clear();
             localPos.Clear();
             planetIds.Clear();
 
@@ -336,8 +336,26 @@ namespace FactoryLocator
                     ref var assembler = ref factory.factorySystem.assemblerPool[id];
                     if (id == assembler.id)
                     {
-                        if (mode != 0 && mode != GetAssemblerMode(in assembler))
+                        if (mode >= 3 && mode != GetAssemblerWorkingStatus(in assembler)) 
                             continue;
+
+                        // logic from UIAssemblerWindow.RefreshIncUIs. productive = 配方是否可以增產
+                        if (assembler.productive && !assembler.forceAccMode) // Extra products: CYAN
+                        {
+                            if (mode == 2) continue;
+                            if (filterColors.TryGetValue(assembler.recipeId, out var storeColor) && storeColor != CYAN)
+                                filterColors[assembler.recipeId] = PINK; // Mix
+                            else
+                                filterColors[assembler.recipeId] = CYAN;
+                        }
+                        else // Production speedup: ORANGE
+                        {
+                            if (mode == 1) continue;
+                            if (filterColors.TryGetValue(assembler.recipeId, out var storeColor) && storeColor != ORANGE)
+                                filterColors[assembler.recipeId] = PINK; // Mix
+                            else
+                                filterColors[assembler.recipeId] = ORANGE;
+                        }
 
                         if (recipeId == -1)
                         {
@@ -365,8 +383,26 @@ namespace FactoryLocator
                     ref var lab = ref factory.factorySystem.labPool[id];
                     if (id == lab.id)
                     {
-                        if (mode != 0 && mode != GetLabMode(in lab))
+                        if (mode >= 3 && mode != GetLabWorkingStatus(in lab))
                             continue;
+
+                        // logic from UILabWindow.RefreshIncUIs
+                        if (lab.productive && !lab.forceAccMode) // Extra products: CYAN
+                        {
+                            if (mode == 2) continue;
+                            if (filterColors.TryGetValue(lab.recipeId, out var storeColor) && storeColor != CYAN)
+                                filterColors[lab.recipeId] = PINK;
+                            else
+                                filterColors[lab.recipeId] = CYAN;
+                        }
+                        else // Production speedup: ORANGE
+                        {
+                            if (mode == 1) continue;
+                            if (filterColors.TryGetValue(lab.recipeId, out var storeColor) && storeColor != ORANGE)
+                                filterColors[lab.recipeId] = PINK;
+                            else
+                                filterColors[lab.recipeId] = ORANGE;
+                        }
 
                         if (recipeId == -1)
                         {
@@ -390,7 +426,7 @@ namespace FactoryLocator
             }
         }
 
-        public static int GetAssemblerMode(in AssemblerComponent assembler)
+        public static int GetAssemblerWorkingStatus(in AssemblerComponent assembler)
         {
             if (assembler.replicating)
             {
@@ -400,20 +436,20 @@ namespace FactoryLocator
             {
                 if (assembler.time >= assembler.timeSpend) //产物堆积 Product overflow
                 {
-                    return 2;
+                    return 4;
                 }
                 for (int j = 0; j < assembler.requireCounts.Length; j++)
                 {
                     if (assembler.served[j] < assembler.requireCounts[j])
                     {
-                        return 1; //缺少原材料	Lack of material
+                        return 3; //缺少原材料	Lack of material
                     }
                 }
-                return 3; // 其他?
+                return -1; // 其他?
             }
         }
 
-        public static int GetLabMode(in LabComponent lab)
+        public static int GetLabWorkingStatus(in LabComponent lab)
         {
             if (lab.replicating)
             {
@@ -423,16 +459,16 @@ namespace FactoryLocator
             {
                 if (lab.time >= lab.timeSpend) //产物堆积 Product overflow
                 {
-                    return 2;
+                    return 4;
                 }
                 for (int j = 0; j < lab.requireCounts.Length; j++)
                 {
                     if (lab.served[j] < lab.requireCounts[j])
                     {
-                        return 1; //缺少原材料	Lack of material
+                        return 3; //缺少原材料	Lack of material
                     }
                 }
-                return 3; // 其他?
+                return -1; // 其他?
             }
         }
 

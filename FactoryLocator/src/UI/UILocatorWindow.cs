@@ -363,10 +363,14 @@ namespace FactoryLocator.UI
                 case 2: // PickAssembler
                     comboBox.Items.Add("All".Translate());
                     comboBox.ItemsData.Add(0);
-                    comboBox.Items.Add("缺少原材料".Translate());
+                    comboBox.Items.Add("额外产出".Translate());
                     comboBox.ItemsData.Add(1);
-                    comboBox.Items.Add("产物堆积".Translate());
+                    comboBox.Items.Add("加速生产".Translate());
                     comboBox.ItemsData.Add(2);
+                    comboBox.Items.Add("缺少原材料".Translate());
+                    comboBox.ItemsData.Add(3);
+                    comboBox.Items.Add("产物堆积".Translate());
+                    comboBox.ItemsData.Add(4);
                     comboBox.itemIndex = assemblerIndex;
                     break;
 

@@ -12,14 +12,16 @@ namespace FactoryLocator
         public static int SignalCol { get; set; } = 14;
         public static bool Active { get; private set; }
 
-        static Dictionary<int, int> filterIds;
+        static Dictionary<int, int> filterIds; // protoId => count
+        static Dictionary<int, Color> colorMap; // protoId => color
         static Text[] countArray;
         const int ARRAYLENGTH = 112; //8*14
 
-        public static void OnOpen(ESignalType signalType, Dictionary<int, int> filters)
+        public static void OnOpen(ESignalType signalType, Dictionary<int, int> filters, Dictionary<int, Color> numberColors = null)
         {
             // This need to call before OnTypeButtonClick
             filterIds = filters;
+            colorMap = numberColors;
 
             if (countArray == null)
                 countArray = new Text[ARRAYLENGTH];
@@ -29,14 +31,24 @@ namespace FactoryLocator
             UIItemPicker.showAll = true; // Show all item including not researched one
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIItemPicker), nameof(UIItemPicker._OnClose))]
+        [HarmonyPatch(typeof(UIRecipePicker), nameof(UIRecipePicker._OnClose))]
+        [HarmonyPatch(typeof(UISignalPicker), nameof(UISignalPicker._OnClose))]
         public static void OnClose()
         {
-            Active = false;
-            if (countArray != null)
+            if (Active && countArray != null)
             {
+                // originalColor: 0.9906 0.5897 0.3691 0.7059
+                var originalColor = UIRoot.instance.uiGame.warningWindow.itemPrefab.countText.color;
                 for (int i = 0; i < ARRAYLENGTH; i++)
+                {
                     countArray[i].gameObject.SetActive(false);
+                    countArray[i].color = originalColor;
+                }
             }
+            Active = false;
+            colorMap = null;
         }
 
         public static void OnDestory()
@@ -128,13 +140,23 @@ namespace FactoryLocator
 
         private static void SetNumber(Text text, int protoId)
         {
-            text.gameObject.SetActive(filterIds.TryGetValue(protoId, out int count));
-            if (count < 10000)
-                text.text = count.ToString();
-            else if (count < 10000 * 1000)
-                text.text = string.Format("{0:F1}K", count / 1000f);
+            // Set number string value
+            if (filterIds.TryGetValue(protoId, out int count))
+            {
+                text.gameObject.SetActive(true);
+                if (count < 10000)
+                    text.text = count.ToString();
+                else if (count < 10000000)
+                    text.text = string.Format("{0:F1}K", count / 1000f);
+                else
+                    text.text = string.Format("{0:F1}M", count / 1000f / 1000f);
+            }
             else
-                text.text = string.Format("{0:F1}M", count / 1000f / 1000f);
+            {
+                text.gameObject.SetActive(false);
+            }
+            // Set number color
+            if (colorMap != null && colorMap.TryGetValue(protoId, out Color color)) text.color = color;
         }
     }
 }
