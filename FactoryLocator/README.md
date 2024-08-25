@@ -17,9 +17,13 @@ Right Click on the query warning will remove the group.
 ![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
 Mouse over name to show power status of all networks.  
   
-![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.jpg)  
+![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.png)  
 The item picker window is draggable. The dropdown can select the subcategory.  
-The icon show all available options, the yellow numbers indicate building or item count.  
+The icon show all available options, the numbers indicate building or item count.  
+The color of the numbers in the recipe selection window represents assemblers' proliferator mode:  
+- Light blue: extra output
+- Light yellow: production speedsup
+- Light red: mixed
 
 Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI design and Raptor for mod idea.  
 
@@ -52,9 +56,15 @@ Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h
 默认情况下，该模组将在本地星球上搜索建筑物。  
 在星图视图中，如果选中的星球上有工厂，该模组将更改搜索星球。选择恒星时，它将搜索星系中的所有星球。  
 
-![选择窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory_c.jpg)  
-在选择窗口中，将显示所有可能的搜索选项。黄色数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
+![选择窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory_c.png)  
+在选择窗口中，将显示所有可能的搜索选项。数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
 选择窗口可以拖曳移动，下拉列表可以选择子类别。  
+配方选择窗口中的数字颜色代表机器的增产策略:  
+- 淡蓝: 额外产出
+- 淡黄: 生产加速
+- 淡红: 混合
+
+
 
 左键单击警报详细信息图标可以显示警报位置。单击其他区域以关闭它。  
 右键单击搜索信标可以移除该群组。  

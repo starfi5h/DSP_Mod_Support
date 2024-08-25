@@ -1,4 +1,7 @@
-### v1.3.2 (DSP 0.10.30.23350)
+### v1.3.3 
+\- Add recipe picker subcategory extra product, production speedup. Add color code for proliferator mode.  
+
+### v1.3.2 
 \- Fix a bug that subtype comboBox doesn't initialize.  
 
 ### v1.3.1 (DSP 0.10.30.23350)
