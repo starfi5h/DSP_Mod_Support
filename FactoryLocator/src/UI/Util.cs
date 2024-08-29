@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace FactoryLocator.UI
@@ -129,6 +131,75 @@ namespace FactoryLocator.UI
             comboBox.onItemIndexChange.AddListener(OnComboBoxIndexChange);
 
             return comboBox;
+        }
+
+        public static int RecipeIdUnderMouse()
+        {
+            if (UIRoot.instance.uiGame.replicator.active)
+            {
+                UIReplicatorWindow repWin = UIRoot.instance.uiGame.replicator;
+                if (repWin.mouseRecipeIndex >= 0)
+                {
+                    RecipeProto recipeProto = repWin.recipeProtoArray[repWin.mouseRecipeIndex];
+                    if (recipeProto != null)
+                    {
+                        return recipeProto.ID;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        public static int ItemIdHintUnderMouse()
+        {
+            List<RaycastResult> targets = new();
+            PointerEventData pointer = new(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
+            EventSystem.current.RaycastAll(pointer, targets);
+            foreach (RaycastResult target in targets)
+            {
+                UIButton btn = target.gameObject.GetComponentInParent<UIButton>();
+                if (btn?.tips != null && btn.tips.itemId > 0)
+                {
+                    return btn.tips.itemId;
+                }
+
+                UIStorageGrid grid = target.gameObject.GetComponentInParent<UIStorageGrid>();
+                if (grid != null)
+                {
+                    StorageComponent storage = grid.storage;
+                    int mouseOnX = grid.mouseOnX;
+                    int mouseOnY = grid.mouseOnY;
+                    if (mouseOnX >= 0 && mouseOnY >= 0 && storage != null)
+                    {
+                        int gridIndex = mouseOnX + mouseOnY * grid.colCount;
+                        return storage.grids[gridIndex].itemId;
+                    }
+                    return 0;
+                }
+
+                UIPlayerDeliveryPanel deliveryPanel = target.gameObject.GetComponentInParent<UIPlayerDeliveryPanel>();
+                if (deliveryPanel != null)
+                {
+                    if (deliveryPanel.hoverIndexAbsolute >= 0)
+                    {
+                        return deliveryPanel.deliveryPackage.grids[deliveryPanel.hoverIndexAbsolute].itemId;
+                    }
+                }
+
+                UIProductEntry productEntry = target.gameObject.GetComponentInParent<UIProductEntry>();
+                if (productEntry != null)
+                {
+                    if (productEntry.productionStatWindow.isProductionTab)
+                    {
+                        return productEntry.entryData?.itemId ?? 0;
+                    }
+                    return 0;
+                }
+            }
+            return 0;
         }
     }
 

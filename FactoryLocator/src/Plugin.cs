@@ -127,9 +127,14 @@ namespace FactoryLocator
             if (CustomKeyBindSystem.GetKeyBind("ShowFactoryLocator").keyValue) 
             {
                 if (!mainWindow.active)
+                {
                     mainWindow.OpenWindow();
+                    InspectItemUnderMouse();
+                }
                 else
+                {
                     mainWindow._Close();
+                }
                 return;
             }
 #endif
@@ -145,6 +150,24 @@ namespace FactoryLocator
                         mainWindow._Close();
                     }                    
                 }
+            }
+        }
+
+        static void InspectItemUnderMouse()
+        {
+            int recipeId = Util.RecipeIdUnderMouse();
+            if (recipeId > 0)
+            {
+                Log.Debug("RecipeIdUnderMouse: " + recipeId);
+                mainLogic.OnAssemblerPickReturn(LDB.recipes.Select(recipeId));
+                return;
+            }
+            int itemId = Util.ItemIdHintUnderMouse();
+            if (itemId > 0)
+            {
+                Log.Debug("ItemIdHintUnderMouse: " + recipeId);
+                mainLogic.OnStoragePickReturn(LDB.items.Select(itemId));
+                mainLogic.OnStationPickReturn(LDB.items.Select(itemId));
             }
         }
 
