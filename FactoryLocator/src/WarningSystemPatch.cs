@@ -74,7 +74,7 @@ namespace FactoryLocator
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1))
+			if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Mouse2))
 			{
 				Camera worldCamera = UIRoot.instance.overlayCanvas.worldCamera;
 				RectTransform rect = (RectTransform)__instance.itemGroup.transform;
@@ -86,8 +86,10 @@ namespace FactoryLocator
 						{
 							if (Input.GetKeyDown(KeyCode.Mouse0)) // Left click
 								UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
-							else // Right click
+							else if (Input.GetKeyDown(KeyCode.Mouse1)) // Right click
 								HideGroup(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
+							else if (Input.GetKeyDown(KeyCode.Mouse2)) // Middle click
+								SeekNextSignal(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
 							break;
 						}
 					}
@@ -224,6 +226,35 @@ namespace FactoryLocator
 				}
 			}
 		}
+
+
+		static int currentIndex = 0;
+
+		public static void SeekNextSignal(int signalId, int detailId)
+        {
+			var localPlanetId = GameMain.localPlanet?.id ?? 0;
+			var ws = GameMain.data.warningSystem;
+			if (signalId <= 0 || detailId <= 0 || ws.warningCursor <= 0 || localPlanetId == 0) return;
+
+			currentIndex %= ws.warningCursor;
+			var lastIndex = currentIndex;
+			var count = 0;
+			do
+			{
+				currentIndex = (currentIndex + 1) % ws.warningCursor;
+				ref var warning = ref ws.warningPool[currentIndex];
+				if (warning.signalId == signalId && warning.detailId == detailId && warning.id == currentIndex && warning.state > 0)
+                {
+					if (warning.astroId == localPlanetId)
+                    {
+						Log.Debug($"SeekNextSignal[{currentIndex}]: ({signalId},{detailId}) {warning.localPos}");
+						UIRoot.instance.uiGame.globemap.MoveToViewTargetTwoStep(warning.localPos, 200f);
+						return;
+					}
+				}
+				if (count++ > 999) break;
+			} while (currentIndex != lastIndex);
+        }
 
 		public static void Debug()
 		{
