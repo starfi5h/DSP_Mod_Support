@@ -1,34 +1,54 @@
 # Factory Locator
 
-Find the positions of specified buildings and indicate them with warning icons.  
-  
-![search local planet](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.gif)  
-The default hotkey to open the window is Ctrl + F. Keybind can be configured in game control settings.  
-In picker window, it will show all possible search options among all buildings. The yellow number shows how many buildings qualify for the condition, or how many items are inside all station/box storage.  
-Display All Warning: Toggle to show/hide all warnings.  
-Auto Clear Query: When disable, the created signals will stay until Clear button is clicked.  
-  
-![search remote planets](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo2.gif)  
-By default, the mod will search for buildings on the local planet.  
-When in starmap view, the mod will change the searching planet if the selecting planet has factory on it. When selecting a star, it will search all planets in the star system.  
-Left Click on a warning detail icon to show where the warning locate. Click on other areas to close it.  
-Right Click on the query warning will remove the group.  
-  
-![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
-Mouse over name to show power status of all networks.  
-  
-![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.png)  
-The item picker window is draggable. The dropdown can select the subcategory.  
-The icon show all available options, the numbers indicate building or item count.  
-The color of the numbers in the recipe selection window represents assemblers' proliferator mode:  
-- Light blue: extra output
-- Light yellow: production speedsup
-- Light red: mixed
+The Factory Locator mod enhances your gameplay by helping you efficiently locate and manage buildings in the game. With this mod, you can quickly find the positions of specified buildings and highlight them with warning icons.   
 
-Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI design and Raptor for mod idea.  
+## Features
+
+![search local planet](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.gif) 
+
+### Hotkeys and Controls
+![keybinds](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/keybind.jpg)  
+**Open Mod Window**: Press `Ctrl + F` to open the mod window (default hotkey, configurable in game keybinds settings).  
+**Mouse Over Filter**: If an item/recipe is found under your mouse pointer when opening the window, it will be used as a filter (e.g. Inventory, Storage, Replicator, Statistics Panel and more places where item icon is displayed).  
+
+### Main Window
+![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
+**Power Status**: Hover over planet name to show power status of all networks.  
+**Signal Icon**: Click on the icon to set the icon for search results.  
+**Display All Warning**: Toggle to show or hide all warnings.  
+**Auto Clear Query**: When disable, the created signals will remain until Clear button is clicked.  
+
+### Picker Window
+![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.png)  
+**Draggable Window**: The item/recipe picker window can be moved around by dragging the window background.  
+**Subcategory**: The dropdown can select the subcategory for extra search critia:  
+- Building: Power network groups  
+- Vein: Collection Planned, Not Yet Planned  
+- Recipe: Extra products, Production speedup, Lack of material, Product overflow  
+- Stroage: Distributor Demand, Distributor Supply  
+- Station: Local station, Interstellar station, Local demand, Local supply, Remote demand, Remote supply  
+  
+**Icon and Entity Count**: Icons show all available options, with numbers indicating the count of buildings or items.  
+**Proliferator Mode Indicators**: The color of the numbers in the recipe selection window represents the proliferator mode for assemblers:
+- Light Blue: Extra output
+- Light Yellow: Production speedup
+- Light Red: Mixed
+
+### Search Planets
+![search remote planets](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo2.gif)  
+**Local Planet Search**: By default, the mod searches for buildings on your current planet.  
+**Remote Planet Search**: When in starmap view, the mod adapts the search based on your selection:  
+- Selecting a planet will search for factories on that planet.
+- Selecting a star will search all planets within that star system.
+
+### Warning Icons Extention
+![iteration entities wtih camera](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)  
+- **Left Click**: Displays the planet locations of the warnings. Click elsewhere to close the details.
+- **Middle Click**: Loops the camera through all relevant entities on the local planet.
+- **Right Click**: Removes the selected query group from the list.
 
 ## Installation
-Via [r2modman](https://dsp.thunderstore.io/package/ebkr/r2modman/), or manual download the file and put `FactoryLocator.dll` in `BepInEx/plugins` folder.  
+Via [r2modman](https://thunderstore.io/c/dyson-sphere-program/p/ebkr/r2modman/), or manual download the file and put `FactoryLocator.dll` in `BepInEx/plugins` folder.  
 Requrie [CommonAPI](https://dsp.thunderstore.io/package/CommonAPI/CommonAPI/) as dependency.  
 
 ## Mod compatibility
@@ -43,7 +63,13 @@ The mod don't have to install on both host and client. Some behaviors will be di
 
 Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h/NebulaCompatibilityAssist/) to get full functionality for clients.  
 
+### Acknowledgements
+All trademarks, copyright, and resources related to Dyson Sphere Project itself, remain the property of Gamera Game and Youthcat Studio as applicable according to the license agreement distributed with Dyson Sphere Program.  
+Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI design and Raptor for mod idea.  
+
 ----
+
+# 工厂定位
 
 ![互动窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/icon_c.jpg)  
 查找特定建筑物的位置，并用警报图标指示它们。  
@@ -53,6 +79,7 @@ Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h
 
 ![键位设置](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/keybind_c.jpg)  
 打开窗口的默认热键是Ctrl + F。可以在"游戏设置-键位-打开FactoryLocator窗口"更改。  
+打开面板时自动将鼠标的指向物品或配方设为筛选条件。 
 默认情况下，该模组将在本地星球上搜索建筑物。  
 在星图视图中，如果选中的星球上有工厂，该模组将更改搜索星球。选择恒星时，它将搜索星系中的所有星球。  
 
@@ -64,13 +91,13 @@ Install [NebulaCompatibilityAssist](https://dsp.thunderstore.io/package/starfi5h
 - 淡黄: 生产加速
 - 淡红: 混合
 
-
-
-左键单击警报详细信息图标可以显示警报位置。单击其他区域以关闭它。  
-右键单击搜索信标可以移除该群组。  
+![中键循序镜头](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)
+- 左键单击信标详细信息图标可以显示警报位置。单击其他区域以关闭它。  
+- 右键单击信标可以将镜头移动到本地星球上信标的位置。  
+- 右键单击搜索信标可以移除该群组。  
 
 ## 安装
-管理器: 安装r2modman后, 在Online线上列表找到此mod下载安装即可, 点Start modded启动游戏  
+管理器: 安装[r2modman](https://thunderstore.io/c/dyson-sphere-program/p/ebkr/r2modman/)后, 在Online线上列表找到此mod下载安装即可, 点Start modded启动游戏  
 手动下载: BepInEx框架的安装请参考网上的教学, 建议用5.4.17稳定版本  
 从此页面下载mod最新版本, 将`FactoryLocator.dll`放入`BepInEx/plugins`文件夹。  
 请注意这个mod还有三个前置mod需要安装  

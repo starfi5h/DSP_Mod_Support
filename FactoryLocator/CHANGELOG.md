@@ -1,3 +1,7 @@
+### v1.3.4
+\- Auto query the item/recipe under mouse cursor while opening the panel.  
+\- Middle click on warning signal to let camera loop through the entities on the local planet.  
+
 ### v1.3.3 
 \- Add recipe picker subcategory extra product, production speedup. Add color code for proliferator mode.  
 
