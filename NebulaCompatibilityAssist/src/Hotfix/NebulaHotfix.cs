@@ -6,6 +6,7 @@ using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Utils;
 using NebulaNetwork;
+using NebulaPatcher.Patches.Dynamic;
 using NebulaWorld;
 using NebulaWorld.Chat;
 using NebulaWorld.Combat;
@@ -37,8 +38,8 @@ namespace NebulaCompatibilityAssist.Hotfix
                 
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 8)
                 {
-                    harmony.PatchAll(typeof(Warper098));
-                    Log.Info("Nebula hotfix 0.9.8 - OK");
+                    harmony.PatchAll(typeof(Warper099));
+                    Log.Info("Nebula hotfix 0.9.9 - OK");
                 }
 
                 ChatManager.Init(harmony);
@@ -81,6 +82,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.GameTick))]
         [HarmonyPatch(typeof(DefenseSystem), nameof(DefenseSystem.GameTick))]
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
+        [HarmonyPatch(typeof(NearColliderLogic), nameof(NearColliderLogic.UpdateCursorNear))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
@@ -94,52 +96,33 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper098
+    public static class Warper099
     {
-        // IndexOutOfRangeException: Index was outside the bounds of the array.
-        // at BuildTool.GetPrefabDesc (System.Int32 objId)[0x0000e] ; IL_000E
-        // at BuildTool_Path.DeterminePreviews()[0x0008f] ;IL_008F
-        // This means BuildTool_Path.startObjectId has a positive id that is exceed entity pool
-        // May due to local buildTool affect by other player's build request
-        [HarmonyFinalizer]
-        [HarmonyPatch(typeof(BuildTool_Path), nameof(BuildTool_Path.DeterminePreviews))]
-        public static Exception DeterminePreviews(Exception __exception, BuildTool_Path __instance)
-        {            
-            if (__exception != null)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UIMainMenu), nameof(UIMainMenu._OnUpdate))]
+        public static void TestEsc()
+        {
+            if (VFInput.escape)
             {
-                // Reset state
-                __instance.startObjectId = 0;
-                __instance.startNearestAddonAreaIdx = 0;
-                __instance.startTarget = Vector3.zero;
-                __instance.pathPointCount = 0;
+                if (UIMainMenu_Patch.multiplayerMenu.gameObject.activeSelf)
+                {
+                    UIMainMenu_Patch.OnJoinGameBackButtonClick();
+                    VFInput.UseEscape();
+                }
+                else if (UIMainMenu_Patch.multiplayerSubMenu.gameObject.activeSelf)
+                {
+                    UIMainMenu_Patch.OnMultiplayerBackButtonClick();
+                    VFInput.UseEscape();
+                }
             }
-            return null;
         }
 
-        // IndexOutOfRangeException: Index was outside the bounds of the array.
-        // at CargoTraffic.SetBeltState(System.Int32 beltId, System.Int32 state); (IL_002D)
-        // at CargoTraffic.SetBeltSelected(System.Int32 beltId); (IL_0000)
-        // at PlayerAction_Inspect.GameTick(System.Int64 timei); (IL_053E)
-        // 
-        // Worst outcome when suppressed: Belt highlight is incorrect
-        [HarmonyFinalizer]
-        [HarmonyPatch(typeof(CargoTraffic), nameof(CargoTraffic.SetBeltState))]
-        public static Exception SetBeltState()
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlanetATField), nameof(PlanetATField.TestRelayCondition))]
+        public static void StopLanding(PlanetATField __instance, ref bool __result)
         {
-            return null;
-        }
-
-        // NullReferenceException: Object reference not set to an instance of an object
-        // at BGMController.UpdateLogic();(IL_03BC)
-        // at BGMController.LateUpdate(); (IL_0000)
-        //
-        // This means if (DSPGame.Game.running) is null
-        // Worst outcome when suppressed: BGM stops
-        [HarmonyFinalizer]
-        [HarmonyPatch(typeof(BGMController), nameof(BGMController.UpdateLogic))]
-        public static Exception UpdateLogic()
-        {
-            return null;
+            // Stop relay landing when there are 7 or more working shield generators
+            __result &= !(__instance.energy > 0 && __instance.generatorCount >= 7);
         }
     }
 }

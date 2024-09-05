@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.4.16 (Nebula 0.9.9)
+\- Stop DF relays landing on planet with 7 or more powered planetary shield generators  
+\- Suppress IndexOutOfRangeException in NearColliderLogic.UpdateCursorNear  
+\- Update UXAssist v1.1.6 compat  
+
 #### v0.4.15 (Nebula 0.9.8)
 \- Suppress IndexOutOfRangeException in BuildTool_Path.DeterminePreviews  
 \- Suppress IndexOutOfRangeException in CargoTraffic.SetBeltState  

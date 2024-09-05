@@ -1,10 +1,8 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.8 hotfix:  
-\- Suppress IndexOutOfRangeException in EnemyDFGroundSystem.CalcFormsSupply  
-\- Suppress IndexOutOfRangeException in BuildTool_Path.DeterminePreviews  
-\- Suppress IndexOutOfRangeException in CargoTraffic.SetBeltState  
-\- Suppress NREin BGMController.UpdateLogic  
+Nebula 0.9.9 hotfix:  
+\- Stop DF relays landing on planet with 7 or more powered planetary shield generators  
+\- Suppress IndexOutOfRangeException in NearColliderLogic.UpdateCursorNear  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  

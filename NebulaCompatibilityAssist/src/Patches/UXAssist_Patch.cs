@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "UXAssist";
         public const string GUID = "org.soardev.uxassist";
-        public const string VERSION = "1.0.26";
+        public const string VERSION = "1.1.6";
 
         public static void Init(Harmony harmony)
         {
@@ -41,6 +41,12 @@ namespace NebulaCompatibilityAssist.Patches
                 // 戴森球 - 初始化戴森球/快速拆除戴森壳
                 harmony.Patch(AccessTools.Method(classType, "InitCurrentDysonSphere"),
                     new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(DismantleAll_Prefix))));
+
+                classType = assembly.GetType("UXAssist.LogisticsPatch+LogisticsConstrolPanelImprovement");
+
+                // 物流系統改進 - 在控制台物流塔清單中右鍵點選物品圖示快速設定為篩選條件
+                harmony.Patch(AccessTools.Method(classType, "OnStationEntryItemIconRightClick"),
+                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(OnStationEntryItemIconRightClick_Prefix))));
 
                 Log.Info($"{NAME} - OK");
             }
@@ -95,10 +101,12 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (NebulaModAPI.IsMultiplayerActive)
             {
-                var packet = new NC_UXA_Packet(NC_UXA_Packet.EType.BuildOrbitalCollector, GameMain.localPlanet.id, NebulaModAPI.MultiplayerSession.LocalPlayer.Id);
-                packet.Value1 = prebuild.pos.x;
-                packet.Value2 = prebuild.pos.y;
-                packet.Value3 = prebuild.pos.z;
+                var packet = new NC_UXA_Packet(NC_UXA_Packet.EType.BuildOrbitalCollector, GameMain.localPlanet.id, NebulaModAPI.MultiplayerSession.LocalPlayer.Id)
+                {
+                    Value1 = prebuild.pos.x,
+                    Value2 = prebuild.pos.y,
+                    Value3 = prebuild.pos.z
+                };
                 NebulaModAPI.MultiplayerSession.Network.SendPacketToLocalStar(packet);
             }
             return factory.AddPrebuildDataWithComponents(prebuild);
@@ -118,6 +126,31 @@ namespace NebulaCompatibilityAssist.Patches
                 };
                 NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
             }
+        }
+
+        public static bool OnStationEntryItemIconRightClick_Prefix(UIControlPanelStationEntry stationEntry, int slot)
+        {
+            if (stationEntry.factory != null) return true; // Vanilla entry
+            // In MP client, the remote entry will have null factory
+
+            var itemId = 0;
+            switch(slot)
+            {
+                case 0: itemId = stationEntry.storageItem0.itemButton.tips.itemId; break;
+                case 1: itemId = stationEntry.storageItem1.itemButton.tips.itemId; break;
+                case 2: itemId = stationEntry.storageItem2.itemButton.tips.itemId; break;
+                case 3: itemId = stationEntry.storageItem3.itemButton.tips.itemId; break;
+                case 4: itemId = stationEntry.storageItem4.itemButton.tips.itemId; break;
+            }
+            if (itemId == 0) return false;
+            var filterPanel = UIRoot.instance.uiGame.controlPanelWindow.filterPanel;
+            var filter = filterPanel.GetCurrentFilter();
+            if (filter.itemsFilter is { Length: 1 } && filter.itemsFilter[0] == itemId) return false;
+            filter.itemsFilter = new int[1] { itemId };
+            filterPanel.SetNewFilter(filter);
+            filterPanel.RefreshFilterUI();
+            UIRoot.instance.uiGame.controlPanelWindow.DetermineFilterResults();
+            return false;
         }
     }
 }
