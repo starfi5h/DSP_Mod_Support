@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.4.17 (Nebula 0.9.10)
+\- Fix half growth dark fog base keep regenerating  
+\- Fix combat drones doesn't increase ground base threat  
+\- Remove AssemblerVerticalConstruction compat  
+
 #### v0.4.16 (Nebula 0.9.9)
 \- Stop DF relays landing on planet with 7 or more powered planetary shield generators  
 \- Suppress IndexOutOfRangeException in NearColliderLogic.UpdateCursorNear  

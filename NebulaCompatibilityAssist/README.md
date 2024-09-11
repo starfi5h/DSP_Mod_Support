@@ -1,19 +1,14 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.9 hotfix:  
-\- Stop DF relays landing on planet with 7 or more powered planetary shield generators  
-\- Suppress IndexOutOfRangeException in NearColliderLogic.UpdateCursorNear  
+Nebula 0.9.10 hotfix:  
+- Fix half growth dark fog base keep regenerating  
+- Fix combat drones doesn't increase ground base threat  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
 
 <details>
 <summary>Supported Mods List (click to expand)</summary>
-
-### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/) (WIP)
-- Early testing. There may be many bugs.  
-- Sync saved settings and recipe id changes.  
-- Fix divide by zero error in UpdateOutputToNextInner.  
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
 - Sync station configuration and drone, ship, warper count.   
@@ -76,7 +71,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 </details>
   
 If the syncing patches cause issue, you can try to disable them in the config file: `BepInEx\config\NebulaCompatibilityAssist.cfg`.  
-Currently there are options for 4 mods that use DSPModSave: DSPStarMapMemo, MoreMegaStructure, AssemblerVerticalConstruction, TheyComeFromVoid.  
+Currently there are options for 3 mods that use DSPModSave: DSPStarMapMemo, MoreMegaStructure, TheyComeFromVoid.  
 When disable, the syncing patch will no longer functional. The host's mod data will no longer be loaded in the clients when they join the game.  
   
 ----
@@ -91,9 +86,6 @@ When disable, the syncing patch will no longer functional. The host's mod data w
 
 <details>
 <summary>MOD列表 (点击展开)</summary>
-
-### [AssemblerVerticalConstruction](https://thunderstore.io/c/dyson-sphere-program/p/lltcggie/AssemblerVerticalConstruction/) (WIP)
-- 同步保存的设置和配方更改(测试中, 可能会出现错误)  
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
@@ -155,7 +147,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 </details>
   
 如果同步补丁导致问题，您可以尝试在配置文件`BepInEx\config\NebulaCompatibilityAssist.cfg`中禁用它们。  
-目前有4个使用 DSPModSave 的mod可以禁用补丁：DSPStarMapMemo、MoreMegaStructure、AssemblerVerticalConstruction、 TheyComeFromVoid  
+目前有3个使用 DSPModSave 的mod可以禁用补丁：DSPStarMapMemo、MoreMegaStructure、 TheyComeFromVoid  
 禁用后，同步补丁将不再起作用。客机加入游戏时将不再载入主机的该mod数据。  
   
 ----
