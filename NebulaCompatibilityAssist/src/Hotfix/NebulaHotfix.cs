@@ -2,11 +2,13 @@
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Networking;
+using NebulaModel.Packets.Combat;
 using NebulaModel.Packets.GameStates;
 using NebulaModel.Packets.Logistics;
 using NebulaModel.Utils;
 using NebulaNetwork;
 using NebulaPatcher.Patches.Dynamic;
+using NebulaPatcher.Patches.Transpilers;
 using NebulaWorld;
 using NebulaWorld.Chat;
 using NebulaWorld.Combat;
@@ -35,11 +37,11 @@ namespace NebulaCompatibilityAssist.Hotfix
             try
             {
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
-                
-                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 8)
+                if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 10)
                 {
-                    harmony.PatchAll(typeof(Warper099));
-                    Log.Info("Nebula hotfix 0.9.9 - OK");
+                    harmony.PatchAll(typeof(Warper0910));
+                    //PatchPacketProcessor(harmony);
+                    Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
 
                 ChatManager.Init(harmony);
@@ -96,33 +98,82 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper099
+    public static class Warper0910
     {
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(UIMainMenu), nameof(UIMainMenu._OnUpdate))]
-        public static void TestEsc()
+        [HarmonyPatch(typeof(DFGBaseComponent_Transpiler), "LaunchCondition")]
+        static bool LaunchCondition(DFGBaseComponent @this, ref bool __result)
         {
-            if (VFInput.escape)
+            if (!Multiplayer.IsActive) return true;
+
+            // In MP, replace local_player_grounded_alive flag with the following condition
+            var planetId = @this.groundSystem.planet.id;
+            var players = Multiplayer.Session.Combat.Players;
+            for (var i = 0; i < players.Length; i++)
             {
-                if (UIMainMenu_Patch.multiplayerMenu.gameObject.activeSelf)
+                if (players[i].isAlive && players[i].planetId == planetId)
                 {
-                    UIMainMenu_Patch.OnJoinGameBackButtonClick();
-                    VFInput.UseEscape();
+                    @this.groundSystem.local_player_pos = players[i].position;
+                    Log.Debug($"Base attack LaunchCondition: player[{i}] planeId{planetId}");
+                    __result =  true;
+                    return false;
                 }
-                else if (UIMainMenu_Patch.multiplayerSubMenu.gameObject.activeSelf)
+            }
+            __result = false;
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EnemyDFGroundSystem_Patch), "CanEraseBase_Prefix")]
+        static bool StopPatch()
+        {
+            // Disable as the half-growth base can't be destoryed
+            return false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.KeyTickLogic))]
+        static void FixClientBaseInvincible(EnemyDFGroundSystem __instance)
+        {
+            if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
+
+            var cursor = __instance.bases.cursor;
+            var baseBuffer = __instance.bases.buffer;
+            var enemyPool = __instance.factory.enemyPool;
+            for (int baseId = 1; baseId < cursor; baseId++)
+            {
+                var dfgbaseComponent = baseBuffer[baseId];
+                if (dfgbaseComponent == null || dfgbaseComponent.id != baseId) continue;
+                if (dfgbaseComponent.enemyId != 0 && enemyPool[dfgbaseComponent.enemyId].id == 0)
                 {
-                    UIMainMenu_Patch.OnMultiplayerBackButtonClick();
-                    VFInput.UseEscape();
+                    // Note: isInvincible in enemy is used by Nebula client to note if the enemy is pending to get killed
+                    // isInvincible will get set back to true in EnemyDFGroundSystem.KeyTickLogic when base sp > 0
+                    // So we'll need to set isInvincible = true to let host's incoming KillEnemyFinally packet get executed
+                    //if (!enemyPool[dfgbaseComponent.enemyId].isInvincible) Log.Debug($"Base[{baseId}] isInvincible = true");
+                    enemyPool[dfgbaseComponent.enemyId].isInvincible = true;
                 }
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlanetATField), nameof(PlanetATField.TestRelayCondition))]
-        public static void StopLanding(PlanetATField __instance, ref bool __result)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.DamageGroundObjectByLocalCaster))]
+        public static void DamageGroundObjectByLocalCaster_Prefix(PlanetFactory factory, int damage, int slice, ref SkillTarget target, ref SkillTarget caster)
         {
-            // Stop relay landing when there are 7 or more working shield generators
-            __result &= !(__instance.energy > 0 && __instance.generatorCount >= 7);
+            if (caster.type != ETargetType.Craft
+                || target.type != ETargetType.Enemy
+                || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
+
+            if (factory == GameMain.localPlanet?.factory) // Sync for local planet combat drones
+            {
+                target.astroId = caster.astroId = GameMain.localPlanet.astroId;
+                var packet = new CombatStatDamagePacket(damage, slice, in target, in caster)
+                {
+                    // Change the caster to player as craft (space fleet) is not sync yet
+                    CasterType = (short)ETargetType.Player,
+                    CasterId = Multiplayer.Session.LocalPlayer.Id
+                };
+                Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
+            }
         }
     }
 }
