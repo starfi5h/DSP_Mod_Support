@@ -1,5 +1,12 @@
 # Changelog
 
+#### v0.4.18 (Nebula 0.9.10)
+\- Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents (IL_026A)  
+\- Update stacktracer format  
+\- Revert AssemblerVerticalConstruction compat (hidden)  
+\- Stop CommonAPI "Loading registered asset..." debug log which triggered by TheyComeFromVoid  
+\- Fix NRE in SphereOpt.InstDysonShellRenderer.RenderShells (IL_0117)  
+
 #### v0.4.17 (Nebula 0.9.10)
 \- Fix half growth dark fog base keep regenerating  
 \- Fix combat drones doesn't increase ground base threat  
