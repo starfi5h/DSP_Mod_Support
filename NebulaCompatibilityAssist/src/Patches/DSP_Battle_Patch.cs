@@ -5,9 +5,11 @@ using NebulaCompatibilityAssist.Hotfix;
 using NebulaCompatibilityAssist.Packets;
 using NebulaWorld;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
-#pragma warning disable IDE0018 // 內嵌變數宣告
+//#pragma warning disable IDE0018 // 內嵌變數宣告
 
 namespace NebulaCompatibilityAssist.Patches
 {
@@ -41,6 +43,11 @@ namespace NebulaCompatibilityAssist.Patches
                 };
 
                 harmony.PatchAll(typeof(Warper));
+
+                var classType = AccessTools.TypeByName("CommonAPI.Patches.ResourcesPatch");
+                var methodInfo = AccessTools.Method(classType, "Prefix");
+                harmony.Patch(methodInfo, null, null, new HarmonyMethod(AccessTools.Method(typeof(DSP_Battle_Patch), nameof(ResourcesPatch_Prefix_Transpiler))));
+
                 Log.Info($"{NAME} - OK");
             }
             catch (Exception e)
@@ -86,6 +93,26 @@ namespace NebulaCompatibilityAssist.Patches
         public static void OnReceive(NC_BattleUpdate packet)
         {
             Warper.HandleRequest(packet);
+        }
+
+        public static IEnumerable<CodeInstruction> ResourcesPatch_Prefix_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                // replace : CommonAPIPlugin.logger.LogDebug("Loading registered asset ...");
+                // with    : Nop
+                var codeMatcher = new CodeMatcher(instructions)
+                    .MatchForward(false, new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "LogDebug"))
+                    .Repeat(matcher => matcher.SetAndAdvance(OpCodes.Pop, null));
+
+                return codeMatcher.InstructionEnumeration();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("CommonAPI.Patches.ResourcesPatch.Prefix Transpiler fail!");
+                Log.Dev(e);
+                return instructions;
+            }
         }
 
         private static class Warper

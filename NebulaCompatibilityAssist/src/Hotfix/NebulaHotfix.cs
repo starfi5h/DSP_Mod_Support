@@ -175,5 +175,22 @@ namespace NebulaCompatibilityAssist.Hotfix
                 Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(SpaceSector), nameof(SpaceSector.RemoveEnemyWithComponents))]
+        public static void RemoveEnemyWithComponents_Prefix(SpaceSector __instance, int id)
+        {
+            // Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents IL_026A 
+            // This is due to combatStats is not sync in client
+
+            if (id != 0 && __instance.enemyPool[id].id != 0)
+            {
+                if (__instance.enemyPool[id].combatStatId != 0)
+                {
+                    if (__instance.enemyPool[id].combatStatId >= __instance.skillSystem.combatStats.cursor)
+                        __instance.enemyPool[id].combatStatId = 0;
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using SphereOpt;
 using System;
 
 namespace NebulaCompatibilityAssist.Patches
@@ -18,6 +19,7 @@ namespace NebulaCompatibilityAssist.Patches
             try
             {
                 NebulaModAPI.OnDysonSphereLoadFinished += Warper.OnDysonSphereLoadFinished;
+                harmony.PatchAll(typeof(Warper));
                 Log.Info($"{NAME} - OK");
             }
             catch (Exception e)
@@ -28,7 +30,7 @@ namespace NebulaCompatibilityAssist.Patches
             }
         }
 
-        public class Warper
+        public static class Warper
         {
             public static void OnDysonSphereLoadFinished(int starIndex)
             {
@@ -40,6 +42,16 @@ namespace NebulaCompatibilityAssist.Patches
                     // Reset dysonSphere reference after dyson sphere is loaded in client 
                     renderer.dysonSphere = dysonSphere;
                 }
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(InstDysonShellRenderer), nameof(InstDysonShellRenderer.RenderShells))]
+            static bool RenderShells_Prefix()
+            {
+                // in line: sunPos = ((localPlanet == null) ? (this.starData.uPosition - mainPlayer.uPosition) : Maths.QInvRotateLF(localPlanet.runtimeRotation, this.starData.uPosition - localPlanet.uPosition));
+                // there is an issue that mainPlayer may be null and cause NRE
+                // So just don't render shells in demo to avoid the error
+                return GameMain.mainPlayer != null;
             }
         }
     }
