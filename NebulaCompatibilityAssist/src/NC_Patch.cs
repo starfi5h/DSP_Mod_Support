@@ -50,6 +50,8 @@ namespace NebulaCompatibilityAssist.Patches
                 MoreMegaStructure.Init(harmony);
             BlueprintTweaks.Init(harmony);
             DSPAutoSorter.Init(harmony);
+            if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
+                AssemblerVerticalConstruction.Init(harmony);
             if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
                 DSP_Battle_Patch.Init(harmony);
 
