@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Bootstrap;
+using HarmonyLib;
 using NebulaModel;
 using NebulaModel.DataStructures.Chat;
 using NebulaModel.Networking;
@@ -19,6 +20,7 @@ using NebulaWorld.Player;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -95,6 +97,54 @@ namespace NebulaCompatibilityAssist.Hotfix
                 Log.Error(msg);
             }
             return null;
+        }
+
+        static List<string> IgnorePluginList = new()
+        {
+            "IlLine",
+            "CloseError",
+            "Galactic Scale 2 Nebula Compatibility Plug-In",
+            "Common API Nebula Compatibility",
+            "Blueprint Tweaks Installation Checker",
+            "Giga Stations Nebula Compatibility",
+            "GenesisBook.InstallationCheck",
+            "FractionateEverything.CheckPlugins",
+            "MMSGCPatch",
+            "MMSBottleneckCompat",
+            "BuildBarTool.CheckPlugins",
+            "BuildBarTool_RebindBuildBarCompat"
+        };
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(UIFatalErrorTip_Patch), nameof(UIFatalErrorTip_Patch.Title))]
+        static void Title(ref string __result)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("An error has occurred! Game version ");
+            stringBuilder.Append(GameConfig.gameVersion.ToString());
+            stringBuilder.Append('.');
+            stringBuilder.Append(GameConfig.gameVersion.Build);
+            if (Multiplayer.IsActive)
+            {
+                stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
+            }
+            stringBuilder.AppendLine();
+
+            var modSB = new StringBuilder();
+            var modCount = 0;
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                if (IgnorePluginList.Contains(pluginInfo.Metadata.Name)) continue;
+                modSB.Append('[');
+                modSB.Append(pluginInfo.Metadata.Name);
+                modSB.Append(pluginInfo.Metadata.Version);
+                modSB.Append("] ");
+                modCount++;
+            }
+            stringBuilder.Append(modCount + " Mods used: ");
+            stringBuilder.Append(modSB);
+
+            __result = stringBuilder.ToString();
         }
     }
 
