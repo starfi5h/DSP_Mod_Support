@@ -46,7 +46,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Sys", "星系");
             StringManager.RegisterString("All Planet", "行星");
             StringManager.RegisterString("Current Star", "当前星系");
-            StringManager.RegisterString("Has Factory", "存在建筑");
+            StringManager.RegisterString("Has Factory", "存在工厂");
             StringManager.RegisterString("★", "★"); // 收藏
             StringManager.RegisterString("Recent", "最近造访");
 

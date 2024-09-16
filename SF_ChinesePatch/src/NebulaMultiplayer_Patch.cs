@@ -50,6 +50,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Streamer mode", "直播模式");
             StringManager.RegisterString("If enabled specific personal information like your IP address is hidden from the ingame chat and input fields.", "直播模式中，隐私数据（IP地址等）将会用星号隐藏");
             StringManager.RegisterString("Enable Achievement", "启用成就");
+            StringManager.RegisterString("Player List Hotkey", "玩家列表热键");
 
             StringManager.RegisterString("Server Password", "服务器密码");
             StringManager.RegisterString("If provided, this will set a password for your hosted server.", "设置不为空时，玩家需输入密码才能进入服务器");
@@ -68,7 +69,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Auto accept Discord join requests", "自动允许Discord加入请求");
             StringManager.RegisterString("IP Configuration", "Discord IP设置");
             StringManager.RegisterString("Configure which type of IP should be used by Discord RPC", "设置Discord要使用哪种IP");
-            StringManager.RegisterString("Cleanup inactive sessions", "清除不活跃的sessions");
+            StringManager.RegisterString("Cleanup inactive sessions", "清除不活跃的会话");
             StringManager.RegisterString("If disabled the underlying networking library will not cleanup inactive connections. This might solve issues with clients randomly disconnecting and hosts having a 'System.ObjectDisposedException'.", "启用后会自动清除不活跃的会话，可能解决客户端随机断开连接和主机出现“System.ObjectDisposedException”错误的问题");
 
             StringManager.RegisterString("Chat Hotkey", "聊天窗口热键");
@@ -124,7 +125,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("You have been disconnected from the server.", "你已与服务器断开连接。");
 
             StringManager.RegisterString("Server Unavailable", "无法使用");
-            StringManager.RegisterString("Could not reach the server, please try again later.", "无法连接到服务器，请稍后再试。");
+            StringManager.RegisterString("Could not reach the server, please try again later.", "无法连接到服务器，请确认网络状态。");
             #endregion
 
             #region Popout 提示
@@ -153,11 +154,12 @@ namespace SF_ChinesePatch
             #endregion
 
             #region Battle notification 戰鬥提示
-            StringManager.RegisterString("DF seed sent out from", "黑雾火种发射于");
-            StringManager.RegisterString("DF relay landed on planet", "中继站登陆星球");
-            StringManager.RegisterString("DF relay left from planet", "中继站离开星球");
+            StringManager.RegisterString("DF seed sent out", "黑雾火种发射");
+            StringManager.RegisterString("DF relay landed on", "中继站登陆星球");
+            StringManager.RegisterString("DF relay left from", "中继站离开星球");
+            StringManager.RegisterString("DF relay killed on", "中继站已被摧毁");
             StringManager.RegisterString("Space hive is attacking", "太空巢穴袭击");
-            StringManager.RegisterString("Planetary base is attacking", "地面基地袭击");
+            //StringManager.RegisterString("Planetary base is attacking", "地面基地袭击");
 
             #endregion
 

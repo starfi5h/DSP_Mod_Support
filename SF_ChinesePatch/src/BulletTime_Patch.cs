@@ -15,10 +15,17 @@
 
         private static void RegisterStrings()
         {
+            StringManager.RegisterString("Pause", "暂停");
+            StringManager.RegisterString("Toggle tactical pause mode", "切换战术暂停模式");
+            StringManager.RegisterString("Resume", "恢复");
+            StringManager.RegisterString("Reset game speed back to 1x", "将游戏速度重设为1倍");
+            StringManager.RegisterString("SpeedUp", "加速");
+            StringManager.RegisterString("Increase game speed (max 4x)", "加快游戏速度(最高4倍)");
+
+            StringManager.RegisterString("Background autosave", "后台自动保存");
             StringManager.RegisterString("Read-Only", "只读模式");
             StringManager.RegisterString("Can't interact with game world during auto-save\nPlease wait or press ESC to close the window", "自动保存期间无法与游戏世界交互\n请等待或按ESC关闭窗口");
             StringManager.RegisterString("Saving...", "保存中...");
-            StringManager.RegisterString("Pause", "暂停");
             StringManager.RegisterString("Dyson sphere is rotating", "点击以停止旋转");
             StringManager.RegisterString("Dyson sphere is stopped", "点击以恢复旋转");
             StringManager.RegisterString("Click to stop rotating", "点击以停止旋转");
