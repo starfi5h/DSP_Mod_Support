@@ -1,3 +1,7 @@
+### v1.3.5
+\- Add signal picker subcategory Recording Mode.  
+\- Add spraycoater signal status 601 (no input belt) and 602 (no output belt)  
+
 ### v1.3.4
 \- Auto query the item/recipe under mouse cursor while opening the panel.  
 \- Middle click on warning signal to let camera loop through the entities on the local planet.  

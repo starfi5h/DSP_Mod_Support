@@ -25,6 +25,7 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 - Building: Power network groups  
 - Vein: Collection Planned, Not Yet Planned  
 - Recipe: Extra products, Production speedup, Lack of material, Product overflow  
+- Warning: Recording Mode  
 - Stroage: Distributor Demand, Distributor Supply  
 - Station: Local station, Interstellar station, Local demand, Local supply, Remote demand, Remote supply  
   
