@@ -521,7 +521,8 @@ namespace FactoryLocator
 
             foreach (var factory in factories)
             {
-                for (int id = 1; id < factory.entityCursor; id++)
+                int cursor = factory.entityCursor;
+                for (int id = 1; id < cursor; id++)
                 {
                     if (id == factory.entityPool[id].id)
                     {
@@ -547,6 +548,33 @@ namespace FactoryLocator
                         }
                     }
                 }
+
+                cursor = factory.cargoTraffic.spraycoaterCursor;
+                for (int id = 1; id < cursor; id++)
+                {
+                    ref var sprayer = ref factory.cargoTraffic.spraycoaterPool[id];
+                    if (id != sprayer.id) continue;
+
+                    int key = 0;
+                    if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
+                    if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    if (key == 0) continue;
+
+                    if (signalId == -1)
+                    {
+                        if (filterIds.ContainsKey(key))
+                            ++filterIds[key];
+                        else
+                            filterIds[key] = 1;
+                    }
+                    else if (signalId == key)
+                    {
+                        ref var entity = ref factory.entityPool[sprayer.entityId];
+                        localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                        detailIds.Add(entity.protoId);
+                        planetIds.Add(factory.planetId);
+                    }
+                }
             }
         }
 
@@ -554,11 +582,32 @@ namespace FactoryLocator
         {
             foreach (var factory in factories)
             {
-                for (int id = 1; id < factory.entityCursor; id++)
+                int cursor = factory.entityCursor;
+                for (int id = 1; id < cursor; id++)
                 {
                     if (factory.entitySignPool[id].signType <= 0) continue;
                     int key = (int)factory.entitySignPool[id].signType + 500;
                     long value = ((long)factory.index << 32) | ((long)id);
+                    if (!hashDict.TryGetValue(key, out var hashIds))
+                    {
+                        hashIds = new HashSet<long>();
+                        hashDict.Add(key, hashIds);
+                    }
+                    hashIds.Add(value);
+                }
+
+                cursor = factory.cargoTraffic.spraycoaterCursor;
+                for (int id = 1; id < cursor; id++)
+                {
+                    ref var sprayer = ref factory.cargoTraffic.spraycoaterPool[id];
+                    if (id != sprayer.id) continue;
+
+                    int key = 0;
+                    if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
+                    if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    if (key == 0) continue;
+
+                    long value = ((long)factory.index << 32) | ((long)sprayer.entityId);
                     if (!hashDict.TryGetValue(key, out var hashIds))
                     {
                         hashIds = new HashSet<long>();
