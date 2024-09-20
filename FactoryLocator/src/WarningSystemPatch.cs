@@ -47,6 +47,13 @@ namespace FactoryLocator
 			}
 		}
 
+		[HarmonyPostfix]
+		[HarmonyPatch(typeof(WarningSystem), nameof(WarningSystem.GameTick))]
+		internal static void GameTick()
+        {
+			Plugin.mainLogic.GameTick();
+        }
+
 		[HarmonyPrefix]
 		[HarmonyPatch(typeof(UIWarningWindow), nameof(UIWarningWindow.Determine))]
 		internal static void Determine(ref bool open)

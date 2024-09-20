@@ -18,8 +18,12 @@ namespace FactoryLocator
         private int state; // Internal state to record the last catagory
         private readonly List<int> networkIds = new();
         private readonly HashSet<int> tmp_ids = new();
+        
+        private bool isRecording = false;
+        private readonly Dictionary<int, HashSet<long>> hashDict = new();
+        private int tick = 0;
 
-        private Vector2 windowPos = new Vector2(-300f, 250f); //Roughly center of the screen
+        private Vector2 windowPos = new(-300f, 250f); //Roughly center of the screen
 
         readonly static Color ORANGE   = new(0.9906f, 0.5897f, 0.3691f, 0.7059f); // warningCount (original)
         readonly static Color CYAN     = new(0.2821f, 0.7455f, 1.0000f, 0.7059f); // itemCount (more blue)
@@ -28,6 +32,7 @@ namespace FactoryLocator
         public int SetFactories(StarData star, PlanetData planet)
         {
             state = 0;
+            isRecording = false;
             factories.Clear();
             if (star != null)
             {
@@ -76,6 +81,22 @@ namespace FactoryLocator
 #endif
 
             return factories.Count;
+        }
+
+        public void GameTick()
+        {
+            if (isRecording && UIRoot.instance.uiGame.signalPicker.active)
+            {
+                RecordAllSignal();
+                if (tick++ > 30) // Refresh UI every 0.5s
+                {
+                    tick = 0;
+                    RecordToFilter();
+                    UIRoot.instance.uiGame.signalPicker.RefreshIcons();
+                    // refresh count
+                    UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(UIRoot.instance.uiGame.signalPicker.currentType);
+                }
+            }
         }
 
         public void PickBuilding(int networkId)
@@ -134,22 +155,41 @@ namespace FactoryLocator
             WarningSystemPatch.AddWarningData(SignalId, SignalProtoSet.SignalId(ESignalType.Recipe, recipeId), planetIds, localPos);
         }
 
-        public void PickWarning(int _)
+        public void PickWarning(int mode)
         {
-            state = 0;
+            state = mode;
+            if (mode == 1)
+            {
+                isRecording = true;
+                hashDict.Clear();
+                Log.Debug("Start recording");
+            }
             RefreshSignal(-1);
             UIentryCount.OnOpen(ESignalType.Signal, filterIds);
-            UISignalPickerExtension.Popup(new Vector2(-300f, 250f), OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
+            UISignalPickerExtension.Popup(windowPos, OnWarningPickReturn, signalId => filterIds.ContainsKey(signalId));
             UIRoot.instance.uiGame.signalPicker.OnTypeButtonClick(1);
         }
 
         public void OnWarningPickReturn(int signalId)
         {
+            if (isRecording)
+            {
+                isRecording = false;
+                Log.Debug("Stop recording");
+            }
             windowPos = UIRoot.instance.uiGame.signalPicker.pickerTrans.anchoredPosition;
             if (signalId <= 0) // Return by ESC
                 return;
-            RefreshSignal(signalId);
-            WarningSystemPatch.AddWarningData(SignalId, signalId, planetIds, localPos, detailIds);
+            if (state == 0)
+            {
+                RefreshSignal(signalId);
+            }
+            else if (state == 1)
+            {
+                RecordToResult(signalId);
+                hashDict.Clear();
+            }            
+            WarningSystemPatch.AddWarningData(SignalId, signalId, planetIds, localPos, detailIds);            
         }
 
         public void PickStorage(int mode)
@@ -507,6 +547,55 @@ namespace FactoryLocator
                         }
                     }
                 }
+            }
+        }
+
+        public void RecordAllSignal()
+        {
+            foreach (var factory in factories)
+            {
+                for (int id = 1; id < factory.entityCursor; id++)
+                {
+                    if (factory.entitySignPool[id].signType <= 0) continue;
+                    int key = (int)factory.entitySignPool[id].signType + 500;
+                    long value = ((long)factory.index << 32) | ((long)id);
+                    if (!hashDict.TryGetValue(key, out var hashIds))
+                    {
+                        hashIds = new HashSet<long>();
+                        hashDict.Add(key, hashIds);
+                    }
+                    hashIds.Add(value);
+                }
+            }
+        }
+
+        public void RecordToFilter()
+        {
+            filterIds.Clear();
+            foreach (var pair in hashDict)
+            {
+                filterIds[pair.Key] = pair.Value.Count;
+            }
+        }
+
+        public void RecordToResult(int signalId)
+        {
+            localPos.Clear();
+            planetIds.Clear();
+            detailIds.Clear();
+
+            if (!hashDict.TryGetValue(signalId, out var hashIds)) return;
+            foreach (long hash in hashIds)
+            {
+                int factroyId = (int)(hash >> 32);
+                int entityId = (int)(hash & 0xFFFFFFFFL);
+                var factory = GameMain.data.factories[factroyId];
+                if (factory == null || entityId >= factory.entityCursor) continue;
+
+                ref var entity = ref factory.entityPool[entityId];
+                localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                detailIds.Add(entity.protoId);
+                planetIds.Add(factory.planetId);
             }
         }
 

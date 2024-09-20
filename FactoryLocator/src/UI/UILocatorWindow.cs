@@ -36,6 +36,7 @@ namespace FactoryLocator.UI
         private static int buildingIndex; // All, Power network #(id)
         private static int veinIndex;     // All, Planned, Unplanned
         private static int assemblerIndex;// All, Lack of material, Product overflow
+        private static int warningIndex;  // All, Record Mode
         private static int storageIndex;  // All, Demand, Supply
         private static int stationIndex;  // All, Local Station, Interstellar Station, Local demand, Local supply, Remote demand, Remote supply
 
@@ -299,7 +300,7 @@ namespace FactoryLocator.UI
                 case 0: Plugin.mainLogic.PickBuilding(buildingIndex); break;
                 case 1: Plugin.mainLogic.PickVein(veinIndex); break;
                 case 2: Plugin.mainLogic.PickAssembler(assemblerIndex); break;
-                case 3: Plugin.mainLogic.PickWarning(0); break;
+                case 3: Plugin.mainLogic.PickWarning(warningIndex); break;
                 case 4: Plugin.mainLogic.PickStorage(storageIndex); break;
                 case 5: Plugin.mainLogic.PickStation(stationIndex); break;
             }
@@ -319,6 +320,10 @@ namespace FactoryLocator.UI
             if (queryType == 2)
             {
                 Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.recipePicker.transform);
+            }
+            else if (queryType == 3)
+            {
+                Util.NormalizeRectWithTopLeft(comboBox, 153, 7, UIRoot.instance.uiGame.signalPicker.transform);
             }
             else
             {
@@ -374,6 +379,14 @@ namespace FactoryLocator.UI
                     comboBox.itemIndex = assemblerIndex;
                     break;
 
+                case 3: // PickWarning
+                    comboBox.Items.Add("All".Translate());
+                    comboBox.ItemsData.Add(0);
+                    comboBox.Items.Add("Recording Mode".Translate());
+                    comboBox.ItemsData.Add(1);
+                    comboBox.itemIndex = warningIndex;
+                    break;
+
                 case 4: // PickStorage
                     comboBox.Items.Add("All".Translate());
                     comboBox.ItemsData.Add(0);
@@ -413,6 +426,7 @@ namespace FactoryLocator.UI
         {
             bool isPickingItem = UIRoot.instance.uiGame.itemPicker.active;
             bool isPickingRecipe = UIRoot.instance.uiGame.recipePicker.active;
+            bool isPickingSignal = UIRoot.instance.uiGame.signalPicker.active;
 
             switch (queryingType)
             {
@@ -443,6 +457,16 @@ namespace FactoryLocator.UI
                         Plugin.mainLogic.OnAssemblerPickReturn(null);
                         UIRecipePicker.Close();
                         Plugin.mainLogic.PickAssembler(assemblerIndex);
+                    }
+                    return;
+
+                case 3: // PickWarning
+                    warningIndex = comboBox.itemIndex;
+                    if (isPickingSignal)
+                    {
+                        Plugin.mainLogic.OnWarningPickReturn(0);
+                        UISignalPicker.Close();
+                        Plugin.mainLogic.PickWarning(warningIndex);
                     }
                     return;
 

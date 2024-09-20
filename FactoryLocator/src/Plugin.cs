@@ -63,6 +63,7 @@ namespace FactoryLocator
             RegisterTranslation("Power Network Status", "Power Network Status", "电网状态");
             RegisterTranslation("Satisfaction - Consumer Count", "Satisfaction - Consumer Count", "供电率 - 消耗者数量");
             RegisterTranslation("All", "All", "全部");
+            RegisterTranslation("Recording Mode", "Recording Mode", "持续记录模式");
 
             BetterWarningIconsCompat.Preload();
 #endif
