@@ -557,7 +557,8 @@ namespace FactoryLocator
 
                     int key = 0;
                     if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
-                    if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    else if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    else if (sprayer.incCount == 0) key = 600; // "无增产剂"
                     if (key == 0) continue;
 
                     if (signalId == -1)
@@ -604,7 +605,8 @@ namespace FactoryLocator
 
                     int key = 0;
                     if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
-                    if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    else if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
+                    else if (sprayer.incCount == 0) key = 600; // "无增产剂"
                     if (key == 0) continue;
 
                     long value = ((long)factory.index << 32) | ((long)sprayer.entityId);

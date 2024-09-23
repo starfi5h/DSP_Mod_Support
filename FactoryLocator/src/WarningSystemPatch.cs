@@ -81,7 +81,7 @@ namespace FactoryLocator
 				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Mouse2))
+			if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1))
 			{
 				Camera worldCamera = UIRoot.instance.overlayCanvas.worldCamera;
 				RectTransform rect = (RectTransform)__instance.itemGroup.transform;
@@ -92,11 +92,14 @@ namespace FactoryLocator
 						if (RectTransformUtility.RectangleContainsScreenPoint(__instance.itemEntries[i].rectTrans, Input.mousePosition, worldCamera))
 						{
 							if (Input.GetKeyDown(KeyCode.Mouse0)) // Left click
-								UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
+							{
+								if (VFInput.control) SeekNextSignal(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
+								else UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
+							}
 							else if (Input.GetKeyDown(KeyCode.Mouse1)) // Right click
+							{
 								HideGroup(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
-							else if (Input.GetKeyDown(KeyCode.Mouse2)) // Middle click
-								SeekNextSignal(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
+							}
 							break;
 						}
 					}

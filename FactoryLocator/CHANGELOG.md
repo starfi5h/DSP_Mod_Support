@@ -1,3 +1,7 @@
+### v1.3.6
+\- Add spraycoater signal status 600 (no proliferator)  
+\- Change camera locate from middle click to ctrl + left click.  
+
 ### v1.3.5
 \- Add signal picker subcategory Recording Mode.  
 \- Add spraycoater signal status 601 (no input belt) and 602 (no output belt)  

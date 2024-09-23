@@ -45,7 +45,7 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 ### Warning Icons Extention
 ![iteration entities wtih camera](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)  
 - **Left Click**: Displays the planet locations of the warnings. Click elsewhere to close the details.
-- **Middle Click**: Loops the camera through all relevant entities on the local planet.
+- **Ctrl + Left Click**: Loops the camera through all relevant entities on the local planet.
 - **Right Click**: Removes the selected query group from the list.
 
 ## Installation
@@ -86,15 +86,22 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 
 ![选择窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory_c.png)  
 在选择窗口中，将显示所有可能的搜索选项。数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
-选择窗口可以拖曳移动，下拉列表可以选择子类别。  
-配方选择窗口中的数字颜色代表机器的增产策略:  
+选择窗口可以拖曳移动，下拉列表可以选择子类别：   
+- 建筑：电网组  
+- 矿脉：已规划采集、未规划采集  
+- 配方：额外产出、加速生产、缺少原材料、产物堆积  
+- 警报：持续记录模式  
+- 储物仓：(物流配送器)需求、((物流配送器))供应  
+- 物流塔：本地站点、星际站点、本地需求、本地供应、星际需求、星际供应  
+
+配方选择窗口中的数字颜色代表机器的增产策略：  
 - 淡蓝: 额外产出
 - 淡黄: 生产加速
 - 淡红: 混合
 
 ![中键循序镜头](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)
 - 左键单击信标详细信息图标可以显示警报位置。单击其他区域以关闭它。  
-- 右键单击信标可以将镜头移动到本地星球上信标的位置。  
+- Ctrl+左键单击信标可以将镜头移动到本地星球上信标的位置。  
 - 右键单击搜索信标可以移除该群组。  
 
 ## 安装
