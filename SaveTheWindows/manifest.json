@@ -1,0 +1,7 @@
+{
+  "name": "SaveTheWindows",
+  "description": "Saves the window positions so they're restored on the next game start. Allow windows go outside of screen partly. 保存窗口位置,允许窗口部分超出边框",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/SaveTheWindows",
+  "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
+}
