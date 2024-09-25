@@ -1,3 +1,6 @@
+### v1.3.7
+\- Let siginal picker window doesn't close when clicking outside.  
+
 ### v1.3.6
 \- Add spraycoater signal status 600 (no proliferator)  
 \- Change camera locate from middle click to ctrl + left click.  

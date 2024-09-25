@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -97,6 +99,31 @@ namespace FactoryLocator
                     int id = __instance.signalArray[i];
                     SetNumber(countArray[i], id);
                 }
+            }
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(UISignalPicker), nameof(UISignalPicker._OnUpdate))]
+        public static IEnumerable<CodeInstruction> UISignalPicker_OnUpdate_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                // Remove base._Close() so it doesn't close when clicking on area outside of the picking window
+                var codeMacher = new CodeMatcher(instructions).End()
+                    .MatchBack(false,
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(i => i.opcode == OpCodes.Call && ((MethodInfo)i.operand).Name == "_Close")
+                    )
+                    .SetAndAdvance(OpCodes.Nop, null)
+                    .SetAndAdvance(OpCodes.Nop, null);
+
+                return codeMacher.InstructionEnumeration();
+            }
+            catch (System.Exception e)
+            {
+                Log.Warn("Transpiler UISignalPicker._OnUpdate error");
+                Log.Warn(e);
+                return instructions;
             }
         }
 
