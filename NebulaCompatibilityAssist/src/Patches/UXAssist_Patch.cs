@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "UXAssist";
         public const string GUID = "org.soardev.uxassist";
-        public const string VERSION = "1.1.6";
+        public const string VERSION = "1.2.4";
 
         public static void Init(Harmony harmony)
         {
@@ -22,7 +22,7 @@ namespace NebulaCompatibilityAssist.Patches
 
             try
             {
-                Type classType = assembly.GetType("UXAssist.PlanetFunctions");
+                Type classType = assembly.GetType("UXAssist.Functions.PlanetFunctions");
 
                 // 行星工廠 - 快速拆除所有建築
                 harmony.Patch(AccessTools.Method(classType, "DismantleAll"),
@@ -36,13 +36,13 @@ namespace NebulaCompatibilityAssist.Patches
                 harmony.Patch(AccessTools.Method(classType, "BuildOrbitalCollectors"), null, null,
                     new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(BuildOrbitalCollectors_Transpiler))));
 
-                classType = assembly.GetType("UXAssist.DysonSpherePatch");
+                classType = assembly.GetType("UXAssist.Patches.DysonSpherePatch");
 
                 // 戴森球 - 初始化戴森球/快速拆除戴森壳
                 harmony.Patch(AccessTools.Method(classType, "InitCurrentDysonSphere"),
-                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(DismantleAll_Prefix))));
+                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(InitCurrentDysonSphere_Prefix))));
 
-                classType = assembly.GetType("UXAssist.LogisticsPatch+LogisticsConstrolPanelImprovement");
+                classType = assembly.GetType("UXAssist.Patches.LogisticsPatch+LogisticsConstrolPanelImprovement");
 
                 // 物流系統改進 - 在控制台物流塔清單中右鍵點選物品圖示快速設定為篩選條件
                 harmony.Patch(AccessTools.Method(classType, "OnStationEntryItemIconRightClick"),

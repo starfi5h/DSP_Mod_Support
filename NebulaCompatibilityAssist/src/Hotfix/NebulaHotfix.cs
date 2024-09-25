@@ -146,6 +146,15 @@ namespace NebulaCompatibilityAssist.Hotfix
 
             __result = stringBuilder.ToString();
         }
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UITutorialTip), nameof(UITutorialTip.PopupTutorialTip))]
+        private static bool UITutorialTip_PopupTutorialTip_Prefix(int tutorialId)
+        {
+            GameMain.history.UnlockTutorial(tutorialId);
+            return false;
+        }
     }
 
     public static class Warper0910

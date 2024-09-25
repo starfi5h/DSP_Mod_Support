@@ -1,5 +1,9 @@
 # Changelog
 
+#### v0.4.19 (Nebula 0.9.11)
+\- Update UXAssist v1.2.4 compat  
+\- Suppress tutorial tips  
+
 #### v0.4.18 (Nebula 0.9.10)
 \- Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents (IL_026A)  
 \- Update stacktracer format  

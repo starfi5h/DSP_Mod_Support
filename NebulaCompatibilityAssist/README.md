@@ -1,6 +1,6 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.10 hotfix:  
+Nebula 0.9.10 hotfix (those are fixed in 0.9.11):  
 - Fix half growth dark fog base keep regenerating  
 - Fix combat drones doesn't increase ground base threat  
 - Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents (IL_026A)  
