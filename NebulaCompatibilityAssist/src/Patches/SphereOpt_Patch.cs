@@ -53,6 +53,13 @@ namespace NebulaCompatibilityAssist.Patches
                 // So just don't render shells in demo to avoid the error
                 return GameMain.mainPlayer != null;
             }
+
+            [HarmonyFinalizer]
+            [HarmonyPatch(typeof(InstDysonShellRenderer), nameof(InstDysonShellRenderer.RenderShells))]
+            public static Exception RenderShells_Finalizer()
+            {
+                return null;
+            }
         }
     }
 }

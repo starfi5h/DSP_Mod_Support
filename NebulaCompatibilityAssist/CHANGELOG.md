@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.4.20 (Nebula 0.9.11)
+\- Suppress NRE in SphereOpt.InstDysonShellRenderer.RenderShells  
+
 #### v0.4.19 (Nebula 0.9.11)
 \- Update UXAssist v1.2.4 compat  
 \- Suppress tutorial tips  

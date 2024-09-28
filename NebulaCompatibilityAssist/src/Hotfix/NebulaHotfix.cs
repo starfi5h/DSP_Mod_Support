@@ -41,11 +41,19 @@ namespace NebulaCompatibilityAssist.Hotfix
                 System.Version nebulaVersion = pluginInfo.Metadata.Version;
                 if (nebulaVersion.Major == 0 && nebulaVersion.Minor == 9 && nebulaVersion.Build == 10)
                 {
-                    harmony.PatchAll(typeof(Warper0910));
+                    //harmony.PatchAll(typeof(Warper0910));
                     //PatchPacketProcessor(harmony);
-                    Log.Info("Nebula hotfix 0.9.10 - OK");
+                    //Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Nebula hotfix patch fail! Current version: " + pluginInfo.Metadata.Version);
+                Log.Warn(e);
+            }
 
+            try
+            {
                 ChatManager.Init(harmony);
                 harmony.PatchAll(typeof(Analysis.StacktraceParser));
                 harmony.PatchAll(typeof(SuppressErrors));
@@ -53,8 +61,8 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
             catch (Exception e)
             {
-                Log.Warn($"Nebula hotfix patch fail! Current version: " + pluginInfo.Metadata.Version);
-                Log.Debug(e);
+                Log.Warn($"Nebula extra features patch fail! Current version: " + pluginInfo.Metadata.Version);
+                Log.Warn(e);
             }
         }
 
@@ -84,9 +92,11 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.GameTickLogic))]
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.KeyTickLogic))]
         [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.GameTick))]
+        [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.GameTick))]
         [HarmonyPatch(typeof(DefenseSystem), nameof(DefenseSystem.GameTick))]
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
         [HarmonyPatch(typeof(NearColliderLogic), nameof(NearColliderLogic.UpdateCursorNear))]
+        [HarmonyPatch(typeof(PlayerAction_Combat), nameof(PlayerAction_Combat.AfterMechaGameTick))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
@@ -157,6 +167,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
+    /*
     public static class Warper0910
     {
         [HarmonyPrefix]
@@ -252,4 +263,5 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
         }
     }
+    */
 }

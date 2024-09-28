@@ -1,9 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.10 hotfix (those are fixed in 0.9.11):  
-- Fix half growth dark fog base keep regenerating  
-- Fix combat drones doesn't increase ground base threat  
-- Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents (IL_026A)  
+Nebula 0.9.11 hotfix:  
+- Suppress tutorial tips so they don't show up everytime players join the game  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
