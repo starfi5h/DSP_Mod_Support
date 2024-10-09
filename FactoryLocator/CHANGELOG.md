@@ -1,3 +1,6 @@
+### v1.3.8
+\- Add blueprint error signal 404. Only available in local planet and Warning - All mode.  
+
 ### v1.3.7
 \- Let siginal picker window doesn't close when clicking outside.  
 

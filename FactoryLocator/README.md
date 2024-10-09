@@ -25,7 +25,7 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 - Building: Power network groups  
 - Vein: Collection Planned, Not Yet Planned  
 - Recipe: Extra products, Production speedup, Lack of material, Product overflow  
-- Warning: Recording Mode  
+- Warning: All, Recording Mode  
 - Stroage: Distributor Demand, Distributor Supply  
 - Station: Local station, Interstellar station, Local demand, Local supply, Remote demand, Remote supply  
   
@@ -34,6 +34,13 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 - Light Blue: Extra output
 - Light Yellow: Production speedup
 - Light Red: Mixed
+
+**Extra signal in Warning picker**
+- 404: Blueprint error
+- 600: Spray coaster has no spray
+- 601: Spray coaster has no input belt (spray)  
+- 602: Spray coaster has no output belt (cargo)  
+
 
 ### Search Planets
 ![search remote planets](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo2.gif)  
@@ -98,6 +105,13 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 - 淡蓝: 额外产出
 - 淡黄: 生产加速
 - 淡红: 混合
+
+![标红的蓝图建筑](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo5.jpg)  
+在警报-全部子类别中, 蓝图标红建筑可以用红X(404)信号找寻  
+此外，数字标记0~2代表喷涂机状态:  
+- 0(信号600): 无增产剂  
+- 1(信号601): 缺失增产剂输入  
+- 2(信号602): 缺失增产剂输出  
 
 ![中键循序镜头](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)
 - 左键单击信标详细信息图标可以显示警报位置。单击其他区域以关闭它。  

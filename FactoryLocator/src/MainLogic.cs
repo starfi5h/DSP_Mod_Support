@@ -29,6 +29,11 @@ namespace FactoryLocator
         readonly static Color CYAN     = new(0.2821f, 0.7455f, 1.0000f, 0.7059f); // itemCount (more blue)
         readonly static Color PINK     = new(1.0000f, 0.5000f, 0.5000f, 0.7059f); // new color
 
+        const int SIGNAL_BPERROR = 404;
+        const int SIGNAL_NOSPRAY = 600;
+        const int SIGNAL_NOINPUTBELT = 601;
+        const int SIGNAL_NOOUTPUTBELT = 602;
+
         public int SetFactories(StarData star, PlanetData planet)
         {
             state = 0;
@@ -556,9 +561,9 @@ namespace FactoryLocator
                     if (id != sprayer.id) continue;
 
                     int key = 0;
-                    if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
-                    else if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
-                    else if (sprayer.incCount == 0) key = 600; // "无增产剂"
+                    if (sprayer.incBeltId == 0) key = SIGNAL_NOINPUTBELT;   // "缺失增产剂输入"
+                    else if (sprayer.cargoBeltId == 0) key = SIGNAL_NOOUTPUTBELT; // "缺失增产剂输出"
+                    else if (sprayer.incCount == 0) key = SIGNAL_NOSPRAY; // "无增产剂"
                     if (key == 0) continue;
 
                     if (signalId == -1)
@@ -574,6 +579,36 @@ namespace FactoryLocator
                         localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
                         detailIds.Add(entity.protoId);
                         planetIds.Add(factory.planetId);
+                    }
+                }
+            }
+
+            // Local planet
+            if (factories.Count == 1 && factories[0] == GameMain.localPlanet?.factory)
+            {
+                var pasteTool = GameMain.mainPlayer?.controller?.actionBuild?.blueprintPasteTool;
+                if (pasteTool == null) return;
+                int planetId = GameMain.localPlanet.id;
+
+                // DeterminePreviewsPrestage & GetPreviewColor
+                for (int i = 0; i < pasteTool.bpCursor; i++)
+                {
+                    var buildPreview = pasteTool.bpPool[i];
+                    if (buildPreview.condition == EBuildCondition.Ok || buildPreview.condition == EBuildCondition.NotEnoughItem) continue;
+                    int key = SIGNAL_BPERROR;
+
+                    if (signalId == -1)
+                    {
+                        if (filterIds.ContainsKey(key))
+                            ++filterIds[key];
+                        else
+                            filterIds[key] = 1;
+                    }
+                    else if (signalId == key)
+                    {
+                        localPos.Add(buildPreview.lpos);
+                        detailIds.Add(buildPreview.item?.ID ?? 0);
+                        planetIds.Add(planetId);
                     }
                 }
             }
@@ -604,9 +639,9 @@ namespace FactoryLocator
                     if (id != sprayer.id) continue;
 
                     int key = 0;
-                    if (sprayer.incBeltId == 0) key = 601;   // "缺失增产剂输入"
-                    else if (sprayer.cargoBeltId == 0) key = 602; // "缺失增产剂输出"
-                    else if (sprayer.incCount == 0) key = 600; // "无增产剂"
+                    if (sprayer.incBeltId == 0) key = SIGNAL_NOINPUTBELT;   // "缺失增产剂输入"
+                    else if (sprayer.cargoBeltId == 0) key = SIGNAL_NOOUTPUTBELT; // "缺失增产剂输出"
+                    else if (sprayer.incCount == 0) key = SIGNAL_NOSPRAY; // "无增产剂"
                     if (key == 0) continue;
 
                     long value = ((long)factory.index << 32) | ((long)sprayer.entityId);
