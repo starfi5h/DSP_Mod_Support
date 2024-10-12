@@ -1,0 +1,7 @@
+{
+    "name": "CameraTools",
+    "description": "Store camera positions, custom cinematic transition. 摄影工具(Alt + F5, Alt + F6)",
+    "version_number": "0.1.0",
+    "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/CameraTools",
+    "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
+}
