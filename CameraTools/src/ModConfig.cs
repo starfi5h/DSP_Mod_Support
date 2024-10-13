@@ -69,7 +69,7 @@ namespace CameraTools
             Plugin.CameraList.Clear();
             for (int i = 0; i < CameraListCount.Value; i++)
             {
-                var cam = new FixedCamera(i);
+                var cam = new CameraPoint(i);
                 Plugin.CameraList.Add(cam);
                 cam.Import();
             }

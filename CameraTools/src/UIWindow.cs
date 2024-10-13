@@ -5,14 +5,15 @@ namespace CameraTools
 {
     static class UIWindow
     {
-        private static Rect modConfigWindow = new(20f, 20f, 300f, 240f);
+        private static Rect modConfigWindow = new(20f, 20f, 300f, 200f);
         private static Rect cameraListWindow = new(20f, 250f, 300f, 240f);
         private static Rect cameraConfigWindow = new(320f, 250f, 300f, 350f);
         private static Rect pathListWindow = new(900f, 350f, 300f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 350f);
 
-        public static FixedCamera EditingCam { get; set; } = null;
+        public static CameraPoint EditingCam { get; set; } = null;
         public static CameraPath EditingPath { get; private set; } = null;
+        public static int lastEditingPathIndex = 0;
 
         static bool cameraListWindowActivated = true;
         static bool pathListWindowActivated = false;
@@ -61,16 +62,18 @@ namespace CameraTools
                 if (Plugin.PathList.Count == 0)
                 {
                     EditingPath = new CameraPath(0);
-                    EditingPath.Import();
+                    EditingPath.Name = GameMain.localPlanet?.displayName ?? GameMain.localStar.displayName ?? "path";
                     Plugin.PathList.Add(EditingPath);
                     ModConfig.PathListCount.Value = 1;
                 }
-                EditingPath = Plugin.PathList[0];
+                EditingPath = Plugin.PathList[lastEditingPathIndex % Plugin.PathList.Count];
             }
             else
             {
+                lastEditingPathIndex = EditingPath.Index;
                 EditingPath.Export();
                 EditingPath = null;
+                Plugin.ViewingPath = null;
                 SaveWindowPos();
             }
         }
@@ -101,7 +104,9 @@ namespace CameraTools
 
             if (cameraListWindowActivated)
             {
-                cameraListWindow = GUI.Window(1307890671, cameraListWindow, CameraListWindowFunc, "Camera List".Translate());
+                var title = "Camera List".Translate();
+                if (Plugin.ViewingCam != null) title += $" [{Plugin.ViewingCam.Index}]";
+                cameraListWindow = GUI.Window(1307890671, cameraListWindow, CameraListWindowFunc, title);
                 EatInputInRect(cameraListWindow);
             }
 
@@ -113,7 +118,7 @@ namespace CameraTools
 
             if (EditingPath != null)
             {
-                pathConfigWindow = GUI.Window(1307890673, pathConfigWindow, PathConfigWindowFunc, "Path Config".Translate() + $"[{EditingPath.Index}]");
+                pathConfigWindow = GUI.Window(1307890673, pathConfigWindow, PathConfigWindowFunc, "Path Config".Translate() + $" [{EditingPath.Index}]");
                 EatInputInRect(pathConfigWindow);
             }
 
@@ -227,8 +232,10 @@ namespace CameraTools
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add Path".Translate()))
             {
-                Plugin.Log.LogDebug("Add Path " + Plugin.PathList.Count);
-                EditingPath = new CameraPath(Plugin.PathList.Count);
+                int index = Plugin.PathList.Count;
+                Plugin.Log.LogDebug("Add Path " + index);                
+                EditingPath = new CameraPath(index);
+                EditingPath.Name = (GameMain.localPlanet?.displayName ?? GameMain.localStar.displayName ?? "space") + "-" + index;
                 EditingPath.Export();
                 Plugin.PathList.Add(EditingPath);
                 ModConfig.PathListCount.Value = Plugin.PathList.Count;
@@ -315,7 +322,7 @@ namespace CameraTools
             if (GUILayout.Button("Add Camera".Translate()))
             {
                 Plugin.Log.LogDebug("Add Cam " + Plugin.CameraList.Count);
-                var cam = new FixedCamera(Plugin.CameraList.Count);
+                var cam = new CameraPoint(Plugin.CameraList.Count);
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
                 Plugin.CameraList.Add(cam);
