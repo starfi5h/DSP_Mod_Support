@@ -24,6 +24,7 @@ namespace CameraTools
         public readonly static List<FixedCamera> CameraList = new();
         public readonly static List<CameraPath> PathList = new();
         public static FixedCamera ViewingCam { get; set; } = null;
+        public static FixedCamera LastViewCam { get; set; } = null;
         public static CameraPath ViewingPath { get; set; } = null;
 
         Harmony harmony;
@@ -37,6 +38,7 @@ namespace CameraTools
             harmony.PatchAll(typeof(Plugin));
             ModConfig.LoadConfig(Config);
             ModConfig.LoadList();
+            UIWindow.LoadWindowPos();
         }
 
         public void OnDestroy()
@@ -90,6 +92,24 @@ namespace CameraTools
                 UIWindow.TogglePathConfigWindow();
             }
 
+            if (ModConfig.ToggleLastCameraShortcut.Value.IsDown())
+            {
+                if (ViewingCam != null)
+                {
+                    LastViewCam = ViewingCam;
+                    ViewingCam = null;
+                }
+                else
+                {
+                    ViewingCam = LastViewCam;
+                }
+            }
+
+            if (ModConfig.CycyleNextCameraShortcut.Value.IsDown())
+            {
+                ViewingCam = FindNextAvailableCam();
+            }
+
             if (ViewingPath != null)
             {
                 ViewingPath.OnLateUpdate();
@@ -106,6 +126,29 @@ namespace CameraTools
                 }
             }
             */
+        }
+
+        static FixedCamera FindNextAvailableCam()
+        {
+            if (CameraList.Count == 0) return null;
+            if (CameraList.Count == 1)
+            {
+                if (CameraList[0].CanView) return CameraList[0];
+                return null;
+            }
+            if (ViewingCam == null)
+            {
+                if (CameraList[0].CanView) return CameraList[0];
+            }
+            int startIndex = ViewingCam == null ? 0 : ViewingCam.Index;
+            int index = startIndex;
+            int loop = 0;
+            do
+            {
+                index = (index + 1) % CameraList.Count;
+                if (CameraList[index].CanView) return CameraList[index];
+            } while (index != startIndex && loop++ < 1000);
+            return null;
         }
 
         /*

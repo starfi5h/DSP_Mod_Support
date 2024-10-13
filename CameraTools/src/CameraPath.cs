@@ -15,7 +15,7 @@ namespace CameraTools
         readonly List<float> keyTimes;
         float duration = 5;
 
-        string sectionName => "path-" + Index;
+        string SectionName => "path-" + Index;
         CameraPose camPose;
         VectorLF3 uPosition;
         float progression;
@@ -23,7 +23,7 @@ namespace CameraTools
         public CameraPath(int index)
         {
             Index = index;
-            Name = sectionName;
+            Name = SectionName;
             cameras = new List<FixedCamera>();
             keyTimes = new List<float>();
         }
@@ -31,32 +31,32 @@ namespace CameraTools
         public void Import()
         {
             ConfigFile configFile = Plugin.ConfigFile;
-            Name = configFile.Bind(sectionName, "Name", "path-" + Index).Value;
-            int cameraCount = configFile.Bind(sectionName, "cameraCount", 0).Value;
+            Name = configFile.Bind(SectionName, "Name", "path-" + Index).Value;
+            int cameraCount = configFile.Bind(SectionName, "cameraCount", 0).Value;
             cameras.Clear();
             keyTimes.Clear();
             for (int i = 0; i < cameraCount; i++)
             {
-                var cam = new FixedCamera(i, sectionName);
+                var cam = new FixedCamera(i, SectionName);
                 cam.Import();
                 cameras.Add(cam);
-                var keyTime = configFile.Bind(sectionName, "keytime-" + i, 0f).Value;
+                var keyTime = configFile.Bind(SectionName, "keytime-" + i, 0f).Value;
                 keyTimes.Add(keyTime);
             }
-            duration = configFile.Bind(sectionName, "duration", 5f).Value;
+            duration = configFile.Bind(SectionName, "duration", 5f).Value;
         }
 
         public void Export()
         {
             ConfigFile configFile = Plugin.ConfigFile;
-            configFile.Bind(sectionName, "Name", "Cam-" + Index).Value = Name;
-            configFile.Bind(sectionName, "cameraCount", 0).Value = cameras.Count;
+            configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
+            configFile.Bind(SectionName, "cameraCount", 0).Value = cameras.Count;
             foreach (var cam in cameras) cam.Export();
             for (int i = 0; i < keyTimes.Count; i++)
             {
-                configFile.Bind(sectionName, "keytime-"+i, 0f).Value = keyTimes[i];
+                configFile.Bind(SectionName, "keytime-"+i, 0f).Value = keyTimes[i];
             }
-            configFile.Bind(sectionName, "duration", 5f).Value = duration;
+            configFile.Bind(SectionName, "duration", 5f).Value = duration;
         }
 
 
@@ -166,7 +166,7 @@ namespace CameraTools
                     if (GUILayout.Button(isViewing ? "[Viewing]".Translate() : "View".Translate()))
                     {
                         if (isViewing) Plugin.ViewingCam = null;
-                        else if (!camera.CanView()) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
+                        else if (!camera.CanView) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
                         else Plugin.ViewingCam = camera;
                     }
                     bool isEditing = UIWindow.EditingCam == camera;
@@ -193,10 +193,10 @@ namespace CameraTools
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add New Camera".Translate()))
+            if (GUILayout.Button("Add Camera".Translate()))
             {
                 Plugin.Log.LogDebug("Add Path Cam " + cameras.Count);
-                var cam = new FixedCamera(cameras.Count, sectionName);
+                var cam = new FixedCamera(cameras.Count, SectionName);
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
                 cameras.Add(cam);

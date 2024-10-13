@@ -3,9 +3,9 @@ using System;
 
 namespace CameraTools
 {
-    class UIWindow
+    static class UIWindow
     {
-        private static Rect modConfigWindow = new(20f, 20f, 300f, 150f);
+        private static Rect modConfigWindow = new(20f, 20f, 300f, 240f);
         private static Rect cameraListWindow = new(20f, 250f, 300f, 240f);
         private static Rect cameraConfigWindow = new(320f, 250f, 300f, 350f);
         private static Rect pathListWindow = new(900f, 350f, 300f, 240f);
@@ -17,6 +17,25 @@ namespace CameraTools
         static bool cameraListWindowActivated = true;
         static bool pathListWindowActivated = false;
         static bool modConfigWindowActivated = false;
+
+        public static void LoadWindowPos(bool reset = false)
+        {
+            Util.SetWindowPos(ref modConfigWindow, ModConfig.PosModConfigWindow, reset);
+            Util.SetWindowPos(ref cameraListWindow, ModConfig.PosCameraListWindow, reset);
+            Util.SetWindowPos(ref cameraConfigWindow, ModConfig.PosCameraConfigWindow, reset);
+            Util.SetWindowPos(ref pathListWindow, ModConfig.PosPathListWindow, reset);
+            Util.SetWindowPos(ref pathConfigWindow, ModConfig.PosPathConfigWindow, reset);
+            if (reset) SaveWindowPos();
+        }
+
+        public static void SaveWindowPos()
+        {
+            ModConfig.PosModConfigWindow.Value = modConfigWindow.position;
+            ModConfig.PosCameraListWindow.Value = cameraListWindow.position;
+            ModConfig.PosCameraConfigWindow.Value = cameraConfigWindow.position;
+            ModConfig.PosPathListWindow.Value = pathListWindow.position;
+            ModConfig.PosPathConfigWindow.Value = pathConfigWindow.position;
+        }
 
         public static void OnEsc()
         {
@@ -31,6 +50,7 @@ namespace CameraTools
             {
                 foreach (var cam in Plugin.CameraList) cam.Export();
                 ModConfig.CameraListCount.Value = Plugin.CameraList.Count;
+                SaveWindowPos();
             }
         }
 
@@ -51,6 +71,7 @@ namespace CameraTools
             {
                 EditingPath.Export();
                 EditingPath = null;
+                SaveWindowPos();
             }
         }
 
@@ -61,6 +82,7 @@ namespace CameraTools
             {
                 foreach (var path in Plugin.PathList) path.Export();
                 ModConfig.PathListCount.Value = Plugin.PathList.Count;
+                SaveWindowPos();
             }
         }
 
@@ -107,9 +129,12 @@ namespace CameraTools
             GUILayout.BeginArea(new Rect(cameraConfigWindow.width - 27f, 1f, 25f, 16f));
             if (GUILayout.Button("X")) modConfigWindowActivated = false;
             GUILayout.EndArea();
-            Util.AddKeyBindField("Camera List".Translate(), ModConfig.CameraListWindowShortcut);
-            Util.AddKeyBindField("Path Config".Translate(), ModConfig.CameraPathWindowShortcut);
-            Util.AddToggleField("Move Player with Space Camera".Translate(), ModConfig.MovePlayerWithSpaceCamera);
+            Util.AddKeyBindField(ModConfig.CameraListWindowShortcut);
+            Util.AddKeyBindField(ModConfig.CameraPathWindowShortcut);
+            Util.AddKeyBindField(ModConfig.ToggleLastCameraShortcut);
+            Util.AddKeyBindField(ModConfig.CycyleNextCameraShortcut);
+            Util.AddToggleField(ModConfig.MovePlayerWithSpaceCamera);
+            if (GUILayout.Button("Reset Windows Position".Translate())) LoadWindowPos(true);
             GUI.DragWindow();
         }
 
@@ -198,7 +223,9 @@ namespace CameraTools
                 }
                 ModConfig.PathListCount.Value = Plugin.PathList.Count;
             }
-            if (GUILayout.Button("Add Camera Path".Translate()))
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add Path".Translate()))
             {
                 Plugin.Log.LogDebug("Add Path " + Plugin.PathList.Count);
                 EditingPath = new CameraPath(Plugin.PathList.Count);
@@ -206,6 +233,11 @@ namespace CameraTools
                 Plugin.PathList.Add(EditingPath);
                 ModConfig.PathListCount.Value = Plugin.PathList.Count;
             }
+            if (GUILayout.Button("Camera List".Translate()))
+            {
+                ToggleCameraListWindow();
+            }
+            GUILayout.EndHorizontal();
             GUI.DragWindow();
         }
 
@@ -253,8 +285,12 @@ namespace CameraTools
                     if (GUILayout.Button(isViewing ? "[Viewing]".Translate() : "View".Translate()))
                     {
                         if (isViewing) Plugin.ViewingCam = null;
-                        else if (!camera.CanView()) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
-                        else Plugin.ViewingCam = camera;
+                        else if (!camera.CanView) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
+                        else
+                        {
+                            Plugin.ViewingCam = camera;
+                            Plugin.LastViewCam = camera;
+                        }
                     }
                     bool isEditing = EditingCam == camera;
                     if (GUILayout.Button(isEditing ? "[Editing]".Translate() : "Edit".Translate()))
@@ -276,7 +312,7 @@ namespace CameraTools
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add New Camera".Translate()))
+            if (GUILayout.Button("Add Camera".Translate()))
             {
                 Plugin.Log.LogDebug("Add Cam " + Plugin.CameraList.Count);
                 var cam = new FixedCamera(Plugin.CameraList.Count);
@@ -286,7 +322,11 @@ namespace CameraTools
                 cam.Export();
                 ModConfig.CameraListCount.Value = Plugin.CameraList.Count;
             }
-            if (GUILayout.Button("Mod Config".Translate()))
+            if (GUILayout.Button("Path".Translate()))
+            {
+                TogglePathConfigWindow();
+            }
+            if (GUILayout.Button("Config".Translate()))
             {
                 modConfigWindowActivated = !modConfigWindowActivated;
             }

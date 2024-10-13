@@ -1,11 +1,6 @@
 ﻿using BepInEx.Configuration;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace CameraTools
 {
@@ -21,48 +16,58 @@ namespace CameraTools
         public int Index { get; set; }
         public bool EnableRecording { get; set; }
         public string Name { get; private set; } = "";
-                
+        public bool CanView
+        {
+            get
+            {
+                if (GameMain.data == null || DSPGame.Game.isMenuDemo || GameMain.mainPlayer == null) return false;
+                if (cameraType == CameraType.Planet && GameMain.localPlanet == null) return false;
+                if (cameraType == CameraType.Space && GameMain.localPlanet != null) return false;
+                return true;
+            }
+        }
+
         CameraType cameraType;
         CameraPose camPose;
         VectorLF3 uPosition;
 
         readonly string groupName = "";
-        string sectionName => groupName + "cam-" + Index;
+        string SectionName => groupName + "cam-" + Index;
         int screenshotCount = 0;
 
         public FixedCamera(int index, string groupName = "")
         {
             Index = index;
             this.groupName = groupName;
-            Name = sectionName;
+            Name = SectionName;
         }
 
         public void Import()
         {
             ConfigFile configFile = Plugin.ConfigFile;
-            Name = configFile.Bind(sectionName, "Name", "Cam-" + Index).Value;
+            Name = configFile.Bind(SectionName, "Name", "Cam-" + Index).Value;
             //EnableRecording = configFile.Bind(sectionName, "Enable recording", false).Value;
-            cameraType = (CameraType)configFile.Bind(sectionName, "cameraType", 0).Value;
-            camPose.position = configFile.Bind(sectionName, "pose Position", Vector3.zero).Value;
-            camPose.rotation = configFile.Bind(sectionName, "pose Rotation", Quaternion.identity).Value;
-            camPose.fov = configFile.Bind(sectionName, "pose Fov", 0.0f).Value;
-            camPose.near = configFile.Bind(sectionName, "pose Near", 0.0f).Value;
-            camPose.far = configFile.Bind(sectionName, "pose Far", 0.0f).Value;
-            uPosition = configFile.Bind(sectionName, "uPosition", Vector3.zero).Value;
+            cameraType = (CameraType)configFile.Bind(SectionName, "cameraType", 0).Value;
+            camPose.position = configFile.Bind(SectionName, "pose Position", Vector3.zero).Value;
+            camPose.rotation = configFile.Bind(SectionName, "pose Rotation", Quaternion.identity).Value;
+            camPose.fov = configFile.Bind(SectionName, "pose Fov", 0.0f).Value;
+            camPose.near = configFile.Bind(SectionName, "pose Near", 0.0f).Value;
+            camPose.far = configFile.Bind(SectionName, "pose Far", 0.0f).Value;
+            uPosition = configFile.Bind(SectionName, "uPosition", Vector3.zero).Value;
         }
 
         public void Export()
         {
             ConfigFile configFile = Plugin.ConfigFile;
-            configFile.Bind(sectionName, "Name", "Cam-" + Index).Value = Name;
+            configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
             //configFile.Bind(sectionName, "Enable recording", false).Value = EnableRecording;
-            configFile.Bind(sectionName, "cameraType", 0).Value = (int)cameraType;
-            configFile.Bind(sectionName, "pose Position", Vector3.zero).Value = camPose.position;
-            configFile.Bind(sectionName, "pose Rotation", Quaternion.identity).Value = camPose.rotation;
-            configFile.Bind(sectionName, "pose Fov", 0.0f).Value = camPose.fov;
-            configFile.Bind(sectionName, "pose Near", 0.0f).Value = camPose.near;
-            configFile.Bind(sectionName, "pose Far", 0.0f).Value = camPose.far;
-            configFile.Bind(sectionName, "uPosition", Vector3.zero).Value = uPosition;
+            configFile.Bind(SectionName, "cameraType", 0).Value = (int)cameraType;
+            configFile.Bind(SectionName, "pose Position", Vector3.zero).Value = camPose.position;
+            configFile.Bind(SectionName, "pose Rotation", Quaternion.identity).Value = camPose.rotation;
+            configFile.Bind(SectionName, "pose Fov", 0.0f).Value = camPose.fov;
+            configFile.Bind(SectionName, "pose Near", 0.0f).Value = camPose.near;
+            configFile.Bind(SectionName, "pose Far", 0.0f).Value = camPose.far;
+            configFile.Bind(SectionName, "uPosition", Vector3.zero).Value = uPosition;
         }
 
         public void SetPlanetCamera()
@@ -133,21 +138,6 @@ namespace CameraTools
                 return "Recording".Translate() + " " + screenshotCount;
             }
             return "Standby".Translate();
-        }
-
-        public bool CanView()
-        {
-            if (GameMain.data == null || DSPGame.Game.isMenuDemo || GameMain.mainPlayer == null) return false;
-            if (cameraType == CameraType.Planet && GameMain.localPlanet == null) return false;
-            if (cameraType == CameraType.Space && GameMain.localPlanet != null) return false;
-            return true;
-        }
-
-        public bool CanCapture()
-        {
-            if (!CanView()) return false;
-            //if (!EnableRecording || Plugin.ViewingCam != this) return false; // TODO: Fix for viewing
-            return EnableRecording;
         }
 
         public static CameraPose Lerp(FixedCamera from, FixedCamera to, float t, out VectorLF3 uPostion)

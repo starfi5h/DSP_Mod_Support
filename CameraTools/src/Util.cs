@@ -39,6 +39,34 @@ namespace CameraTools
             }
         }
 
+        public static void SetWindowPos(ref Rect windowRect, ConfigEntry<Vector2> posConfigEntry, bool reset)
+        {
+            windowRect.position = reset ? (Vector2)posConfigEntry.DefaultValue : posConfigEntry.Value;
+            windowRect = EnsureWindowInsideScreen(windowRect);
+        }
+
+        public static Rect EnsureWindowInsideScreen(Rect window)
+        {
+            float screenWidth = Screen.width;
+            float screenHeight = Screen.height;
+
+            // Check if the window exceeds the screen's left and right edges
+            if (window.x < 0)
+                window.x = 0; // Set to left edge
+
+            if (window.xMax > screenWidth)
+                window.x = screenWidth - window.width; // Set to right edge
+
+            // Check if the window exceeds the screen's top and bottom edges
+            if (window.y < 0)
+                window.y = 0; // Set to top edge
+
+            if (window.yMax > screenHeight)
+                window.y = screenHeight - window.height; // Set to bottom edge
+
+            return window;
+        }
+
         static string editingField;
         static string editingText;
 
@@ -104,10 +132,10 @@ namespace CameraTools
             GUILayout.EndHorizontal();
         }
 
-        public static void AddToggleField(string label, ConfigEntry<bool> configEntry)
+        public static void AddToggleField(ConfigEntry<bool> configEntry)
         {
             GUILayout.BeginHorizontal();
-            configEntry.Value = GUILayout.Toggle(configEntry.Value, label);
+            configEntry.Value = GUILayout.Toggle(configEntry.Value, configEntry.Definition.Key);
             GUILayout.EndHorizontal();
         }
 
@@ -119,21 +147,21 @@ namespace CameraTools
                  KeyCode.LeftCommand,  KeyCode.LeftApple, KeyCode.LeftWindows,
                  KeyCode.RightCommand,  KeyCode.RightApple, KeyCode.RightWindows };
 
-        public static void AddKeyBindField(string label, ConfigEntry<KeyboardShortcut> configEntry)
+        public static void AddKeyBindField(ConfigEntry<KeyboardShortcut> configEntry)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.MinWidth(10));
-            if (waitingKeyBindField != label)
+            GUILayout.Label(configEntry.Definition.Key, GUILayout.MinWidth(10));
+            if (waitingKeyBindField != configEntry.Definition.Key)
             {
-                GUILayout.Label(configEntry.GetSerializedValue());
+                GUILayout.Label(configEntry.GetSerializedValue(), GUILayout.MaxWidth(100));
                 if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
                 {
-                    waitingKeyBindField = label;
+                    waitingKeyBindField = configEntry.Definition.Key;
                 }
             }
             else
             {
-                GUILayout.TextField("Waiting for key..".Translate());
+                GUILayout.TextField("Waiting for key..".Translate(), GUILayout.MaxWidth(100));
                 if (Input.GetKey(KeyCode.Escape) || Input.GetKey(KeyCode.Mouse0))
                 {
                     waitingKeyBindField = null;
