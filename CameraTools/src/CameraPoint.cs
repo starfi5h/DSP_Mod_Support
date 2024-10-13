@@ -13,7 +13,7 @@ namespace CameraTools
         }
 
         public int Index { get; set; }
-        public string Name { get; private set; } = "";
+        public string Name { get; set; } = "";
         public bool CanView
         {
             get
@@ -145,10 +145,7 @@ namespace CameraTools
             GUILayout.Label("Name".Translate());
             tmpString = Name;
             tmpString = GUILayout.TextField(tmpString, 100, GUILayout.MinWidth(100));
-            if (!string.IsNullOrWhiteSpace(tmpString) && tmpString != Name)
-            {
-                Name = tmpString;
-            }
+            if (tmpString != Name) Name = tmpString;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();

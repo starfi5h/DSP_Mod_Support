@@ -16,6 +16,9 @@ namespace CameraTools
         float duration = 5;
         int interpolation = 1;
         static readonly string[] interpolationTexts = { "Linear", "Spherical" };
+        static bool autoSplit = true;
+        static int keyFormat = 0;        
+        static readonly string[] keyFormatTexts = { "Ratio", "Second" };
 
         string SectionName => "path-" + Index;
         CameraPose camPose;
@@ -192,17 +195,34 @@ namespace CameraTools
             }
             HideGUI = GUILayout.Toggle(HideGUI, "Hide GUI during playback".Translate());
             GUILayout.EndHorizontal();
+                        
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+
+            GUILayout.BeginHorizontal();
+            keyFormat = GUILayout.Toolbar(keyFormat, keyFormatTexts);
+            autoSplit = GUILayout.Toggle(autoSplit, "Auto Split".Translate());
+            GUILayout.EndHorizontal();
 
             int removingIndex = -1;
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+            int upIndex = -1;
+            int downIndex = -1;
             foreach (var camera in cameras)
             {
                 GUILayout.BeginVertical(GUI.skin.box);
                 {
                     // Title
-                    float keyTime = keyTimes[camera.Index];
-                    Util.AddFloatFieldInput($"[{camera.Index}]", ref keyTime);
-                    keyTimes[camera.Index] = keyTime;
+                    if (keyFormat == 0) // Ratio
+                    {
+                        float keyTime = keyTimes[camera.Index];
+                        Util.AddFloatFieldInput($"[{camera.Index}]{camera.Name}", ref keyTime);
+                        keyTimes[camera.Index] = Mathf.Clamp01(keyTime);
+                    }
+                    else // Time (seconds)
+                    {
+                        float second = keyTimes[camera.Index] * duration;
+                        Util.AddFloatFieldInput($"[{camera.Index}]{camera.Name}", ref second);
+                        if (duration != 0f) keyTimes[camera.Index] = Mathf.Clamp01(second / duration);
+                    }
 
                     // View, Edit, Remove
                     GUILayout.BeginHorizontal();
@@ -213,12 +233,14 @@ namespace CameraTools
                         else if (!camera.CanView) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
                         else Plugin.ViewingCam = camera;
                     }
+                    if (GUILayout.Button("↑")) upIndex = camera.Index;
+                    if (GUILayout.Button("↓")) downIndex = camera.Index;
                     bool isEditing = UIWindow.EditingCam == camera;
                     if (GUILayout.Button(isEditing ? "[Editing]".Translate() : "Edit".Translate()))
                     {
                         UIWindow.EditingCam = isEditing ? null : camera;
                     }
-                    if (GUILayout.Button("Remove".Translate()))
+                    if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
                     {
                         removingIndex = camera.Index;
                     }
@@ -234,6 +256,14 @@ namespace CameraTools
                 keyTimes.RemoveAt(removingIndex);
                 RearrangeTimes();
             }
+            if (upIndex >= 1)
+            {
+                SwapCamIndex(upIndex, upIndex - 1);
+            }
+            if (downIndex >= 0 && (downIndex + 1) < cameras.Count)
+            {
+                SwapCamIndex(downIndex, downIndex + 1);
+            }
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
@@ -243,6 +273,7 @@ namespace CameraTools
                 var cam = new CameraPoint(cameras.Count, SectionName);
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
+                cam.Name = "";
                 cameras.Add(cam);
                 keyTimes.Add(1.0f);
                 RearrangeTimes();
@@ -263,9 +294,19 @@ namespace CameraTools
             for (int i = 0; i < count; i++)
             {
                 cameras[i].Index = i;
-                keyTimes[i] = count > 1 ? (float)i / (count - 1) : 0f;
+                if (autoSplit) keyTimes[i] = count > 1 ? (float)i / (count - 1) : 0f;
             }
-            keyTimes[count - 1] = 1f;
+            if (autoSplit) keyTimes[count - 1] = 1f;
+            Export();
+        }
+
+        void SwapCamIndex(int a, int b)
+        {
+            var tmp = cameras[a];
+            cameras[a] = cameras[b];
+            cameras[b] = tmp;
+            cameras[a].Index = a;
+            cameras[b].Index = b;
             Export();
         }
     }

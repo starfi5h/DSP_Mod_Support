@@ -262,6 +262,8 @@ namespace CameraTools
             GUILayout.EndArea();
 
             int removingIndex = -1;
+            int upIndex = -1;
+            int downIndex = -1;
             scrollPositionCameraList = GUILayout.BeginScrollView(scrollPositionCameraList);
             foreach (var camera in Plugin.CameraList)
             {
@@ -299,10 +301,14 @@ namespace CameraTools
                             Plugin.LastViewCam = camera;
                         }
                     }
-                    bool isEditing = EditingCam == camera;
-                    if (GUILayout.Button(isEditing ? "[Editing]".Translate() : "Edit".Translate()))
+                    if (EditingCam == camera)
                     {
-                        EditingCam = isEditing ? null : camera;
+                        if (GUILayout.Button("↑")) upIndex = camera.Index;
+                        if (GUILayout.Button("↓")) downIndex = camera.Index;
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Edit".Translate())) EditingCam = camera;
                     }
                     if (GUILayout.Button("Remove".Translate()))
                     {
@@ -316,6 +322,15 @@ namespace CameraTools
             {
                 RemoveCamera(removingIndex);
             }
+            if (upIndex >= 1)
+            {
+                SwapCamIndex(upIndex, upIndex - 1);
+            }
+            if (downIndex >= 0 && (downIndex + 1) < Plugin.CameraList.Count)
+            {
+                SwapCamIndex(downIndex, downIndex + 1);
+            }
+
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
@@ -353,6 +368,17 @@ namespace CameraTools
                 Plugin.CameraList[i].Export();
             }
             ModConfig.CameraListCount.Value = Plugin.CameraList.Count;
+        }
+
+        public static void SwapCamIndex(int a, int b)
+        {
+            var tmp = Plugin.CameraList[a];
+            Plugin.CameraList[a] = Plugin.CameraList[b];
+            Plugin.CameraList[b] = tmp;
+            Plugin.CameraList[a].Index = a;
+            Plugin.CameraList[b].Index = b;
+            Plugin.CameraList[a].Export();
+            Plugin.CameraList[b].Export();
         }
 
         public static void EatInputInRect(Rect eatRect)
