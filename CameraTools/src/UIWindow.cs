@@ -7,7 +7,7 @@ namespace CameraTools
     {
         private static Rect modConfigWindow = new(20f, 20f, 300f, 200f);
         private static Rect cameraListWindow = new(20f, 250f, 300f, 240f);
-        private static Rect cameraConfigWindow = new(320f, 250f, 300f, 350f);
+        private static Rect cameraConfigWindow = new(320f, 250f, 300f, 365f);
         private static Rect pathListWindow = new(900f, 350f, 300f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 350f);
 
@@ -41,7 +41,8 @@ namespace CameraTools
         public static void OnEsc()
         {
             Plugin.ViewingCam = null;
-            Plugin.ViewingPath = null;
+            Plugin.ViewingPath = null;            
+            Plugin.FreePoser.Enabled = false;
         }
 
         public static void ToggleCameraListWindow()
@@ -150,6 +151,7 @@ namespace CameraTools
             {
                 EditingCam.Export();
                 EditingCam = null;
+                Plugin.FreePoser.Enabled = false;
                 return;
             }
             GUILayout.EndArea();
@@ -360,6 +362,8 @@ namespace CameraTools
         {
             if (index < 0 || index >= Plugin.CameraList.Count) return;
             Plugin.Log.LogDebug("Remove Cam " + index);
+            if (Plugin.CameraList[index] == Plugin.ViewingCam) Plugin.ViewingCam = null;
+            if (Plugin.CameraList[index] == EditingCam) EditingCam = null;
             Plugin.CameraList.RemoveAt(index);
 
             for (int i = 0; i < Plugin.CameraList.Count; i++)

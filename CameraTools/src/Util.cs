@@ -76,7 +76,7 @@ namespace CameraTools
             GUILayout.Label(label, GUILayout.MinWidth(10));
             if (editingField != label)
             {
-                GUILayout.Label(value.ToString(), GUILayout.MinWidth(35));
+                GUILayout.Label(value.ToString("G6"), GUILayout.MinWidth(35));
                 if (GUILayout.Button("edit"))
                 {
                     editingField = label;
@@ -85,7 +85,7 @@ namespace CameraTools
             }
             else
             {
-                editingText = GUILayout.TextField(editingText, 10, GUILayout.MinWidth(35));
+                editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(35));
                 if (GUILayout.Button("set"))
                 {
                     editingField = "";

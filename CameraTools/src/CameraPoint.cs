@@ -124,22 +124,37 @@ namespace CameraTools
             return "";
         }
 
+
+        static int positionType = 0;
+        static readonly string[] positionTypeTexts = { "Cartesian", "Polar" };
+
         public void ConfigWindowFunc()
         {
-            int tmpInt;
             string tmpString;
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Set to Current Cam".Translate()))
+            if (GUILayout.Button("Set to Current View".Translate()))
             {
                 if (GameMain.localPlanet != null) SetPlanetCamera();
                 else SetSpaceCamera();
             }
-            if (GUILayout.Button("Undo All".Translate()))
+            if (GUILayout.Button(Plugin.FreePoser.Enabled ? "[Adjusting]".Translate() : "Adjust Mode".Translate()))
             {
-                Import();
+                if (Plugin.FreePoser.Enabled)
+                {
+                    Plugin.FreePoser.Enabled = false;
+                }
+                else if (CanView)
+                {
+                    Plugin.FreePoser.Enabled = true;
+                    Plugin.ViewingCam = this;
+                }
+                else
+                {
+                    UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
+                }
             }
-            GUILayout.EndHorizontal();            
+            GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Name".Translate());
@@ -150,36 +165,70 @@ namespace CameraTools
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Camera Type".Translate(), GUILayout.MinWidth(35));
-            tmpInt = GUILayout.Toolbar((int)cameraType, cameraTypeTexts);
-            if (tmpInt != (int)cameraType)
-            {
-                cameraType = (CameraType)tmpInt;
-            }
+            cameraType = (CameraType)GUILayout.Toolbar((int)cameraType, cameraTypeTexts);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginVertical(GUI.skin.box);
             {
-                GUILayout.Label("Position".Translate());
                 if (cameraType == CameraType.Planet)
                 {
-                    Util.AddFloatField("x", ref CamPose.pose.position.x, 1f);
-                    Util.AddFloatField("y", ref CamPose.pose.position.y, 1f);
-                    Util.AddFloatField("z", ref CamPose.pose.position.z, 1f);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Position".Translate(), GUILayout.MinWidth(70));
+                    positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                    GUILayout.EndHorizontal();
+                    if (positionType == 0)
+                    {
+                        Util.AddFloatField("x", ref CamPose.pose.position.x, 1f);
+                        Util.AddFloatField("y", ref CamPose.pose.position.y, 1f);
+                        Util.AddFloatField("z", ref CamPose.pose.position.z, 1f);
+                    }
+                    else
+                    {
+                        var normalizedPos = CamPose.pose.position.normalized;
+                        float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
+                        float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
+                        float altitude = CamPose.pose.position.magnitude;
+                        Util.AddFloatField("Log", ref longitude, 1f);
+                        Util.AddFloatField("Lat", ref latitude, 1f);
+                        Util.AddFloatField("Alt", ref altitude, 1f);
+                        CamPose.pose.position = Maths.GetPosByLatitudeAndLongitude(latitude, longitude, altitude);
+                    }
                 }
                 else if (cameraType == CameraType.Space)
                 {
-                    Vector3 pos = UPosition;
-                    Util.AddFloatField("ux", ref pos.x, 100f);
-                    Util.AddFloatField("uy", ref pos.y, 100f);
-                    Util.AddFloatField("uz", ref pos.z, 100f);
-                    UPosition = pos;
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Position".Translate(), GUILayout.MinWidth(70));
+                    if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                    GUILayout.EndHorizontal();
+                    if (positionType == 1 && GameMain.localStar != null)
+                    {
+                        var normalizedPos = (Vector3)(UPosition - GameMain.localStar.uPosition).normalized;
+                        float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
+                        float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
+                        float altitude = (float)(UPosition - GameMain.localStar.uPosition).magnitude;                        
+                        Util.AddFloatField("Log", ref longitude, 1f);
+                        Util.AddFloatField("Lat", ref latitude, 1f);
+                        Util.AddFloatField("Alt", ref altitude, 100f);
+                        UPosition = GameMain.localStar.uPosition + (VectorLF3)Maths.GetPosByLatitudeAndLongitude(latitude, longitude, altitude);
+                    }
+                    else
+                    {
+                        Vector3 pos = UPosition;
+                        Util.AddFloatField("ux", ref pos.x, 100f);
+                        Util.AddFloatField("uy", ref pos.y, 100f);
+                        Util.AddFloatField("uz", ref pos.z, 100f);
+                        UPosition = pos;
+                    }
                 }
             }
             GUILayout.EndVertical();
 
             GUILayout.BeginVertical(GUI.skin.box);
             {
+                GUILayout.BeginHorizontal();
                 GUILayout.Label("Rotation".Translate());
+
+                GUILayout.EndHorizontal();
                 Vector3 rot = CamPose.eulerAngles;
                 Util.AddFloatField("pitch", ref rot.x, 10f);
                 Util.AddFloatField("yaw", ref rot.y, 10f);
@@ -189,6 +238,11 @@ namespace CameraTools
             GUILayout.EndVertical();
 
             Util.AddFloatField("Fov", ref CamPose.fov, 1f);
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Save All".Translate())) Export();
+            if (GUILayout.Button("Load All".Translate())) Import();
+            GUILayout.EndHorizontal();
         }
     }
 }

@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 [assembly: AssemblyTitle(CameraTools.Plugin.NAME)]
 [assembly: AssemblyVersion(CameraTools.Plugin.VERSION)]
@@ -24,6 +25,8 @@ namespace CameraTools
         public static CameraPoint ViewingCam { get; set; } = null;
         public static CameraPoint LastViewCam { get; set; } = null;
         public static CameraPath ViewingPath { get; set; } = null;
+        public static FreePointPoser FreePoser { get; set; } = null;
+        
 
         Harmony harmony;
 
@@ -31,11 +34,12 @@ namespace CameraTools
         {
             Log = Logger;
             ConfigFile = Config;
-            harmony = new Harmony(GUID);
-            harmony.PatchAll(typeof(Plugin));
+            FreePoser = new FreePointPoser();
             ModConfig.LoadConfig(Config);
             ModConfig.LoadList();
             UIWindow.LoadWindowPos();
+            harmony = new Harmony(GUID);
+            harmony.PatchAll(typeof(Plugin));
         }
 
         public void OnDestroy()
@@ -120,6 +124,7 @@ namespace CameraTools
         {
             if (ViewingCam != null)
             {
+                if (FreePoser.Enabled && UIWindow.EditingCam == ViewingCam) FreePoser.Calculate(ref ViewingCam.CamPose);
                 ViewingCam.ApplyToCamera(GameCamera.main);
             }
             else if (ViewingPath != null)
@@ -137,8 +142,22 @@ namespace CameraTools
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GetInput))]
+        static bool GetInput_Prefix(PlayerController __instance)
+        {
+            // Disable mecha movement input when free cam adjust mode is activated
+            if (FreePoser.Enabled && UIWindow.EditingCam == ViewingCam)
+            {
+                __instance.input0 = Vector4.zero;
+                __instance.input1 = Vector4.zero;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
-        static bool Dsiable()
+        static bool DsiableUposUpdate()
         {
             // Disable force & upos update when ovweriting mecha position in space
             return GameMain.localPlanet != null || !ModConfig.MovePlayerWithSpaceCamera.Value || (ViewingCam == null && ViewingPath == null);
