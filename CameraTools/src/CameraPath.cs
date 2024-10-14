@@ -162,14 +162,18 @@ namespace CameraTools
             GUILayout.Label("Progress: ".Translate() + progression.ToString("F2"));
             if (GUILayout.Button("|<<", GUILayout.MaxWidth(40)))
             {
-                progression = 0;
+                progression = 0f;
                 Plugin.ViewingPath = this;
             }
             if (GUILayout.Button(IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
             {
                 if (cameras.Count < 2) UIRealtimeTip.Popup("Not enough camera! (≥2)");
                 IsPlaying = !IsPlaying;
-                if (IsPlaying) Plugin.ViewingPath = this;
+                if (IsPlaying)
+                {
+                    Plugin.ViewingPath = this;
+                    if (progression >= 1.0f) progression = 0f;
+                }
             }
             if (GUILayout.Button(">>|", GUILayout.MaxWidth(40)))
             {
