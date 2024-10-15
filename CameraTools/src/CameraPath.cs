@@ -6,6 +6,7 @@ namespace CameraTools
 {
     public class CameraPath
     {
+        // Serial data
         public int Index { get; set; }
         public string Name { get; set; } = "";
         public bool IsPlaying { get; private set; }
@@ -15,15 +16,24 @@ namespace CameraTools
         readonly List<float> keyTimes;
         float duration = 5;
         int interpolation = 1;
-        static readonly string[] interpolationTexts = { "Linear", "Spherical" };
+
+        // UI window
+        static readonly string[] interpolationTexts = { "Linear", "Spherical", "Curve" };
         static bool autoSplit = true;
         static int keyFormat = 0;        
         static readonly string[] keyFormatTexts = { "Ratio", "Second" };
 
+        // internal tempoary values
         string SectionName => "path-" + Index;
         CameraPose camPose;
         VectorLF3 uPosition;
         float progression;
+        AnimationCurve animCurveX = null;
+        AnimationCurve animCurveY = null;
+        AnimationCurve animCurveZ = null;
+        AnimationCurve animCurveUX = null;
+        AnimationCurve animCurveUY = null;
+        AnimationCurve animCurveUZ = null;
 
         public CameraPath(int index)
         {
@@ -51,6 +61,7 @@ namespace CameraTools
             }
             duration = configFile.Bind(SectionName, "duration", 5f).Value;
             interpolation = configFile.Bind(SectionName, "interpolation", 0).Value;
+            OnKeyFrameChange();
         }
 
         public void Export(ConfigFile configFile = null)
@@ -71,6 +82,14 @@ namespace CameraTools
             configFile.Bind(SectionName, "interpolation", 0).Value = interpolation;
         }
 
+        public void OnKeyFrameChange()
+        {
+            if (interpolation == 2) // Curve
+            {
+                //Plugin.Log.LogDebug($"RebuildAnimationCurves " + keyTimes.Count);
+                RebuildAnimationCurves();
+            }
+        }
 
         public void OnLateUpdate()
         {
@@ -105,8 +124,10 @@ namespace CameraTools
                 cameras[index].ApplyToCamera(cam);
                 return;
             }
+
             float t = (progression - keyTimes[index - 1]) / total;
-            camPose = Lerp(cameras[index - 1], cameras[index], t);
+            camPose = PiecewiseLerp(cameras[index - 1], cameras[index], t);
+            PositionInterpolation(progression);
             camPose.ApplyToCamera(cam);
             if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
             {
@@ -123,9 +144,9 @@ namespace CameraTools
             }
         }
 
-        public CameraPose Lerp(CameraPoint from, CameraPoint to, float t)
+        private CameraPose PiecewiseLerp(CameraPoint from, CameraPoint to, float t)
         {
-            Vector3 positon;
+            Vector3 positon = Vector3.zero;
             uPosition = VectorLF3.zero;
 
             if (interpolation == 1) // Spherical
@@ -133,7 +154,7 @@ namespace CameraTools
                 positon = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
                 uPosition = from.UPosition + (to.UPosition - from.UPosition) * t;
 
-                if (GameMain.localPlanet != null)
+                if (GameMain.localPlanet != null) // linear interpolation for altitude
                 {
                     positon *= Mathf.Lerp(from.CamPose.position.magnitude, to.CamPose.position.magnitude, t) / positon.magnitude;
                 }
@@ -156,10 +177,46 @@ namespace CameraTools
                     Mathf.Lerp(from.CamPose.fov, to.CamPose.fov, t), Mathf.Lerp(from.CamPose.near, to.CamPose.near, t), Mathf.Lerp(from.CamPose.far, to.CamPose.far, t));
         }
 
+        private void PositionInterpolation(float t)
+        {
+            if (interpolation == 2) // Curve
+            {
+                if (animCurveX != null && animCurveY != null && animCurveZ != null)
+                {
+                    camPose.position = new Vector3(animCurveX.Evaluate(t), animCurveY.Evaluate(t), animCurveZ.Evaluate(t));
+                    if (GameMain.localPlanet == null)
+                    {
+                        // Use relative Upos to avoid the precision loss of double to float
+                        uPosition = cameras[0].UPosition + new VectorLF3(animCurveUX.Evaluate(t), animCurveUY.Evaluate(t), animCurveUZ.Evaluate(t));
+                    }
+                }
+            }
+        }
+
+        private void RebuildAnimationCurves()
+        {
+            animCurveX = new AnimationCurve();
+            animCurveY = new AnimationCurve();
+            animCurveZ = new AnimationCurve();
+            animCurveUX = new AnimationCurve();
+            animCurveUY = new AnimationCurve();
+            animCurveUZ = new AnimationCurve();
+            for (int i = 0; i < keyTimes.Count; i++)
+            {
+                animCurveX.AddKey(keyTimes[i], cameras[i].CamPose.position.x);
+                animCurveY.AddKey(keyTimes[i], cameras[i].CamPose.position.y);
+                animCurveZ.AddKey(keyTimes[i], cameras[i].CamPose.position.z);
+                animCurveUX.AddKey(keyTimes[i], (float)(cameras[i].UPosition.x - cameras[0].UPosition.x));
+                animCurveUY.AddKey(keyTimes[i], (float)(cameras[i].UPosition.y - cameras[0].UPosition.y));
+                animCurveUZ.AddKey(keyTimes[i], (float)(cameras[i].UPosition.z - cameras[0].UPosition.z));
+            }
+        }
+
         static Vector2 scrollPosition = new(100, 100);
 
         public void ConfigWindowFunc()
         {
+            int tmpInt = 0;
             GUILayout.BeginVertical(GUI.skin.box);
             progression = GUILayout.HorizontalSlider(progression, 0.0f, 1.0f);
 
@@ -176,8 +233,9 @@ namespace CameraTools
                 IsPlaying = !IsPlaying;
                 if (IsPlaying)
                 {
+                    Plugin.ViewingCam = null;
                     Plugin.ViewingPath = this;
-                    if (progression >= 1.0f) progression = 0f;
+                    if (progression >= 1.0f && duration > 0) progression = 0f;
                 }
             }
             if (GUILayout.Button(">>|", GUILayout.MaxWidth(40)))
@@ -190,8 +248,13 @@ namespace CameraTools
             Util.AddFloatFieldInput("Duration(s)".Translate(), ref duration, 1);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Interpolation".Translate());
-            interpolation = GUILayout.Toolbar(interpolation, interpolationTexts);
+            GUILayout.Label("Interp".Translate());
+            tmpInt = GUILayout.Toolbar(interpolation, interpolationTexts);
+            if (tmpInt != interpolation)
+            {
+                interpolation = tmpInt;
+                OnKeyFrameChange();
+            }
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
@@ -223,13 +286,13 @@ namespace CameraTools
                     if (keyFormat == 0) // Ratio
                     {
                         float keyTime = keyTimes[camera.Index];
-                        Util.AddFloatFieldInput($"[{camera.Index}]{camera.Name}", ref keyTime);
+                        Util.AddFloatFieldInput($"[{camera.Index}] {camera.Name}", ref keyTime);
                         keyTimes[camera.Index] = Mathf.Clamp01(keyTime);
                     }
                     else // Time (seconds)
                     {
                         float second = keyTimes[camera.Index] * duration;
-                        Util.AddFloatFieldInput($"[{camera.Index}]{camera.Name}", ref second);
+                        Util.AddFloatFieldInput($"[{camera.Index}] {camera.Name}", ref second);
                         if (duration != 0f) keyTimes[camera.Index] = Mathf.Clamp01(second / duration);
                     }
 
@@ -248,6 +311,7 @@ namespace CameraTools
                     if (GUILayout.Button(isEditing ? "[Editing]".Translate() : "Edit".Translate()))
                     {
                         UIWindow.EditingCam = isEditing ? null : camera;
+                        OnKeyFrameChange();
                     }
                     if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
                     {
@@ -263,7 +327,7 @@ namespace CameraTools
                 UIWindow.EditingCam = null;
                 cameras.RemoveAt(removingIndex);
                 keyTimes.RemoveAt(removingIndex);
-                RearrangeTimes();
+                RearrangeTimes(autoSplit);
             }
             if (upIndex >= 1)
             {
@@ -276,26 +340,44 @@ namespace CameraTools
             GUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add Camera".Translate()))
+            if (GUILayout.Button("Insert Keyframe".Translate()))
+            {
+                int index = 0;
+                for (; index < cameras.Count; index++)
+                {
+                    if (progression <= keyTimes[index]) break;
+                }
+                if (index >= cameras.Count) index = cameras.Count;
+                Plugin.Log.LogDebug("Insert Path Cam " + index);
+                var cam = new CameraPoint(index);
+                cam.SectionPrefix = SectionName;
+                if (GameMain.localPlanet != null) cam.SetPlanetCamera();
+                else cam.SetSpaceCamera();
+                cam.Name = cam.GetPolarName();
+                cameras.Insert(index, cam);
+                keyTimes.Insert(index, progression);
+                RearrangeTimes(false);
+            }
+            if (GUILayout.Button("Append Keyframe".Translate()))
             {
                 Plugin.Log.LogDebug("Add Path Cam " + cameras.Count);
                 var cam = new CameraPoint(cameras.Count);
                 cam.SectionPrefix = SectionName;
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
-                cam.Name = "";
+                cam.Name = cam.GetPolarName();
                 cameras.Add(cam);
                 keyTimes.Add(1.0f);
-                RearrangeTimes();
+                RearrangeTimes(autoSplit);
             }
+            GUILayout.EndHorizontal();
             if (GUILayout.Button("Save/Load".Translate()))
             {
                 UIWindow.TogglePathListWindow();
-            }
-            GUILayout.EndHorizontal();
+            }            
         }
 
-        void RearrangeTimes()
+        void RearrangeTimes(bool evenSplitTime)
         {
             int count = cameras.Count;
             if (count == 0) return;
@@ -304,10 +386,11 @@ namespace CameraTools
             for (int i = 0; i < count; i++)
             {
                 cameras[i].Index = i;
-                if (autoSplit) keyTimes[i] = count > 1 ? (float)i / (count - 1) : 0f;
+                if (evenSplitTime) keyTimes[i] = count > 1 ? (float)i / (count - 1) : 0f;
             }
-            if (autoSplit) keyTimes[count - 1] = 1f;
+            if (evenSplitTime) keyTimes[count - 1] = 1f;
             Export();
+            OnKeyFrameChange();
         }
 
         void SwapCamIndex(int a, int b)
@@ -318,6 +401,7 @@ namespace CameraTools
             cameras[a].Index = a;
             cameras[b].Index = b;
             Export();
+            OnKeyFrameChange();
         }
     }
 }

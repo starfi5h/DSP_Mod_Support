@@ -123,6 +123,28 @@ namespace CameraTools
             return "";
         }
 
+        public string GetPolarName()
+        {
+            // UIPlanetGlobe._OnUpdate
+            switch (cameraType)
+            {
+                case CameraType.Planet:
+                {
+                    Maths.GetLatitudeLongitude(CamPose.pose.position, out int latd, out int latf, out int logd, out int logf,
+                        out bool north, out bool south, out bool west, out bool east);
+                    return $"{latd}°{latf}′" + (south ? "S" : "N") + $" {logd}°{logf}′" + (west ? "W" : "E");
+                }
+                case CameraType.Space:
+                {
+                    if (GameMain.localStar == null) return "";
+                    Maths.GetLatitudeLongitudeSpace(UPosition - GameMain.localStar.uPosition,
+                        out int latd, out int latf, out int logd, out int logf, out double alt, out bool north, out bool south);
+                    if (south) latd = -latd;
+                    return $"{logd}°{logf}′, {latd}°{latf}′";
+                }
+            }
+            return "";
+        }
 
         static int positionType = 0;
         static readonly string[] positionTypeTexts = { "Cartesian", "Polar" };
@@ -239,8 +261,16 @@ namespace CameraTools
             Util.AddFloatField("Fov", ref CamPose.fov, 1f);
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save All".Translate())) Export();
-            if (GUILayout.Button("Load All".Translate())) Import();
+            if (GUILayout.Button("Save All".Translate()))
+            {
+                Export();
+                if (UIWindow.EditingPath != null) UIWindow.EditingPath.OnKeyFrameChange();
+            }
+            if (GUILayout.Button("Load All".Translate()))
+            {
+                Import();
+                if (UIWindow.EditingPath != null) UIWindow.EditingPath.OnKeyFrameChange();
+            }
             GUILayout.EndHorizontal();
         }
     }

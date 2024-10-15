@@ -8,8 +8,8 @@ namespace CameraTools
         private static Rect modConfigWindow = new(20f, 20f, 300f, 200f);
         private static Rect cameraListWindow = new(20f, 250f, 300f, 240f);
         private static Rect cameraConfigWindow = new(320f, 250f, 300f, 365f);
-        private static Rect pathListWindow = new(900f, 350f, 300f, 240f);
-        private static Rect pathConfigWindow = new(1200f, 350f, 300f, 350f);
+        private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
+        private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
 
         public static CameraPoint EditingCam { get; set; } = null;
         public static CameraPath EditingPath { get; private set; } = null;
@@ -155,6 +155,7 @@ namespace CameraTools
                 EditingCam.Export();
                 EditingCam = null;
                 Plugin.FreePoser.Enabled = false;
+                if (EditingPath != null) EditingPath.OnKeyFrameChange();
                 return;
             }
             GUILayout.EndArea();
