@@ -13,6 +13,7 @@ namespace CameraTools
         }
 
         public int Index { get; set; }
+        public string SectionPrefix { get; set; } = "";
         public string Name { get; set; } = "";
         public bool CanView
         {
@@ -29,19 +30,17 @@ namespace CameraTools
         public CameraPose CamPose;
         public VectorLF3 UPosition;
 
-        readonly string groupName = "";
-        string SectionName => groupName + "cam-" + Index;
 
-        public CameraPoint(int index, string groupName = "")
+        string SectionName => SectionPrefix + "cam-" + Index;
+
+        public CameraPoint(int index)
         {
             Index = index;
-            this.groupName = groupName;
-            Name = SectionName;
         }
 
-        public void Import()
+        public void Import(ConfigFile configFile = null)
         {
-            ConfigFile configFile = Plugin.ConfigFile;
+            if (configFile == null) configFile = Plugin.ConfigFile;
             Name = configFile.Bind(SectionName, "Name", "Cam-" + Index).Value;
             cameraType = (CameraType)configFile.Bind(SectionName, "cameraType", 0).Value;
             CamPose.position = configFile.Bind(SectionName, "pose Position", Vector3.zero).Value;
@@ -49,12 +48,12 @@ namespace CameraTools
             CamPose.fov = configFile.Bind(SectionName, "pose Fov", 0.0f).Value;
             CamPose.near = configFile.Bind(SectionName, "pose Near", 0.0f).Value;
             CamPose.far = configFile.Bind(SectionName, "pose Far", 0.0f).Value;
-            UPosition = configFile.Bind(SectionName, "uPosition", Vector3.zero).Value;
+            UPosition = configFile.Bind(SectionName, "uPosition", VectorLF3.zero).Value;
         }
 
-        public void Export()
+        public void Export(ConfigFile configFile = null)
         {
-            ConfigFile configFile = Plugin.ConfigFile;
+            if (configFile == null) configFile = Plugin.ConfigFile;
             configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
             configFile.Bind(SectionName, "cameraType", 0).Value = (int)cameraType;
             configFile.Bind(SectionName, "pose Position", Vector3.zero).Value = CamPose.position;
@@ -62,7 +61,7 @@ namespace CameraTools
             configFile.Bind(SectionName, "pose Fov", 0.0f).Value = CamPose.fov;
             configFile.Bind(SectionName, "pose Near", 0.0f).Value = CamPose.near;
             configFile.Bind(SectionName, "pose Far", 0.0f).Value = CamPose.far;
-            configFile.Bind(SectionName, "uPosition", Vector3.zero).Value = UPosition;
+            configFile.Bind(SectionName, "uPosition", VectorLF3.zero).Value = UPosition;
         }
 
         public void SetPlanetCamera()

@@ -33,17 +33,18 @@ namespace CameraTools
             keyTimes = new List<float>();
         }
 
-        public void Import()
+        public void Import(ConfigFile configFile = null)
         {
-            ConfigFile configFile = Plugin.ConfigFile;
+            if (configFile == null) configFile = Plugin.ConfigFile;
             Name = configFile.Bind(SectionName, "Name", "path-" + Index).Value;
             int cameraCount = configFile.Bind(SectionName, "cameraCount", 0).Value;
             cameras.Clear();
             keyTimes.Clear();
             for (int i = 0; i < cameraCount; i++)
             {
-                var cam = new CameraPoint(i, SectionName);
-                cam.Import();
+                var cam = new CameraPoint(i);
+                cam.SectionPrefix = SectionName;
+                cam.Import(configFile);
                 cameras.Add(cam);
                 var keyTime = configFile.Bind(SectionName, "keytime-" + i, 0f).Value;
                 keyTimes.Add(keyTime);
@@ -52,12 +53,16 @@ namespace CameraTools
             interpolation = configFile.Bind(SectionName, "interpolation", 0).Value;
         }
 
-        public void Export()
+        public void Export(ConfigFile configFile = null)
         {
-            ConfigFile configFile = Plugin.ConfigFile;
+            if (configFile == null) configFile = Plugin.ConfigFile;
             configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
             configFile.Bind(SectionName, "cameraCount", 0).Value = cameras.Count;
-            foreach (var cam in cameras) cam.Export();
+            foreach (var cam in cameras)
+            {
+                cam.SectionPrefix = SectionName;
+                cam.Export(configFile);
+            }
             for (int i = 0; i < keyTimes.Count; i++)
             {
                 configFile.Bind(SectionName, "keytime-"+i, 0f).Value = keyTimes[i];
@@ -126,7 +131,7 @@ namespace CameraTools
             if (interpolation == 1) // Spherical
             {
                 positon = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
-                uPosition = Vector3.Lerp(from.UPosition, to.UPosition, t);
+                uPosition = from.UPosition + (to.UPosition - from.UPosition) * t;
 
                 if (GameMain.localPlanet != null)
                 {
@@ -143,7 +148,7 @@ namespace CameraTools
             else // Linear
             {
                 positon = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
-                uPosition = Vector3.Lerp(from.UPosition, to.UPosition, t);
+                uPosition = from.UPosition + (to.UPosition - from.UPosition) * t;
             }
 
             return new CameraPose(positon,
@@ -274,7 +279,8 @@ namespace CameraTools
             if (GUILayout.Button("Add Camera".Translate()))
             {
                 Plugin.Log.LogDebug("Add Path Cam " + cameras.Count);
-                var cam = new CameraPoint(cameras.Count, SectionName);
+                var cam = new CameraPoint(cameras.Count);
+                cam.SectionPrefix = SectionName;
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
                 cam.Name = "";

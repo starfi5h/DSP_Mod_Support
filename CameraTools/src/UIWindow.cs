@@ -130,17 +130,20 @@ namespace CameraTools
             }
         }
 
+        static readonly string[] modConfigTabText = { "Config", "I/O" };
+        static int modConfigTabIndex = 0;
         static void ModConfigWindowFunc(int id)
         {
             GUILayout.BeginArea(new Rect(cameraConfigWindow.width - 27f, 1f, 25f, 16f));
             if (GUILayout.Button("X")) modConfigWindowActivated = false;
             GUILayout.EndArea();
-            Util.AddKeyBindField(ModConfig.CameraListWindowShortcut);
-            Util.AddKeyBindField(ModConfig.CameraPathWindowShortcut);
-            Util.AddKeyBindField(ModConfig.ToggleLastCameraShortcut);
-            Util.AddKeyBindField(ModConfig.CycyleNextCameraShortcut);
-            Util.AddToggleField(ModConfig.MovePlayerWithSpaceCamera);
-            if (GUILayout.Button("Reset Windows Position".Translate())) LoadWindowPos(true);
+
+            modConfigTabIndex = GUILayout.Toolbar(modConfigTabIndex, modConfigTabText);
+            switch (modConfigTabIndex)
+            {
+                case 0: ModConfig.ConfigWindowFunc(); break;
+                case 1: ModConfig.ImportWindowFunc(); break;
+            }
             GUI.DragWindow();
         }
 
@@ -278,17 +281,6 @@ namespace CameraTools
                     GUILayout.Label(camera.GetInfo());
                     GUILayout.EndHorizontal();
 
-                    /*
-                    // Enable recording
-                    GUILayout.BeginHorizontal();
-                    tmpBool = camera.EnableRecording;
-                    if (tmpBool != GUILayout.Toggle(tmpBool, "Enable Record".Translate()))
-                    {
-                        camera.EnableRecording = !camera.EnableRecording;
-                    }
-                    GUILayout.Label(" (" + camera.GetStatus() + ")");
-                    GUILayout.EndHorizontal();
-                    */
 
                     // View, Edit, Remove
                     GUILayout.BeginHorizontal();

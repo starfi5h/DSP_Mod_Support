@@ -35,11 +35,21 @@ namespace CameraTools
             Log = Logger;
             ConfigFile = Config;
             FreePoser = new FreePointPoser();
+
+            // Add converter to support VectorLF3 (double) for ConfigEntry
+            // https://github.com/BepInEx/BepInEx/blob/master/Runtimes/Unity/BepInEx.Unity.Mono/UnityTomlTypeConverters.cs
+            var jsonConverter = new TypeConverter
+            {
+                ConvertToString = (obj, type) => JsonUtility.ToJson(obj),
+                ConvertToObject = (str, type) => JsonUtility.FromJson(type: type, json: str)
+            };
+            TomlTypeConverter.AddConverter(typeof(VectorLF3), jsonConverter);
+
             ModConfig.LoadConfig(Config);
-            ModConfig.LoadList();
+            ModConfig.LoadList(Config, CameraList, PathList);
             UIWindow.LoadWindowPos();
             harmony = new Harmony(GUID);
-            harmony.PatchAll(typeof(Plugin));
+            harmony.PatchAll(typeof(Plugin));            
         }
 
         public void OnDestroy()
