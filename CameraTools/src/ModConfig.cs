@@ -68,8 +68,7 @@ namespace CameraTools
 
         public static void LoadList(ConfigFile configFile, List<CameraPoint> cameraList, List<CameraPath> pathList)
         {
-            Plugin.Log.LogDebug("Load config file " + configFile.ConfigFilePath);
-
+            //Plugin.Log.LogDebug("Load config file " + configFile.ConfigFilePath);
             int cameraListCount = configFile.Bind("internal", "CameraListCount", 0).Value;
             cameraList.Clear();
             for (int i = 0; i < cameraListCount; i++)
@@ -93,7 +92,7 @@ namespace CameraTools
 
         public static void SaveList(ConfigFile configFile, List<CameraPoint> cameraList, List<CameraPath> pathList)
         {
-            Plugin.Log.LogDebug("Save config file " + configFile.ConfigFilePath);
+            //Plugin.Log.LogDebug("Save config file " + configFile.ConfigFilePath);
             configFile.Bind("internal", "CameraListCount", 0).Value = cameraList.Count;
             foreach (var cam in cameraList) cam.Export(configFile);
             configFile.Bind("internal", "PathListCount", 0).Value = pathList.Count;
