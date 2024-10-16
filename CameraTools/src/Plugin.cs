@@ -63,6 +63,12 @@ namespace CameraTools
             UIWindow.OnGUI();
         }
 
+        public void Update()
+        {
+            // UICursor.BeginCursorDetermine will reset cursor, need to set the cursor before rendering
+            if (UIWindow.CanResize) UICursor.SetCursor(ECursor.TargetIn);
+        }
+
         public void LateUpdate()
         {
             if (VFInput.escape)

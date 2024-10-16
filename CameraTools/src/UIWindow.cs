@@ -11,9 +11,10 @@ namespace CameraTools
         private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
 
+        public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; } = null;
         public static CameraPath EditingPath { get; private set; } = null;
-        public static int lastEditingPathIndex = 0;
+        public static int lastEditingPathIndex = 0;        
 
         static bool cameraListWindowActivated = true;
         static bool pathListWindowActivated = false;
@@ -92,6 +93,7 @@ namespace CameraTools
 
         public static void OnGUI()
         {
+            CanResize = false;
             if (DSPGame.IsMenuDemo || GameMain.mainPlayer == null || (EditingPath != null && EditingPath.HideGUI && EditingPath.IsPlaying))
             {
                 return;
@@ -100,7 +102,7 @@ namespace CameraTools
             if (modConfigWindowActivated)
             {
                 modConfigWindow = GUI.Window(1307890670, modConfigWindow, ModConfigWindowFunc, "Mod Config".Translate());
-                EatInputInRect(modConfigWindow);
+                HandleDrag(1307890670, ref modConfigWindow);
             }
 
             if (cameraListWindowActivated)
@@ -108,25 +110,25 @@ namespace CameraTools
                 var title = "Camera List".Translate();
                 if (Plugin.ViewingCam != null) title += $" [{Plugin.ViewingCam.Index}]";
                 cameraListWindow = GUI.Window(1307890671, cameraListWindow, CameraListWindowFunc, title);
-                EatInputInRect(cameraListWindow);
+                HandleDrag(1307890671, ref cameraListWindow);
             }
 
             if (EditingCam != null)
             {
                 cameraConfigWindow = GUI.Window(1307890672, cameraConfigWindow, CamConfigWindowFunc, "Camera Config".Translate());
-                EatInputInRect(cameraConfigWindow);
+                HandleDrag(1307890672, ref cameraConfigWindow);
             }
 
             if (EditingPath != null)
             {
                 pathConfigWindow = GUI.Window(1307890673, pathConfigWindow, PathConfigWindowFunc, "Path Config".Translate() + $" [{EditingPath.Index}]");
-                EatInputInRect(pathConfigWindow);
+                HandleDrag(1307890673, ref pathConfigWindow);
             }
 
             if (pathListWindowActivated)
             {
                 pathListWindow = GUI.Window(1307890674, pathListWindow, PathListWindowFunc, "Path List".Translate());
-                EatInputInRect(pathListWindow);
+                HandleDrag(1307890674, ref pathListWindow);
             }
         }
 
@@ -134,7 +136,7 @@ namespace CameraTools
         static int modConfigTabIndex = 0;
         static void ModConfigWindowFunc(int id)
         {
-            GUILayout.BeginArea(new Rect(cameraConfigWindow.width - 27f, 1f, 25f, 16f));
+            GUILayout.BeginArea(new Rect(modConfigWindow.width - 27f, 1f, 25f, 16f));
             if (GUILayout.Button("X")) modConfigWindowActivated = false;
             GUILayout.EndArea();
 
@@ -258,7 +260,7 @@ namespace CameraTools
 
         static void CameraListWindowFunc(int id)
         {
-            GUILayout.BeginArea(new Rect(cameraConfigWindow.width - 27f, 1f, 25f, 16f));
+            GUILayout.BeginArea(new Rect(cameraListWindow.width - 27f, 1f, 25f, 16f));
             if (GUILayout.Button("X"))
             {
                 EditingCam = null;
@@ -378,7 +380,37 @@ namespace CameraTools
             Plugin.CameraList[b].Export();
         }
 
-        public static void EatInputInRect(Rect eatRect)
+
+        static int resizingWindowId = 0;
+        static void HandleDrag(int id, ref Rect windowRect)
+        {            
+            Rect resizeHandleRect = new Rect(windowRect.xMax - 13, windowRect.yMax - 13, 20, 20);
+            //GUI.Box(resizeHandleRect, ""); // Draw a resize handle at the bottom-right corner for 20x20 pixel
+
+            if (resizeHandleRect.Contains(Event.current.mousePosition) && !windowRect.Contains(Event.current.mousePosition))
+            {
+                CanResize = true;
+                if (Event.current.type == EventType.MouseDown && resizingWindowId == 0)
+                {
+                    resizingWindowId = id;
+                }
+            }
+            if (Event.current.type == EventType.MouseUp)
+            {
+                resizingWindowId = 0; // Release resizing when mouse button is released
+            }
+
+            if (id == resizingWindowId)
+            {
+                CanResize = true; // Use the same flag for cursor currently
+                // Calculate new window size based on mouse position, keeping the minimum window size as 30x30
+                windowRect.xMax = Math.Max(Event.current.mousePosition.x, windowRect.xMin + 30);
+                windowRect.yMax = Math.Max(Event.current.mousePosition.y, windowRect.yMin + 30);
+            }
+            EatInputInRect(windowRect);
+        }
+
+        static void EatInputInRect(Rect eatRect)
         {
             if (!(Input.GetMouseButton(0) || Input.GetMouseButtonDown(0))) //Eat only when left-click
                 return;
