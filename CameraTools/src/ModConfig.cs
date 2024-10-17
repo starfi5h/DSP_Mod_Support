@@ -29,6 +29,7 @@ namespace CameraTools
         public static ConfigEntry<Vector2> PosCameraConfigWindow;
         public static ConfigEntry<Vector2> PosPathListWindow;
         public static ConfigEntry<Vector2> PosPathConfigWindow;
+        public static ConfigEntry<Vector2> PosTargetConfigWindow;
 
         public static void LoadConfig(ConfigFile config)
         {
@@ -64,6 +65,7 @@ namespace CameraTools
             PosCameraConfigWindow = config.Bind("intenral", "RectCameraConfigWindow", new Vector2(320f, 250f));
             PosPathListWindow = config.Bind("intenral", "RectPathListWindow", new Vector2(900f, 350f));
             PosPathConfigWindow = config.Bind("intenral", "RectPathConfigWindow", new Vector2(1200f, 350f));
+            PosTargetConfigWindow = config.Bind("internal", "RectTargetConfigWindow", new Vector2(900f, 350f));
         }
 
         public static void LoadList(ConfigFile configFile, List<CameraPoint> cameraList, List<CameraPath> pathList)

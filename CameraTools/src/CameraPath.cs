@@ -12,16 +12,18 @@ namespace CameraTools
         public bool IsPlaying { get; private set; }
         public bool HideGUI { get; private set; }
 
-        readonly List<CameraPoint> cameras;
-        readonly List<float> keyTimes;
+        readonly List<CameraPoint> cameras = new();
+        readonly List<float> keyTimes = new();
         float duration = 5;
         int interpolation = 1;
+        readonly LookTarget lookTarget = new();
 
         // UI window
         static readonly string[] interpolationTexts = { "Linear", "Spherical", "Curve" };
         static bool autoSplit = true;
         static int keyFormat = 0;        
         static readonly string[] keyFormatTexts = { "Ratio", "Second" };
+        static Vector2 scrollPosition = new(100, 100);
 
         // internal tempoary values
         string SectionName => "path-" + Index;
@@ -39,8 +41,6 @@ namespace CameraTools
         {
             Index = index;
             Name = SectionName;
-            cameras = new List<CameraPoint>();
-            keyTimes = new List<float>();
         }
 
         public void Import(ConfigFile configFile = null)
@@ -52,8 +52,10 @@ namespace CameraTools
             keyTimes.Clear();
             for (int i = 0; i < cameraCount; i++)
             {
-                var cam = new CameraPoint(i);
-                cam.SectionPrefix = SectionName;
+                var cam = new CameraPoint(i)
+                {
+                    SectionPrefix = SectionName
+                };
                 cam.Import(configFile);
                 cameras.Add(cam);
                 var keyTime = configFile.Bind(SectionName, "keytime-" + i, 0f).Value;
@@ -61,6 +63,7 @@ namespace CameraTools
             }
             duration = configFile.Bind(SectionName, "duration", 5f).Value;
             interpolation = configFile.Bind(SectionName, "interpolation", 0).Value;
+            lookTarget.Import(SectionName, configFile);
             OnKeyFrameChange();
         }
 
@@ -80,6 +83,7 @@ namespace CameraTools
             }
             configFile.Bind(SectionName, "duration", 5f).Value = duration;
             configFile.Bind(SectionName, "interpolation", 0).Value = interpolation;
+            lookTarget.Export(SectionName, configFile);
         }
 
         public void OnKeyFrameChange()
@@ -101,33 +105,12 @@ namespace CameraTools
         public void ApplyToCamera(Camera cam)
         {
             if (cameras.Count == 0) return;
-            int index = 0;
-            for (int i = 0; i < keyTimes.Count; i++)
-            {
-                if (progression < keyTimes[i]) break;
-                index++;
-            }
-            if (index == 0)
-            {
-                if (cameras[0].CanView) cameras[0].ApplyToCamera(cam);
-                return;
-            }
-            else if (index >= cameras.Count)
-            {
-                if (cameras[cameras.Count - 1].CanView) cameras[cameras.Count - 1].ApplyToCamera(cam);
-                return;
-            }
-            if (!cameras[index].CanView || !cameras[index - 1].CanView) return;
-            float total = keyTimes[index] - keyTimes[index - 1];
-            if (total == 0f)
-            {
-                cameras[index].ApplyToCamera(cam);
-                return;
-            }
+            if (!UpdateCameraPose()) return;
 
-            float t = (progression - keyTimes[index - 1]) / total;
-            camPose = PiecewiseLerp(cameras[index - 1], cameras[index], t);
-            PositionInterpolation(progression);
+            if (lookTarget.Type != LookTarget.TargetType.None)
+            {
+                camPose.rotation = lookTarget.SetRotation(camPose.position, uPosition);
+            }
             camPose.ApplyToCamera(cam);
             if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
             {
@@ -144,9 +127,54 @@ namespace CameraTools
             }
         }
 
+        private bool UpdateCameraPose()
+        {
+            int index = 0;
+            for (int i = 0; i < keyTimes.Count; i++)
+            {
+                if (progression < keyTimes[i]) break;
+                index++;
+            }
+            if (index == 0)
+            {
+                if (!cameras[0].CanView) return false;
+                camPose = cameras[0].CamPose;
+                uPosition = cameras[0].UPosition;
+                return true;
+            }
+            else if (index >= cameras.Count)
+            {
+                if (!cameras[cameras.Count - 1].CanView) return false;
+                camPose = cameras[cameras.Count - 1].CamPose;
+                uPosition = cameras[cameras.Count - 1].UPosition;
+                return true;
+            }
+            if (!cameras[index].CanView || !cameras[index - 1].CanView) return false;
+            float total = keyTimes[index] - keyTimes[index - 1];
+            if (total == 0f)
+            {
+                camPose = cameras[index].CamPose;
+                uPosition = cameras[index].UPosition;
+                return false;
+            }
+            float t = (progression - keyTimes[index - 1]) / total;
+            camPose = PiecewiseLerp(cameras[index - 1], cameras[index], t);
+
+            if (interpolation == 2 && animCurveX != null) // Curve
+            {
+                camPose.position = new Vector3(animCurveX.Evaluate(progression), animCurveY.Evaluate(progression), animCurveZ.Evaluate(progression));
+                if (GameMain.localPlanet == null)
+                {
+                    // Use relative Upos to avoid the precision loss of double to float
+                    uPosition = cameras[0].UPosition + new VectorLF3(animCurveUX.Evaluate(progression), animCurveUY.Evaluate(progression), animCurveUZ.Evaluate(progression));
+                }
+            }
+            return true;
+        }
+
         private CameraPose PiecewiseLerp(CameraPoint from, CameraPoint to, float t)
         {
-            Vector3 positon = Vector3.zero;
+            Vector3 positon;
             uPosition = VectorLF3.zero;
 
             if (interpolation == 1) // Spherical
@@ -177,22 +205,6 @@ namespace CameraTools
                     Mathf.Lerp(from.CamPose.fov, to.CamPose.fov, t), Mathf.Lerp(from.CamPose.near, to.CamPose.near, t), Mathf.Lerp(from.CamPose.far, to.CamPose.far, t));
         }
 
-        private void PositionInterpolation(float t)
-        {
-            if (interpolation == 2) // Curve
-            {
-                if (animCurveX != null && animCurveY != null && animCurveZ != null)
-                {
-                    camPose.position = new Vector3(animCurveX.Evaluate(t), animCurveY.Evaluate(t), animCurveZ.Evaluate(t));
-                    if (GameMain.localPlanet == null)
-                    {
-                        // Use relative Upos to avoid the precision loss of double to float
-                        uPosition = cameras[0].UPosition + new VectorLF3(animCurveUX.Evaluate(t), animCurveUY.Evaluate(t), animCurveUZ.Evaluate(t));
-                    }
-                }
-            }
-        }
-
         private void RebuildAnimationCurves()
         {
             animCurveX = new AnimationCurve();
@@ -212,11 +224,9 @@ namespace CameraTools
             }
         }
 
-        static Vector2 scrollPosition = new(100, 100);
-
         public void ConfigWindowFunc()
         {
-            int tmpInt = 0;
+            int tmpInt;
             GUILayout.BeginVertical(GUI.skin.box);
             progression = GUILayout.HorizontalSlider(progression, 0.0f, 1.0f);
 
@@ -349,8 +359,10 @@ namespace CameraTools
                 }
                 if (index >= cameras.Count) index = cameras.Count;
                 Plugin.Log.LogDebug("Insert Path Cam " + index);
-                var cam = new CameraPoint(index);
-                cam.SectionPrefix = SectionName;
+                var cam = new CameraPoint(index)
+                {
+                    SectionPrefix = SectionName
+                };
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
                 cam.Name = cam.GetPolarName();
@@ -361,8 +373,10 @@ namespace CameraTools
             if (GUILayout.Button("Append Keyframe".Translate()))
             {
                 Plugin.Log.LogDebug("Add Path Cam " + cameras.Count);
-                var cam = new CameraPoint(cameras.Count);
-                cam.SectionPrefix = SectionName;
+                var cam = new CameraPoint(cameras.Count)
+                {
+                    SectionPrefix = SectionName
+                };
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
                 cam.Name = cam.GetPolarName();
@@ -371,10 +385,18 @@ namespace CameraTools
                 RearrangeTimes(autoSplit);
             }
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Target: ".Translate() + lookTarget.Type.ToString()))
+            {
+                if (UIWindow.EditingTarget != lookTarget) LookTarget.OpenAndSetWindow(lookTarget);
+                else UIWindow.EditingTarget = null;
+            }
             if (GUILayout.Button("Save/Load".Translate()))
             {
                 UIWindow.TogglePathListWindow();
-            }            
+            }
+            GUILayout.EndHorizontal();
         }
 
         void RearrangeTimes(bool evenSplitTime)

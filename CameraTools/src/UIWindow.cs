@@ -10,11 +10,13 @@ namespace CameraTools
         private static Rect cameraConfigWindow = new(320f, 250f, 300f, 365f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
+        private static Rect targetConfigWindow = new(900f, 350f, 300f, 200f);
 
         public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; } = null;
         public static CameraPath EditingPath { get; private set; } = null;
-        public static int lastEditingPathIndex = 0;        
+        public static int lastEditingPathIndex = 0;
+        public static LookTarget EditingTarget { get; set; } = null;
 
         static bool cameraListWindowActivated = true;
         static bool pathListWindowActivated = false;
@@ -64,7 +66,7 @@ namespace CameraTools
                 if (Plugin.PathList.Count == 0)
                 {
                     EditingPath = new CameraPath(0);
-                    EditingPath.Name = GameMain.localPlanet?.displayName ?? GameMain.localStar.displayName ?? "path";
+                    EditingPath.Name += GameMain.localPlanet != null ? " (planet)" : " (space)";
                     Plugin.PathList.Add(EditingPath);
                     ModConfig.PathListCount.Value = 1;
                 }
@@ -130,6 +132,12 @@ namespace CameraTools
                 pathListWindow = GUI.Window(1307890674, pathListWindow, PathListWindowFunc, "Path List".Translate());
                 HandleDrag(1307890674, ref pathListWindow);
             }
+
+            if (EditingTarget != null)
+            {
+                targetConfigWindow = GUI.Window(1307890675, targetConfigWindow, TargetConfigWindowFunc, "Target Config".Translate());
+                HandleDrag(1307890675, ref targetConfigWindow);
+            }
         }
 
         static readonly string[] modConfigTabText = { "Config", "I/O" };
@@ -177,6 +185,19 @@ namespace CameraTools
             GUILayout.EndArea();
 
             EditingPath?.ConfigWindowFunc();
+            GUI.DragWindow();
+        }
+
+        static void TargetConfigWindowFunc(int id)
+        {
+            GUILayout.BeginArea(new Rect(targetConfigWindow.width - 27f, 1f, 25f, 16f));
+            if (GUILayout.Button("X"))
+            {
+                EditingTarget = null;
+            }
+            GUILayout.EndArea();
+
+            EditingTarget?.ConfigWindowFunc();
             GUI.DragWindow();
         }
 
@@ -243,7 +264,7 @@ namespace CameraTools
                 int index = Plugin.PathList.Count;
                 Plugin.Log.LogDebug("Add Path " + index);                
                 EditingPath = new CameraPath(index);
-                EditingPath.Name = (GameMain.localPlanet?.displayName ?? GameMain.localStar.displayName ?? "space") + "-" + index;
+                EditingPath.Name += GameMain.localPlanet != null ? " (planet)" : " (space)";
                 EditingPath.Export();
                 Plugin.PathList.Add(EditingPath);
                 ModConfig.PathListCount.Value = Plugin.PathList.Count;
@@ -384,7 +405,7 @@ namespace CameraTools
         static int resizingWindowId = 0;
         static void HandleDrag(int id, ref Rect windowRect)
         {            
-            Rect resizeHandleRect = new Rect(windowRect.xMax - 13, windowRect.yMax - 13, 20, 20);
+            Rect resizeHandleRect = new(windowRect.xMax - 13, windowRect.yMax - 13, 20, 20);
             //GUI.Box(resizeHandleRect, ""); // Draw a resize handle at the bottom-right corner for 20x20 pixel
 
             if (resizeHandleRect.Contains(Event.current.mousePosition) && !windowRect.Contains(Event.current.mousePosition))

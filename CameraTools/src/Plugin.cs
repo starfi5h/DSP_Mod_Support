@@ -49,13 +49,15 @@ namespace CameraTools
             ModConfig.LoadList(Config, CameraList, PathList);
             UIWindow.LoadWindowPos();
             harmony = new Harmony(GUID);
-            harmony.PatchAll(typeof(Plugin));            
+            harmony.PatchAll(typeof(Plugin));
+            LookTarget.OnAwake();
         }
 
         public void OnDestroy()
         {
             harmony.UnpatchSelf();
             harmony = null;
+            LookTarget.OnDestory();
         }
 
         public void OnGUI()
@@ -67,6 +69,7 @@ namespace CameraTools
         {
             // UICursor.BeginCursorDetermine will reset cursor, need to set the cursor before rendering
             if (UIWindow.CanResize) UICursor.SetCursor(ECursor.TargetIn);
+            LookTarget.OnUpdate();
         }
 
         public void LateUpdate()

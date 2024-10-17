@@ -101,6 +101,37 @@ namespace CameraTools
             GUILayout.EndHorizontal();
         }
 
+        public static void AddDoubleField(string label, ref double value, double delta = 0)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label, GUILayout.MinWidth(10));
+            if (editingField != label)
+            {
+                GUILayout.Label(value.ToString("G8"), GUILayout.MinWidth(35));
+                if (GUILayout.Button("edit"))
+                {
+                    editingField = label;
+                    editingText = value.ToString();
+                }
+            }
+            else
+            {
+                editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(35));
+                if (GUILayout.Button("set"))
+                {
+                    editingField = "";
+                    double.TryParse(editingText, out double inputValue);
+                    value = inputValue;
+                }
+            }
+            if (delta != 0f)
+            {
+                if (GUILayout.Button("-")) value -= delta;
+                if (GUILayout.Button("+")) value += delta;
+            }
+            GUILayout.EndHorizontal();
+        }
+
         public static void AddFloatFieldInput(string label, ref float value, float delta = 0)
         {
             GUILayout.BeginHorizontal();

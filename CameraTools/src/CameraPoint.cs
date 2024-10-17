@@ -123,6 +123,7 @@ namespace CameraTools
             return "";
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:指派了不必要的值", Justification = "<暫止>")]
         public string GetPolarName()
         {
             // UIPlanetGlobe._OnUpdate
@@ -194,7 +195,7 @@ namespace CameraTools
                 if (cameraType == CameraType.Planet)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Position".Translate(), GUILayout.MinWidth(70));
+                    GUILayout.Label("Local Position".Translate(), GUILayout.MinWidth(70));
                     positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
                     GUILayout.EndHorizontal();
                     if (positionType == 0)
@@ -218,7 +219,7 @@ namespace CameraTools
                 else if (cameraType == CameraType.Space)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Position".Translate(), GUILayout.MinWidth(70));
+                    GUILayout.Label("Space Position".Translate(), GUILayout.MinWidth(70));
                     if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
                     GUILayout.EndHorizontal();
                     if (positionType == 1 && GameMain.localStar != null)
@@ -234,11 +235,9 @@ namespace CameraTools
                     }
                     else
                     {
-                        Vector3 pos = UPosition;
-                        Util.AddFloatField("ux", ref pos.x, 100f);
-                        Util.AddFloatField("uy", ref pos.y, 100f);
-                        Util.AddFloatField("uz", ref pos.z, 100f);
-                        UPosition = pos;
+                        Util.AddDoubleField("ux", ref UPosition.x, 100f);
+                        Util.AddDoubleField("uy", ref UPosition.y, 100f);
+                        Util.AddDoubleField("uz", ref UPosition.z, 100f);
                     }
                 }
             }
