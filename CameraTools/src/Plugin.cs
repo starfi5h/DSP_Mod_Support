@@ -16,18 +16,58 @@ namespace CameraTools
     {
         public const string GUID = "starfi5h.plugin.CameraTools";
         public const string NAME = "CameraTools";
-        public const string VERSION = "0.3.0";
+        public const string VERSION = "0.4.0";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
         public readonly static List<CameraPoint> CameraList = new();
         public readonly static List<CameraPath> PathList = new();
-        public static CameraPoint ViewingCam { get; set; } = null;
+        public static CameraPoint ViewingCam
+        {
+            get => viewingCam;
+            set
+            {
+                if (GameMain.mainPlayer != null && GameMain.localPlanet == null)
+                {
+                    if (value != null && viewingCam == null && viewingPath == null) // No view => View
+                    {
+                        lastPlayerUpos = GameMain.mainPlayer.uPosition;
+                    }
+                    else if (value == null && viewingPath == null) // View => No view
+                    {
+                        if (ModConfig.MovePlayerWithSpaceCamera.Value)
+                            GameMain.mainPlayer.uPosition = lastPlayerUpos;
+                    }
+                }
+                viewingCam = value;
+            }
+        }
         public static CameraPoint LastViewCam { get; set; } = null;
-        public static CameraPath ViewingPath { get; set; } = null;
+        public static CameraPath ViewingPath
+        {
+            get => viewingPath;
+            set
+            {
+                if (GameMain.mainPlayer != null && GameMain.localPlanet == null)
+                {
+                    if (value != null && viewingCam == null && viewingPath == null) // No view => View
+                    {
+                        lastPlayerUpos = GameMain.mainPlayer.uPosition;
+                    }
+                    else if (value == null && viewingCam == null) // View => No view
+                    {
+                        if (ModConfig.MovePlayerWithSpaceCamera.Value)
+                            GameMain.mainPlayer.uPosition = lastPlayerUpos;
+                    }
+                }
+                viewingPath = value;
+            }
+        }
         public static FreePointPoser FreePoser { get; set; } = null;
-        
 
+        static CameraPoint viewingCam;
+        static CameraPath viewingPath;
+        static VectorLF3 lastPlayerUpos;
         Harmony harmony;
 
         public void Awake()

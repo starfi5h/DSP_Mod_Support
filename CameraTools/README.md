@@ -28,6 +28,11 @@ Click on the button to modify the editing camera position and angle with free 3D
 - Middle mouse: Hold to rotate  
 - Right click: Hold to roll  
 
+## Path List
+![path list](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/path-list.png)  
+The top input field can change the name of the current path.  
+Close the window to save the name change.  
+
 ## Path Config (Alt+F6)
 ![path config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/path-config.png)  
 Create a camera path moving from point to point.  
@@ -51,20 +56,24 @@ When Auto Split toggle is on, it will evenly split time ratio for all the keypoi
 - Insert keyframe will insert the current view into the current progression time.  
 - Append keyframe will add the current view at the last of all keyframes.  
 
-## Path List
-![path list](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/path-list.png)  
-The top input field can change the name of the current path.  
-Close the window to save the name change.  
+### Target
+![target](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/demo2.gif)  
+The target to look at during playback.  
+When the target config window is opened, it shows a pink sphere marker to indicate where the camera is looking at.  
+Can set it to a fixed point on the planet or space, or a moving point relatived to the mecha.  
 
 ## Installation & Mod Config
 ![plugin config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/plugin-config.png)  
 Via [r2modman](https://thunderstore.io/c/dyson-sphere-program/p/ebkr/r2modman/), or manual download the file and put `CameraTools.dll` in `BepInEx/plugins` folder.  
 Keyboard shortcuts can be changed in the mod config window.  
 All mod config together with stored camera data is in `BepInEx\config\starfi5h.plugin.CameraTools.cfg`.  
+
+### Import/Export camera and path settings
 ![import/export window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/io-window.png)  
 In config window - IO tab, it can import/export config file containing the camera and path data.  
 Input field to input the target file path. The acceptable file extension is `.cfg`.  
-After importing success, user can choose to import all cameras or all paths from the file.  
+If the directory is not provided, it will use `BepInEx\config\CameraTools\`.  
+After importing success, user can choose which camera or path to add in the list.  
 
 ## Known issues
 - The star image will distort when space camera position is different from player's.  
@@ -72,6 +81,12 @@ It can be fixed by letting player move along with space camera in mod config.
 - Rotation is not smooth enough in curve camera path with respect to position changes.  
 
 ## ChangeLogs
+
+#### v0.4.0
+- Path: Add target for camera to look at.
+- Config `MovePlayerWithSpaceCamera` default value is now true. When stop viewing, the mecha will go back to the original position in space.
+- Add scroll list in I/O window to view and select imported camera or path to add.  
+- Add ZHCN translation.
 
 #### v0.3.0
 - Fix camera path is not smooth in space. Add VectorLF3 json convertor in TomlTypeConverter.   
