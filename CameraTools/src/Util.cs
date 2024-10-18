@@ -73,7 +73,7 @@ namespace CameraTools
         public static void AddFloatField(string label, ref float value, float delta = 0)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.MinWidth(10));
+            GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
                 GUILayout.Label(value.ToString("G6"), GUILayout.MinWidth(35));
@@ -104,7 +104,7 @@ namespace CameraTools
         public static void AddDoubleField(string label, ref double value, double delta = 0)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.MinWidth(10));
+            GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
                 GUILayout.Label(value.ToString("G8"), GUILayout.MinWidth(35));
@@ -135,7 +135,7 @@ namespace CameraTools
         public static void AddFloatFieldInput(string label, ref float value, float delta = 0)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.MinWidth(10));
+            GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
                 GUILayout.TextField(value.ToString(), 6, GUILayout.MaxWidth(60));
@@ -166,7 +166,7 @@ namespace CameraTools
         public static void AddToggleField(ConfigEntry<bool> configEntry)
         {
             GUILayout.BeginHorizontal();
-            configEntry.Value = GUILayout.Toggle(configEntry.Value, configEntry.Definition.Key);
+            configEntry.Value = GUILayout.Toggle(configEntry.Value, configEntry.Definition.Key.Translate());
             GUILayout.EndHorizontal();
         }
 
@@ -181,7 +181,7 @@ namespace CameraTools
         public static void AddKeyBindField(ConfigEntry<KeyboardShortcut> configEntry)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(configEntry.Definition.Key, GUILayout.MinWidth(10));
+            GUILayout.Label(configEntry.Definition.Key.Translate(), GUILayout.MinWidth(10));
             if (waitingKeyBindField != configEntry.Definition.Key)
             {
                 GUILayout.Label(configEntry.GetSerializedValue(), GUILayout.MaxWidth(100));

@@ -148,7 +148,7 @@ namespace CameraTools
             if (GUILayout.Button("X")) modConfigWindowActivated = false;
             GUILayout.EndArea();
 
-            modConfigTabIndex = GUILayout.Toolbar(modConfigTabIndex, modConfigTabText);
+            modConfigTabIndex = GUILayout.Toolbar(modConfigTabIndex, Extensions.TL(modConfigTabText));
             switch (modConfigTabIndex)
             {
                 case 0: ModConfig.ConfigWindowFunc(); break;

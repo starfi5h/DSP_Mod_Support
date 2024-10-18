@@ -187,7 +187,7 @@ namespace CameraTools
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Camera Type".Translate(), GUILayout.MinWidth(35));
-            cameraType = (CameraType)GUILayout.Toolbar((int)cameraType, cameraTypeTexts);
+            cameraType = (CameraType)GUILayout.Toolbar((int)cameraType, Extensions.TL(cameraTypeTexts));
             GUILayout.EndHorizontal();
 
             GUILayout.BeginVertical(GUI.skin.box);
@@ -196,7 +196,7 @@ namespace CameraTools
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Local Position".Translate(), GUILayout.MinWidth(70));
-                    positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                    positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
                     GUILayout.EndHorizontal();
                     if (positionType == 0)
                     {
@@ -220,7 +220,7 @@ namespace CameraTools
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("Space Position".Translate(), GUILayout.MinWidth(70));
-                    if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                    if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
                     GUILayout.EndHorizontal();
                     if (positionType == 1 && GameMain.localStar != null)
                     {

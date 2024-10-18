@@ -259,7 +259,7 @@ namespace CameraTools
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Interp".Translate());
-            tmpInt = GUILayout.Toolbar(interpolation, interpolationTexts);
+            tmpInt = GUILayout.Toolbar(interpolation, Extensions.TL(interpolationTexts));
             if (tmpInt != interpolation)
             {
                 interpolation = tmpInt;
@@ -281,7 +281,7 @@ namespace CameraTools
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
             GUILayout.BeginHorizontal();
-            keyFormat = GUILayout.Toolbar(keyFormat, keyFormatTexts);
+            keyFormat = GUILayout.Toolbar(keyFormat, Extensions.TL(keyFormatTexts));
             autoSplit = GUILayout.Toggle(autoSplit, "Auto Split".Translate());
             GUILayout.EndHorizontal();
 
@@ -387,7 +387,7 @@ namespace CameraTools
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Target: ".Translate() + lookTarget.Type.ToString()))
+            if (GUILayout.Button("Target: ".Translate() + lookTarget.Type.ToString().Translate()))
             {
                 if (UIWindow.EditingTarget != lookTarget) LookTarget.OpenAndSetWindow(lookTarget);
                 else UIWindow.EditingTarget = null;

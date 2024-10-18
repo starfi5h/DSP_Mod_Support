@@ -119,7 +119,7 @@ namespace CameraTools
             GUILayout.BeginHorizontal();
             GUILayout.Label("Type".Translate(), GUILayout.MinWidth(35));
 
-            int targetType = GUILayout.Toolbar((int)Type, tragetTypeTexts);
+            int targetType = GUILayout.Toolbar((int)Type, Extensions.TL(tragetTypeTexts));
             if (targetType != (int)Type)
             {
                 // Set position to the stored uiPosition
@@ -137,7 +137,7 @@ namespace CameraTools
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("Offset to Mecha".Translate(), GUILayout.MinWidth(70));
-                        positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                        positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
                         GUILayout.EndHorizontal();
                         if (positionType == 0)
                         {
@@ -162,7 +162,7 @@ namespace CameraTools
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("Local Position".Translate(), GUILayout.MinWidth(70));
-                        positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                        positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
                         GUILayout.EndHorizontal();
                         if (positionType == 0)
                         {
@@ -187,7 +187,7 @@ namespace CameraTools
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("Space Position".Translate(), GUILayout.MinWidth(70));
-                        if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, positionTypeTexts);
+                        if (GameMain.localStar != null) positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
                         GUILayout.EndHorizontal();
                         if (positionType == 1 && GameMain.localStar != null)
                         {
