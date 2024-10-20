@@ -1,7 +1,7 @@
 {
     "name": "CameraTools",
     "description": "Store camera positions, custom cinematic transition with freecam. 摄影工具(Alt+F5, Alt+F6):保存机位,自由视角运镜",
-    "version_number": "0.4.0",
+    "version_number": "0.4.1",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/CameraTools",
     "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

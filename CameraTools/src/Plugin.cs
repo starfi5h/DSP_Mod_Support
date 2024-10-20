@@ -16,7 +16,7 @@ namespace CameraTools
     {
         public const string GUID = "starfi5h.plugin.CameraTools";
         public const string NAME = "CameraTools";
-        public const string VERSION = "0.4.0";
+        public const string VERSION = "0.4.1";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
@@ -35,7 +35,7 @@ namespace CameraTools
                     }
                     else if (value == null && viewingPath == null) // View => No view
                     {
-                        if (ModConfig.MovePlayerWithSpaceCamera.Value)
+                        if (ModConfig.MovePlayerWithSpaceCamera.Value && lastPlayerUpos != VectorLF3.zero)
                             GameMain.mainPlayer.uPosition = lastPlayerUpos;
                     }
                 }

@@ -82,6 +82,10 @@ It can be fixed by letting player move along with space camera in mod config.
 
 ## ChangeLogs
 
+#### v0.4.1
+- Add keybind `Play Current Path` to play/pause the current editing path.
+- "Hide GUI" now stop buildings highlight and overlay when playing the path.
+
 #### v0.4.0
 - Path: Add target for camera to look at.
 - Config `MovePlayerWithSpaceCamera` default value is now true. When stop viewing, the mecha will go back to the original position in space.
