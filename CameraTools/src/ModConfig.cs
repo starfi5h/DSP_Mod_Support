@@ -11,6 +11,7 @@ namespace CameraTools
         public static ConfigEntry<KeyboardShortcut> CameraPathWindowShortcut;
         public static ConfigEntry<KeyboardShortcut> ToggleLastCameraShortcut;
         public static ConfigEntry<KeyboardShortcut> CycyleNextCameraShortcut;
+        public static ConfigEntry<KeyboardShortcut> PlayCurrentPathShortcut;
         public static ConfigEntry<bool> MovePlayerWithSpaceCamera;
 
         /*
@@ -41,7 +42,8 @@ namespace CameraTools
                 "Hotkey to swith between the last viewing camera and the main camera");
             CycyleNextCameraShortcut = config.Bind("- KeyBind -", "Cycle To Next Cam", new KeyboardShortcut(KeyCode.None),
                 "Hotkey to view the next available camera in the list");
-
+            PlayCurrentPathShortcut = config.Bind("- KeyBind -", "Play Current Path", new KeyboardShortcut(KeyCode.None),
+                "Hotkey to toggle the editing path play button (play from start/pause/resume)");
             MovePlayerWithSpaceCamera = config.Bind("- General -", "Move Player With Space Camera", true,
                 "Move mecha position to the space camera so the star image doesn't distort");
 
@@ -61,8 +63,8 @@ namespace CameraTools
             CameraListCount = config.Bind("internal", "CameraListCount", 0);
             PathListCount = config.Bind("internal", "PathListCount", 0);
             PosModConfigWindow = config.Bind("internal", "RectModConfigWindow", new Vector2(20f, 20f));
-            PosCameraListWindow = config.Bind("internal", "RectCameraListWindow", new Vector2(20f, 250f));
-            PosCameraConfigWindow = config.Bind("internal", "RectCameraConfigWindow", new Vector2(320f, 250f));
+            PosCameraListWindow = config.Bind("internal", "RectCameraListWindow", new Vector2(20f, 260f));
+            PosCameraConfigWindow = config.Bind("internal", "RectCameraConfigWindow", new Vector2(320f, 260f));
             PosPathListWindow = config.Bind("internal", "RectPathListWindow", new Vector2(900f, 350f));
             PosPathConfigWindow = config.Bind("internal", "RectPathConfigWindow", new Vector2(1200f, 350f));
             PosTargetConfigWindow = config.Bind("internal", "RectTargetConfigWindow", new Vector2(900f, 350f));
@@ -117,6 +119,7 @@ namespace CameraTools
             Util.AddKeyBindField(CameraPathWindowShortcut);
             Util.AddKeyBindField(ToggleLastCameraShortcut);
             Util.AddKeyBindField(CycyleNextCameraShortcut);
+            Util.AddKeyBindField(PlayCurrentPathShortcut);            
             Util.AddToggleField(MovePlayerWithSpaceCamera);
             if (GUILayout.Button("Reset Windows Position".Translate())) UIWindow.LoadWindowPos(true);
         }

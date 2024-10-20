@@ -152,6 +152,11 @@ namespace CameraTools
             {
                 ViewingPath.OnLateUpdate();
             }
+
+            if (ModConfig.PlayCurrentPathShortcut.Value.IsDown() && UIWindow.EditingPath != null)
+            {
+                UIWindow.EditingPath.TogglePlayButton();
+            }
         }
 
         static CameraPoint FindNextAvailableCam()
@@ -220,6 +225,40 @@ namespace CameraTools
         {
             // Disable force & upos update when ovweriting mecha position in space
             return GameMain.localPlanet != null || !ModConfig.MovePlayerWithSpaceCamera.Value || (ViewingCam == null && ViewingPath == null);
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerAction_Inspect), nameof(PlayerAction_Inspect.GameTick))]
+        static bool PlayerAction_Inspect_Prefix(PlayerAction_Inspect __instance)
+        {
+            if (ViewingPath != null && ViewingPath.IsPlaying && CameraPath.HideGUI)
+            {
+                __instance.hoveringEntityId = 0;
+                __instance.hoveringEnemyId = 0;
+                __instance.hoveringEnemyClusterId = 0;
+                __instance.hoveringEnemyFormId = 0;
+                __instance.hoveringEnemyPortId = 0;
+                __instance.hoveringEnemyAstroId = 0;
+                __instance.hoveringTooFar = false;
+                __instance.hoveringPrebuildTooFar = false;
+                __instance.hoveringPrebuildId = 0;
+                __instance.InspectNothing();
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerControlGizmo), nameof(PlayerControlGizmo.OnOutlineDraw))]
+        static bool OnOutlineDraw_Prefix(PlayerControlGizmo __instance)
+        {
+            if (ViewingPath != null && ViewingPath.IsPlaying && CameraPath.HideGUI)
+            {
+                __instance._tmp_outline_local_objcnt = 0;
+                __instance._tmp_outline_local_pos = Vector3.zero;
+                return false;
+            }
+            return true;
         }
     }
 }

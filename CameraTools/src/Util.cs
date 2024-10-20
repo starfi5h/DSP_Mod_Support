@@ -202,8 +202,9 @@ namespace CameraTools
                     configEntry.Value = KeyboardShortcut.Deserialize(GetPressedKeysString());
                     waitingKeyBindField = null;
                 }
-                if (GUILayout.Button("abort", GUILayout.MaxWidth(40)))
+                if (GUILayout.Button("clear", GUILayout.MaxWidth(40)))
                 {
+                    configEntry.Value = KeyboardShortcut.Empty;
                     waitingKeyBindField = null;
                 }
             }

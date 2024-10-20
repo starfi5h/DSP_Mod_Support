@@ -76,10 +76,12 @@ namespace CameraTools
             { "Add Path", "添加路径" },
 
             { "Mod Config", "模组配置" },
+            { "Waiting for key..", "等待输入.." },
             { "Camera List Window", "摄像机列表窗口" },
             { "Camera Path Window", "摄像机路径窗口" },
             { "Toggle Last Cam", "切换到上次机位" },
             { "Cycle To Next Cam", "循环到下一个机位" },
+            { "Play Current Path", "播放当前路径" },
             { "Move Player With Space Camera", "随太空摄像机移动玩家" },
             { "Reset Windows Position", "重置窗口位置" },
 

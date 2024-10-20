@@ -10,7 +10,7 @@ namespace CameraTools
         public int Index { get; set; }
         public string Name { get; set; } = "";
         public bool IsPlaying { get; private set; }
-        public bool HideGUI { get; private set; }
+        public static bool HideGUI { get; private set; }
 
         readonly List<CameraPoint> cameras = new();
         readonly List<float> keyTimes = new();
@@ -100,6 +100,17 @@ namespace CameraTools
             if (duration == 0 || !IsPlaying) return;
             progression = Mathf.Clamp01(progression + Time.deltaTime / duration);
             if (duration > 0 && progression == 1.0f) IsPlaying = false;
+        }
+
+        public void TogglePlayButton()
+        {
+            IsPlaying = !IsPlaying;
+            if (IsPlaying)
+            {
+                Plugin.ViewingCam = null;
+                Plugin.ViewingPath = this;
+                if (progression >= 1.0f && duration > 0) progression = 0f;
+            }
         }
 
         public void ApplyToCamera(Camera cam)
@@ -240,13 +251,7 @@ namespace CameraTools
             if (GUILayout.Button(IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
             {
                 if (cameras.Count < 2) UIRealtimeTip.Popup("Not enough camera! (≥2)");
-                IsPlaying = !IsPlaying;
-                if (IsPlaying)
-                {
-                    Plugin.ViewingCam = null;
-                    Plugin.ViewingPath = this;
-                    if (progression >= 1.0f && duration > 0) progression = 0f;
-                }
+                TogglePlayButton();
             }
             if (GUILayout.Button(">>|", GUILayout.MaxWidth(40)))
             {
