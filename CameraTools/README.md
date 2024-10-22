@@ -1,7 +1,11 @@
 # CameraTools
 
 ![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/demo1.gif)  
-Capture different camera positions. Create cinematic transitions between them.  
+There are 3 main systems in this mod:
+- Camera List: Save stationary camera position on local planet or in space. Edit and view them anytime.  
+- Path List: Craft a camera path to let the viewing camera go through each point smoothly.
+- Timelapse Record: Captured screenshots in fixed time intervals by main or second camera.
+  
 Inspired by [Cities Skylines mod Cinematic Camera Extended by SamsamTS](https://steamcommunity.com/sharedfiles/filedetails/?id=785528371).  
 
 ## Camera List (Alt+F5)
@@ -62,8 +66,22 @@ The target to look at during playback.
 When the target config window is opened, it shows a pink sphere marker to indicate where the camera is looking at.  
 Can set it to a fixed point on the planet or space, or a moving point relatived to the mecha.  
 
+## Timelapse Record (Alt+F7)
+![record window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-window.png)  
+First, set the screenshot folder path, then click `Start Record` button to take screenshots with the assigned camera path every x second.  
+The file format is `%06d.jpg` starting with 1. The index reset after the game restart.  
+- Status Text: When recording, display how long until the next capture. After capture, display file name and encode time.
+- Path: Select a camera path from the list to record in the secondary camera. If not selected, it will capture the main camera. Click play button to let the camera move along the path during recording.  
+  Note: This secondary camera only works best **on the local planet**. For space timelapse it is adviced to use the main camera.
+- JPG Quality: JPG quality to encode with. [The range is 1 through 100. 1 is the lowest quality.](https://docs.unity3d.com/ScriptReference/ImageConversion.EncodeToJPG.html)  
+  
+After recording, you can combine the sequence of images into a video. For example with [FFmpeg](https://www.ffmpeg.org/):
+```
+ffmpeg -framerate 24 -i %06d.jpg -s 1920x1080 output.mp4
+```
+
 ## Installation & Mod Config
-![plugin config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/plugin-config.png)  
+![mod config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/mod-config.png)  
 Via [r2modman](https://thunderstore.io/c/dyson-sphere-program/p/ebkr/r2modman/), or manual download the file and put `CameraTools.dll` in `BepInEx/plugins` folder.  
 Keyboard shortcuts can be changed in the mod config window.  
 All mod config together with stored camera data is in `BepInEx\config\starfi5h.plugin.CameraTools.cfg`.  
@@ -79,8 +97,16 @@ After importing success, user can choose which camera or path to add in the list
 - The star image will distort when space camera position is different from player's.  
 It can be fixed by letting player move along with space camera in mod config.  
 - Rotation is not smooth enough in curve camera path with respect to position changes.  
+- Flicker in space when using secondary camera to record timelapse.  
+Use the main camera to move with path instead.  
 
 ## ChangeLogs
+
+#### v0.5.0
+- Add timelapse recording feature to capture screenshots with secondary camera.
+- Revert mecha position restore funcion in v0.4.0.
+- Add loop option in camera path window.
+- Add set to current mecha position option in target window.
 
 #### v0.4.1
 - Add keybind `Play Current Path` to play/pause the current editing path.
