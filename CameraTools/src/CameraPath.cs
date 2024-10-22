@@ -9,7 +9,8 @@ namespace CameraTools
         // Serial data
         public int Index { get; set; }
         public string Name { get; set; } = "";
-        public bool IsPlaying { get; private set; }
+        public bool IsPlaying { get; set; }
+        public static bool Loop { get; private set; }
         public static bool HideGUI { get; private set; }
 
         readonly List<CameraPoint> cameras = new();
@@ -97,9 +98,13 @@ namespace CameraTools
 
         public void OnLateUpdate()
         {
-            if (duration == 0 || !IsPlaying) return;
+            if (duration == 0 || !IsPlaying || GameMain.isPaused) return;
             progression = Mathf.Clamp01(progression + Time.deltaTime / duration);
-            if (duration > 0 && progression == 1.0f) IsPlaying = false;
+            if (duration > 0 && progression == 1.0f)
+            {
+                if (Loop) progression = 0.0f;
+                else IsPlaying = false;
+            }
         }
 
         public void TogglePlayButton()
@@ -280,7 +285,8 @@ namespace CameraTools
             {
                 Plugin.ViewingPath = Plugin.ViewingPath == this ? null : this;
             }
-            HideGUI = GUILayout.Toggle(HideGUI, "Hide GUI during playback".Translate());
+            Loop = GUILayout.Toggle(Loop, "Loop".Translate(), GUILayout.MaxWidth(50));
+            HideGUI = GUILayout.Toggle(HideGUI, "Hide GUI during play".Translate());
             GUILayout.EndHorizontal();
                         
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);

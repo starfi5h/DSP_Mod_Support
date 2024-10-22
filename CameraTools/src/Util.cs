@@ -39,6 +39,15 @@ namespace CameraTools
             }
         }
 
+        public static string ToString(VectorLF3 vectorLF3, string format = "F0")
+        {
+            return string.Format("[{0}, {1}, {2}]", 
+                vectorLF3.x.ToString(format),
+                vectorLF3.y.ToString(format),
+                vectorLF3.z.ToString(format)
+            );
+        }
+
         public static void SetWindowPos(ref Rect windowRect, ConfigEntry<Vector2> posConfigEntry, bool reset)
         {
             windowRect.position = reset ? (Vector2)posConfigEntry.DefaultValue : posConfigEntry.Value;
@@ -70,14 +79,15 @@ namespace CameraTools
         static string editingField;
         static string editingText;
 
-        public static void AddFloatField(string label, ref float value, float delta = 0)
+        public static bool AddFloatField(string label, ref float value, float delta = 0)
         {
+            bool hasChanged = false;
             GUILayout.BeginHorizontal();
             GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
                 GUILayout.Label(value.ToString("G6"), GUILayout.MinWidth(35));
-                if (GUILayout.Button("edit"))
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
                 {
                     editingField = label;
                     editingText = value.ToString();
@@ -86,29 +96,34 @@ namespace CameraTools
             else
             {
                 editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(35));
-                if (GUILayout.Button("set"))
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
                 {
                     editingField = "";
-                    float.TryParse(editingText, out float inputValue);
-                    value = inputValue;
+                    if (float.TryParse(editingText, out float inputValue))
+                    {
+                        hasChanged = value != inputValue;
+                        value = inputValue;
+                    }
                 }
             }
             if (delta != 0f)
             {
-                if (GUILayout.Button("-")) value -= delta;
-                if (GUILayout.Button("+")) value += delta;
+                if (GUILayout.Button("-", GUILayout.MaxWidth(35))) { value -= delta; hasChanged = true; }
+                if (GUILayout.Button("+", GUILayout.MaxWidth(35))) { value += delta; hasChanged = true; }
             }
             GUILayout.EndHorizontal();
+            return hasChanged;
         }
 
-        public static void AddDoubleField(string label, ref double value, double delta = 0)
+        public static bool AddDoubleField(string label, ref double value, double delta = 0)
         {
+            bool hasChanged = false;
             GUILayout.BeginHorizontal();
             GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
                 GUILayout.Label(value.ToString("G8"), GUILayout.MinWidth(35));
-                if (GUILayout.Button("edit"))
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
                 {
                     editingField = label;
                     editingText = value.ToString();
@@ -116,20 +131,24 @@ namespace CameraTools
             }
             else
             {
-                editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(35));
-                if (GUILayout.Button("set"))
+                editingText = GUILayout.TextField(editingText, 9, GUILayout.MinWidth(35));
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
                 {
                     editingField = "";
-                    double.TryParse(editingText, out double inputValue);
-                    value = inputValue;
+                    if (double.TryParse(editingText, out double inputValue))
+                    {
+                        hasChanged = value != inputValue;
+                        value = inputValue;
+                    }
                 }
             }
             if (delta != 0f)
             {
-                if (GUILayout.Button("-")) value -= delta;
-                if (GUILayout.Button("+")) value += delta;
+                if (GUILayout.Button("-", GUILayout.MaxWidth(35))) { value -= delta; hasChanged = true; }
+                if (GUILayout.Button("+", GUILayout.MaxWidth(35))) { value += delta; hasChanged = true; }
             }
             GUILayout.EndHorizontal();
+            return hasChanged;
         }
 
         public static void AddFloatFieldInput(string label, ref float value, float delta = 0)
@@ -157,8 +176,100 @@ namespace CameraTools
             }
             if (delta != 0f)
             {
-                if (GUILayout.Button("-", GUILayout.MaxWidth(40))) value -= delta;
-                if (GUILayout.Button("+", GUILayout.MaxWidth(40))) value += delta;
+                if (GUILayout.Button("-", GUILayout.MaxWidth(35))) value -= delta;
+                if (GUILayout.Button("+", GUILayout.MaxWidth(35))) value += delta;
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        public static string AddTextFieldInput(string label, string value)
+        {
+            string newText = null;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label.Translate());
+            if (editingField != label)
+            {
+                if (value.Length > 20)
+                {
+                    GUILayout.Label(".." + value.Substring(value.Length - 20));
+                }
+                else
+                {
+                    GUILayout.Label(value);
+                }
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
+                {
+                    editingField = label;
+                    editingText = value;
+                }
+            }
+            else
+            {
+                editingText = GUILayout.TextField(editingText);
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
+                {
+                    editingField = "";
+                    newText = editingText;
+                }
+            }
+            GUILayout.EndHorizontal();
+            return newText;
+        }
+
+        public static void AddIntField(ConfigEntry<int> configEntry)
+        {
+            GUILayout.BeginHorizontal();
+            string label = configEntry.Definition.Key.Translate();
+            GUILayout.Label(label);
+            GUILayout.FlexibleSpace();
+            if (editingField != label)
+            {
+                string valueText = configEntry.Value.ToString();
+                GUILayout.Label(valueText, GUILayout.MaxWidth(100));
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
+                {
+                    editingField = label;
+                    editingText = valueText;
+                }
+            }
+            else
+            {
+                editingText = GUILayout.TextField(editingText, 8, GUILayout.MaxWidth(100));
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
+                {
+                    editingField = "";
+                    int.TryParse(editingText, out int inputValue);
+                    configEntry.Value = inputValue;
+                }
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        public static void AddFloatField(ConfigEntry<float> configEntry)
+        {
+            GUILayout.BeginHorizontal();
+            string label = configEntry.Definition.Key.Translate();
+            GUILayout.Label(label);
+            GUILayout.FlexibleSpace();
+            if (editingField != label)
+            {
+                string valueText = configEntry.Value.ToString();
+                GUILayout.Label(valueText, GUILayout.MaxWidth(100));
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
+                {
+                    editingField = label;
+                    editingText = valueText;
+                }
+            }
+            else
+            {
+                editingText = GUILayout.TextField(editingText, 8, GUILayout.MaxWidth(100));
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
+                {
+                    editingField = "";
+                    float.TryParse(editingText, out float inputValue);
+                    configEntry.Value = inputValue;
+                }
             }
             GUILayout.EndHorizontal();
         }

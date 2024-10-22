@@ -10,17 +10,19 @@ namespace CameraTools
         private static Rect cameraConfigWindow = new(320f, 260f, 300f, 365f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
-        private static Rect targetConfigWindow = new(900f, 350f, 300f, 200f);
+        private static Rect targetConfigWindow = new(900f, 350f, 300f, 240f);
+        private static Rect recordWindow = new(900f, 20f, 300f, 240f);
 
         public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; } = null;
-        public static CameraPath EditingPath { get; private set; } = null;
+        public static CameraPath EditingPath { get; set; } = null;
         public static int lastEditingPathIndex = 0;
         public static LookTarget EditingTarget { get; set; } = null;
 
         static bool cameraListWindowActivated = true;
         static bool pathListWindowActivated = false;
         static bool modConfigWindowActivated = false;
+        static bool recordWindowActivated = false;
 
         public static void LoadWindowPos(bool reset = false)
         {
@@ -93,6 +95,15 @@ namespace CameraTools
             }
         }
 
+        public static void ToggleRecordWindow()
+        {
+            recordWindowActivated = !recordWindowActivated;
+            if (!recordWindowActivated)
+            {
+                SaveWindowPos();
+            }
+        }
+
         public static void OnGUI()
         {
             CanResize = false;
@@ -138,6 +149,12 @@ namespace CameraTools
                 targetConfigWindow = GUI.Window(1307890675, targetConfigWindow, TargetConfigWindowFunc, "Target Config".Translate());
                 HandleDrag(1307890675, ref targetConfigWindow);
             }
+
+            if (recordWindowActivated)
+            {
+                recordWindow = GUI.Window(1307890676, recordWindow, RecordWindowFunc, "Timelapse Record".Translate());
+                HandleDrag(1307890676, ref recordWindow);
+            }
         }
 
         static readonly string[] modConfigTabText = { "Config", "I/O" };
@@ -154,6 +171,16 @@ namespace CameraTools
                 case 0: ModConfig.ConfigWindowFunc(); break;
                 case 1: ModConfig.ImportWindowFunc(); break;
             }
+            GUI.DragWindow();
+        }
+
+        static void RecordWindowFunc(int id)
+        {
+            GUILayout.BeginArea(new Rect(recordWindow.width - 27f, 1f, 25f, 16f));
+            if (GUILayout.Button("X")) ToggleRecordWindow();
+            GUILayout.EndArea();
+
+            CaptureManager.ConfigWindowFunc();
             GUI.DragWindow();
         }
 
@@ -223,24 +250,39 @@ namespace CameraTools
             GUILayout.EndHorizontal();
 
             int removingIndex = -1;
+            int swappingIndex = -1;
             scrollPositionPathList = GUILayout.BeginScrollView(scrollPositionPathList);
             foreach (var path in Plugin.PathList)
             {
                 GUILayout.BeginHorizontal(GUI.skin.box);
                 GUILayout.Label($"[{path.Index}]", GUILayout.MaxWidth(20));
                 GUILayout.Label(path.Name);
-                if (GUILayout.Button("Load".Translate(), GUILayout.MaxWidth(60)))
+
+                if (path != EditingPath)
                 {
-                    EditingPath = path;
+                    if (GUILayout.Button("Load".Translate(), GUILayout.MaxWidth(60))) EditingPath = path;
                 }
-                if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
+                else
                 {
-                    removingIndex = path.Index;
+                    if (GUILayout.Button("↑", GUILayout.MaxWidth(35))) swappingIndex = path.Index - 1;
+                    if (GUILayout.Button("↓", GUILayout.MaxWidth(35))) swappingIndex = path.Index;
                 }
+                if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60))) removingIndex = path.Index;
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndScrollView();
 
+            if (swappingIndex >= 0 && (swappingIndex + 1) < Plugin.PathList.Count)
+            {
+                int a = swappingIndex; int b = swappingIndex + 1;
+                var tmp = Plugin.PathList[a];
+                Plugin.PathList[a] = Plugin.PathList[b];
+                Plugin.PathList[b] = tmp;
+                Plugin.PathList[a].Index = a;
+                Plugin.PathList[b].Index = b;
+                Plugin.PathList[a].Export();
+                Plugin.PathList[b].Export();
+            }
             if (removingIndex != -1 && Plugin.PathList.Count > 1)
             {
                 if (removingIndex == EditingPath.Index)
@@ -291,8 +333,7 @@ namespace CameraTools
             GUILayout.EndArea();
 
             int removingIndex = -1;
-            int upIndex = -1;
-            int downIndex = -1;
+            int swappingIndex = -1;
             scrollPositionCameraList = GUILayout.BeginScrollView(scrollPositionCameraList);
             foreach (var camera in Plugin.CameraList)
             {
@@ -321,8 +362,8 @@ namespace CameraTools
                     }
                     if (EditingCam == camera)
                     {
-                        if (GUILayout.Button("↑")) upIndex = camera.Index;
-                        if (GUILayout.Button("↓")) downIndex = camera.Index;
+                        if (GUILayout.Button("↑", GUILayout.MaxWidth(35))) swappingIndex = camera.Index - 1;
+                        if (GUILayout.Button("↓", GUILayout.MaxWidth(35))) swappingIndex = camera.Index;
                     }
                     else
                     {
@@ -340,13 +381,9 @@ namespace CameraTools
             {
                 RemoveCamera(removingIndex);
             }
-            if (upIndex >= 1)
+            if (swappingIndex >= 0 && (swappingIndex + 1) < Plugin.CameraList.Count)
             {
-                SwapCamIndex(upIndex, upIndex - 1);
-            }
-            if (downIndex >= 0 && (downIndex + 1) < Plugin.CameraList.Count)
-            {
-                SwapCamIndex(downIndex, downIndex + 1);
+                SwapCamIndex(swappingIndex, swappingIndex + 1);
             }
 
             GUILayout.EndScrollView();
@@ -358,19 +395,28 @@ namespace CameraTools
                 var cam = new CameraPoint(Plugin.CameraList.Count);
                 if (GameMain.localPlanet != null) cam.SetPlanetCamera();
                 else cam.SetSpaceCamera();
+                cam.Name = string.Format("cam-{0}-{1}", GameMain.localPlanet != null ? "planet" : "space", cam.Index);
                 Plugin.CameraList.Add(cam);
                 cam.Export();
                 ModConfig.CameraListCount.Value = Plugin.CameraList.Count;
-            }
-            if (GUILayout.Button("Path".Translate()))
-            {
-                TogglePathConfigWindow();
             }
             if (GUILayout.Button("Config".Translate()))
             {
                 modConfigWindowActivated = !modConfigWindowActivated;
             }
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Camera Path Window".Translate()))
+            {
+                TogglePathConfigWindow();
+            }
+            if (GUILayout.Button("Record Window".Translate()))
+            {
+                ToggleRecordWindow();
+            }
+            GUILayout.EndHorizontal();
+
             GUI.DragWindow();
         }
 
