@@ -65,6 +65,10 @@ When Auto Split toggle is on, it will evenly split time ratio for all the keypoi
 The target to look at during playback.  
 When the target config window is opened, it shows a pink sphere marker to indicate where the camera is looking at.  
 Can set it to a fixed point on the planet or space, or a moving point relatived to the mecha.  
+![target window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/target-window.png)  
+If rotation speed is set to positive, the camera will counter-clockwise circle around the target, with axis is the normal vector of the target position.  
+If rotation speed is set to negative, it will go clockwise. Can set by rotation period too.  
+
 
 ## Timelapse Record (Alt+F7)
 ![record window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-window.png)  
@@ -101,6 +105,9 @@ It can be fixed by letting player move along with space camera in mod config.
 Use the main camera to move with path instead.  
 
 ## ChangeLogs
+
+#### v0.5.1
+- Target: Add rotation speed option to let camera do circular motion around the target.  
 
 #### v0.5.0
 - Add timelapse recording feature to capture screenshots with secondary camera.
