@@ -30,7 +30,8 @@ namespace CameraTools
         string SectionName => "path-" + Index;
         CameraPose camPose;
         VectorLF3 uPosition;
-        float progression;
+        float progression; // [0,1] timeline progression of the path
+        float totalTime;   // total time from starting the path (second)
         AnimationCurve animCurveX = null;
         AnimationCurve animCurveY = null;
         AnimationCurve animCurveZ = null;
@@ -100,6 +101,7 @@ namespace CameraTools
         {
             if (duration == 0 || !IsPlaying || GameMain.isPaused) return;
             progression = Mathf.Clamp01(progression + Time.deltaTime / duration);
+            totalTime += Time.deltaTime;
             if (duration > 0 && progression == 1.0f)
             {
                 if (Loop) progression = 0.0f;
@@ -114,7 +116,11 @@ namespace CameraTools
             {
                 Plugin.ViewingCam = null;
                 Plugin.ViewingPath = this;
-                if (progression >= 1.0f && duration > 0) progression = 0f;
+                if (progression >= 1.0f && duration > 0)
+                {
+                    progression = 0f;
+                    totalTime = 0f;
+                }
             }
         }
 
@@ -125,7 +131,7 @@ namespace CameraTools
 
             if (lookTarget.Type != LookTarget.TargetType.None)
             {
-                camPose.rotation = lookTarget.SetRotation(camPose.position, uPosition);
+                lookTarget.SetFinalPose(ref camPose, ref uPosition, totalTime);
             }
             camPose.ApplyToCamera(cam);
             if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
@@ -244,23 +250,29 @@ namespace CameraTools
         {
             int tmpInt;
             GUILayout.BeginVertical(GUI.skin.box);
-            progression = GUILayout.HorizontalSlider(progression, 0.0f, 1.0f);
+            float tmpFloat = GUILayout.HorizontalSlider(progression, 0.0f, 1.0f);
+            if (tmpFloat != progression)
+            {
+                progression = tmpFloat;
+                totalTime = duration * progression;
+            }
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Progress: ".Translate() + progression.ToString("F2"));
             if (GUILayout.Button("|<<", GUILayout.MaxWidth(40)))
             {
                 progression = 0f;
+                totalTime = 0f;
                 Plugin.ViewingPath = this;
             }
             if (GUILayout.Button(IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
             {
-                if (cameras.Count < 2) UIRealtimeTip.Popup("Not enough camera! (≥2)");
                 TogglePlayButton();
             }
             if (GUILayout.Button(">>|", GUILayout.MaxWidth(40)))
             {
                 progression = 1.0f;
+                totalTime = duration;
                 Plugin.ViewingPath = this;
             }
             GUILayout.EndHorizontal();

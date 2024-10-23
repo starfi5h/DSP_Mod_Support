@@ -10,7 +10,7 @@ namespace CameraTools
         private static Rect cameraConfigWindow = new(320f, 260f, 300f, 365f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
-        private static Rect targetConfigWindow = new(900f, 350f, 300f, 240f);
+        private static Rect targetConfigWindow = new(900f, 350f, 300f, 270f);
         private static Rect recordWindow = new(900f, 20f, 300f, 240f);
 
         public static bool CanResize { get; private set; }
@@ -31,6 +31,7 @@ namespace CameraTools
             Util.SetWindowPos(ref cameraConfigWindow, ModConfig.PosCameraConfigWindow, reset);
             Util.SetWindowPos(ref pathListWindow, ModConfig.PosPathListWindow, reset);
             Util.SetWindowPos(ref pathConfigWindow, ModConfig.PosPathConfigWindow, reset);
+            Util.SetWindowPos(ref targetConfigWindow, ModConfig.PosTargetConfigWindow, reset);
             if (reset) SaveWindowPos();
         }
 
@@ -41,6 +42,7 @@ namespace CameraTools
             ModConfig.PosCameraConfigWindow.Value = cameraConfigWindow.position;
             ModConfig.PosPathListWindow.Value = pathListWindow.position;
             ModConfig.PosPathConfigWindow.Value = pathConfigWindow.position;
+            ModConfig.PosTargetConfigWindow.Value = targetConfigWindow.position;
         }
 
         public static void OnEsc()
@@ -221,6 +223,7 @@ namespace CameraTools
             if (GUILayout.Button("X"))
             {
                 EditingTarget = null;
+                SaveWindowPos();
             }
             GUILayout.EndArea();
 

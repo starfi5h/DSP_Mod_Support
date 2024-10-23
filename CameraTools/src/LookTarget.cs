@@ -17,13 +17,15 @@ namespace CameraTools
         }
 
         public TargetType Type;
-        public VectorLF3 Position;
-
+        public VectorLF3 Position;  // target relative postion in double format
+        public float RotationSpeed; // camera rotation speed to target normal. Unit: degree/s
+        
         public void Import(string sectionName, ConfigFile configFile = null)
         {
             if (configFile == null) configFile = Plugin.ConfigFile;
             Type = (TargetType)configFile.Bind(sectionName, "TargetType", 0).Value;
             Position = configFile.Bind(sectionName, "TargetPosition", VectorLF3.zero).Value;
+            RotationSpeed = configFile.Bind(sectionName, "TargetRotationSpeed", 0f).Value;
         }
 
         public void Export(string sectionName, ConfigFile configFile = null)
@@ -31,6 +33,7 @@ namespace CameraTools
             if (configFile == null) configFile = Plugin.ConfigFile;
             configFile.Bind(sectionName, "TargetType", 0).Value = (int)Type;
             configFile.Bind(sectionName, "TargetPosition", VectorLF3.zero).Value = Position;
+            configFile.Bind(sectionName, "TargetRotationSpeed", 0f).Value = RotationSpeed;
         }
 
 
@@ -41,6 +44,8 @@ namespace CameraTools
         static readonly VectorLF3[] uiPositions = new VectorLF3[4];
         static int positionType = 0;
         static readonly string[] positionTypeTexts = { "Cartesian", "Polar" };
+        static int rotationType = 0;
+        static readonly string[] rotationTypeTexts = { "Speed", "Period" };
         static Vector2 scrollpos;
         static VectorLF3 lastPosition;
 
@@ -94,15 +99,38 @@ namespace CameraTools
             uiPositions[(int)target.Type] = target.Position;
         }
 
-        public Quaternion SetRotation(Vector3 camPos, VectorLF3 camUpos)
+        public void SetFinalPose(ref CameraPose cameraPose, ref VectorLF3 camUpos, float totalTime)
         {
+            float angle = totalTime * RotationSpeed;
+            Vector3 camPos = cameraPose.position;
+            Vector3 targetPos, backward, axis;
             switch (Type)
             {
                 case TargetType.Mecha:
-                    return Quaternion.LookRotation((GameMain.mainPlayer.position + (Vector3)Position) - camPos, camPos);
+                    targetPos = (GameMain.mainPlayer.position + (Vector3)Position);
+                    backward = camPos - targetPos; // target -> cam
+                    if (RotationSpeed != 0f)
+                    {
+                        axis = targetPos.normalized;   // rotate around normal vector of target
+                        backward = Quaternion.AngleAxis(angle, axis) * backward;
+                        camPos = targetPos + backward;
+                        cameraPose.position = camPos;
+                    }
+                    cameraPose.rotation = Quaternion.LookRotation(-backward, camPos);
+                    return;
 
                 case TargetType.Planet:
-                    return Quaternion.LookRotation((Vector3)Position - camPos, camPos);
+                    targetPos = Position == VectorLF3.zero ? new Vector3(0, 1, 0) : Position;
+                    backward = camPos - targetPos; // target -> cam
+                    if (RotationSpeed != 0f)
+                    {
+                        axis = targetPos.normalized;   // rotate around normal vector of target
+                        backward = Quaternion.AngleAxis(angle, axis) * backward;
+                        camPos = targetPos + backward;
+                        cameraPose.position = camPos;
+                    }
+                    cameraPose.rotation = Quaternion.LookRotation(-backward, camPos);
+                    return;
 
                 case TargetType.Space:
                     if (camUpos == VectorLF3.zero && GameMain.localPlanet != null) // unset: planet camera
@@ -111,9 +139,16 @@ namespace CameraTools
                         // this.runtimeLocalSunDirection = Maths.QInvRotate(this.runtimeRotation, -vectorLF);
                         camUpos = Maths.QInvRotate(GameMain.localPlanet.runtimeRotation, GameMain.localPlanet.uPosition + (VectorLF3)camPos);
                     }
-                    return Quaternion.LookRotation(Position - camUpos, Vector3.up);
+                    if (RotationSpeed != 0f)
+                    {
+                        var dir = camUpos - Position; // target -> cam
+                        axis = Vector3.up; // tempoary use up as rotation axis
+                        dir = Quaternion.AngleAxis(angle, axis) * dir;
+                        camUpos = Position + dir;
+                    }
+                    cameraPose.rotation = Quaternion.LookRotation(Position - camUpos, Vector3.up);
+                    return;
             }
-            return Quaternion.identity; // Should not reach
         }
 
         public void ConfigWindowFunc()
@@ -158,63 +193,25 @@ namespace CameraTools
                         if (GameMain.localPlanet != null)
                         {
                             
-                            GUILayout.Label("Local Planet:\t".Translate() + Util.ToString(GameMain.localPlanet.uPosition));
+                            GUILayout.Label("Local Planet:".Translate() + Util.ToString(GameMain.localPlanet.uPosition));
                         }
                         if (GameMain.localStar != null)
                         {
-                            GUILayout.Label("Local Star:\t".Translate() + Util.ToString(GameMain.localStar.uPosition));
+                            GUILayout.Label("Local Star:  ".Translate() + Util.ToString(GameMain.localStar.uPosition));
                         }
                         GUILayout.EndVertical();
                         break;
                     }
                     case TargetType.Mecha:
                     {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("Offset to Mecha".Translate(), GUILayout.MinWidth(70));
-                        positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
-                        GUILayout.EndHorizontal();
-                        if (positionType == 0)
-                        {
-                            hasChanged |= Util.AddDoubleField("x", ref Position.x, 1f);
-                            hasChanged |= Util.AddDoubleField("y", ref Position.y, 1f);
-                            hasChanged |= Util.AddDoubleField("z", ref Position.z, 1f);
-                        }
-                        else
-                        {
-                            var normalizedPos = (Vector3)Position.normalized;
-                            float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
-                            float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
-                            float altitude = (float)Position.magnitude;
-                            hasChanged |= Util.AddFloatField("Log", ref longitude, 1f);
-                            hasChanged |= Util.AddFloatField("Lat", ref latitude, 1f);
-                            hasChanged |= Util.AddFloatField("Alt", ref altitude, 1f);
-                            Position = Maths.GetPosByLatitudeAndLongitude(latitude, longitude, altitude);
-                        }
+                        LocalPositionSettings("Offset to Mecha".Translate(), ref hasChanged);
+                        RotationSettings();
                         break;
                     }
                     case TargetType.Planet:
                     {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("Local Position".Translate(), GUILayout.MinWidth(70));
-                        positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
-                        GUILayout.EndHorizontal();
-                        if (positionType == 0)
-                        {
-                            hasChanged |= Util.AddDoubleField("x", ref Position.x, 1f);
-                            hasChanged |= Util.AddDoubleField("y", ref Position.y, 1f);
-                            hasChanged |= Util.AddDoubleField("z", ref Position.z, 1f);
-                        }
-                        else
-                        {
-                            var normalizedPos = (Vector3)Position.normalized;
-                            float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
-                            float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
-                            float altitude = (float)Position.magnitude;
-                            hasChanged |= Util.AddFloatField("Log", ref longitude, 1f);
-                            hasChanged |= Util.AddFloatField("Lat", ref latitude, 1f);
-                            hasChanged |= Util.AddFloatField("Alt", ref altitude, 1f);
-                            Position = Maths.GetPosByLatitudeAndLongitude(latitude, longitude, altitude);
-                        }
+                        LocalPositionSettings("Local Position".Translate(), ref hasChanged);
+                        RotationSettings();
                         break;
                     }
                     case TargetType.Space:
@@ -240,6 +237,7 @@ namespace CameraTools
                             hasChanged |= Util.AddDoubleField("uy", ref Position.y, 100f);
                             hasChanged |= Util.AddDoubleField("uz", ref Position.z, 100f);
                         }
+                        RotationSettings();
                         break;
                     }
                 }
@@ -276,6 +274,50 @@ namespace CameraTools
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndScrollView();
+        }
+
+        void LocalPositionSettings(string label, ref bool hasChanged)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label, GUILayout.MinWidth(70));
+            positionType = GUILayout.Toolbar(positionType, Extensions.TL(positionTypeTexts));
+            GUILayout.EndHorizontal();
+            if (positionType == 0)
+            {
+                hasChanged |= Util.AddDoubleField("x", ref Position.x, 1f);
+                hasChanged |= Util.AddDoubleField("y", ref Position.y, 1f);
+                hasChanged |= Util.AddDoubleField("z", ref Position.z, 1f);
+            }
+            else
+            {
+                var normalizedPos = (Vector3)Position.normalized;
+                float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
+                float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
+                float altitude = (float)Position.magnitude;
+                hasChanged |= Util.AddFloatField("Log", ref longitude, 1f);
+                hasChanged |= Util.AddFloatField("Lat", ref latitude, 1f);
+                hasChanged |= Util.AddFloatField("Alt", ref altitude, 1f);
+                Position = Maths.GetPosByLatitudeAndLongitude(latitude, longitude, altitude);
+            }
+
+        }
+
+        void RotationSettings()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Cam Rotation".Translate(), GUILayout.MinWidth(70));
+            rotationType = GUILayout.Toolbar(rotationType, Extensions.TL(rotationTypeTexts));
+            GUILayout.EndHorizontal();
+            if (rotationType == 0)
+            {
+                Util.AddFloatField("Speed(°/s)".Translate().Translate(), ref RotationSpeed, 1f, 20);
+            }
+            else
+            {
+                float period = RotationSpeed != 0f ? 360f / RotationSpeed : 0f;
+                Util.AddFloatField("Period(s)".Translate().Translate(), ref period, 1f, 20);
+                RotationSpeed = period != 0f ? 360f / period : 0f;
+            }
         }
     }
 }

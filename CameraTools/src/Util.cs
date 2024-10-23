@@ -79,14 +79,14 @@ namespace CameraTools
         static string editingField;
         static string editingText;
 
-        public static bool AddFloatField(string label, ref float value, float delta = 0)
+        public static bool AddFloatField(string label, ref float value, float delta = 0, float minInputWidth = 35)
         {
             bool hasChanged = false;
             GUILayout.BeginHorizontal();
             GUILayout.Label(label.Translate(), GUILayout.MinWidth(10));
             if (editingField != label)
             {
-                GUILayout.Label(value.ToString("G6"), GUILayout.MinWidth(35));
+                GUILayout.Label(value.ToString("G6"), GUILayout.MinWidth(minInputWidth));
                 if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
                 {
                     editingField = label;
@@ -95,7 +95,7 @@ namespace CameraTools
             }
             else
             {
-                editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(35));
+                editingText = GUILayout.TextField(editingText, 8, GUILayout.MinWidth(minInputWidth));
                 if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
                 {
                     editingField = "";

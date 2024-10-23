@@ -55,6 +55,8 @@ namespace CameraTools
         public static void LoadList(ConfigFile configFile, List<CameraPoint> cameraList, List<CameraPath> pathList)
         {
             //Plugin.Log.LogDebug("Load config file " + configFile.ConfigFilePath);
+            var stopwatch = new HighStopwatch();
+            stopwatch.Begin();
             int cameraListCount = configFile.Bind("internal", "CameraListCount", 0).Value;
             cameraList.Clear();
             for (int i = 0; i < cameraListCount; i++)
@@ -63,8 +65,9 @@ namespace CameraTools
                 cameraList.Add(cam);
                 cam.Import(configFile);
             }
-            Plugin.Log.LogDebug("Load camera: " + Plugin.CameraList.Count);
+            Plugin.Log.LogDebug($"Load camera: {Plugin.CameraList.Count} time cost: {stopwatch.duration:F3}s");
 
+            stopwatch.Begin();
             int pathListCount = configFile.Bind("internal", "PathListCount", 0).Value;
             pathList.Clear();
             for (int i = 0; i < pathListCount; i++)
@@ -73,7 +76,7 @@ namespace CameraTools
                 pathList.Add(path);
                 path.Import(configFile);
             }
-            Plugin.Log.LogDebug("Load path: " + Plugin.PathList.Count);
+            Plugin.Log.LogDebug($"Load path: {Plugin.PathList.Count} time cost: {stopwatch.duration:F3}s");
         }
 
         public static void SaveList(ConfigFile configFile, List<CameraPoint> cameraList, List<CameraPath> pathList)
