@@ -83,7 +83,7 @@ namespace CameraTools
             { "xyz:\t", "直角坐标:\t" },
             { "polar:\t", "极坐标:\t" },
             { "Universal Coordinates Info", "宇宙坐标信息" },
-            { "Meaha:\t", "机甲:\t" },
+            { "Mecha:\t", "机甲:\t" },
             { "Local Planet:", "本地星球:\t" },
             { "Local Star:  ", "本地恒星:\t" },
 

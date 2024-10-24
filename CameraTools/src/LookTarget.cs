@@ -1,6 +1,4 @@
 ﻿using BepInEx.Configuration;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace CameraTools
@@ -17,12 +15,12 @@ namespace CameraTools
         }
 
         public TargetType Type;
-        public VectorLF3 Position;  // target relative postion in double format
+        public VectorLF3 Position;  // target relative position in double format
         public float RotationSpeed; // camera rotation speed to target normal. Unit: degree/s
         
         public void Import(string sectionName, ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             Type = (TargetType)configFile.Bind(sectionName, "TargetType", 0).Value;
             Position = configFile.Bind(sectionName, "TargetPosition", VectorLF3.zero).Value;
             RotationSpeed = configFile.Bind(sectionName, "TargetRotationSpeed", 0f).Value;
@@ -30,7 +28,7 @@ namespace CameraTools
 
         public void Export(string sectionName, ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             configFile.Bind(sectionName, "TargetType", 0).Value = (int)Type;
             configFile.Bind(sectionName, "TargetPosition", VectorLF3.zero).Value = Position;
             configFile.Bind(sectionName, "TargetRotationSpeed", 0f).Value = RotationSpeed;
@@ -40,11 +38,11 @@ namespace CameraTools
         // UI and Indicator (ping sphere)
         static GameObject markerGo;
         static float markerSize = 3;
-        static readonly string[] tragetTypeTexts = { "None", "Mecha", "Planet", "Space" };
+        static readonly string[] targetTypeTexts = { "None", "Mecha", "Planet", "Space" };
         static readonly VectorLF3[] uiPositions = new VectorLF3[4];
-        static int positionType = 0;
+        static int positionType;
         static readonly string[] positionTypeTexts = { "Cartesian", "Polar" };
-        static int rotationType = 0;
+        static int rotationType;
         static readonly string[] rotationTypeTexts = { "Speed", "Period" };
         static Vector2 scrollpos;
         static VectorLF3 lastPosition;
@@ -57,7 +55,7 @@ namespace CameraTools
             markerGo.SetActive(false);
         }
 
-        public static void OnDestory()
+        public static void OnDestroy()
         {
             Object.Destroy(markerGo);
         }
@@ -142,7 +140,7 @@ namespace CameraTools
                     if (RotationSpeed != 0f)
                     {
                         var dir = camUpos - Position; // target -> cam
-                        axis = Vector3.up; // tempoary use up as rotation axis
+                        axis = Vector3.up; // temporary use up as rotation axis
                         dir = Quaternion.AngleAxis(angle, axis) * dir;
                         camUpos = Position + dir;
                     }
@@ -156,7 +154,7 @@ namespace CameraTools
             GUILayout.BeginHorizontal();
             GUILayout.Label("Type".Translate(), GUILayout.MinWidth(35));
 
-            int targetType = GUILayout.Toolbar((int)Type, Extensions.TL(tragetTypeTexts));
+            int targetType = GUILayout.Toolbar((int)Type, Extensions.TL(targetTypeTexts));
             if (targetType != (int)Type)
             {
                 // Set position to the stored uiPosition
@@ -181,7 +179,7 @@ namespace CameraTools
                             var normalizedPos = GameMain.mainPlayer.position.normalized;
                             float latitude = Mathf.Asin(normalizedPos.y) * Mathf.Rad2Deg;
                             float longitude = Mathf.Atan2(normalizedPos.x, -normalizedPos.z) * Mathf.Rad2Deg;
-                            float altitude = (float)GameMain.mainPlayer.position.magnitude;
+                            float altitude = GameMain.mainPlayer.position.magnitude;
                             GUILayout.Label("xyz:\t".Translate() + GameMain.mainPlayer.position.ToString("F1"));
                             GUILayout.Label("polar:\t".Translate() + $"({longitude:F1}, {latitude:F1}, {altitude:F1})");
                             GUILayout.EndVertical();
@@ -189,7 +187,7 @@ namespace CameraTools
 
                         GUILayout.BeginVertical(GUI.skin.box);
                         GUILayout.Label("Universal Coordinates Info".Translate());
-                        GUILayout.Label("Meaha:\t".Translate() + Util.ToString(GameMain.mainPlayer.uPosition));
+                        GUILayout.Label("Mecha:\t".Translate() + Util.ToString(GameMain.mainPlayer.uPosition));
                         if (GameMain.localPlanet != null)
                         {
                             

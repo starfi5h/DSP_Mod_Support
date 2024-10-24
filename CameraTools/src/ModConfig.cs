@@ -11,7 +11,7 @@ namespace CameraTools
         public static ConfigEntry<KeyboardShortcut> CameraPathWindowShortcut;
         public static ConfigEntry<KeyboardShortcut> RecordWindowShortcut;
         public static ConfigEntry<KeyboardShortcut> ToggleLastCameraShortcut;
-        public static ConfigEntry<KeyboardShortcut> CycyleNextCameraShortcut;
+        public static ConfigEntry<KeyboardShortcut> CycleNextCameraShortcut;
         public static ConfigEntry<KeyboardShortcut> PlayCurrentPathShortcut;
         public static ConfigEntry<bool> MovePlayerWithSpaceCamera;
 
@@ -34,8 +34,8 @@ namespace CameraTools
             RecordWindowShortcut = config.Bind("- KeyBind -", "Record Window", new KeyboardShortcut(KeyCode.F7, KeyCode.LeftAlt),
                 "Hotkey to open the timelapse record window");
             ToggleLastCameraShortcut = config.Bind("- KeyBind -", "Toggle Last Cam", new KeyboardShortcut(KeyCode.None),
-                "Hotkey to swith between the last viewing camera and the main camera");
-            CycyleNextCameraShortcut = config.Bind("- KeyBind -", "Cycle To Next Cam", new KeyboardShortcut(KeyCode.None),
+                "Hotkey to switch between the last viewing camera and the main camera");
+            CycleNextCameraShortcut = config.Bind("- KeyBind -", "Cycle To Next Cam", new KeyboardShortcut(KeyCode.None),
                 "Hotkey to view the next available camera in the list");
             PlayCurrentPathShortcut = config.Bind("- KeyBind -", "Play Current Path", new KeyboardShortcut(KeyCode.None),
                 "Hotkey to toggle the editing path play button (play from start/pause/resume)");
@@ -104,7 +104,7 @@ namespace CameraTools
             Util.AddKeyBindField(CameraPathWindowShortcut);
             Util.AddKeyBindField(RecordWindowShortcut);            
             Util.AddKeyBindField(ToggleLastCameraShortcut);
-            Util.AddKeyBindField(CycyleNextCameraShortcut);
+            Util.AddKeyBindField(CycleNextCameraShortcut);
             Util.AddKeyBindField(PlayCurrentPathShortcut);            
             Util.AddToggleField(MovePlayerWithSpaceCamera);
             if (GUILayout.Button("Reset Windows Position".Translate())) UIWindow.LoadWindowPos(true);
@@ -139,7 +139,7 @@ namespace CameraTools
                     string path = pathInput;
                     if (string.IsNullOrWhiteSpace(Path.GetDirectoryName(path)))
                     {
-                        // If directory dosn't provide, store in BepInEx\config\CameraTools\
+                        // If directory doesn't provide, store in BepInEx\config\CameraTools\
                         path = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.NAME, path);
                         Plugin.Log.LogDebug(path);
                     }
@@ -150,7 +150,7 @@ namespace CameraTools
                                 File.Delete(path);
                                 if (exportAll) SaveList(new ConfigFile(path, true), Plugin.CameraList, Plugin.PathList);
                                 else SaveEditingPath(new ConfigFile(path, true));
-                                status = "Overwirte success"; });
+                                status = "Overwrite file success"; });
                         return;
                     }
                     if (exportAll) SaveList(new ConfigFile(path, true), Plugin.CameraList, Plugin.PathList);
@@ -163,8 +163,9 @@ namespace CameraTools
                 }
                 if (status == "")
                 {
-                    if (exportAll) status = string.Format("Export {0} camera and {1} path.".Translate(), Plugin.CameraList.Count, Plugin.PathList.Count);
-                    else status = "Export 1 path.".Translate();
+                    status = exportAll ? 
+                        string.Format("Export {0} camera and {1} path.".Translate(), Plugin.CameraList.Count, Plugin.PathList.Count) :
+                        "Export 1 path.".Translate();
                     Plugin.Log.LogInfo(status);
                 }
             }
@@ -187,7 +188,7 @@ namespace CameraTools
                     string path = pathInput;
                     if (string.IsNullOrWhiteSpace(Path.GetDirectoryName(path)))
                     {
-                        // If directory dosn't provide, store in BepInEx\config\CameraTools\
+                        // If directory doesn't provide, store in BepInEx\config\CameraTools\
                         path = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.NAME, path);
                         Plugin.Log.LogDebug(path);
                     }

@@ -20,12 +20,12 @@ namespace CameraTools
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
-        public readonly static List<CameraPoint> CameraList = new();
-        public readonly static List<CameraPath> PathList = new();
-        public static CameraPoint ViewingCam { get; set; } = null;
-        public static CameraPoint LastViewCam { get; set; } = null;
-        public static CameraPath ViewingPath { get; set; } = null;
-        public static FreePointPoser FreePoser { get; set; } = null;
+        public static readonly List<CameraPoint> CameraList = new();
+        public static readonly List<CameraPath> PathList = new();
+        public static CameraPoint ViewingCam { get; set; }
+        public static CameraPoint LastViewCam { get; set; }
+        public static CameraPath ViewingPath { get; set; }
+        public static FreePointPoser FreePoser { get; set; }
 
         Harmony harmony;
 
@@ -58,7 +58,7 @@ namespace CameraTools
         {
             harmony.UnpatchSelf();
             harmony = null;
-            LookTarget.OnDestory();
+            LookTarget.OnDestroy();
         }
 
         public void OnGUI()
@@ -77,7 +77,7 @@ namespace CameraTools
         {
             if (VFInput.escape)
             {
-                // Exit modfiy camera mode
+                // Exit modify camera mode
                 UIWindow.OnEsc();
             }
 
@@ -109,7 +109,7 @@ namespace CameraTools
                 }
             }
 
-            if (ModConfig.CycyleNextCameraShortcut.Value.IsDown())
+            if (ModConfig.CycleNextCameraShortcut.Value.IsDown())
             {
                 ViewingCam = FindNextAvailableCam();
             }
@@ -139,7 +139,7 @@ namespace CameraTools
             {
                 if (CameraList[0].CanView) return CameraList[0];
             }
-            int startIndex = ViewingCam == null ? 0 : ViewingCam.Index;
+            int startIndex = ViewingCam?.Index ?? 0;
             int index = startIndex;
             int loop = 0;
             do
@@ -189,9 +189,9 @@ namespace CameraTools
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
-        static bool DsiableUposUpdate()
+        static bool DisableUposUpdate()
         {
-            // Disable force & upos update when ovweriting mecha position in space
+            // Disable force & upos update when overwriting mecha position in space
             return GameMain.localPlanet != null || !ModConfig.MovePlayerWithSpaceCamera.Value || (ViewingCam == null && ViewingPath == null);
         }
 
@@ -199,7 +199,7 @@ namespace CameraTools
         [HarmonyPatch(typeof(PlayerAction_Inspect), nameof(PlayerAction_Inspect.GameTick))]
         static bool PlayerAction_Inspect_Prefix(PlayerAction_Inspect __instance)
         {
-            if (ViewingPath != null && ViewingPath.IsPlaying && CameraPath.HideGUI)
+            if (ViewingPath is { IsPlaying: true } && CameraPath.HideGUI)
             {
                 __instance.hoveringEntityId = 0;
                 __instance.hoveringEnemyId = 0;
@@ -220,7 +220,7 @@ namespace CameraTools
         [HarmonyPatch(typeof(PlayerControlGizmo), nameof(PlayerControlGizmo.OnOutlineDraw))]
         static bool OnOutlineDraw_Prefix(PlayerControlGizmo __instance)
         {
-            if (ViewingPath != null && ViewingPath.IsPlaying && CameraPath.HideGUI)
+            if (ViewingPath is { IsPlaying: true } && CameraPath.HideGUI)
             {
                 __instance._tmp_outline_local_objcnt = 0;
                 __instance._tmp_outline_local_pos = Vector3.zero;

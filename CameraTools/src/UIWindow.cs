@@ -14,15 +14,15 @@ namespace CameraTools
         private static Rect recordWindow = new(900f, 20f, 300f, 240f);
 
         public static bool CanResize { get; private set; }
-        public static CameraPoint EditingCam { get; set; } = null;
-        public static CameraPath EditingPath { get; set; } = null;
-        public static int lastEditingPathIndex = 0;
-        public static LookTarget EditingTarget { get; set; } = null;
+        public static CameraPoint EditingCam { get; set; }
+        public static CameraPath EditingPath { get; set; }
+        public static int lastEditingPathIndex;
+        public static LookTarget EditingTarget { get; set; }
 
         static bool cameraListWindowActivated = true;
-        static bool pathListWindowActivated = false;
-        static bool modConfigWindowActivated = false;
-        static bool recordWindowActivated = false;
+        static bool pathListWindowActivated;
+        static bool modConfigWindowActivated;
+        static bool recordWindowActivated;
 
         public static void LoadWindowPos(bool reset = false)
         {
@@ -160,7 +160,7 @@ namespace CameraTools
         }
 
         static readonly string[] modConfigTabText = { "Config", "I/O" };
-        static int modConfigTabIndex = 0;
+        static int modConfigTabIndex;
         static void ModConfigWindowFunc(int id)
         {
             GUILayout.BeginArea(new Rect(modConfigWindow.width - 27f, 1f, 25f, 16f));
@@ -278,9 +278,7 @@ namespace CameraTools
             if (swappingIndex >= 0 && (swappingIndex + 1) < Plugin.PathList.Count)
             {
                 int a = swappingIndex; int b = swappingIndex + 1;
-                var tmp = Plugin.PathList[a];
-                Plugin.PathList[a] = Plugin.PathList[b];
-                Plugin.PathList[b] = tmp;
+                (Plugin.PathList[a], Plugin.PathList[b]) = (Plugin.PathList[b], Plugin.PathList[a]);
                 Plugin.PathList[a].Index = a;
                 Plugin.PathList[b].Index = b;
                 Plugin.PathList[a].Export();
@@ -340,7 +338,7 @@ namespace CameraTools
             scrollPositionCameraList = GUILayout.BeginScrollView(scrollPositionCameraList);
             foreach (var camera in Plugin.CameraList)
             {
-                GUILayout.BeginVertical(UnityEngine.GUI.skin.box);
+                GUILayout.BeginVertical(GUI.skin.box);
                 {
                     // Title
                     GUILayout.BeginHorizontal();
@@ -441,9 +439,7 @@ namespace CameraTools
 
         public static void SwapCamIndex(int a, int b)
         {
-            var tmp = Plugin.CameraList[a];
-            Plugin.CameraList[a] = Plugin.CameraList[b];
-            Plugin.CameraList[b] = tmp;
+            (Plugin.CameraList[a], Plugin.CameraList[b]) = (Plugin.CameraList[b], Plugin.CameraList[a]);
             Plugin.CameraList[a].Index = a;
             Plugin.CameraList[b].Index = b;
             Plugin.CameraList[a].Export();
@@ -451,11 +447,11 @@ namespace CameraTools
         }
 
 
-        static int resizingWindowId = 0;
+        static int resizingWindowId;
         static void HandleDrag(int id, ref Rect windowRect)
         {            
             Rect resizeHandleRect = new(windowRect.xMax - 13, windowRect.yMax - 13, 20, 20);
-            //GUI.Box(resizeHandleRect, ""); // Draw a resize handle at the bottom-right corner for 20x20 pixel
+            //GUI.Box(resizeHandleRect, ""); // Draw a resize handle in the bottom-right corner for 20x20 pixel
 
             if (resizeHandleRect.Contains(Event.current.mousePosition) && !windowRect.Contains(Event.current.mousePosition))
             {

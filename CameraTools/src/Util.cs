@@ -11,30 +11,20 @@ namespace CameraTools
         {
             UniverseSimulator universe = GameMain.universeSimulator;
             universe.backgroundStars.transform.position = Camera.main.transform.position;
-            if (GameMain.localPlanet != null)
-            {
-                universe.backgroundStars.transform.rotation = Quaternion.Inverse(GameMain.localPlanet.runtimeRotation);
-            }
-            else
-            {
-                universe.backgroundStars.transform.rotation = Quaternion.identity;
-            }
+            universe.backgroundStars.transform.rotation = GameMain.localPlanet != null ? Quaternion.Inverse(GameMain.localPlanet.runtimeRotation) : Quaternion.identity;
             Vector3 position = GameMain.mainPlayer.position;
             //VectorLF3 uPosition = GameMain.mainPlayer.uPosition; // replace with camera's recorded player upos
             Vector3 position2 = GameCamera.main.transform.position;
             Quaternion rotation = GameCamera.main.transform.rotation;
-            for (int i = 0; i < universe.starSimulators.Length; i++)
+            foreach (var starSimulator in universe.starSimulators)
             {
-                universe.starSimulators[i].UpdateUniversalPosition(position, uPosition, position2, rotation);
+                starSimulator.UpdateUniversalPosition(position, uPosition, position2, rotation);
             }
             if (universe.planetSimulators != null)
             {
-                for (int j = 0; j < universe.planetSimulators.Length; j++)
+                foreach (var planetSimulator in universe.planetSimulators)
                 {
-                    if (universe.planetSimulators[j] != null)
-                    {
-                        universe.planetSimulators[j].UpdateUniversalPosition(uPosition, position2);
-                    }
+                    planetSimulator?.UpdateUniversalPosition(uPosition, position2);
                 }
             }
         }

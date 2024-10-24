@@ -40,7 +40,7 @@ namespace CameraTools
 
         public void Import(ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             Name = configFile.Bind(SectionName, "Name", "Cam-" + Index).Value;
             cameraType = (CameraType)configFile.Bind(SectionName, "cameraType", 0).Value;
             CamPose.position = configFile.Bind(SectionName, "pose Position", Vector3.zero).Value;
@@ -53,7 +53,7 @@ namespace CameraTools
 
         public void Export(ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
             configFile.Bind(SectionName, "cameraType", 0).Value = (int)cameraType;
             configFile.Bind(SectionName, "pose Position", Vector3.zero).Value = CamPose.position;
@@ -101,8 +101,8 @@ namespace CameraTools
                 }
                 else
                 {
-                    // In universe, the position of main player is alway 0
-                    // So we need to calculate the real cam postion with uPos difference
+                    // In universe, the position of main player is always 0
+                    // So we need to calculate the real cam position with uPos difference
                     var diff = GameMain.mainPlayer.uPosition - UPosition;
                     GameCamera.main.transform.position -= (Vector3)diff;
                     Util.UniverseSimulatorGameTick(UPosition);

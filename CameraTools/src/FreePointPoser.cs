@@ -4,9 +4,9 @@ namespace CameraTools
 {
 	public class FreePointPoser
 	{
-		float rotateSens = 1.0f;
-		float moveSens = 1.0f;
-		float damp = 0.20f;
+		readonly float rotateSens = 1.0f;
+		readonly float moveSens = 1.0f;
+		readonly float damp = 0.20f;
 
 		float pitchWanted;
 		float yawWanted;		
@@ -19,10 +19,7 @@ namespace CameraTools
 
 		public bool Enabled
         {
-			get
-			{
-				return enabled;
-			}
+			get => enabled;
 
 			set
             {
@@ -73,7 +70,7 @@ namespace CameraTools
 			yWanted -= yDelta;
 			zWanted -= zDelta;
 
-			cameraPose.rotation = cameraPose.rotation * Quaternion.Euler(pitch, yaw, roll);
+			cameraPose.rotation *= Quaternion.Euler(pitch, yaw, roll);
 			cameraPose.position += cameraPose.rotation * Vector3.right * xDelta;
 			cameraPose.position += cameraPose.rotation * Vector3.up * yDelta;
 			cameraPose.position += cameraPose.rotation * Vector3.forward * zDelta;

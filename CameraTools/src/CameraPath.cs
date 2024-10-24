@@ -26,18 +26,18 @@ namespace CameraTools
         static readonly string[] keyFormatTexts = { "Ratio", "Second" };
         static Vector2 scrollPosition = new(100, 100);
 
-        // internal tempoary values
+        // internal temporary values
         string SectionName => "path-" + Index;
         CameraPose camPose;
         VectorLF3 uPosition;
         float progression; // [0,1] timeline progression of the path
         float totalTime;   // total time from starting the path (second)
-        AnimationCurve animCurveX = null;
-        AnimationCurve animCurveY = null;
-        AnimationCurve animCurveZ = null;
-        AnimationCurve animCurveUX = null;
-        AnimationCurve animCurveUY = null;
-        AnimationCurve animCurveUZ = null;
+        AnimationCurve animCurveX;
+        AnimationCurve animCurveY;
+        AnimationCurve animCurveZ;
+        AnimationCurve animCurveUX;
+        AnimationCurve animCurveUY;
+        AnimationCurve animCurveUZ;
 
         public CameraPath(int index)
         {
@@ -47,7 +47,7 @@ namespace CameraTools
 
         public void Import(ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             Name = configFile.Bind(SectionName, "Name", "path-" + Index).Value;
             int cameraCount = configFile.Bind(SectionName, "cameraCount", 0).Value;
             cameras.Clear();
@@ -71,7 +71,7 @@ namespace CameraTools
 
         public void Export(ConfigFile configFile = null)
         {
-            if (configFile == null) configFile = Plugin.ConfigFile;
+            configFile ??= Plugin.ConfigFile;
             configFile.Bind(SectionName, "Name", "Cam-" + Index).Value = Name;
             configFile.Bind(SectionName, "cameraCount", 0).Value = cameras.Count;
             foreach (var cam in cameras)
@@ -196,17 +196,17 @@ namespace CameraTools
 
         private CameraPose PiecewiseLerp(CameraPoint from, CameraPoint to, float t)
         {
-            Vector3 positon;
+            Vector3 position;
             uPosition = VectorLF3.zero;
 
             if (interpolation == 1) // Spherical
             {
-                positon = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
+                position = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
                 uPosition = from.UPosition + (to.UPosition - from.UPosition) * t;
 
                 if (GameMain.localPlanet != null) // linear interpolation for altitude
                 {
-                    positon *= Mathf.Lerp(from.CamPose.position.magnitude, to.CamPose.position.magnitude, t) / positon.magnitude;
+                    position *= Mathf.Lerp(from.CamPose.position.magnitude, to.CamPose.position.magnitude, t) / position.magnitude;
                 }
                 else if (GameMain.localStar != null)
                 {
@@ -218,11 +218,11 @@ namespace CameraTools
             }
             else // Linear
             {
-                positon = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
+                position = Vector3.Lerp(from.CamPose.position, to.CamPose.position, t);
                 uPosition = from.UPosition + (to.UPosition - from.UPosition) * t;
             }
 
-            return new CameraPose(positon,
+            return new CameraPose(position,
                     Quaternion.Slerp(from.CamPose.rotation, to.CamPose.rotation, t),
                     Mathf.Lerp(from.CamPose.fov, to.CamPose.fov, t), Mathf.Lerp(from.CamPose.near, to.CamPose.near, t), Mathf.Lerp(from.CamPose.far, to.CamPose.far, t));
         }
@@ -440,9 +440,7 @@ namespace CameraTools
 
         void SwapCamIndex(int a, int b)
         {
-            var tmp = cameras[a];
-            cameras[a] = cameras[b];
-            cameras[b] = tmp;
+            (cameras[a], cameras[b]) = (cameras[b], cameras[a]);
             cameras[a].Index = a;
             cameras[b].Index = b;
             Export();

@@ -13,11 +13,11 @@ namespace CameraTools
         public static ConfigEntry<int> ScreenshotHeight;
         public static ConfigEntry<int> JpgQuality;
 
-        static bool recording = false;
-        static CameraPath capturingPath = null;
-        static float timer = 0f;
-        static int fileIndex = 0;
-        static string fileForamtString = "{0:D6}.jpg";
+        static bool recording;
+        static CameraPath capturingPath;
+        static float timer;
+        static int fileIndex;
+        readonly static string fileFormatString = "{0:D6}.jpg";
         static string statusText = "";
 
         public static void Load(ConfigFile config)
@@ -27,11 +27,11 @@ namespace CameraTools
             FolderPath = config.Bind("- TimeLapse -", "Folder Path", "",
                 "The folder path to save screenshots");
             ScreenshotWidth = config.Bind("- TimeLapse -", "Screenshot Width", 1920,
-                "Resolution width of timelapse screeshots");
+                "Resolution width of timelapse screenshots");
             ScreenshotHeight = config.Bind("- TimeLapse -", "Screenshot Height", 1080,
-                "Resolution height of timelapse screeshots");
+                "Resolution height of timelapse screenshots");
             JpgQuality = config.Bind("- TimeLapse -", "JPG Quality", 95,
-                new ConfigDescription("Quality of screeshots", new AcceptableValueRange<int>(0, 100)));
+                new ConfigDescription("Quality of screenshots", new AcceptableValueRange<int>(0, 100)));
 
             if (TimeInterval.Value <= 0) TimeInterval.Value = (float)TimeInterval.DefaultValue;
         }
@@ -150,11 +150,11 @@ namespace CameraTools
                     recording = false;
                     return;
                 }
-                if (capturingPath != null) SetAndCatpure(capturingPath);
+                if (capturingPath != null) SetAndCapture(capturingPath);
                 else
                 {
                     Texture2D texture2D = CaptureTexture2D(ScreenshotWidth.Value, ScreenshotHeight.Value);
-                    var fileName = Path.Combine(FolderPath.Value, string.Format(fileForamtString, ++fileIndex));
+                    var fileName = Path.Combine(FolderPath.Value, string.Format(fileFormatString, ++fileIndex));
                     EncodeAndSave(texture2D, fileName, JpgQuality.Value);
                 }
             }
@@ -163,7 +163,7 @@ namespace CameraTools
         /// <summary>
         /// Set the main camera to CameraPoint and capture the screenshot
         /// </summary>
-        static void SetAndCatpure(CameraPath cameraPath)
+        static void SetAndCapture(CameraPath cameraPath)
         {
             var camera = GameCamera.main;
             var cullingMask = camera.cullingMask;
@@ -176,7 +176,7 @@ namespace CameraTools
 
             if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoaded)
             {
-                // Temporay disable renderVegetable to prevent tree/rock from flashing
+                // Temporary disable renderVegetable to prevent tree/rock from flashing
                 renderVegetable = GameMain.data.localPlanet.factoryModel.gpuiManager.renderVegetable;
                 GameMain.data.localPlanet.factoryModel.gpuiManager.renderVegetable = false;
             }
@@ -197,7 +197,7 @@ namespace CameraTools
             }
             //camera.Render();
 
-            var fileName = Path.Combine(FolderPath.Value, string.Format(fileForamtString, ++fileIndex));
+            var fileName = Path.Combine(FolderPath.Value, string.Format(fileFormatString, ++fileIndex));
             EncodeAndSave(texture2D, fileName, JpgQuality.Value);
         }
 
@@ -215,7 +215,7 @@ namespace CameraTools
                 Camera camera = GameCamera.main;
 
                 //stopwatch.Begin();
-                RenderTexture renderTexture = new RenderTexture(width, height, 24);
+                RenderTexture renderTexture = new(width, height, 24);
                 camera.targetTexture = renderTexture;
                 camera.cullingMask = (int)GameCamera.instance.gameLayerMask;
                 if (GameMain.data.localPlanet != null && GameMain.data.localPlanet.factoryLoaded)
@@ -251,16 +251,16 @@ namespace CameraTools
         }
 
         /// <summary>
-        /// Encode Texture2D in JPG format and save as file in multithread, then release Texture2D in main thread
+        /// Encode Texture2D in JPG format and save as file in multi-thread, then release Texture2D in main thread
         /// </summary>
-        /// <param name="jpgQuality">The quality of the jpg image, range from 0 - 100</param>
+        /// <param name="jpgQuality">The quality of the jpg image, range from 0 to 100</param>
         static void EncodeAndSave(Texture2D texture2D, string fileName, int jpgQuality = 100)
         {
             ThreadingHelper.Instance.StartAsyncInvoke(() =>
             {
                 try
                 {
-                    HighStopwatch stopwatch = new HighStopwatch();
+                    HighStopwatch stopwatch = new();
                     stopwatch.Begin();
                     var bytes = texture2D.EncodeToJPG(jpgQuality);
                     statusText = $"[{fileIndex:D6}.jpg] {stopwatch.duration:F3}s";
