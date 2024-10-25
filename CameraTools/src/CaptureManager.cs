@@ -13,9 +13,12 @@ namespace CameraTools
         public static ConfigEntry<int> ScreenshotHeight;
         public static ConfigEntry<int> JpgQuality;
 
+        public static CameraPath CapturingPath { get; private set; }
+
         static bool recording;
-        static CameraPath capturingPath;
         static float timer;
+        static bool syncUPS;
+        static double lastTimeF;
         static int fileIndex;
         readonly static string fileFormatString = "{0:D6}.jpg";
         static string statusText = "";
@@ -44,12 +47,24 @@ namespace CameraTools
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(recording ? "[Recording]".Translate() : "Start Record".Translate()))
+            if (!recording)
             {
-                recording = !recording;
-                if (recording) timer = TimeInterval.Value;
+                if (GUILayout.Button("Start Record".Translate()))
+                {
+                    recording = true;
+                    timer = TimeInterval.Value;
+                    lastTimeF = GameMain.instance.timef;
+                }
+                syncUPS = GUILayout.Toggle(syncUPS, "Sync UPS".Translate());
             }
-            if (recording) GUILayout.Label(string.Format("Next: {0:F1}s".Translate(), (TimeInterval.Value - timer)));
+            else
+            {
+                if (GUILayout.Button(syncUPS ? "[Recording UPS]".Translate() : "[Recording]".Translate()))
+                {
+                    recording = false;
+                }
+                GUILayout.Label(string.Format("Next: {0:F1}s".Translate(), (TimeInterval.Value - timer)));
+            }
             GUILayout.EndHorizontal();
             GUILayout.Label(statusText);
 
@@ -57,13 +72,13 @@ namespace CameraTools
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Path".Translate());
-            if (capturingPath != null)
+            if (CapturingPath != null)
             {
-                GUILayout.Label($"[{capturingPath.Index}]" + capturingPath.Name);
+                GUILayout.Label($"[{CapturingPath.Index}]" + CapturingPath.Name);
                 if (GUILayout.Button(expandPathListMode ? "Clear".Translate() : "Select".Translate()))
                 {
                     expandPathListMode = !expandPathListMode;
-                    if (!expandPathListMode) capturingPath = null;
+                    if (!expandPathListMode) CapturingPath = null;
                 }
             }
             else
@@ -85,26 +100,26 @@ namespace CameraTools
                     GUILayout.Label(path.Name);
                     if (GUILayout.Button("Select".Translate(), GUILayout.MaxWidth(60)))
                     {
-                        capturingPath = path;
+                        CapturingPath = path;
                         expandPathListMode = false;
                     }
                     GUILayout.EndHorizontal();
                 }
             }
-            if (capturingPath != null)
+            if (CapturingPath != null)
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(capturingPath.IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
+                if (GUILayout.Button(CapturingPath.IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
                 {
-                    capturingPath.IsPlaying = !capturingPath.IsPlaying;
+                    CapturingPath.IsPlaying = !CapturingPath.IsPlaying;
                 }
-                if (GUILayout.Button(Plugin.ViewingPath == capturingPath ? "[Viewing]".Translate() : "View".Translate()))
+                if (GUILayout.Button(Plugin.ViewingPath == CapturingPath ? "[Viewing]".Translate() : "View".Translate()))
                 {
-                    Plugin.ViewingPath = Plugin.ViewingPath == capturingPath ? null : capturingPath;
+                    Plugin.ViewingPath = Plugin.ViewingPath == CapturingPath ? null : CapturingPath;
                 }
-                if (GUILayout.Button(UIWindow.EditingPath == capturingPath ? "[Editing]".Translate() : "Edit".Translate()))
+                if (GUILayout.Button(UIWindow.EditingPath == CapturingPath ? "[Editing]".Translate() : "Edit".Translate()))
                 {
-                    UIWindow.EditingPath = UIWindow.EditingPath == capturingPath ? null : capturingPath;
+                    UIWindow.EditingPath = UIWindow.EditingPath == CapturingPath ? null : CapturingPath;
                 }
                 GUILayout.EndHorizontal();
             }
@@ -136,11 +151,18 @@ namespace CameraTools
         {
             if (!recording || GameMain.isPaused) return;
 
-            if (capturingPath != null && Plugin.ViewingPath != capturingPath)
+            float deltaTime = Time.deltaTime;
+            if (syncUPS)
             {
-                capturingPath.OnLateUpdate(); // If path is not update yet, update progress here
+                deltaTime = (float)(GameMain.instance.timef - lastTimeF);
+                lastTimeF = GameMain.instance.timef;
             }
-            timer += Time.deltaTime;
+            if (deltaTime < float.Epsilon) return; // logic frame does not advance            
+            if (CapturingPath != null)
+            {
+                CapturingPath.OnLateUpdate(deltaTime);
+            }
+            timer += deltaTime;
             if (timer >= TimeInterval.Value)
             {
                 timer = 0;
@@ -150,7 +172,7 @@ namespace CameraTools
                     recording = false;
                     return;
                 }
-                if (capturingPath != null) SetAndCapture(capturingPath);
+                if (CapturingPath != null) SetAndCapture(CapturingPath);
                 else
                 {
                     Texture2D texture2D = CaptureTexture2D(ScreenshotWidth.Value, ScreenshotHeight.Value);

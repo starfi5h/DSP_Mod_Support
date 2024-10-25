@@ -198,6 +198,20 @@ namespace CameraTools
                             GUILayout.Label("Local Star:  ".Translate() + Util.ToString(GameMain.localStar.uPosition));
                         }
                         GUILayout.EndVertical();
+
+                        if (GameMain.localPlanet != null)
+                        {
+                            GUILayout.BeginHorizontal();
+                            if (GUILayout.Button("Copy Planet Rotation Speed".Translate()))
+                            {
+                                RotationSpeed = (float)(360.0 / GameMain.localPlanet.rotationPeriod);
+                            }
+                            if (GUILayout.Button("Copy Planet Revolution Speed".Translate()))
+                            {
+                                RotationSpeed = (float)(360.0 / GameMain.localPlanet.orbitalPeriod);
+                            }
+                            GUILayout.EndHorizontal();
+                        }
                         break;
                     }
                     case TargetType.Mecha:

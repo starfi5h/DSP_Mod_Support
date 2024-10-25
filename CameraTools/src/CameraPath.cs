@@ -97,10 +97,10 @@ namespace CameraTools
             }
         }
 
-        public void OnLateUpdate()
+        public void OnLateUpdate(float deltaTime)
         {
             if (duration == 0 || !IsPlaying || GameMain.isPaused) return;
-            progression = Mathf.Clamp01(progression + Time.deltaTime / duration);
+            progression = Mathf.Clamp01(progression + deltaTime / duration);
             totalTime += Time.deltaTime;
             if (duration > 0 && progression == 1.0f)
             {

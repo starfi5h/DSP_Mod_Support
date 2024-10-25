@@ -114,9 +114,10 @@ namespace CameraTools
                 ViewingCam = FindNextAvailableCam();
             }
 
-            if (ViewingPath != null)
+            if (ViewingPath != null && ViewingPath != CaptureManager.CapturingPath)
             {
-                ViewingPath.OnLateUpdate();
+                // CapturingPath will be updated in CaptureManager.OnLateUpdate
+                ViewingPath.OnLateUpdate(Time.deltaTime);
             }
 
             if (ModConfig.PlayCurrentPathShortcut.Value.IsDown() && UIWindow.EditingPath != null)
