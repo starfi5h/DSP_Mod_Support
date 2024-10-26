@@ -1,7 +1,7 @@
 {
   "name": "CameraTools",
   "description": "Customize cameras with freecam. Create smooth camera paths for cinematic shots with keyframes. Record time-lapse with secondary camera. 摄影工具(Alt+F5, Alt+F6):保存机位,自由视角运镜,第二镜头缩时摄影",
-  "version_number": "0.5.1",
+  "version_number": "0.6.0",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/CameraTools",
   "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

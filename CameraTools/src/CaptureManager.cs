@@ -30,9 +30,9 @@ namespace CameraTools
         readonly static string fileFormatString = "{0:D6}.jpg";
 
         // Video catpure paramters
-        static bool videoRecordingEnabled;
+        static bool videoRecordingEnabled = true;
         static FFmpegSession ffmpegSession;
-        readonly static string videoFileFormat = "MMdd_HHMMss";
+        readonly static string videoFileFormat = "MMdd_HH-mm-ss";
         readonly static string videoExtension = ".mp4";
 
         // UI properties

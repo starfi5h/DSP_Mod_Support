@@ -4,7 +4,7 @@
 There are 3 main systems in this mod:
 - Camera List: Save stationary camera position on local planet or in space. Edit and view them anytime.  
 - Path List: Craft a camera path to let the viewing camera go through each point smoothly.
-- Timelapse Record: Captured screenshots in fixed time intervals by main or second camera.
+- Timelapse Record: Captured screenshots/video in fixed time intervals by main or second camera.
   
 Inspired by [Cities Skylines mod Cinematic Camera Extended by SamsamTS](https://steamcommunity.com/sharedfiles/filedetails/?id=785528371).  
 
@@ -71,7 +71,9 @@ If rotation speed is set to negative, it will go clockwise. Can set by rotation 
 
 
 ## Timelapse Record (Alt+F7)
-![record window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-window.png)  
+
+### Image Capture
+![record image window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-image-window.png)  
 First, set the screenshot folder path, then click `Start Record` button to take screenshots with the assigned camera path every x second.  
 The file format is `%06d.jpg` starting with 1. The index reset after the game restart.  
 - Status Text: When recording, display how long until the next capture. After capture, display file name and encode time.
@@ -83,6 +85,14 @@ After recording, you can combine the sequence of images into a video. For exampl
 ```
 ffmpeg -framerate 24 -i %06d.jpg -s 1920x1080 output.mp4
 ```
+
+### Video Capture
+![record video window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-video-window.png)  
+To record video, you need to install ffmpeg first and add it into PATH environment variables.  
+Then set the video save folder path. The video will store in the folder with name format `MMdd_HH-mm-ss.mp4`.  
+`Sync UPS` means the timer will use UPS time (in-game) instead of FPS time (Unity Time).  
+When the time interval is set to 0, it will caputred every screen update frame.  
+Custom ffmpeg options to output file can be set in `- Video Recording -`:`Output Options`.  
 
 ## Installation & Mod Config
 ![mod config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/mod-config.png)  
@@ -103,44 +113,6 @@ It can be fixed by letting player move along with space camera in mod config.
 - Rotation is not smooth enough in curve camera path with respect to position changes.  
 - Flicker in space when using secondary camera to record timelapse.  
 Use the main camera to move with path instead.  
-
-## ChangeLogs
-
-#### v0.5.1
-- Target: Add rotation speed option to let camera do circular motion around the target.  
-
-#### v0.5.0
-- Add timelapse recording feature to capture screenshots with secondary camera.
-- Revert mecha position restore funcion in v0.4.0.
-- Add loop option in camera path window.
-- Add set to current mecha position option in target window.
-
-#### v0.4.1
-- Add keybind `Play Current Path` to play/pause the current editing path.
-- "Hide GUI" now stop buildings highlight and overlay when playing the path.
-
-#### v0.4.0
-- Path: Add target for camera to look at.
-- Config `MovePlayerWithSpaceCamera` default value is now true. When stop viewing, the mecha will go back to the original position in space.
-- Add scroll list in I/O window to view and select imported camera or path to add.  
-- Add ZHCN translation.
-
-#### v0.3.0
-- Fix camera path is not smooth in space. Add VectorLF3 json convertor in TomlTypeConverter.   
-- Make windows resizeable by dragging outside area of bottom-right corner.
-- Add import/export config file option in config window - IO tab.
-- Path: Add curve interpolation.  
-- Path: Add insert keyframe option in path config window.  
-
-#### v0.2.0
-- Fix flickr when overwritten mecha space position.
-- Cam: Add freecam adjust mode and polar coordinate in camera config window.
-- Path: Add spherical interpolation, keyframe format switch and keypoint reorder in path config window.
-- Add ToggleLastCameraShortcut, CycyleNextCameraShortcut in plugin config.
-- Remember window positions after closing them.
-
-#### v0.1.0
-- Initial released. (DSP 0.10.30.23430)  
-
+- Moving mecha will flicker in output when recording in high framerate.  
 
 <a href="https://www.flaticon.com/free-icons/video-camera" title="video-camera icons">Video-camera icons created by prettycons - Flaticon</a>  
