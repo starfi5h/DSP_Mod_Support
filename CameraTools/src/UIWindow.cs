@@ -11,7 +11,7 @@ namespace CameraTools
         private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
         private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
         private static Rect targetConfigWindow = new(900f, 350f, 300f, 270f);
-        private static Rect recordWindow = new(900f, 20f, 300f, 240f);
+        private static Rect recordWindow = new(900f, 20f, 300f, 270f);
 
         public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; }
