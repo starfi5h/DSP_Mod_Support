@@ -16,7 +16,8 @@ namespace CameraTools
 
         public static ConfigEntry<float> VideoOutputFps;
         public static ConfigEntry<string> VideoFolderPath;
-        public static ConfigEntry<string> VideoOutputOptions;
+        public static ConfigEntry<string> VideoFFmpegOptions;
+        public static ConfigEntry<string> VideoExtension;
 
         public static CameraPath CapturingPath { get; private set; }
 
@@ -35,8 +36,7 @@ namespace CameraTools
         // Video catpure paramters
         static bool videoRecordingEnabled = true;
         static FFmpegSession ffmpegSession;
-        readonly static string videoFileFormat = "MMdd_HH-mm-ss";
-        readonly static string videoExtension = ".mp4";
+        readonly static string videoFileFormat = "MM-dd_HH-mm-ss";
 
         // UI properties
         static string statusText = "";
@@ -61,7 +61,9 @@ namespace CameraTools
                 "Frame rate of output video");
             VideoFolderPath = config.Bind("- Video Recording -", "Folder Path", "",
                 "The folder path to save video recording");
-            VideoOutputOptions = config.Bind("- Video Recording -", "Output Options", "-preset ultrafast",
+            VideoExtension = config.Bind("- Video Recording -", "Video Extension", ".mp4",
+                "Video Format of the output file");
+            VideoFFmpegOptions = config.Bind("- Video Recording -", "FFmpeg Options", "-c:v libx264 -pix_fmt yuv420p -preset ultrafast -vf vflip -y",
                 "Extra ffmpeg options to output video");
         }
 
@@ -233,7 +235,7 @@ namespace CameraTools
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
             PlayControlPanel();
-            Util.AddFloatField(TimeInterval);
+            Util.ConfigFloatField(TimeInterval);
             PathSelectionBox();
 
             GUILayout.BeginVertical(GUI.skin.box);
@@ -282,16 +284,11 @@ namespace CameraTools
 
                     if (videoRecordingEnabled)
                     {
-                        if (!File.Exists("ffmpeg.exe"))
-                        {
-                            statusText = "ffmpeg.exe doesn't exist in PATH!";
-                            return;
-                        }
-                        string videoPath = Path.Combine(folderPath, DateTime.Now.ToString(videoFileFormat) + videoExtension);
+                        string videoPath = Path.Combine(folderPath, DateTime.Now.ToString(videoFileFormat) + VideoExtension.Value);
                         int videoWidth = ScreenshotWidth.Value;
                         int videoHeight = ScreenshotHeight.Value;
                         float fps = VideoOutputFps.Value;
-                        string extraArgs = VideoOutputOptions.Value;
+                        string extraArgs = VideoFFmpegOptions.Value;
 
                         try
                         {
@@ -403,9 +400,9 @@ namespace CameraTools
         private static void ImageCaptureSettingPanel()
         {
             var tmp = JpgQuality.Value;
-            Util.AddIntField(JpgQuality);
-            Util.AddIntField(ScreenshotWidth);
-            Util.AddIntField(ScreenshotHeight);
+            Util.ConfigIntField(JpgQuality);
+            Util.ConfigIntField(ScreenshotWidth);
+            Util.ConfigIntField(ScreenshotHeight);
             if (tmp != JpgQuality.Value) JpgQuality.Value = JpgQuality.Value > 100 ? 100 : JpgQuality.Value;
             var pathInput = Util.AddTextFieldInput("Folder".Translate(), ScreenshotFolderPath.Value);
             if (!string.IsNullOrWhiteSpace(pathInput))
@@ -429,9 +426,9 @@ namespace CameraTools
 
         private static void VideoCaptureSettingPanel()
         {
-            Util.AddFloatField(VideoOutputFps);
-            Util.AddIntField(ScreenshotWidth);
-            Util.AddIntField(ScreenshotHeight);
+            Util.ConfigFloatField(VideoOutputFps);
+            Util.ConfigIntField(ScreenshotWidth);
+            Util.ConfigIntField(ScreenshotHeight);
             var pathInput = Util.AddTextFieldInput("Folder".Translate(), VideoFolderPath.Value);
             if (!string.IsNullOrWhiteSpace(pathInput))
             {
@@ -445,6 +442,8 @@ namespace CameraTools
                     statusText = ex.ToString();
                 }
             }
+            Util.ConfigStringField(VideoExtension);
+            Util.ConfigStringField(VideoFFmpegOptions);
         }
 
         #endregion

@@ -25,7 +25,7 @@ namespace CameraTools
             fileName = Path.GetFileName(filePath);
 
             var inputArgs = $"-f rawvideo -framerate {fps} -pix_fmt rgb24 -video_size {videoWidth}x{videoHeight} -i -";;
-            var outputArgs = $"-vf vflip -r {fps} -y \"{formattedPath}\"";
+            var outputArgs = $"-r {fps} \"{formattedPath}\"";
 
             Plugin.Log.LogInfo($"Start ffmpeg piping\n{inputArgs}\n{extraOutputArgs} {outputArgs}");
             process = new Process

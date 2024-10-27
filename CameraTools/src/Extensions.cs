@@ -113,6 +113,8 @@ namespace CameraTools
             { "Auto Create Subfolder", "自动产生子文件夹" },
             { "Reset File Index", "重置文件编号" },
             { "Output FPS", "输出影格率" },
+            { "Video Extension", "输出格式" },
+            { "FFmpeg Options", "FFmpeg选项" },
 
             { "Mod Config", "模组配置" },
             { "Waiting for key..", "等待输入.." },

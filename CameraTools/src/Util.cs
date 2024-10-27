@@ -206,7 +206,7 @@ namespace CameraTools
             return newText;
         }
 
-        public static void AddIntField(ConfigEntry<int> configEntry)
+        public static void ConfigIntField(ConfigEntry<int> configEntry)
         {
             GUILayout.BeginHorizontal();
             string label = configEntry.Definition.Key.Translate();
@@ -235,7 +235,7 @@ namespace CameraTools
             GUILayout.EndHorizontal();
         }
 
-        public static void AddFloatField(ConfigEntry<float> configEntry)
+        public static void ConfigFloatField(ConfigEntry<float> configEntry)
         {
             GUILayout.BeginHorizontal();
             string label = configEntry.Definition.Key.Translate();
@@ -264,10 +264,38 @@ namespace CameraTools
             GUILayout.EndHorizontal();
         }
 
-        public static void AddToggleField(ConfigEntry<bool> configEntry)
+        public static void ConfigToggleField(ConfigEntry<bool> configEntry)
         {
             GUILayout.BeginHorizontal();
             configEntry.Value = GUILayout.Toggle(configEntry.Value, configEntry.Definition.Key.Translate());
+            GUILayout.EndHorizontal();
+        }
+
+        public static void ConfigStringField(ConfigEntry<string> configEntry)
+        {
+            GUILayout.BeginHorizontal();
+            string label = configEntry.Definition.Key.Translate();
+            GUILayout.Label(label);            
+            if (editingField != label)
+            {
+                GUILayout.FlexibleSpace();
+                string valueText = configEntry.Value;
+                GUILayout.Label(valueText, GUILayout.MaxWidth(100));
+                if (GUILayout.Button("edit", GUILayout.MaxWidth(40)))
+                {
+                    editingField = label;
+                    editingText = valueText;
+                }
+            }
+            else
+            {
+                editingText = GUILayout.TextField(editingText);
+                if (GUILayout.Button("set", GUILayout.MaxWidth(40)))
+                {
+                    editingField = "";
+                    configEntry.Value = editingText;
+                }
+            }
             GUILayout.EndHorizontal();
         }
 

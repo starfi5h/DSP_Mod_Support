@@ -106,7 +106,7 @@ namespace CameraTools
             Util.AddKeyBindField(ToggleLastCameraShortcut);
             Util.AddKeyBindField(CycleNextCameraShortcut);
             Util.AddKeyBindField(PlayCurrentPathShortcut);            
-            Util.AddToggleField(MovePlayerWithSpaceCamera);
+            Util.ConfigToggleField(MovePlayerWithSpaceCamera);
             Util.AddFloatFieldInput("Path Preview Size".Translate(), ref GizmoManager.PathMarkerSize);
             if (GUILayout.Button("Reset Windows Position".Translate())) UIWindow.LoadWindowPos(true);
         }
