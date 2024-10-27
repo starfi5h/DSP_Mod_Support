@@ -51,14 +51,14 @@ namespace CameraTools
             UIWindow.LoadWindowPos();
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(Plugin));
-            LookTarget.OnAwake();
+            GizmoManager.OnAwake();
         }
 
         public void OnDestroy()
         {
             harmony.UnpatchSelf();
             harmony = null;
-            LookTarget.OnDestroy();
+            GizmoManager.OnDestroy();
         }
 
         public void OnGUI()
@@ -70,7 +70,7 @@ namespace CameraTools
         {
             // UICursor.BeginCursorDetermine will reset cursor, need to set the cursor before rendering
             if (UIWindow.CanResize) UICursor.SetCursor(ECursor.TargetIn);
-            LookTarget.OnUpdate();
+            GizmoManager.OnUpdate();
         }
 
         public void LateUpdate()
@@ -179,7 +179,7 @@ namespace CameraTools
         static bool GetInput_Prefix(PlayerController __instance)
         {
             // Disable mecha movement input when free cam adjust mode is activated
-            if (FreePoser.Enabled && UIWindow.EditingCam == ViewingCam)
+            if (FreePoser.Enabled && UIWindow.EditingCam != null && UIWindow.EditingCam == ViewingCam)
             {
                 __instance.input0 = Vector4.zero;
                 __instance.input1 = Vector4.zero;
@@ -193,7 +193,7 @@ namespace CameraTools
         static bool GetInput_Prefix(PlayerAction_Rts __instance)
         {
             // Disable mecha rts order (right click) free cam adjust mode is activated
-            if (FreePoser.Enabled && UIWindow.EditingCam == ViewingCam)
+            if (FreePoser.Enabled && UIWindow.EditingCam != null && UIWindow.EditingCam == ViewingCam)
             {
                 __instance.player.ClearOrders();
                 return false;

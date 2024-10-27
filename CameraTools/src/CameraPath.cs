@@ -127,7 +127,7 @@ namespace CameraTools
         public void ApplyToCamera(Camera cam)
         {
             if (cameras.Count == 0) return;
-            if (!UpdateCameraPose()) return;
+            if (!UpdateCameraPose(progression)) return;
 
             if (lookTarget.Type != LookTarget.TargetType.None)
             {
@@ -149,12 +149,12 @@ namespace CameraTools
             }
         }
 
-        private bool UpdateCameraPose()
+        private bool UpdateCameraPose(float normalizedTime)
         {
             int index = 0;
             for (int i = 0; i < keyTimes.Count; i++)
             {
-                if (progression < keyTimes[i]) break;
+                if (normalizedTime < keyTimes[i]) break;
                 index++;
             }
             if (index == 0)
@@ -177,18 +177,18 @@ namespace CameraTools
             {
                 camPose = cameras[index].CamPose;
                 uPosition = cameras[index].UPosition;
-                return false;
+                return true;
             }
-            float t = (progression - keyTimes[index - 1]) / total;
+            float t = (normalizedTime - keyTimes[index - 1]) / total;
             camPose = PiecewiseLerp(cameras[index - 1], cameras[index], t);
 
             if (interpolation == 2 && animCurveX != null) // Curve
             {
-                camPose.position = new Vector3(animCurveX.Evaluate(progression), animCurveY.Evaluate(progression), animCurveZ.Evaluate(progression));
+                camPose.position = new Vector3(animCurveX.Evaluate(normalizedTime), animCurveY.Evaluate(normalizedTime), animCurveZ.Evaluate(normalizedTime));
                 if (GameMain.localPlanet == null)
                 {
                     // Use relative Upos to avoid the precision loss of double to float
-                    uPosition = cameras[0].UPosition + new VectorLF3(animCurveUX.Evaluate(progression), animCurveUY.Evaluate(progression), animCurveUZ.Evaluate(progression));
+                    uPosition = cameras[0].UPosition + new VectorLF3(animCurveUX.Evaluate(normalizedTime), animCurveUY.Evaluate(normalizedTime), animCurveUZ.Evaluate(normalizedTime));
                 }
             }
             return true;
@@ -244,6 +244,50 @@ namespace CameraTools
                 animCurveUY.AddKey(keyTimes[i], (float)(cameras[i].UPosition.y - cameras[0].UPosition.y));
                 animCurveUZ.AddKey(keyTimes[i], (float)(cameras[i].UPosition.z - cameras[0].UPosition.z));
             }
+        }
+
+        public int GetCameraCount()
+        {
+            return cameras.Count;
+        }
+
+        public int SetCameraPoints(List<GameObject> cameraObjs)
+        {
+            for (int i = 0; i < cameras.Count; i++)
+            {
+                float t = keyTimes[i];
+                if (!UpdateCameraPose(t)) return 0;  // if the camera is not viewable, don't show all camera objects
+                if (lookTarget.Type != LookTarget.TargetType.None)
+                {
+                    lookTarget.SetFinalPose(ref camPose, ref uPosition, t * duration);
+                }
+                if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
+                {
+                    camPose.position -= (Vector3)(GameMain.mainPlayer.uPosition - uPosition);
+                }
+                cameraObjs[i].transform.position = camPose.position;
+                cameraObjs[i].transform.rotation = camPose.rotation;
+            }
+            return cameras.Count;
+        }
+
+        public int SetPathPoints(Vector3[] points)
+        {            
+            for (int i = 0; i < 360; i++)
+            {
+                float t = i / 360f;
+                if (!UpdateCameraPose(t)) return 0; // if the camera is not viewable, don't show the line
+                if (lookTarget.Type != LookTarget.TargetType.None)
+                {
+                    lookTarget.SetFinalPose(ref camPose, ref uPosition, t * duration);
+                }
+                if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
+                {
+                    camPose.position -= (Vector3)(GameMain.mainPlayer.uPosition - uPosition);
+                }
+                points[i] = camPose.position;
+            }
+            return 360;
         }
 
         public void ConfigWindowFunc()
@@ -412,7 +456,11 @@ namespace CameraTools
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Target: ".Translate() + lookTarget.Type.ToString().Translate()))
             {
-                if (UIWindow.EditingTarget != lookTarget) LookTarget.OpenAndSetWindow(lookTarget);
+                if (UIWindow.EditingTarget != lookTarget)
+                {
+                    LookTarget.OpenAndSetWindow(lookTarget);
+                    GizmoManager.OnPathChange();
+                }
                 else UIWindow.EditingTarget = null;
             }
             if (GUILayout.Button("Save/Load".Translate()))

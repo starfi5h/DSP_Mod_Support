@@ -123,6 +123,7 @@ namespace CameraTools
             { "Cycle To Next Cam", "循环到下一个机位" },
             { "Play Current Path", "播放当前路径" },
             { "Move Player With Space Camera", "随太空摄像机移动玩家" },
+            { "Path Preview Size", "镜头路径预览大小" },
             { "Reset Windows Position", "重置窗口位置" },
 
             { "I/O", "输入/输出" },

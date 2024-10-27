@@ -4,8 +4,7 @@ using UnityEngine;
 namespace CameraTools
 {
     public class LookTarget
-    {
-        
+    {        
         public enum TargetType
         {
             None,
@@ -36,8 +35,6 @@ namespace CameraTools
 
 
         // UI and Indicator (ping sphere)
-        static GameObject markerGo;
-        static float markerSize = 3;
         static readonly string[] targetTypeTexts = { "None", "Mecha", "Planet", "Space" };
         static readonly VectorLF3[] uiPositions = new VectorLF3[4];
         static int positionType;
@@ -46,50 +43,6 @@ namespace CameraTools
         static readonly string[] rotationTypeTexts = { "Speed", "Period" };
         static Vector2 scrollpos;
         static VectorLF3 lastPosition;
-
-        public static void OnAwake()
-        {
-            markerGo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            Object.Destroy(markerGo.GetComponent<SphereCollider>());            
-            markerGo.GetComponent<MeshRenderer>().material = null;
-            markerGo.SetActive(false);
-        }
-
-        public static void OnDestroy()
-        {
-            Object.Destroy(markerGo);
-        }
-
-        public static void OnUpdate()
-        {
-            if (markerGo == null) return;
-            if (UIWindow.EditingTarget == null || markerSize <= 0f)
-            {
-                markerGo.SetActive(false);
-                return;
-            }
-            var target = UIWindow.EditingTarget;
-            switch (target.Type)
-            {
-                case TargetType.Mecha:
-                    markerGo.transform.position = GameMain.mainPlayer.position + (Vector3)target.Position;
-                    break;
-
-                case TargetType.Planet:
-                    markerGo.transform.position = target.Position;
-                    break;
-
-                case TargetType.Space:
-                    markerGo.transform.position = target.Position - GameMain.mainPlayer.uPosition;
-                    break;
-
-                default:
-                    markerGo.SetActive(false);
-                    return;
-            }
-            markerGo.transform.localScale = Vector3.one * markerSize;
-            markerGo.SetActive(true);
-        }
 
         public static void OpenAndSetWindow(LookTarget target)
         {
@@ -259,9 +212,9 @@ namespace CameraTools
 
             if (Type != TargetType.None)
             {
-                Util.AddFloatFieldInput("Marker Size".Translate(), ref markerSize, 1f);
-                GUILayout.BeginHorizontal();
+                Util.AddFloatFieldInput("Marker Size".Translate(), ref GizmoManager.TargetMarkerSize, 1f);
 
+                GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Set to mecha Position".Translate()))
                 {
                     switch (Type)
