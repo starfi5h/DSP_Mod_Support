@@ -14,6 +14,7 @@ namespace CameraTools
         public static ConfigEntry<KeyboardShortcut> CycleNextCameraShortcut;
         public static ConfigEntry<KeyboardShortcut> PlayCurrentPathShortcut;
         public static ConfigEntry<bool> MovePlayerWithSpaceCamera;
+        public static ConfigEntry<string> ConfigFolderPath;
 
         //Internal
         public static ConfigEntry<int> CameraListCount;
@@ -41,10 +42,14 @@ namespace CameraTools
                 "Hotkey to toggle the editing path play button (play from start/pause/resume)");
             MovePlayerWithSpaceCamera = config.Bind("- General -", "Move Player With Space Camera", true,
                 "Move mecha position to the space camera so the star image doesn't distort");
+            ConfigFolderPath = config.Bind("- General -", "Config Folder Path", "",
+                "Folder path of which config files export/import. If unset, it will use BepInEx\\config\\CameraTools\\");
+            pathInput = ConfigFolderPath.Value;
+            if (string.IsNullOrEmpty(pathInput)) pathInput = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.NAME);
 
             CameraListCount = config.Bind("internal", "CameraListCount", 0);
             PathListCount = config.Bind("internal", "PathListCount", 0);
-            PosModConfigWindow = config.Bind("internal", "RectModConfigWindow", new Vector2(20f, 20f));
+            PosModConfigWindow = config.Bind("internal", "RectModConfigWindow", new Vector2(320f, 20f));
             PosCameraListWindow = config.Bind("internal", "RectCameraListWindow", new Vector2(20f, 260f));
             PosCameraConfigWindow = config.Bind("internal", "RectCameraConfigWindow", new Vector2(320f, 260f));
             PosPathListWindow = config.Bind("internal", "RectPathListWindow", new Vector2(900f, 350f));
@@ -88,15 +93,26 @@ namespace CameraTools
             foreach (var path in pathList) path.Export(configFile);
         }
 
-        public static void SaveEditingPath(ConfigFile configFile)
+        public static void SaveCamera(ConfigFile configFile, CameraPoint cameraPoint)
         {
-            if (UIWindow.EditingPath == null) return;            
-            configFile.Bind("internal", "PathListCount", 0).Value = 1;
-            int pathIndex = UIWindow.EditingPath.Index;
-            UIWindow.EditingPath.Index = 0;
-            UIWindow.EditingPath.Export(configFile);
-            UIWindow.EditingPath.Index = pathIndex;
+            if (cameraPoint == null) return;
+            configFile.Bind("internal", "CameraListCount", 0).Value = 1;
+            int pathIndex = cameraPoint.Index;
+            cameraPoint.Index = 0;
+            cameraPoint.Export(configFile);
+            cameraPoint.Index = pathIndex;
         }
+
+        public static void SavePath(ConfigFile configFile, CameraPath cameraPath)
+        {
+            if (cameraPath == null) return;            
+            configFile.Bind("internal", "PathListCount", 0).Value = 1;
+            int pathIndex = cameraPath.Index;
+            cameraPath.Index = 0;
+            cameraPath.Export(configFile);
+            cameraPath.Index = pathIndex;
+        }
+
 
         public static void ConfigWindowFunc()
         {
@@ -107,113 +123,146 @@ namespace CameraTools
             Util.AddKeyBindField(CycleNextCameraShortcut);
             Util.AddKeyBindField(PlayCurrentPathShortcut);            
             Util.ConfigToggleField(MovePlayerWithSpaceCamera);
-            Util.AddFloatFieldInput("Path Preview Size".Translate(), ref GizmoManager.PathMarkerSize);
+            Util.AddFloatFieldInput("Path Preview Size".Translate(), ref GizmoManager.PathMarkerSize, 1f);
             if (GUILayout.Button("Reset Windows Position".Translate())) UIWindow.LoadWindowPos(true);
         }
 
         static string pathInput;
-        static string status = "";
+        static string statusText = "";
         static Vector2 scrollPosition;
         static readonly List<CameraPoint> tmpCameraList = new();
         static readonly List<CameraPath> tmpPathList = new();
+        static string[] files = new string[0];
+
+        public static void LoadFilesInFolder()
+        {
+            try
+            {
+                files = Directory.GetFiles(pathInput, "*.cfg");
+            }
+            catch (System.Exception ex)
+            {
+                statusText = "Error when loading dir: " + ex.Message;
+                Plugin.Log.LogWarning(statusText);
+                files = new string[0];
+            }
+        }
 
         public static void ImportWindowFunc()
         {
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Path".Translate(), GUILayout.MaxWidth(60));
-            pathInput = GUILayout.TextField(pathInput);            
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            bool exportAll = false;
-            bool exportCurrentPath = false;
-            GUILayout.Label("Export cfg File".Translate());
-            if (GUILayout.Button("Current Path".Translate())) exportCurrentPath = true;
-            if (GUILayout.Button("All".Translate())) exportAll = true;
-            if (exportAll || exportCurrentPath)
+            var input = Util.AddTextFieldInput("Folder".Translate(), pathInput);
+            if (!string.IsNullOrWhiteSpace(input))
             {
-                status = "";
                 try
                 {
-                    Plugin.Log.LogDebug("Exporting " + pathInput);
-                    string path = pathInput;
-                    if (string.IsNullOrWhiteSpace(Path.GetDirectoryName(path)))
+                    Directory.CreateDirectory(input);
+                    if (Directory.Exists(input))
                     {
-                        // If directory doesn't provide, store in BepInEx\config\CameraTools\
-                        path = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.NAME, path);
-                        Plugin.Log.LogDebug(path);
+                        pathInput = input;
+                        ConfigFolderPath.Value = pathInput;
+                        LoadFilesInFolder();
                     }
-                    if (File.Exists(path))
+                }
+                catch (System.Exception ex)
+                {
+                    statusText = ex.Message;
+                    Plugin.Log.LogWarning(statusText);
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            ExportHeader();
+
+            GUILayout.Label(statusText);
+
+            TempContentList();
+
+            FileList();
+
+            GUILayout.EndScrollView();
+        }
+
+        static void ExportHeader()
+        {
+            GUILayout.BeginHorizontal();
+            string name = "";
+            bool exportCurrentCam = false;
+            bool exportCurrentPath = false;
+            GUILayout.Label("Export File".Translate());
+            if (GUILayout.Button("Current Cam".Translate()))
+            {
+                if (UIWindow.EditingCam != null)
+                {
+                    name = UIWindow.EditingCam.Name;
+                    exportCurrentCam = true;
+                }
+                else
+                {
+                    statusText = "No editing camera!";
+                }
+            }
+            if (GUILayout.Button("Current Path".Translate()))
+            {
+                if (UIWindow.EditingPath != null)
+                {
+                    name = UIWindow.EditingPath.Name;
+                    exportCurrentPath = true;
+                }
+                else
+                {
+                    statusText = "No editing camera path!";
+                }
+            }
+            if (exportCurrentCam || exportCurrentPath)
+            {
+                statusText = "";
+                try
+                {
+                    string filePath = Path.Combine(pathInput, name+".cfg");
+                    statusText = "Exporting " + filePath;
+                    Plugin.Log.LogInfo(statusText);
+
+                    if (File.Exists(filePath))
                     {
-                        UIMessageBox.Show("Export", "Overwrite ".Translate() + path + " ?", "否".Translate(), "是".Translate(), 1, null,
-                            () => { 
-                                File.Delete(path);
-                                if (exportAll) SaveList(new ConfigFile(path, true), Plugin.CameraList, Plugin.PathList);
-                                else SaveEditingPath(new ConfigFile(path, true));
-                                status = "Overwrite file success"; });
+                        UIMessageBox.Show("Export", "Overwrite ".Translate() + filePath + " ?", "否".Translate(), "是".Translate(), 1, null,
+                            () => {
+                                File.Delete(filePath);
+                                if (exportCurrentCam) SaveCamera(new ConfigFile(filePath, true), UIWindow.EditingCam);
+                                if (exportCurrentPath) SavePath(new ConfigFile(filePath, true), UIWindow.EditingPath);
+                                statusText = "Overwrite " + filePath;
+                                Plugin.Log.LogInfo(statusText);
+                                LoadFilesInFolder();
+                            });
                         return;
                     }
-                    if (exportAll) SaveList(new ConfigFile(path, true), Plugin.CameraList, Plugin.PathList);
-                    else SaveEditingPath(new ConfigFile(path, true));
+                    if (exportCurrentCam)
+                    {
+                        SaveCamera(new ConfigFile(filePath, true), UIWindow.EditingCam);
+                        LoadFilesInFolder();
+                    }
+                    if (exportCurrentPath)
+                    {
+                        SavePath(new ConfigFile(filePath, true), UIWindow.EditingPath);
+                        LoadFilesInFolder();
+                    }
                 }
                 catch (System.Exception e)
                 {
                     Plugin.Log.LogError("Error when exporting config file!\n" + e);
-                    status = e.ToString();
-                }
-                if (status == "")
-                {
-                    status = exportAll ? 
-                        string.Format("Export {0} camera and {1} path.".Translate(), Plugin.CameraList.Count, Plugin.PathList.Count) :
-                        "Export 1 path.".Translate();
-                    Plugin.Log.LogInfo(status);
+                    statusText = e.ToString();
                 }
             }
             GUILayout.EndHorizontal();
+        }
 
-            GUILayout.BeginHorizontal();
-            bool importCamera = false;
-            bool importPath = false;
-            GUILayout.Label("Import cfg File".Translate());
-            if (GUILayout.Button("Camera".Translate())) importCamera = true;
-            if (GUILayout.Button("Path".Translate())) importPath = true;
-            if (importCamera || importPath)
-            {
-                status = "";
-                tmpCameraList.Clear();
-                tmpPathList.Clear();
-                try
-                {
-                    Plugin.Log.LogDebug("Importing " + pathInput);
-                    string path = pathInput;
-                    if (string.IsNullOrWhiteSpace(Path.GetDirectoryName(path)))
-                    {
-                        // If directory doesn't provide, store in BepInEx\config\CameraTools\
-                        path = Path.Combine(BepInEx.Paths.ConfigPath, Plugin.NAME, path);
-                        Plugin.Log.LogDebug(path);
-                    }
-                    if (Path.GetExtension(path) != ".cfg") throw new System.ArgumentException("only support .cfg file");
-                    if (!File.Exists(path)) throw new FileNotFoundException("could not found the file");                    
-                    var configFile = new ConfigFile(path, false);
-                    LoadList(configFile, tmpCameraList, tmpPathList);
-                }
-                catch (System.Exception e)
-                {
-                    Plugin.Log.LogError("Error when importing config file!\n" + e);
-                    status = e.ToString();
-                }
-                if (importCamera) tmpPathList.Clear();
-                if (importPath) tmpCameraList.Clear();
-                if (status == "")
-                {
-                    status = string.Format("Load {0} camera and {1} path.".Translate(), tmpCameraList.Count, tmpPathList.Count);
-                    Plugin.Log.LogInfo(status);
-                }
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.Label(status);
+        static void TempContentList()
+        {
+            if (tmpCameraList.Count + tmpPathList.Count == 0) return;
 
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label("Imported Content".Translate());
             int removingCamIndex = -1;
             int removingPathIndex = -1;
             foreach (var cam in tmpCameraList)
@@ -227,7 +276,7 @@ namespace CameraTools
                     cam.Index = Plugin.PathList.Count;
                     Plugin.CameraList.Add(cam);
                     cam.Export();
-                    PathListCount.Value = Plugin.PathList.Count;                    
+                    PathListCount.Value = Plugin.PathList.Count;
                 }
                 if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
                 {
@@ -246,7 +295,7 @@ namespace CameraTools
                     path.Index = Plugin.PathList.Count;
                     Plugin.PathList.Add(path);
                     path.Export();
-                    PathListCount.Value = Plugin.PathList.Count;                    
+                    PathListCount.Value = Plugin.PathList.Count;
                 }
                 if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
                 {
@@ -254,6 +303,7 @@ namespace CameraTools
                 }
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndVertical();
 
             if (removingCamIndex != -1)
             {
@@ -265,7 +315,61 @@ namespace CameraTools
                 tmpPathList.RemoveAt(removingPathIndex);
                 for (int i = 0; i < tmpPathList.Count; i++) tmpPathList[i].Index = i;
             }
-            GUILayout.EndScrollView();
+        }
+    
+        static void FileList()
+        {
+            int importingIndex = -1;
+            int removingIndex = -1;
+            for (int i = 0; i < files.Length; i++)
+            {
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.Label(Path.GetFileName(files[i]));
+                if (GUILayout.Button("Import".Translate(), GUILayout.MaxWidth(60)))
+                {
+                    importingIndex = i;
+                }
+                if (GUILayout.Button("Remove".Translate(), GUILayout.MaxWidth(60)))
+                {
+                    removingIndex = i;
+                }
+                GUILayout.EndHorizontal();
+            }
+            if (importingIndex >= 0)
+            {
+                statusText = "";
+                tmpCameraList.Clear();
+                tmpPathList.Clear();
+                try
+                {
+                    string filePath = files[importingIndex];
+                    Plugin.Log.LogInfo("Importing " + filePath);
+                    if (!File.Exists(filePath)) throw new FileNotFoundException("could not found the file");
+                    var configFile = new ConfigFile(filePath, false);
+                    LoadList(configFile, tmpCameraList, tmpPathList);
+                    statusText = $"Import {tmpCameraList.Count} cam and {tmpPathList.Count} path from {Path.GetFileName(filePath)}";
+                }
+                catch (System.Exception e)
+                {
+                    Plugin.Log.LogError("Error when importing config file!\n" + e);
+                    statusText = e.ToString();
+                }
+            }
+            if (removingIndex >= 0)
+            {
+                try
+                {
+                    string filePath = files[importingIndex];
+                    Plugin.Log.LogInfo("Removing " + filePath);
+                    File.Delete(filePath);
+                    LoadFilesInFolder();
+                }
+                catch (System.Exception e)
+                {
+                    Plugin.Log.LogError("Error when removing config file!\n" + e);
+                    statusText = e.ToString();
+                }
+            }
         }
     }
 }

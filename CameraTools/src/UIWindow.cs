@@ -5,7 +5,7 @@ namespace CameraTools
 {
     static class UIWindow
     {
-        private static Rect modConfigWindow = new(20f, 20f, 300f, 400f);
+        private static Rect modConfigWindow = new(320f, 20f, 400f, 350f);
         private static Rect cameraListWindow = new(20f, 260f, 300f, 240f);
         private static Rect cameraConfigWindow = new(320f, 260f, 300f, 380f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 300f);
@@ -167,7 +167,12 @@ namespace CameraTools
             if (GUILayout.Button("X")) modConfigWindowActivated = false;
             GUILayout.EndArea();
 
-            modConfigTabIndex = GUILayout.Toolbar(modConfigTabIndex, Extensions.TL(modConfigTabText));
+            int tab = GUILayout.Toolbar(modConfigTabIndex, Extensions.TL(modConfigTabText));
+            if (tab != modConfigTabIndex && tab == 1)
+            {
+                ModConfig.LoadFilesInFolder();
+            }
+            modConfigTabIndex = tab;
             switch (modConfigTabIndex)
             {
                 case 0: ModConfig.ConfigWindowFunc(); break;

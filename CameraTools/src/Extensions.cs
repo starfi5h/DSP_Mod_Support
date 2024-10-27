@@ -129,12 +129,13 @@ namespace CameraTools
             { "Reset Windows Position", "重置窗口位置" },
 
             { "I/O", "输入/输出" },
-            { "Export cfg File", "导出配置文件" },
+            { "Export File", "导出文件" },
             { "Overwrite ", "覆盖文件 " },
+            { "Current Cam", "当前摄像机" },
             { "Current Path", "当前路径" },
             { "All", "全部" },
-            { "Import cfg File", "导入配置文件" },
-            { "Load {0} camera and {1} path.", "加载 {0} 个摄像机和 {1} 个路径." }
+            { "Import", "导入" },
+            { "Imported Content", "导入内容" }
         };
 
         internal static string Translate(this string s)
