@@ -5,13 +5,13 @@ namespace CameraTools
 {
     static class UIWindow
     {
-        private static Rect modConfigWindow = new(20f, 20f, 300f, 240f);
+        private static Rect modConfigWindow = new(20f, 20f, 300f, 400f);
         private static Rect cameraListWindow = new(20f, 260f, 300f, 240f);
-        private static Rect cameraConfigWindow = new(320f, 260f, 300f, 365f);
-        private static Rect pathListWindow = new(900f, 350f, 320f, 240f);
-        private static Rect pathConfigWindow = new(1200f, 350f, 300f, 370f);
-        private static Rect targetConfigWindow = new(900f, 350f, 300f, 270f);
-        private static Rect recordWindow = new(900f, 20f, 300f, 270f);
+        private static Rect cameraConfigWindow = new(320f, 260f, 300f, 380f);
+        private static Rect pathListWindow = new(900f, 350f, 320f, 300f);
+        private static Rect pathConfigWindow = new(1200f, 350f, 300f, 380f);
+        private static Rect targetConfigWindow = new(900f, 350f, 300f, 300f);
+        private static Rect recordWindow = new(900f, 20f, 300f, 300f);
 
         public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; }
@@ -286,6 +286,10 @@ namespace CameraTools
             }
             if (removingIndex != -1 && Plugin.PathList.Count > 1)
             {
+                if (removingIndex == Plugin.ViewingPath?.Index)
+                {
+                    Plugin.ViewingPath = null;
+                }
                 if (removingIndex == EditingPath.Index)
                 {
                     // Set editing path to the next in the list

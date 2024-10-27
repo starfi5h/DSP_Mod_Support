@@ -60,9 +60,9 @@ namespace CameraTools
             { "Hide GUI during play", "播放期间隐藏界面" },
             { "Ratio", "比例" },
             { "Second", "秒" },
-            { "Auto Split", "自动分割" },
+            { "Auto Split", "自动分配时间" },
             { "Insert Keyframe", "插入关键帧" },
-            { "Append Keyframe", "添加关键帧" },
+            { "Append Keyframe", "后加关键帧" },
             { "Save/Load", "保存/加载" },
             { "Target: ", "朝向: " },
 
@@ -94,21 +94,25 @@ namespace CameraTools
 
             { "Timelapse Record", "缩时摄影" },
             { "Start Record", "开始录制" },
-            { "[Recording]", "[录制中]" },
-            { "[Recording UPS]", "[录制中(UPS)]" },
+            { "Pause", "暂停" },
+            { "Resume", "继续" },
+            { "Stop", "停止" },
             { "Sync UPS", "同步逻辑帧率" },
+
             { "Select", "选取" },
             { "Clear", "清除" },
             { "Time Interval(s)", "时间间隔(秒)" },
             { "Record Type", "录制类型" },
             { "Image", "图片" },
             { "Video", "视频" },
+            
             { "Output Width", "输出宽度" },
             { "Output Height", "输出高度" },
             { "Folder", "保存路径" },
             { "JPG Quality", "JPG质量" },
+            { "Auto Create Subfolder", "自动产生子文件夹" },
+            { "Reset File Index", "重置文件编号" },
             { "Output FPS", "输出影格率" },
-
 
             { "Mod Config", "模组配置" },
             { "Waiting for key..", "等待输入.." },

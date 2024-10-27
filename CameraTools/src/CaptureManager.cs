@@ -24,9 +24,12 @@ namespace CameraTools
         static float timer;      //累積計時器
         static bool syncUPS;     //同步邏輯幀
         static double lastTimeF; //上次邏輯幀的時間timef
+        static string folderPath = ""; //儲存截圖/錄製影片的資料夾
 
         // Image cature paramters
         static int fileIndex;
+        static bool useSubfolder = true;
+        readonly static string subfolderFormatString = "MMdd_HHmmss";
         readonly static string fileFormatString = "{0:D6}.jpg";
 
         // Video catpure paramters
@@ -81,7 +84,7 @@ namespace CameraTools
             if (timer >= TimeInterval.Value)
             {
                 timer = 0;
-                if (ffmpegSession == null && string.IsNullOrWhiteSpace(ScreenshotFolderPath.Value))
+                if (string.IsNullOrWhiteSpace(folderPath))
                 {
                     statusText = "Folder path is empty!";
                     recording = false;
@@ -101,7 +104,7 @@ namespace CameraTools
                 }
                 else
                 {
-                    var fileName = Path.Combine(ScreenshotFolderPath.Value, string.Format(fileFormatString, ++fileIndex));
+                    var fileName = Path.Combine(folderPath, string.Format(fileFormatString, fileIndex++));
                     EncodeAndSave(texture2D, fileName, JpgQuality.Value);
                 }
             }
@@ -250,46 +253,89 @@ namespace CameraTools
         private static void PlayControlPanel()
         {
             GUILayout.BeginHorizontal();
-            if (!recording)
+            if (lastTimeF == 0) // Haven't initial yet
             {
                 if (GUILayout.Button("Start Record".Translate()))
                 {
-                    string folderPath = videoRecordingEnabled ? VideoFolderPath.Value : ScreenshotFolderPath.Value;
+                    folderPath = videoRecordingEnabled ? VideoFolderPath.Value : ScreenshotFolderPath.Value;
                     if (!Directory.Exists(folderPath))
                     {
                         statusText = "The folder doesn't exist!";
                         return;
                     }
 
-                    recording = true;
-                    timer = TimeInterval.Value;
-                    lastTimeF = GameMain.instance.timef;
+                    if (useSubfolder && !videoRecordingEnabled)
+                    {
+                        try
+                        {
+                            folderPath = Path.Combine(folderPath, DateTime.Now.ToString(subfolderFormatString));
+                            Directory.CreateDirectory(folderPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Plugin.Log.LogWarning(ex);
+                            statusText = "Error when creating the subfolder!" + ex.Message;
+                            folderPath = "";
+                            return;
+                        }
+                    }
 
                     if (videoRecordingEnabled)
                     {
+                        if (!File.Exists("ffmpeg.exe"))
+                        {
+                            statusText = "ffmpeg.exe doesn't exist in PATH!";
+                            return;
+                        }
                         string videoPath = Path.Combine(folderPath, DateTime.Now.ToString(videoFileFormat) + videoExtension);
                         int videoWidth = ScreenshotWidth.Value;
                         int videoHeight = ScreenshotHeight.Value;
                         float fps = VideoOutputFps.Value;
                         string extraArgs = VideoOutputOptions.Value;
 
-                        ffmpegSession = new FFmpegSession(videoPath, videoWidth, videoHeight, fps, extraArgs);
+                        try
+                        {
+                            ffmpegSession = new FFmpegSession(videoPath, videoWidth, videoHeight, fps, extraArgs);
+                        }
+                        catch (Exception ex)
+                        {
+                            Plugin.Log.LogError(ex);
+                            statusText = "Error when starting ffmpeg!" + ex.Message;
+                            ffmpegSession = null;
+                            return;
+                        }
                     }
+
+                    recording = true;
+                    timer = TimeInterval.Value;
+                    lastTimeF = GameMain.instance.timef;
                 }
                 syncUPS = GUILayout.Toggle(syncUPS, "Sync UPS".Translate());
             }
-            else
+            else // Is Running
             {
-                if (GUILayout.Button(syncUPS ? "[Recording UPS]".Translate() : "[Recording]".Translate()))
+                if (GUILayout.Button(recording ? "Pause".Translate() : "Resume".Translate()))
+                {
+                    recording = !recording;
+                }
+                if (GUILayout.Button("Stop".Translate()))
                 {
                     recording = false;
+                    timer = 0f;
+                    lastTimeF = 0f;
                     if (ffmpegSession != null)
                     {
                         ffmpegSession.Stop();
                         ffmpegSession = null;
                     }
+                    if (useSubfolder)
+                    {
+                        fileIndex = 0;
+                    }
                 }
-                GUILayout.Label(string.Format("Next: {0:F1}s".Translate(), (TimeInterval.Value - timer)));
+                string countDonwText = string.Format("Next: {0:F1}s".Translate(), (TimeInterval.Value - timer));
+                if (syncUPS) countDonwText += " (UPS)";
+                GUILayout.Label(countDonwText);
             }
             GUILayout.EndHorizontal();
             GUILayout.Label(statusText);
@@ -373,6 +419,11 @@ namespace CameraTools
                 {
                     statusText = ex.ToString();
                 }
+            }
+            useSubfolder = GUILayout.Toggle(useSubfolder, "Auto Create Subfolder".Translate());
+            if (GUILayout.Button("Reset File Index".Translate() + $" [{fileIndex}]"))
+            {
+                fileIndex = 0;
             }
         }
 

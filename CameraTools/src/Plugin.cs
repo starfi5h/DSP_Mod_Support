@@ -189,6 +189,19 @@ namespace CameraTools
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerAction_Rts), nameof(PlayerAction_Rts.GameTick))]
+        static bool GetInput_Prefix(PlayerAction_Rts __instance)
+        {
+            // Disable mecha rts order (right click) free cam adjust mode is activated
+            if (FreePoser.Enabled && UIWindow.EditingCam == ViewingCam)
+            {
+                __instance.player.ClearOrders();
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
         static bool DisableUposUpdate()
         {
