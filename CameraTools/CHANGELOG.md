@@ -1,6 +1,14 @@
+#### v0.6.1
+- Re-design import/export window
+- Target: Add editing camera path preview when the target window is opened.
+- Record: Now has "Start", "Pause", "Resume", "Stop" states.
+- Record: Add Auto Create Subfolder and Reset File Index options for image capturing.
+- Record: Add video output format and ffmpeg options.
+- Cam: Stop right click move or mine order in freecam mode.
+
 #### v0.6.0
-- Record: Add video recording by ffmpeg piping
-- Record: Add sync UPS option
+- Record: Add video recording by ffmpeg piping.
+- Record: Add sync UPS option.
 
 #### v0.5.1
 - Target: Add rotation speed option to let camera do circular motion around the target.  

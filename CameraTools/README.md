@@ -53,17 +53,17 @@ Interp can choose from 3 different interpolation: Linear, Spherical, Curve.
 - Spherical will make piecewise path into arc by adjusting altitude with interpolated value.  
 - Curve will use Unity's AnimationCurve to make a smooth curve path.   
 
-### Keypoint control
+### Keyframe control
 The bottom scroll area is for keyframe (camera pose + time) control. To make a valid path, add at least 2 cameras.  
 The keyframe foramt can be displayed in either raio [0,1], or in second.  
-When Auto Split toggle is on, it will evenly split time ratio for all the keypoints.  
+When Auto Split toggle is on, it will evenly split time ratio for all the keyframes.  
 - Insert keyframe will insert the current view into the current progression time.  
 - Append keyframe will add the current view at the last of all keyframes.  
 
 ### Target
 ![target](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/demo2.gif)  
 The target to look at during playback.  
-When the target config window is opened, it shows a pink sphere marker to indicate where the camera is looking at.  
+When the target config window is opened, it shows a pink sphere marker to indicate where the camera is looking at, and green line to indicate the editing camera path.  
 Can set it to a fixed point on the planet or space, or a moving point relatived to the mecha.  
 ![target window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/target-window.png)  
 If rotation speed is set to positive, the camera will counter-clockwise circle around the target, with axis is the normal vector of the target position.  
@@ -80,6 +80,8 @@ The file format is `%06d.jpg` starting with 1. The index reset after the game re
 - Path: Select a camera path from the list to record in the secondary camera. If not selected, it will capture the main camera. Click play button to let the camera move along the path during recording.  
   Note: This secondary camera only works best **on the local planet**. For space timelapse it is adviced to use the main camera.
 - JPG Quality: JPG quality to encode with. [The range is 1 through 100. 1 is the lowest quality.](https://docs.unity3d.com/ScriptReference/ImageConversion.EncodeToJPG.html)  
+- Auto Create Subfolder: When capturing start/stop, it will auto create a subfolder in format of `MMdd_HHmmss` to store screenshots.  
+  
   
 After recording, you can combine the sequence of images into a video. For example with [FFmpeg](https://www.ffmpeg.org/):
 ```
@@ -92,7 +94,8 @@ To record video, you need to install ffmpeg first and add it into PATH environme
 Then set the video save folder path. The video will store in the folder with name format `MMdd_HH-mm-ss.mp4`.  
 `Sync UPS` means the timer will use UPS time (in-game) instead of FPS time (Unity Time).  
 When the time interval is set to 0, it will caputred every screen update frame.  
-Custom ffmpeg options to output file can be set in `- Video Recording -`:`Output Options`.  
+- Video Extension: Default format is `.mp4`
+- FFmpeg Options: FFmpeg options that apply to the output file.
 
 ## Installation & Mod Config
 ![mod config](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/mod-config.png)  
@@ -103,9 +106,9 @@ All mod config together with stored camera data is in `BepInEx\config\starfi5h.p
 ### Import/Export camera and path settings
 ![import/export window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/io-window.png)  
 In config window - IO tab, it can import/export config file containing the camera and path data.  
-Input field to input the target file path. The acceptable file extension is `.cfg`.  
-If the directory is not provided, it will use `BepInEx\config\CameraTools\`.  
-After importing success, user can choose which camera or path to add in the list.  
+Input field to input the folder path. If the directory is not provided, it will use `BepInEx\config\CameraTools\`.  
+In export session, you can export the editing camera or path by their name to the folder.  
+In button session, it list every `.cfg` files in the folder. After importing the file, you can choose which camera or path to add in the list.  
 
 ## Known issues
 - The star image will distort when space camera position is different from player's.  
