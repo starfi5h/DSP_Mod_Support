@@ -9,7 +9,7 @@ namespace CameraTools
         private static Rect cameraListWindow = new(20f, 260f, 300f, 240f);
         private static Rect cameraConfigWindow = new(320f, 260f, 300f, 380f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 300f);
-        private static Rect pathConfigWindow = new(1200f, 350f, 300f, 380f);
+        private static Rect pathConfigWindow = new(1200f, 350f, 320f, 380f);
         private static Rect targetConfigWindow = new(900f, 350f, 300f, 300f);
         private static Rect recordWindow = new(900f, 20f, 300f, 300f);
 
@@ -109,7 +109,7 @@ namespace CameraTools
         public static void OnGUI()
         {
             CanResize = false;
-            if (DSPGame.IsMenuDemo || GameMain.mainPlayer == null || (Plugin.ViewingPath != null && CameraPath.HideGUI && Plugin.ViewingPath.IsPlaying))
+            if (DSPGame.IsMenuDemo || GameMain.mainPlayer == null || Plugin.ViewingPath is { HideGUI: true })
             {
                 return;
             }
@@ -218,7 +218,8 @@ namespace CameraTools
             }
             GUILayout.EndArea();
 
-            EditingPath?.ConfigWindowFunc();
+            EditingPath?.UIConfigWindowFunc();
+
             GUI.DragWindow();
         }
 

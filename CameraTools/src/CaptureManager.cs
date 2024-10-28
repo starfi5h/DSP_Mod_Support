@@ -67,6 +67,15 @@ namespace CameraTools
                 "Extra ffmpeg options to output video");
         }
 
+        public static bool SetCameraPath(CameraPath cameraPath)
+        {
+            // Do not change the CapturingPath by UI during recording
+            if (recording) return false;
+
+            CapturingPath = cameraPath;
+            return true;
+        }
+
         public static void OnLateUpdate()
         {
             if (!recording || GameMain.isPaused) return;
@@ -349,7 +358,7 @@ namespace CameraTools
                 if (GUILayout.Button(expandPathListMode ? "Clear".Translate() : "Select".Translate()))
                 {
                     expandPathListMode = !expandPathListMode;
-                    if (!expandPathListMode) CapturingPath = null;
+                    if (!expandPathListMode) SetCameraPath(null);
                 }
             }
             else
@@ -371,8 +380,7 @@ namespace CameraTools
                     GUILayout.Label(path.Name);
                     if (GUILayout.Button("Select".Translate(), GUILayout.MaxWidth(60)))
                     {
-                        CapturingPath = path;
-                        expandPathListMode = false;
+                        if (SetCameraPath(path)) expandPathListMode = false;                        
                     }
                     GUILayout.EndHorizontal();
                 }

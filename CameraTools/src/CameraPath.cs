@@ -11,7 +11,8 @@ namespace CameraTools
         public string Name { get; set; } = "";
         public bool IsPlaying { get; set; }
         public static bool Loop { get; private set; }
-        public static bool HideGUI { get; private set; }
+        public bool HideGUI => hideGUI & IsPlaying;
+        public bool Preview => preview & !HideGUI;
 
         readonly List<CameraPoint> cameras = new();
         readonly List<float> keyTimes = new();
@@ -20,6 +21,8 @@ namespace CameraTools
         readonly LookTarget lookTarget = new();
 
         // UI window
+        static bool hideGUI;
+        static bool preview;
         static readonly string[] interpolationTexts = { "Linear", "Spherical", "Curve" };
         static bool autoSplit = true;
         static int keyFormat = 0;        
@@ -251,8 +254,9 @@ namespace CameraTools
             return cameras.Count;
         }
 
-        public int SetCameraPoints(List<GameObject> cameraObjs)
+        public int SetCameraPoints(List<GameObject> cameraObjs, List<VectorLF3> uPointList)
         {
+            uPointList.Clear();
             for (int i = 0; i < cameras.Count; i++)
             {
                 float t = keyTimes[i];
@@ -261,38 +265,58 @@ namespace CameraTools
                 {
                     lookTarget.SetFinalPose(ref camPose, ref uPosition, t * duration);
                 }
-                if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
-                {
-                    camPose.position -= (Vector3)(GameMain.mainPlayer.uPosition - uPosition);
-                }
                 cameraObjs[i].transform.position = camPose.position;
                 cameraObjs[i].transform.rotation = camPose.rotation;
+                uPointList.Add(uPosition + (VectorLF3)camPose.position);
             }
             return cameras.Count;
         }
 
-        public int SetPathPoints(Vector3[] points)
-        {            
-            for (int i = 0; i < 360; i++)
+        public int SetPathPoints(Vector3[] lPoints, VectorLF3[] uPoints)
+        {
+            int pointCount = lPoints.Length;
+            for (int i = 0; i < pointCount; i++)
             {
-                float t = i / 360f;
+                float t = i / (float)pointCount;
                 if (!UpdateCameraPose(t)) return 0; // if the camera is not viewable, don't show the line
                 if (lookTarget.Type != LookTarget.TargetType.None)
                 {
                     lookTarget.SetFinalPose(ref camPose, ref uPosition, t * duration);
                 }
-                if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
-                {
-                    camPose.position -= (Vector3)(GameMain.mainPlayer.uPosition - uPosition);
-                }
-                points[i] = camPose.position;
+                lPoints[i] = camPose.position;
+                uPoints[i] = uPosition + (VectorLF3)camPose.position;
             }
-            return 360;
+            return pointCount;
         }
 
-        public void ConfigWindowFunc()
+        public void UIConfigWindowFunc()
         {
-            int tmpInt;
+            UIPlayControlPanel();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(Plugin.ViewingPath == this ? "[Viewing]".Translate() : "View".Translate()))
+            {
+                Plugin.ViewingPath = Plugin.ViewingPath == this ? null : this;
+            }
+            Loop = GUILayout.Toggle(Loop, "Loop".Translate());
+            preview = GUILayout.Toggle(preview, "Preview".Translate());
+            hideGUI = GUILayout.Toggle(hideGUI, "Hide GUI".Translate());
+            GUILayout.EndHorizontal();
+
+            UIKeyframePanel();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Path List".Translate())) UIWindow.TogglePathListWindow();
+            if (GUILayout.Button("Record This Path".Translate()))
+            {
+                CaptureManager.SetCameraPath(this);
+                UIWindow.ToggleRecordWindow();
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        void UIPlayControlPanel()
+        {
             GUILayout.BeginVertical(GUI.skin.box);
             float tmpFloat = GUILayout.HorizontalSlider(progression, 0.0f, 1.0f);
             if (tmpFloat != progression)
@@ -325,7 +349,7 @@ namespace CameraTools
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Interp".Translate());
-            tmpInt = GUILayout.Toolbar(interpolation, Extensions.TL(interpolationTexts));
+            int tmpInt = GUILayout.Toolbar(interpolation, Extensions.TL(interpolationTexts));
             if (tmpInt != interpolation)
             {
                 interpolation = tmpInt;
@@ -333,25 +357,44 @@ namespace CameraTools
             }
             GUILayout.EndHorizontal();
 
-            GUILayout.EndVertical();
-
-
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(Plugin.ViewingPath == this ? "[Viewing]".Translate() : "View".Translate()))
+            GUILayout.Label("Target".Translate());
+            if (GUILayout.Button("<"))
             {
-                Plugin.ViewingPath = Plugin.ViewingPath == this ? null : this;
+                int typeValue = lookTarget.Type == LookTarget.TargetType.None ? 3 : (int)lookTarget.Type - 1;
+                lookTarget.Type = (LookTarget.TargetType)typeValue;
+                GizmoManager.OnPathChange();
             }
-            Loop = GUILayout.Toggle(Loop, "Loop".Translate(), GUILayout.MaxWidth(50));
-            HideGUI = GUILayout.Toggle(HideGUI, "Hide GUI during play".Translate());
+            if (GUILayout.Button(lookTarget.Type.ToString().Translate()))
+            {
+                if (UIWindow.EditingTarget != lookTarget)
+                {
+                    LookTarget.OpenAndSetWindow(lookTarget);
+                    GizmoManager.OnPathChange();
+                }
+                else UIWindow.EditingTarget = null;
+            }
+            if (GUILayout.Button(">"))
+            {
+                lookTarget.Type = (LookTarget.TargetType)(((int)lookTarget.Type + 1) % 4);
+                GizmoManager.OnPathChange();
+            }
             GUILayout.EndHorizontal();
-                        
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+
+            GUILayout.EndVertical();
+        }
+
+        void UIKeyframePanel()
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
 
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Keyframe".Translate());
             keyFormat = GUILayout.Toolbar(keyFormat, Extensions.TL(keyFormatTexts));
             autoSplit = GUILayout.Toggle(autoSplit, "Auto Split".Translate());
             GUILayout.EndHorizontal();
 
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             int removingIndex = -1;
             int upIndex = -1;
             int downIndex = -1;
@@ -453,22 +496,9 @@ namespace CameraTools
             }
             GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Target: ".Translate() + lookTarget.Type.ToString().Translate()))
-            {
-                if (UIWindow.EditingTarget != lookTarget)
-                {
-                    LookTarget.OpenAndSetWindow(lookTarget);
-                    GizmoManager.OnPathChange();
-                }
-                else UIWindow.EditingTarget = null;
-            }
-            if (GUILayout.Button("Save/Load".Translate()))
-            {
-                UIWindow.TogglePathListWindow();
-            }
-            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         }
+
 
         void RearrangeTimes(bool evenSplitTime)
         {

@@ -213,7 +213,7 @@ namespace CameraTools
         [HarmonyPatch(typeof(PlayerAction_Inspect), nameof(PlayerAction_Inspect.GameTick))]
         static bool PlayerAction_Inspect_Prefix(PlayerAction_Inspect __instance)
         {
-            if (ViewingPath is { IsPlaying: true } && CameraPath.HideGUI)
+            if (ViewingPath is { HideGUI: true })
             {
                 __instance.hoveringEntityId = 0;
                 __instance.hoveringEnemyId = 0;
@@ -234,7 +234,7 @@ namespace CameraTools
         [HarmonyPatch(typeof(PlayerControlGizmo), nameof(PlayerControlGizmo.OnOutlineDraw))]
         static bool OnOutlineDraw_Prefix(PlayerControlGizmo __instance)
         {
-            if (ViewingPath is { IsPlaying: true } && CameraPath.HideGUI)
+            if (ViewingPath is { HideGUI: true })
             {
                 __instance._tmp_outline_local_objcnt = 0;
                 __instance._tmp_outline_local_pos = Vector3.zero;

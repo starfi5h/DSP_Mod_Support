@@ -56,19 +56,24 @@ namespace CameraTools
             { "Linear", "线性" },
             { "Spherical", "球面" },
             { "Curve", "曲线" },
+            { "Target", "朝向" },
+
             { "Loop", "循环" },
-            { "Hide GUI during play", "播放期间隐藏界面" },
+            { "Preview", "预览" },
+            { "Hide GUI", "隐藏UI" },
+            
+            { "Keyframe", "关键帧" },
             { "Ratio", "比例" },
             { "Second", "秒" },
             { "Auto Split", "自动分配时间" },
             { "Insert Keyframe", "插入关键帧" },
             { "Append Keyframe", "后加关键帧" },
-            { "Save/Load", "保存/加载" },
-            { "Target: ", "朝向: " },
+            
 
             { "Target Config", "目标配置" },
             { "Type", "类型" },
             { "None", "无" },
+            { "Local", "本地" },
             { "Copy Planet Rotation Speed", "复制星球自转速度" },
             { "Copy Planet Revolution Speed", "复制星球公转速度" },
             { "Mecha", "机甲" },
@@ -91,6 +96,7 @@ namespace CameraTools
 
             { "Path List", "路径列表" },
             { "Add Path", "添加路径" },
+            { "Record This Path", "录制此路径" },
 
             { "Timelapse Record", "缩时摄影" },
             { "Start Record", "开始录制" },

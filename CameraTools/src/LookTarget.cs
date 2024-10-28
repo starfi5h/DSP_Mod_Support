@@ -9,7 +9,7 @@ namespace CameraTools
         {
             None,
             Mecha,
-            Planet,
+            Local,
             Space
         }
 
@@ -35,7 +35,7 @@ namespace CameraTools
 
 
         // UI and Indicator (ping sphere)
-        static readonly string[] targetTypeTexts = { "None", "Mecha", "Planet", "Space" };
+        static readonly string[] targetTypeTexts = { "None", "Mecha", "Local", "Space" };
         static readonly VectorLF3[] uiPositions = new VectorLF3[4];
         static int positionType;
         static readonly string[] positionTypeTexts = { "Cartesian", "Polar" };
@@ -70,7 +70,7 @@ namespace CameraTools
                     cameraPose.rotation = Quaternion.LookRotation(-backward, camPos);
                     return;
 
-                case TargetType.Planet:
+                case TargetType.Local:
                     targetPos = Position == VectorLF3.zero ? new Vector3(0, 1, 0) : Position;
                     backward = camPos - targetPos; // target -> cam
                     if (RotationSpeed != 0f)
@@ -173,7 +173,7 @@ namespace CameraTools
                         RotationSettings();
                         break;
                     }
-                    case TargetType.Planet:
+                    case TargetType.Local:
                     {
                         LocalPositionSettings("Local Position".Translate(), ref hasChanged);
                         RotationSettings();
@@ -219,7 +219,7 @@ namespace CameraTools
                 {
                     switch (Type)
                     {
-                        case TargetType.Planet: 
+                        case TargetType.Local: 
                             Position = GameMain.mainPlayer.position; hasChanged = true;
                             break;
                         case TargetType.Space:

@@ -8,12 +8,16 @@ namespace CameraTools
     {
         public static float TargetMarkerSize = 3f;
         public static float PathMarkerSize = 3f;
+        public const int LinePointCount = 180;
 
         static GameObject targetMarkerGo;
         static LineGizmo cameraPathLine;
+        static readonly VectorLF3[] lineUPoints = new VectorLF3[LinePointCount];
+        static readonly List<VectorLF3> cameraUPointList = new();
         static GameObject cameraObjGroup;
         static readonly List<GameObject> cameraObjs = new();
         static float lastUpdateTime;
+        static bool hasErrored;
 
         public static void OnAwake()
         {
@@ -39,39 +43,61 @@ namespace CameraTools
 
         public static void OnUpdate()
         {
-            UpdateTargetMarker();
-            UpdatePathMarker();
-
-            if (Time.time - lastUpdateTime > 1.0f)
+            if (GameMain.mainPlayer == null) return;
+            try
             {
-                lastUpdateTime = Time.time;
-                if (UIWindow.EditingPath != null && UIWindow.EditingTarget != null && PathMarkerSize > 0f)
+                if (Time.time - lastUpdateTime > 1.0f)
                 {
-                    if (cameraPathLine != null)
-                    {
-                        cameraPathLine.validPointCount = UIWindow.EditingPath.SetPathPoints(cameraPathLine.points);
-                        cameraPathLine.width = PathMarkerSize;
-                        cameraPathLine.ManualRefresh();
-                    }
+                    lastUpdateTime = Time.time;
+                    RefreshPathPreview();
+                }
+                UpdateTargetMarker();
+                UpdatePathMarker();
+            }
+            catch (System.Exception ex)
+            {
+                if (!hasErrored) Plugin.Log.LogError(ex);
+                hasErrored = true;
+            }
+        }
 
-                    int cameraCount = UIWindow.EditingPath.GetCameraCount();
-                    for (int i = cameraObjs.Count; i < cameraCount; i++)
-                    {
-                        var camGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        camGo.GetComponent<MeshRenderer>().material = null;
-                        camGo.transform.parent = cameraObjGroup.transform;
-                        cameraObjs.Add(camGo);
-                    }
-                    cameraCount = UIWindow.EditingPath.SetCameraPoints(cameraObjs);
-                    for (int i = 0; i < cameraCount; i++)
-                    {
-                        cameraObjs[i].transform.localScale = Vector3.one * PathMarkerSize;
-                        cameraObjs[i].SetActive(true);
-                    }
-                    for (int i = cameraCount; i < cameraObjs.Count; i++)
-                    {
-                        cameraObjs[i].SetActive(false);
-                    }
+        static void RefreshPathPreview()
+        {
+            if (UIWindow.EditingPath is { Preview: true } && PathMarkerSize > 0f)
+            {
+                if (cameraPathLine == null || cameraPathLine.points == null)
+                {
+                    cameraPathLine = LineGizmo.Create(1, new Vector3[LinePointCount], 0);
+                    cameraPathLine.spherical = false;
+                    cameraPathLine.autoRefresh = false;
+                    cameraPathLine.width = PathMarkerSize;
+                    cameraPathLine.color = Color.green;
+                    cameraPathLine.Open();
+                }
+                if (cameraPathLine != null)
+                {
+                    cameraPathLine.validPointCount = UIWindow.EditingPath.SetPathPoints(cameraPathLine.points, lineUPoints);
+                    cameraPathLine.width = PathMarkerSize;
+                    cameraPathLine.RefreshGeometry();
+                }
+
+                int cameraCount = UIWindow.EditingPath.GetCameraCount();
+                for (int i = cameraObjs.Count; i < cameraCount; i++)
+                {
+                    var camGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    camGo.GetComponent<MeshRenderer>().material = null;
+                    camGo.transform.parent = cameraObjGroup.transform;
+                    cameraObjs.Add(camGo);
+                }
+                cameraCount = UIWindow.EditingPath.SetCameraPoints(cameraObjs, cameraUPointList);
+                for (int i = 0; i < cameraCount; i++)
+                {
+                    cameraObjs[i].transform.localScale = Vector3.one * PathMarkerSize;
+                    cameraObjs[i].SetActive(true);
+                }
+                for (int i = cameraCount; i < cameraObjs.Count; i++)
+                {
+                    cameraObjs[i].SetActive(false);
                 }
             }
         }
@@ -90,7 +116,7 @@ namespace CameraTools
                     targetMarkerGo.transform.position = GameMain.mainPlayer.position + (Vector3)target.Position;
                     break;
 
-                case TargetType.Planet:
+                case TargetType.Local:
                     targetMarkerGo.transform.position = target.Position;
                     break;
 
@@ -108,7 +134,7 @@ namespace CameraTools
 
         static void UpdatePathMarker()
         {
-            if (UIWindow.EditingTarget == null || PathMarkerSize <= 0f)
+            if (UIWindow.EditingPath == null || PathMarkerSize <= 0f || !UIWindow.EditingPath.Preview)
             {
                 cameraObjGroup.SetActive(false);
                 cameraPathLine?.Close();
@@ -116,16 +142,22 @@ namespace CameraTools
                 return;
             }
             cameraObjGroup.SetActive(true);
-            if (cameraPathLine == null)
-            {                
-                cameraPathLine = LineGizmo.Create(1, new Vector3[360], 0);
-                cameraPathLine.spherical = false;
-                cameraPathLine.autoRefresh = false;
-                cameraPathLine.width = PathMarkerSize;
-                cameraPathLine.color = Color.green;
-                cameraPathLine.Open();
+
+            if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
+            {
+                if (cameraPathLine != null)
+                {
+                    for (int i = 0; i < LinePointCount; i++)
+                    {
+                        cameraPathLine.points[i] = lineUPoints[i] - GameMain.mainPlayer.uPosition;
+                    }
+                    cameraPathLine.RefreshGeometry();
+                }
+                for (int i = 0; i < cameraUPointList.Count; i++)
+                {
+                    cameraObjs[i].transform.position = cameraUPointList[i] - GameMain.mainPlayer.uPosition;
+                }
             }
         }
-
     }
 }
