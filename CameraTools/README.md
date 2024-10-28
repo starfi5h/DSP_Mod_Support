@@ -43,6 +43,8 @@ Create a camera path moving from point to point.
 You can edit clip duration, key point progression time and camera settings.  
 The path used on planet should not be used in space, vice versa.  
 To edit the field, click on the edit button first, input new value, then click set button to apply.  
+- Preview: When this option is enabled, show camera path in green line.
+- Hide GUI: When playing the path, hide all mod UI windows.
   
 ### Playback control
 The top area is playback contorl. The timeline slider can preview the path (need to enable Viewing first).  

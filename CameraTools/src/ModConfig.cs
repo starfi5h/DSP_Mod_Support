@@ -359,8 +359,9 @@ namespace CameraTools
             {
                 try
                 {
-                    string filePath = files[importingIndex];
-                    Plugin.Log.LogInfo("Removing " + filePath);
+                    string filePath = files[removingIndex];
+                    statusText = "Removing " + filePath;
+                    Plugin.Log.LogInfo(statusText);
                     File.Delete(filePath);
                     LoadFilesInFolder();
                 }

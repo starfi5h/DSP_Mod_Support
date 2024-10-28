@@ -1,3 +1,8 @@
+#### v0.6.2
+- Path: Change UI layout. Add preview option in the config window.
+- Path: Fix camera path preview doesn't show correctly in space.
+- IO: Fix error when deleting files.
+
 #### v0.6.1
 - Re-design import/export window
 - Target: Add editing camera path preview when the target window is opened.
