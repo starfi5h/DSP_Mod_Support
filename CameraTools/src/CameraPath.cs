@@ -117,8 +117,12 @@ namespace CameraTools
             IsPlaying = !IsPlaying;
             if (IsPlaying)
             {
-                Plugin.ViewingCam = null;
-                Plugin.ViewingPath = this;
+                // Do not auto switch to view when previewing the path
+                if (!preview)
+                {
+                    Plugin.ViewingCam = null;
+                    Plugin.ViewingPath = this;
+                }
                 if (progression >= 1.0f && duration > 0)
                 {
                     progression = 0f;
@@ -154,6 +158,7 @@ namespace CameraTools
 
         private bool UpdateCameraPose(float normalizedTime)
         {
+            if (cameras.Count == 0) return false;
             int index = 0;
             for (int i = 0; i < keyTimes.Count; i++)
             {
@@ -289,6 +294,27 @@ namespace CameraTools
             return pointCount;
         }
 
+        public bool SetLookAtLineRealtime(out Vector3 lPoint, out Vector3 lookDir)
+        {
+            lPoint = Vector3.zero;
+            lookDir = Vector3.forward;
+            if (!UpdateCameraPose(progression)) return false;
+            if (lookTarget.Type != LookTarget.TargetType.None)
+            {
+                lookTarget.SetFinalPose(ref camPose, ref uPosition, progression * duration);
+            }
+            if (GameMain.localPlanet == null && GameMain.mainPlayer != null)
+            {
+                lPoint = (Vector3)(uPosition - GameMain.mainPlayer.uPosition) + camPose.position ;
+            }
+            else
+            {
+                lPoint = camPose.position;
+            }
+            lookDir = camPose.rotation * Vector3.forward;
+            return true;
+        }
+
         public void UIConfigWindowFunc()
         {
             UIPlayControlPanel();
@@ -299,7 +325,12 @@ namespace CameraTools
                 Plugin.ViewingPath = Plugin.ViewingPath == this ? null : this;
             }
             Loop = GUILayout.Toggle(Loop, "Loop".Translate());
-            preview = GUILayout.Toggle(preview, "Preview".Translate());
+            bool tmpBool = GUILayout.Toggle(preview, "Preview".Translate());
+            if (tmpBool != preview)
+            {
+                preview = tmpBool;
+                GizmoManager.OnPathChange();
+            }
             hideGUI = GUILayout.Toggle(hideGUI, "Hide GUI".Translate());
             GUILayout.EndHorizontal();
 
@@ -331,7 +362,7 @@ namespace CameraTools
             {
                 progression = 0f;
                 totalTime = 0f;
-                Plugin.ViewingPath = this;
+                if (!preview) Plugin.ViewingPath = this;
             }
             if (GUILayout.Button(IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
             {
@@ -341,7 +372,7 @@ namespace CameraTools
             {
                 progression = 1.0f;
                 totalTime = duration;
-                Plugin.ViewingPath = this;
+                if (!preview) Plugin.ViewingPath = this;
             }
             GUILayout.EndHorizontal();
 

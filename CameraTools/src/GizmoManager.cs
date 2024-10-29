@@ -7,11 +7,13 @@ namespace CameraTools
     public static class GizmoManager
     {
         public static float TargetMarkerSize = 3f;
-        public static float PathMarkerSize = 3f;
+        public static float PathMarkerSize = 5f;
+        public static float PathCameraCubeSize = 2f;
         public const int LinePointCount = 180;
 
         static GameObject targetMarkerGo;
         static LineGizmo cameraPathLine;
+        static LineGizmo lookAtLine;
         static readonly VectorLF3[] lineUPoints = new VectorLF3[LinePointCount];
         static readonly List<VectorLF3> cameraUPointList = new();
         static GameObject cameraObjGroup;
@@ -34,6 +36,7 @@ namespace CameraTools
             Object.Destroy(targetMarkerGo);
             Object.Destroy(cameraObjGroup);
             cameraPathLine?.Close();
+            lookAtLine?.Close();
         }
 
         public static void OnPathChange()
@@ -46,7 +49,7 @@ namespace CameraTools
             if (GameMain.mainPlayer == null) return;
             try
             {
-                if (Time.time - lastUpdateTime > 1.0f)
+                if (Time.time - lastUpdateTime > 0.5f)
                 {
                     lastUpdateTime = Time.time;
                     RefreshPathPreview();
@@ -92,7 +95,7 @@ namespace CameraTools
                 cameraCount = UIWindow.EditingPath.SetCameraPoints(cameraObjs, cameraUPointList);
                 for (int i = 0; i < cameraCount; i++)
                 {
-                    cameraObjs[i].transform.localScale = Vector3.one * PathMarkerSize;
+                    cameraObjs[i].transform.localScale = Vector3.one * PathCameraCubeSize;
                     cameraObjs[i].SetActive(true);
                 }
                 for (int i = cameraCount; i < cameraObjs.Count; i++)
@@ -139,6 +142,8 @@ namespace CameraTools
                 cameraObjGroup.SetActive(false);
                 cameraPathLine?.Close();
                 cameraPathLine = null;
+                lookAtLine?.Close();
+                lookAtLine = null;
                 return;
             }
             cameraObjGroup.SetActive(true);
@@ -156,6 +161,26 @@ namespace CameraTools
                 for (int i = 0; i < cameraUPointList.Count; i++)
                 {
                     cameraObjs[i].transform.position = cameraUPointList[i] - GameMain.mainPlayer.uPosition;
+                }
+            }
+            if (lookAtLine == null)
+            {
+                lookAtLine = LineGizmo.Create(2, Vector3.zero, Vector3.zero);
+                lookAtLine.spherical = false;
+                lookAtLine.autoRefresh = false;
+                lookAtLine.width = 0;
+                lookAtLine.color = Color.white;
+                lookAtLine.tiling = false;
+                lookAtLine.Open();
+            }
+            if (lookAtLine != null)
+            {
+                if (UIWindow.EditingPath.SetLookAtLineRealtime(out Vector3 startPoint, out Vector3 dir))
+                {
+                    lookAtLine.width = PathMarkerSize;
+                    lookAtLine.startPoint = startPoint;
+                    lookAtLine.endPoint = startPoint + dir * 15;
+                    lookAtLine.RefreshGeometry();
                 }
             }
         }

@@ -119,6 +119,10 @@ namespace CameraTools
                 // CapturingPath will be updated in CaptureManager.OnLateUpdate
                 ViewingPath.OnLateUpdate(Time.deltaTime);
             }
+            else if (UIWindow.EditingPath != null && UIWindow.EditingPath != CaptureManager.CapturingPath)
+            {
+                UIWindow.EditingPath.OnLateUpdate(Time.deltaTime);
+            }
 
             if (ModConfig.PlayCurrentPathShortcut.Value.IsDown() && UIWindow.EditingPath != null)
             {
