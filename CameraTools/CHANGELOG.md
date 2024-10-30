@@ -1,3 +1,9 @@
+#### v0.6.3
+- Path: Add white line preview to show the camera angle in current progression.
+- Fix Dark Fog hive doesn't show up in capturing.
+- Path config now show the current editing path name in title.
+- Multiple UI bugfix.
+
 #### v0.6.2
 - Path: Change UI layout. Add preview option in the config window.
 - Path: Fix camera path preview doesn't show correctly in space.

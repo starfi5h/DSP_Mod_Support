@@ -16,7 +16,7 @@ namespace CameraTools
     {
         public const string GUID = "starfi5h.plugin.CameraTools";
         public const string NAME = "CameraTools";
-        public const string VERSION = "0.6.2";
+        public const string VERSION = "0.6.3";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
