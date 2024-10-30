@@ -13,6 +13,7 @@ namespace CameraTools
         public static ConfigEntry<int> ScreenshotWidth;
         public static ConfigEntry<int> ScreenshotHeight;
         public static ConfigEntry<int> JpgQuality;
+        public static ConfigEntry<bool> UseSubfolder;
 
         public static ConfigEntry<float> VideoOutputFps;
         public static ConfigEntry<string> VideoFolderPath;
@@ -29,7 +30,6 @@ namespace CameraTools
 
         // Image cature paramters
         static int fileIndex;
-        static bool useSubfolder = true;
         readonly static string subfolderFormatString = "MMdd_HHmmss";
         readonly static string fileFormatString = "{0:D6}.jpg";
 
@@ -56,6 +56,8 @@ namespace CameraTools
                 "Resolution height of timelapse screenshots");
             JpgQuality = config.Bind("- TimeLapse -", "JPG Quality", 95,
                 new ConfigDescription("Quality of screenshots", new AcceptableValueRange<int>(0, 100)));
+            UseSubfolder = config.Bind("- TimeLapse -", "Use Subfolder", true,
+                "Screenshot will be saved in the subfolder in Datetime foramt MMdd_HHmmss");
 
             VideoOutputFps = config.Bind("- Video Recording -", "Output FPS", 24f,
                 "Frame rate of output video");
@@ -156,6 +158,10 @@ namespace CameraTools
                 GameMain.data.localPlanet.factoryModel.DrawInstancedBatches(camera, true); // Fix building flicker
                 GameMain.data.localPlanet.factoryModel.gpuiManager.renderVegetable = renderVegetable;
             }
+            if (GameMain.data.spaceSector != null)
+            {
+                GameMain.data.spaceSector.model.DrawInstancedBatches(camera, true);
+            }
             //camera.Render();
             return texture2D;
         }
@@ -184,7 +190,7 @@ namespace CameraTools
                 }
                 if (GameMain.data.spaceSector != null)
                 {
-                    //GameMain.data.spaceSector.model.DrawInstancedBatches(camera, true);
+                    GameMain.data.spaceSector.model.DrawInstancedBatches(camera, true);
                 }
                 camera.Render();
                 //Plugin.Log.LogDebug("Render: \t" + stopwatch.duration);
@@ -275,7 +281,7 @@ namespace CameraTools
                         return;
                     }
 
-                    if (useSubfolder && !videoRecordingEnabled)
+                    if (UseSubfolder.Value && !videoRecordingEnabled)
                     {
                         try
                         {
@@ -334,7 +340,7 @@ namespace CameraTools
                         ffmpegSession.Stop();
                         ffmpegSession = null;
                     }
-                    if (useSubfolder)
+                    if (UseSubfolder.Value)
                     {
                         fileIndex = 0;
                     }
@@ -425,7 +431,7 @@ namespace CameraTools
                     statusText = ex.ToString();
                 }
             }
-            useSubfolder = GUILayout.Toggle(useSubfolder, "Auto Create Subfolder".Translate());
+            UseSubfolder.Value = GUILayout.Toggle(UseSubfolder.Value, "Auto Create Subfolder".Translate());
             if (GUILayout.Button("Reset File Index".Translate() + $" [{fileIndex}]"))
             {
                 fileIndex = 0;

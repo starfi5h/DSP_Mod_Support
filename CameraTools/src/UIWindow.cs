@@ -136,7 +136,7 @@ namespace CameraTools
 
             if (EditingPath != null)
             {
-                pathConfigWindow = GUI.Window(1307890673, pathConfigWindow, PathConfigWindowFunc, "Path Config".Translate() + $" [{EditingPath.Index}]");
+                pathConfigWindow = GUI.Window(1307890673, pathConfigWindow, PathConfigWindowFunc, "Path Config".Translate() + $" [{EditingPath.Index}] {EditingPath.Name}");
                 HandleDrag(1307890673, ref pathConfigWindow);
             }
 
@@ -214,7 +214,6 @@ namespace CameraTools
             if (GUILayout.Button("X"))
             {
                 TogglePathConfigWindow();
-                pathListWindowActivated = false;
             }
             GUILayout.EndArea();
 
@@ -242,7 +241,7 @@ namespace CameraTools
         static void PathListWindowFunc(int id)
         {
             GUILayout.BeginArea(new Rect(pathListWindow.width - 27f, 1f, 25f, 16f));
-            if (GUILayout.Button("X") || EditingPath == null)
+            if (GUILayout.Button("X"))
             {
                 TogglePathListWindow();
                 return;
@@ -250,11 +249,14 @@ namespace CameraTools
             GUILayout.EndArea();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"[{EditingPath.Index}]", GUILayout.MaxWidth(20));
-            string name = GUILayout.TextField(EditingPath.Name);
-            if (name != EditingPath.Name)
+            if (EditingPath != null)
             {
-                EditingPath.Name = name;
+                GUILayout.Label($"[{EditingPath.Index}]", GUILayout.MaxWidth(20));
+                string name = GUILayout.TextField(EditingPath.Name);
+                if (name != EditingPath.Name)
+                {
+                    EditingPath.Name = name;
+                }
             }
             GUILayout.EndHorizontal();
 
@@ -269,7 +271,12 @@ namespace CameraTools
 
                 if (path != EditingPath)
                 {
-                    if (GUILayout.Button("Load".Translate(), GUILayout.MaxWidth(60))) EditingPath = path;
+                    if (GUILayout.Button("Load".Translate(), GUILayout.MaxWidth(60)))
+                    {
+                        EditingPath = path;
+                        EditingTarget = null;
+                        GizmoManager.OnPathChange();
+                    }
                 }
                 else
                 {

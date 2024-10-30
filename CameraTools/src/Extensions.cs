@@ -84,7 +84,7 @@ namespace CameraTools
             { "Speed(°/s)", "速度(°/s)" },
             { "Period(s)", "周期(s)" },
             { "Marker Size", "标记大小" },
-            { "Set to mecha Position", "設為當前機甲位置" },
+            { "Set to mecha Position", "设为当前机甲位置" },
             { "Undo", "撤消" },
             { "Local Mecha Coordinates Info", "机甲本地座标信息" },
             { "xyz:\t", "直角坐标:\t" },

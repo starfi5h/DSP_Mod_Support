@@ -215,7 +215,7 @@ namespace CameraTools
                 Util.AddFloatFieldInput("Marker Size".Translate(), ref GizmoManager.TargetMarkerSize, 1f);
 
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Set to mecha Position".Translate()))
+                if ((Type == TargetType.Local || Type == TargetType.Space) && GUILayout.Button("Set to mecha Position".Translate()))
                 {
                     switch (Type)
                     {
