@@ -94,7 +94,9 @@ ffmpeg -framerate 24 -i %06d.jpg -s 1920x1080 output.mp4
 ![record video window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-video-window.png)  
 To record video, you need to install ffmpeg first and add it into PATH environment variables.  
 Then set the video save folder path. The video will store in the folder with name format `MMdd_HH-mm-ss.mp4`.  
-`Sync UPS` means the timer will use UPS time (in-game) instead of FPS time (Unity Time).  
+- `Sync Progress`: the recording session will be sync with camera path duration. It will auto stop when the path progression reach the end.  
+  The selecting path progress will be control by the recording state too. Disable this option if you want to alter the progress freely.
+- `Sync UPS`: the timer will use UPS time (in-game) instead of FPS time (Unity Time).  
 When the time interval is set to 0, it will caputred every screen update frame.  
 - Video Extension: Default format is `.mp4`
 - FFmpeg Options: FFmpeg options that apply to the output file.

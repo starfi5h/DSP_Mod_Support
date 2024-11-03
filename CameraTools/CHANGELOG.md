@@ -1,3 +1,6 @@
+#### v0.6.5
+- Record: Add "Sync Progress" option.
+
 #### v0.6.4
 - Add "Lock Player Position" option in config window. This will stop player movement even when not viewing camera.  
 - Add pink line to indicate the keyframe camera direction in path preview.

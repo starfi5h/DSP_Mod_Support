@@ -103,6 +103,7 @@ namespace CameraTools
             { "Pause", "暂停" },
             { "Resume", "继续" },
             { "Stop", "停止" },
+            { "Sync Progress", "同步进度" },
             { "Sync UPS", "同步逻辑帧率" },
 
             { "Select", "选取" },

@@ -25,7 +25,9 @@ namespace CameraTools
         static bool recording;   //是否在錄製中
         static float timer;      //累積計時器
         static bool syncUPS;     //同步邏輯幀
+        static bool syncProgress = true; //同步播放進度
         static double lastTimeF; //上次邏輯幀的時間timef
+        static bool inSession;   //還在錄製區段中
         static string folderPath = ""; //儲存截圖/錄製影片的資料夾
 
         // Image cature paramters
@@ -80,7 +82,7 @@ namespace CameraTools
 
         public static void OnLateUpdate()
         {
-            if (!recording || GameMain.isPaused) return;
+            if ((syncProgress && !recording) || GameMain.isPaused) return;
 
             float deltaTime = Time.deltaTime;
             if (syncUPS)
@@ -88,11 +90,13 @@ namespace CameraTools
                 deltaTime = (float)(GameMain.instance.timef - lastTimeF);
                 lastTimeF = GameMain.instance.timef;
             }
-            if (deltaTime < float.Epsilon) return; // logic frame does not advance            
+            if (deltaTime < float.Epsilon) return; // logic frame does not advance
             if (CapturingPath != null)
             {
                 CapturingPath.OnLateUpdate(deltaTime);
             }
+            if (!recording) return;
+
             timer += deltaTime;
             if (timer >= TimeInterval.Value)
             {
@@ -119,6 +123,11 @@ namespace CameraTools
                 {
                     var fileName = Path.Combine(folderPath, string.Format(fileFormatString, fileIndex++));
                     EncodeAndSave(texture2D, fileName, JpgQuality.Value);
+                }
+
+                if (syncProgress && CapturingPath is { IsPlaying: false })
+                {
+                    StopRecordSession();
                 }
             }
         }
@@ -229,7 +238,7 @@ namespace CameraTools
                     stopwatch.Begin();
                     var bytes = texture2D.EncodeToJPG(jpgQuality);
                     statusText = $"[{fileIndex:D6}.jpg] {stopwatch.duration*1000}ms";
-                    Plugin.Log.LogDebug(statusText);
+                    //Plugin.Log.LogDebug(statusText);
                     File.WriteAllBytes(fileName, bytes);
                 }
                 catch (Exception ex)
@@ -242,6 +251,82 @@ namespace CameraTools
                 };
             });
         }
+
+
+        static void StartRecordSession()
+        {
+            folderPath = videoRecordingEnabled ? VideoFolderPath.Value : ScreenshotFolderPath.Value;
+            if (!Directory.Exists(folderPath))
+            {
+                statusText = "The folder doesn't exist!";
+                return;
+            }
+
+            if (UseSubfolder.Value && !videoRecordingEnabled)
+            {
+                try
+                {
+                    folderPath = Path.Combine(folderPath, DateTime.Now.ToString(subfolderFormatString));
+                    Directory.CreateDirectory(folderPath);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogWarning(ex);
+                    statusText = "Error when creating the subfolder!" + ex.Message;
+                    folderPath = "";
+                    return;
+                }
+            }
+
+            if (videoRecordingEnabled)
+            {
+                string videoPath = Path.Combine(folderPath, DateTime.Now.ToString(videoFileFormat) + VideoExtension.Value);
+                int videoWidth = ScreenshotWidth.Value;
+                int videoHeight = ScreenshotHeight.Value;
+                float fps = VideoOutputFps.Value;
+                string extraArgs = VideoFFmpegOptions.Value;
+
+                try
+                {
+                    ffmpegSession = new FFmpegSession(videoPath, videoWidth, videoHeight, fps, extraArgs);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex);
+                    statusText = "Error when starting ffmpeg!" + ex.Message;
+                    ffmpegSession = null;
+                    return;
+                }
+            }
+
+            recording = true;
+            timer = TimeInterval.Value;
+            lastTimeF = GameMain.instance.timef;
+            inSession = true;
+            if (syncProgress && CapturingPath != null)
+            {
+                CapturingPath.TogglePlayButton(false, true);
+            }
+        }
+
+        static void StopRecordSession()
+        {
+            recording = false;
+            timer = 0f;
+            lastTimeF = 0f;
+            inSession = false;
+            if (ffmpegSession != null)
+            {
+                ffmpegSession.Stop();
+                ffmpegSession = null;
+            }
+            if (UseSubfolder.Value)
+            {
+                fileIndex = 0;
+            }
+        }
+
+
 
         #region GUI
 
@@ -270,61 +355,16 @@ namespace CameraTools
         private static void PlayControlPanel()
         {
             GUILayout.BeginHorizontal();
-            if (lastTimeF == 0) // Haven't initial yet
+            if (!inSession) // Haven't initial yet
             {
                 if (GUILayout.Button("Start Record".Translate()))
                 {
-                    folderPath = videoRecordingEnabled ? VideoFolderPath.Value : ScreenshotFolderPath.Value;
-                    if (!Directory.Exists(folderPath))
-                    {
-                        statusText = "The folder doesn't exist!";
-                        return;
-                    }
-
-                    if (UseSubfolder.Value && !videoRecordingEnabled)
-                    {
-                        try
-                        {
-                            folderPath = Path.Combine(folderPath, DateTime.Now.ToString(subfolderFormatString));
-                            Directory.CreateDirectory(folderPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Plugin.Log.LogWarning(ex);
-                            statusText = "Error when creating the subfolder!" + ex.Message;
-                            folderPath = "";
-                            return;
-                        }
-                    }
-
-                    if (videoRecordingEnabled)
-                    {
-                        string videoPath = Path.Combine(folderPath, DateTime.Now.ToString(videoFileFormat) + VideoExtension.Value);
-                        int videoWidth = ScreenshotWidth.Value;
-                        int videoHeight = ScreenshotHeight.Value;
-                        float fps = VideoOutputFps.Value;
-                        string extraArgs = VideoFFmpegOptions.Value;
-
-                        try
-                        {
-                            ffmpegSession = new FFmpegSession(videoPath, videoWidth, videoHeight, fps, extraArgs);
-                        }
-                        catch (Exception ex)
-                        {
-                            Plugin.Log.LogError(ex);
-                            statusText = "Error when starting ffmpeg!" + ex.Message;
-                            ffmpegSession = null;
-                            return;
-                        }
-                    }
-
-                    recording = true;
-                    timer = TimeInterval.Value;
-                    lastTimeF = GameMain.instance.timef;
+                    StartRecordSession();
                 }
-                syncUPS = GUILayout.Toggle(syncUPS, "Sync UPS".Translate());
+                syncProgress = GUILayout.Toggle(syncProgress, "Sync Progress".Translate());
+                syncUPS = GUILayout.Toggle(syncUPS, "Sync UPS".Translate());                
             }
-            else // Is Running
+            else // Is running in session
             {
                 if (GUILayout.Button(recording ? "Pause".Translate() : "Resume".Translate()))
                 {
@@ -332,18 +372,7 @@ namespace CameraTools
                 }
                 if (GUILayout.Button("Stop".Translate()))
                 {
-                    recording = false;
-                    timer = 0f;
-                    lastTimeF = 0f;
-                    if (ffmpegSession != null)
-                    {
-                        ffmpegSession.Stop();
-                        ffmpegSession = null;
-                    }
-                    if (UseSubfolder.Value)
-                    {
-                        fileIndex = 0;
-                    }
+                    StopRecordSession();
                 }
                 string countDonwText = string.Format("Next: {0:F1}s".Translate(), (TimeInterval.Value - timer));
                 if (syncUPS) countDonwText += " (UPS)";

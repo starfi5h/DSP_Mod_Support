@@ -15,6 +15,7 @@ namespace CameraTools
         public bool Preview => preview & !HideGUI;
         public CameraPose CamPose => camPose;
         public VectorLF3 UPosition => uPosition;
+        public float Progression => progression;
 
         readonly List<CameraPoint> cameras = new();
         readonly List<float> keyTimes = new();
@@ -114,13 +115,13 @@ namespace CameraTools
             }
         }
 
-        public void TogglePlayButton()
+        public void TogglePlayButton(bool showView, bool forcePlay = false)
         {
-            IsPlaying = !IsPlaying;
+            IsPlaying = !IsPlaying | forcePlay;
             if (IsPlaying)
             {
                 // Do not auto switch to view when previewing the path
-                if (!preview)
+                if (!preview & showView)
                 {
                     Plugin.ViewingCam = null;
                     Plugin.ViewingPath = this;
@@ -368,7 +369,7 @@ namespace CameraTools
             }
             if (GUILayout.Button(IsPlaying ? "||" : "▶︎", GUILayout.MaxWidth(40)))
             {
-                TogglePlayButton();
+                TogglePlayButton(true);
             }
             if (GUILayout.Button(">>|", GUILayout.MaxWidth(40)))
             {
