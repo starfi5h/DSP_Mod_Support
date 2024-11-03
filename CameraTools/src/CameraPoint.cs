@@ -73,7 +73,13 @@ namespace CameraTools
                 CamPose = Plugin.ViewingCam.CamPose;
                 return;
             }
-            UPosition = Vector3.zero;
+            else if (Plugin.ViewingPath != null)
+            {
+                UPosition = Plugin.ViewingPath.UPosition;
+                CamPose = Plugin.ViewingPath.CamPose;
+                return;
+            }
+            UPosition = GameMain.mainPlayer?.uPosition ?? Vector3.zero;
             CamPose = GameCamera.instance.finalPoser.cameraPose;
         }
 
@@ -84,6 +90,12 @@ namespace CameraTools
             {
                 UPosition = Plugin.ViewingCam.UPosition;
                 CamPose = Plugin.ViewingCam.CamPose;
+                return;
+            }
+            else if (Plugin.ViewingPath != null)
+            {
+                UPosition = Plugin.ViewingPath.UPosition;
+                CamPose = Plugin.ViewingPath.CamPose;
                 return;
             }
             UPosition = GameMain.mainPlayer?.uPosition ?? Vector3.zero;
@@ -115,10 +127,12 @@ namespace CameraTools
             switch (cameraType)
             {
                 case CameraType.Planet:
-                    var pos = CamPose.pose.position;
-                    return $"P({pos.x:F0},{pos.y:F0},{pos.z:F0})";
+                    return "(P)";
+                    //var pos = CamPose.pose.position;
+                    //return $"P({pos.x:F0},{pos.y:F0},{pos.z:F0})";
                 case CameraType.Space:
-                    return $"S({UPosition.x:F0},{UPosition.y:F0},{UPosition.z:F0})";
+                    return "(S)";
+                    //return $"S({UPosition.x:F0},{UPosition.y:F0},{UPosition.z:F0})";
             }
             return "";
         }

@@ -1,3 +1,8 @@
+#### v0.6.4
+- Add "Lock Player Position" option in config window. This will stop player movement even when not viewing camera.  
+- Add pink line to indicate the keyframe camera direction in path preview.
+- Adjust camera list UI.
+
 #### v0.6.3
 - Path: Add white line preview to show the camera angle in current progression.
 - Fix Dark Fog hive doesn't show up in capturing.

@@ -367,16 +367,21 @@ namespace CameraTools
 
                     // View, Edit, Remove
                     GUILayout.BeginHorizontal();
-                    bool isViewing = Plugin.ViewingCam == camera;
-                    if (GUILayout.Button(isViewing ? "[Viewing]".Translate() : "View".Translate()))
+                    if (Plugin.ViewingCam == camera)
                     {
-                        if (isViewing) Plugin.ViewingCam = null;
-                        else if (!camera.CanView) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
-                        else
+                        if (GUILayout.Button("[Viewing]".Translate())) Plugin.ViewingCam = null;
+                    }
+                    else if (camera.CanView)
+                    {
+                        if (GUILayout.Button("View".Translate()))
                         {
                             Plugin.ViewingCam = camera;
                             Plugin.LastViewCam = camera;
                         }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Unavailable".Translate())) UIRealtimeTip.Popup("Camera type mismatch to current environment!".Translate());
                     }
                     if (EditingCam == camera)
                     {

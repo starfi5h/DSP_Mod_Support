@@ -18,6 +18,7 @@ namespace CameraTools
         static readonly List<VectorLF3> cameraUPointList = new();
         static GameObject cameraObjGroup;
         static readonly List<GameObject> cameraObjs = new();
+        static readonly List<GameObject> cameraDirObjs = new();
         static float lastUpdateTime;
         static bool hasErrored;
 
@@ -90,17 +91,27 @@ namespace CameraTools
                     var camGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     camGo.GetComponent<MeshRenderer>().material = null;
                     camGo.transform.parent = cameraObjGroup.transform;
+                    camGo.transform.localScale = Vector3.one * PathCameraCubeSize;
                     cameraObjs.Add(camGo);
+                    var dirGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    dirGo.GetComponent<MeshRenderer>().material = null;
+                    dirGo.transform.parent = cameraObjGroup.transform;
+                    dirGo.transform.localScale = new Vector3(0.5f, 0.5f, PathCameraCubeSize * 3);
+                    cameraDirObjs.Add(dirGo);
                 }
                 cameraCount = UIWindow.EditingPath.SetCameraPoints(cameraObjs, cameraUPointList);
                 for (int i = 0; i < cameraCount; i++)
                 {
-                    cameraObjs[i].transform.localScale = Vector3.one * PathCameraCubeSize;
+                    //cameraObjs[i].transform.localScale = Vector3.one * PathCameraCubeSize;
                     cameraObjs[i].SetActive(true);
+                    cameraDirObjs[i].transform.localPosition = cameraObjs[i].transform.localPosition + (cameraObjs[i].transform.rotation * Vector3.forward * PathCameraCubeSize);
+                    cameraDirObjs[i].transform.rotation = cameraObjs[i].transform.rotation;
+                    cameraDirObjs[i].SetActive(true);
                 }
                 for (int i = cameraCount; i < cameraObjs.Count; i++)
                 {
                     cameraObjs[i].SetActive(false);
+                    cameraDirObjs[i].SetActive(false);
                 }
             }
         }
@@ -161,6 +172,7 @@ namespace CameraTools
                 for (int i = 0; i < cameraUPointList.Count; i++)
                 {
                     cameraObjs[i].transform.position = cameraUPointList[i] - GameMain.mainPlayer.uPosition;
+                    cameraDirObjs[i].transform.position = cameraUPointList[i] - GameMain.mainPlayer.uPosition;
                 }
             }
             if (lookAtLine == null)

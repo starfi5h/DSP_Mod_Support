@@ -13,6 +13,8 @@ namespace CameraTools
         public static bool Loop { get; private set; }
         public bool HideGUI => hideGUI & IsPlaying;
         public bool Preview => preview & !HideGUI;
+        public CameraPose CamPose => camPose;
+        public VectorLF3 UPosition => uPosition;
 
         readonly List<CameraPoint> cameras = new();
         readonly List<float> keyTimes = new();

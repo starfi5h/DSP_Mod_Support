@@ -16,7 +16,7 @@ namespace CameraTools
     {
         public const string GUID = "starfi5h.plugin.CameraTools";
         public const string NAME = "CameraTools";
-        public const string VERSION = "0.6.3";
+        public const string VERSION = "0.6.4";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
@@ -26,6 +26,7 @@ namespace CameraTools
         public static CameraPoint LastViewCam { get; set; }
         public static CameraPath ViewingPath { get; set; }
         public static FreePointPoser FreePoser { get; set; }
+        public static bool DisableMechaMovement { get; set; }
 
         Harmony harmony;
 
@@ -207,10 +208,36 @@ namespace CameraTools
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
-        static bool DisableUposUpdate()
+        static bool DisableUposUpdate(PlayerController __instance)
         {
+            if (DisableMechaMovement)
+            {
+                __instance.ClearForce();
+                return false;
+            }
+            if (GameMain.localPlanet != null || !ModConfig.MovePlayerWithSpaceCamera.Value || (ViewingCam == null && ViewingPath == null))
+            {
+                return true;
+            }
             // Disable force & upos update when overwriting mecha position in space
-            return GameMain.localPlanet != null || !ModConfig.MovePlayerWithSpaceCamera.Value || (ViewingCam == null && ViewingPath == null);
+            __instance.ClearForce();
+            return false;
+        }
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerAnimator), nameof(PlayerAnimator.GamePauseLogic))]
+        static bool GamePauseLogic_Prefix(PlayerAnimator __instance, ref bool __result)
+        {
+            if (DisableMechaMovement)
+            {
+                // freeze mecha animation 
+                __instance.PauseAllAnimations();
+                __instance.motorBone.localPosition = Vector3.zero;
+                __result = true;
+                return false;
+            }
+            return true;
         }
 
         [HarmonyPrefix]

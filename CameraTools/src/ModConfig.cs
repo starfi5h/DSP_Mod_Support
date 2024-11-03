@@ -123,6 +123,7 @@ namespace CameraTools
             Util.AddKeyBindField(CycleNextCameraShortcut);
             Util.AddKeyBindField(PlayCurrentPathShortcut);            
             Util.ConfigToggleField(MovePlayerWithSpaceCamera);
+            Plugin.DisableMechaMovement = GUILayout.Toggle(Plugin.DisableMechaMovement, "Lock Player Position (tmp)".Translate());
             Util.AddFloatFieldInput("Path Preview Size".Translate(), ref GizmoManager.PathMarkerSize, 1f);
             if (GUILayout.Button("Reset Windows Position".Translate())) UIWindow.LoadWindowPos(true);
         }
