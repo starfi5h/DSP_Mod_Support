@@ -62,6 +62,7 @@ When the DEBUG tracking mode is on, the navigate button will change color. In th
 
 
 ## ChangeLogs
+- v1.2.3: Highlight plugin name on stacktrace.  
 - v1.2.2: Add config. Suppress `CargoTraffic.PickupBeltItems` error in debug tracking mode.  
 - v1.2.1: Suppress `CargoTraffic.SetBeltState` and `CargoContainer.RemoveCargo` error in debug tracking mode to dismantle the belts.  
 - v1.2.0: Add close button and navi button. (DSP 0.10.30.23350)  

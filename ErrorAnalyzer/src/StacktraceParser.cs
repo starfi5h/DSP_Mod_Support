@@ -16,7 +16,7 @@ namespace ErrorAnalyzer
         public static bool ShowAllPatches { get; set; } = false;
 
         static bool IsChecked = false;
-        static Dictionary<string, List<MethodBase>> patchMap = null;
+        static Dictionary<string, List<MethodBase>> patchMap = null; // key: declaring type full name
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIFatalErrorTip), "_OnClose")]
@@ -150,13 +150,15 @@ namespace ErrorAnalyzer
                 PatchesToString(sb, method.Name, "Transpiler", patchInfo.Transpilers);
                 Plugin.Log.LogDebug(method.Name + " owners:" + patchInfo.Owners.Count);
             }
+            string modNames = GetBepInexNamesFromTypeNames(stackTypeNames);
 
-            if (sb.Length > 0)
+            if (sb.Length > 0 || !string.IsNullOrEmpty(modNames))
             {
-                sb.Insert(0, "\n[== Mod patches on the stack ==]\n");
+                sb.Insert(0, $"\n[== Mod patches on the stack ==]{modNames}\n");
             }
-            if (firstClassModifiedMethods?.Count > 0)
+            if (firstClassModifiedMethods?.Count > 0 && (stackTypeNames[0] != "VFPreload" && stackTypeNames[0] != "GameData"))
             {
+                // Too many mods hook on VFPreload.InvokeOnLoadWorkEnded and GameData.GameTick, thus skip them
                 HashSet<string> modFullTypeNames = new();
                 sb.AppendLine($"\n[== Mod patches to {stackTypeNames[0]} ==]");
                 foreach (var method in firstClassModifiedMethods)
@@ -172,6 +174,28 @@ namespace ErrorAnalyzer
                 }
             }
             return sb.ToString();
+        }
+
+        private static string GetBepInexNamesFromTypeNames(List<string> stackTypeNames)
+        {
+            // Test if namespace of methods on stacktrack is same as BepInEx plugin name
+            var pluginNames = new HashSet<string>();
+            foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos.Values)
+            {
+                pluginNames.Add(pluginInfo.Metadata.Name);
+            }
+            var resultString = "";
+            foreach (var typeName in stackTypeNames)
+            {
+                var dotIndex = typeName.IndexOf('.');
+                var namespaceName = dotIndex != -1 ? typeName.Substring(0, dotIndex) : typeName;
+                if (pluginNames.Contains(namespaceName))
+                {
+                    resultString += " " + namespaceName;
+                    pluginNames.Remove(namespaceName); // Prevent duplication
+                }
+            }
+            return resultString;
         }
 
         private static void GetNames(HashSet<string> modNameSpaces, ReadOnlyCollection<Patch> patches)
@@ -236,7 +260,7 @@ namespace ErrorAnalyzer
                 return;
             flag = true;
             int a = 0;
-            int b = 1 / a;
+            //int b = 1 / a;
         }
 #endif
 

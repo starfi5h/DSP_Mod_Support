@@ -16,7 +16,7 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.2.2";
+        public const string VERSION = "1.2.3";
 
         public static ManualLogSource Log;
         public static bool isRegisitered;
@@ -32,7 +32,11 @@ namespace ErrorAnalyzer
             var showFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)").Value;
             var dumpPatchMap = Config.Bind("Message", "Dump All Patches", false, "Dump Harmony patches of all mods when the game load in BepInEx\\LogOutput.log").Value;
 
-            if (!Chainloader.PluginInfos.TryGetValue("dsp.nebula-multiplayer", out var _))
+            if (Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer"))
+            {
+                Log.LogInfo("Skip patching UIFatalErrorTip_Patch for Nebula is enabled");
+            }
+            else
             {
                 try
                 {
@@ -46,7 +50,7 @@ namespace ErrorAnalyzer
                     Log.LogError(e);
                 }
             }
-            if (!Chainloader.PluginInfos.TryGetValue("NebulaCompatibilityAssist", out var _))
+
             {
                 try
                 {
@@ -58,6 +62,7 @@ namespace ErrorAnalyzer
                     Log.LogError(e);
                 }
             }
+
             if (enableDebug)
             {
                 TrackEntity_Patch.Enable(true);
