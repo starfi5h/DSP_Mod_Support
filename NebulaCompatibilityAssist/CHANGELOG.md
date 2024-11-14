@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.4.21 (Nebula 0.9.11)
+\- Update UXAssist v1.2.8 compat  
+\- Add GenesisBook v3.0.10 comopat for quantum depot  
+\- Remove stacktracer as it is overlapped with ErrorAnalyzer.  
+
 #### v0.4.20 (Nebula 0.9.11)
 \- Suppress NRE in SphereOpt.InstDysonShellRenderer.RenderShells  
 
@@ -35,6 +40,9 @@
 \- Fix NRE in NebulaPatcher.Patches.Transpilers.UIStatisticsWindow_Transpiler+<>c.<ComputePowerTab_Transpiler>b__2_9 (System.Int64 factoryIndex) [0x00025]  
 \- Suppress IndexOutOfRangeException in EnemyDFGroundSystem.CalcFormsSupply  
 
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.4.13 (Nebula 0.9.6)
 \- Fix IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
 \- Fix NRE in Bomb_Explosive.TickSkillLogic(IL_03BE)  
@@ -52,9 +60,6 @@
 \- Fix Last Save Time to use real world time  
 \- Add SphereOpt v0.9.1 compat  
 \- Add UXAssist v1.0.26 compat  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.4.9 (Nebula 0.9.4)
 \- Fix `NgrokManager.IsNgrokActive` crash  

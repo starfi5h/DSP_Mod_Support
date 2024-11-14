@@ -2,6 +2,7 @@
 
 Nebula 0.9.11 hotfix:  
 - Suppress tutorial tips so they don't show up everytime players join the game  
+- Chat window will send the message instead of closing when using "Enter" as chat window hotkey
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -36,6 +37,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
+
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP)
+- Partially support Quantum Depot syncing: Build, Manual User interaction, Transport in the same planet
+- Interplanetary cargo transport in Quantum Depot is not supported yet. Client may see different result.
 
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - Client can now see all ILS stations when choosing system/global tab.  
@@ -113,6 +118,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - 让客机能显示远端星球的建物讯息(需求主机也安装mod)  
+
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP)
+- 部分支持量子箱同步功能：建造、手动用户交互、同一星球内运输
+- 量子箱的跨星球运送尚不支持。客机可能会看到不同的结果。
 
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - 让客机显示所有星际物流塔的内容  
