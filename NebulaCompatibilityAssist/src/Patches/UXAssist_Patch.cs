@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "UXAssist";
         public const string GUID = "org.soardev.uxassist";
-        public const string VERSION = "1.2.4";
+        public const string VERSION = "1.2.8";
 
         public static void Init(Harmony harmony)
         {
@@ -36,11 +36,11 @@ namespace NebulaCompatibilityAssist.Patches
                 harmony.Patch(AccessTools.Method(classType, "BuildOrbitalCollectors"), null, null,
                     new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(BuildOrbitalCollectors_Transpiler))));
 
-                classType = assembly.GetType("UXAssist.Patches.DysonSpherePatch");
+                classType = assembly.GetType("UXAssist.Functions.DysonSphereFunctions");
 
                 // 戴森球 - 初始化戴森球/快速拆除戴森壳
-                harmony.Patch(AccessTools.Method(classType, "InitCurrentDysonSphere"),
-                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(InitCurrentDysonSphere_Prefix))));
+                harmony.Patch(AccessTools.Method(classType, "InitCurrentDysonLayer"),
+                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(InitCurrentDysonLayer_Prefix))));
 
                 classType = assembly.GetType("UXAssist.Patches.LogisticsPatch+LogisticsConstrolPanelImprovement");
 
@@ -112,9 +112,8 @@ namespace NebulaCompatibilityAssist.Patches
             return factory.AddPrebuildDataWithComponents(prebuild);
         }
 
-        public static void InitCurrentDysonSphere_Prefix(int index)
+        public static void InitCurrentDysonLayer_Prefix(StarData star, int index)
         {
-            var star = GameMain.localStar;
             if (star == null) return;
             if (NebulaModAPI.IsMultiplayerActive)
             {

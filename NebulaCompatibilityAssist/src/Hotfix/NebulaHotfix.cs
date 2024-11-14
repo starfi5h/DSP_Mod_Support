@@ -45,6 +45,12 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //PatchPacketProcessor(harmony);
                     //Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
+                if (nebulaVersion < new System.Version(0, 9, 12))
+                {
+                    harmony.PatchAll(typeof(Warper0911));
+                    //PatchPacketProcessor(harmony);
+                    Log.Info("Nebula new feature 0.9.11 - OK");
+                }
             }
             catch (Exception e)
             {
@@ -55,7 +61,6 @@ namespace NebulaCompatibilityAssist.Hotfix
             try
             {
                 ChatManager.Init(harmony);
-                harmony.PatchAll(typeof(Analysis.StacktraceParser));
                 harmony.PatchAll(typeof(SuppressErrors));
                 Log.Info("Nebula extra features - OK");
             }
@@ -167,101 +172,19 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    /*
-    public static class Warper0910
+    public static class Warper0911
     {
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(DFGBaseComponent_Transpiler), "LaunchCondition")]
-        static bool LaunchCondition(DFGBaseComponent @this, ref bool __result)
+        [HarmonyPatch(typeof(ChatWindow), nameof(ChatWindow.Toggle))]
+        static bool Toggle_Prefix(bool forceClosed, ChatWindow __instance)
         {
-            if (!Multiplayer.IsActive) return true;
-
-            // In MP, replace local_player_grounded_alive flag with the following condition
-            var planetId = @this.groundSystem.planet.id;
-            var players = Multiplayer.Session.Combat.Players;
-            for (var i = 0; i < players.Length; i++)
+            if (forceClosed == false && __instance.chatWindow.activeSelf && Config.Options.ChatHotkey.MainKey == KeyCode.Return)
             {
-                if (players[i].isAlive && players[i].planetId == planetId)
-                {
-                    @this.groundSystem.local_player_pos = players[i].position;
-                    Log.Debug($"Base attack LaunchCondition: player[{i}] planeId{planetId}");
-                    __result =  true;
-                    return false;
-                }
+                // If player set enter as toggle hotkey, add a check for defualt open => close action
+                // So if player is typing and hit enter, it won't close the chatwindow immediately
+                return string.IsNullOrEmpty(__instance.chatBox.text);
             }
-            __result = false;
-            return false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EnemyDFGroundSystem_Patch), "CanEraseBase_Prefix")]
-        static bool StopPatch()
-        {
-            // Disable as the half-growth base can't be destoryed
-            return false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.KeyTickLogic))]
-        static void FixClientBaseInvincible(EnemyDFGroundSystem __instance)
-        {
-            if (!Multiplayer.IsActive || Multiplayer.Session.IsServer) return;
-
-            var cursor = __instance.bases.cursor;
-            var baseBuffer = __instance.bases.buffer;
-            var enemyPool = __instance.factory.enemyPool;
-            for (int baseId = 1; baseId < cursor; baseId++)
-            {
-                var dfgbaseComponent = baseBuffer[baseId];
-                if (dfgbaseComponent == null || dfgbaseComponent.id != baseId) continue;
-                if (dfgbaseComponent.enemyId != 0 && enemyPool[dfgbaseComponent.enemyId].id == 0)
-                {
-                    // Note: isInvincible in enemy is used by Nebula client to note if the enemy is pending to get killed
-                    // isInvincible will get set back to true in EnemyDFGroundSystem.KeyTickLogic when base sp > 0
-                    // So we'll need to set isInvincible = true to let host's incoming KillEnemyFinally packet get executed
-                    //if (!enemyPool[dfgbaseComponent.enemyId].isInvincible) Log.Debug($"Base[{baseId}] isInvincible = true");
-                    enemyPool[dfgbaseComponent.enemyId].isInvincible = true;
-                }
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SkillSystem), nameof(SkillSystem.DamageGroundObjectByLocalCaster))]
-        public static void DamageGroundObjectByLocalCaster_Prefix(PlanetFactory factory, int damage, int slice, ref SkillTarget target, ref SkillTarget caster)
-        {
-            if (caster.type != ETargetType.Craft
-                || target.type != ETargetType.Enemy
-                || !Multiplayer.IsActive || Multiplayer.Session.Combat.IsIncomingRequest.Value) return;
-
-            if (factory == GameMain.localPlanet?.factory) // Sync for local planet combat drones
-            {
-                target.astroId = caster.astroId = GameMain.localPlanet.astroId;
-                var packet = new CombatStatDamagePacket(damage, slice, in target, in caster)
-                {
-                    // Change the caster to player as craft (space fleet) is not sync yet
-                    CasterType = (short)ETargetType.Player,
-                    CasterId = Multiplayer.Session.LocalPlayer.Id
-                };
-                Multiplayer.Session.Network.SendPacketToLocalPlanet(packet);
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SpaceSector), nameof(SpaceSector.RemoveEnemyWithComponents))]
-        public static void RemoveEnemyWithComponents_Prefix(SpaceSector __instance, int id)
-        {
-            // Fix IndexOutOfRangeException in SpaceSector.RemoveEnemyWithComponents IL_026A 
-            // This is due to combatStats is not sync in client
-
-            if (id != 0 && __instance.enemyPool[id].id != 0)
-            {
-                if (__instance.enemyPool[id].combatStatId != 0)
-                {
-                    if (__instance.enemyPool[id].combatStatId >= __instance.skillSystem.combatStats.cursor)
-                        __instance.enemyPool[id].combatStatId = 0;
-                }
-            }
+            return true;
         }
     }
-    */
 }
