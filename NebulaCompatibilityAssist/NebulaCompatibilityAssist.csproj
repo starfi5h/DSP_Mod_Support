@@ -50,6 +50,9 @@
     <Reference Include="PlanetFinder">
       <HintPath>reference\PlanetFinder-nstrip.dll</HintPath>
     </Reference>
+    <Reference Include="ProjectGenesis">
+      <HintPath>reference\ProjectGenesis-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="SphereOpt">
       <HintPath>reference\SphereOpt-nstrip.dll</HintPath>
     </Reference>

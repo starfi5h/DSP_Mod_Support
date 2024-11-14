@@ -52,8 +52,12 @@ namespace NebulaCompatibilityAssist.Patches
             DSPAutoSorter.Init(harmony);
             if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
                 AssemblerVerticalConstruction.Init(harmony);
+            if (config.Bind("Sync Patch", "GenesisBook", true, "Enable patching GenesisBook").Value)
+                GenesisBook_Patch.Init(harmony);
             if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
                 DSP_Battle_Patch.Init(harmony);
+            
+
 
             //GalacticScale_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
@@ -78,8 +82,10 @@ namespace NebulaCompatibilityAssist.Patches
                 message += warnMessage;
             }
 
+#if !DEBUG
             if (!string.IsNullOrEmpty(message))
                 UIMessageBox.Show(title, message, "确定".Translate(), 3);
+#endif
 
             initialized = true;
             Plugin.Instance.Version = Plugin.VERSION + RequriedPlugins;
