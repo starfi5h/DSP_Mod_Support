@@ -1,9 +1,8 @@
 # StatsUITweaks
 
-![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo4.jpg)  
+![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo1.jpg)  
 
 Adds QoL features to the statistics panel.  
-- Drag the slider to change time interval.  
 - Sort the astro list by system names.  
 - Type in the input field to filter the astro list.  
 - Custom prefix/postfix for planet/system names in the astro list. Use [Unity rich text](https://docs.unity3d.com/2018.4/Documentation/Manual/StyledText.html) to change text.  
@@ -29,8 +28,6 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
 | `HotkeyListDown`    | PageDown | Move to next item in astro list |
 | StatsUITweaks | | |
-| `SignificantDigits`| 0     | Significant figures of production/consumption (Default=0) |
-| `TimeSliderSlice`| 20      | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
 | PerformancePanel | | |
@@ -38,12 +35,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 
 ----
 
-![demo2](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo2.jpg)  
-
 增加统计面板UI的便利性
-
-- 可控时距  
-拉动滑杆可以将时间范围缩小至原本的100%~5%。可能会有些微误差
 
 - 以星系名称排序列表  
 原本游戏是以到达的先后顺序排列下拉清单列表中的星系。启用后会改以星系名称来排序
@@ -77,27 +69,9 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
 | StatsUITweaks | | |
-| `SignificantDigits`| 0       | 产量有效位数(默认=0) |
-| `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
 | PerformancePanel | | |
 | `FoldButton`      | true    | 在性能面板加入一个折叠饼图的按钮 |
 
 ![demo3](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo3.jpg)  
-
-## ChangeLogs
-
-\- v1.5.0: Move hotkey config to AstroBox category. Support Logistics Control Panel. (DSP 0.10.30.23350)  
-\- v1.4.5: Add `SignificantDigits` config option (DSP 0.10.29.22015)  
-\- v1.4.4: Add compat to Bottleneck's displayPerSecond. Support time slider in kill count (DSP 0.10.29.21950)  
-\- v1.4.3: Fix right-click on navi button. Display astorId and factoryIdx on its tip (DSP 0.10.29.21904)  
-\- v1.4.2: Fix star system duplicate in the filter with Bottleneck local system label (DSP 0.10.28.21172)  
-\- v1.4.1: Fix error in OnLocateButtonRightClick  
-\- v1.4.0: Add `DropDownCount` config option. Fix compat with Bottleneck 1.0.16  
-\- v1.3.1: Support DSP 0.10.28.20779 (no changes in functions)  
-\- v1.3.0: Add `FoldButton` config option.  
-\- v1.2.1: Fix astro list in outersapce.  
-\- v1.2.0: Add `TimeSliderSlice` config options. Fix error when opening dyson tab when there is only one system.  
-\- v1.1.0: Add `ListWidthOffeset`, `NumericPlanetNo`, prefixes & postfixes config options. Stretch histogram.  
-\- v1.0.0: Initial released. (DSP 0.9.27.15466)  
