@@ -9,13 +9,13 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
-        public static int SignificantDigits = 0;
-        public static int TimeSliderSlice = 20;
+        //public static int SignificantDigits = 0;
+        //public static int TimeSliderSlice = 20;
         public static int ListWidthOffeset = 70;
 
         static bool initialized;
         static bool enable;
-        static Slider timerSlider;
+        //static Slider timerSlider;
         static InputField filterInput;
         static UIButton locateBtn;
         static GameObject filterGo;
@@ -58,10 +58,12 @@ namespace StatsUITweaks
                 Utils.EnableRichText(__instance.dysonAstroBox);
                 Utils.EnableRichText(__instance.killAstroBox);
 
+                GameObject go;
                 Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                 GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
                 UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
 
+                /*
                 var go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
                 go.name = "CustomStats_Ratio";
                 go.transform.localPosition = new Vector3(-153f, 8f, 0);
@@ -74,6 +76,7 @@ namespace StatsUITweaks
                 timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
                 //tmp.transform.GetChild(1).GetComponent<Image>().color = new Color(0.3f, 1.0f, 1.0f, 0.47f); //改成亮藍色
                 go.SetActive(true);
+                */
 
                 filterGo = GameObject.Instantiate(inputObj, __instance.productAstroBox.transform);
                 filterGo.name = "CustomStats_Fliter";
@@ -114,7 +117,7 @@ namespace StatsUITweaks
 
         public static void OnDestory()
         {
-            GameObject.Destroy(timerSlider?.gameObject);
+            //GameObject.Destroy(timerSlider?.gameObject);
             GameObject.Destroy(filterInput?.gameObject);
             GameObject.Destroy(locateBtn?.gameObject);
             GameObject.Destroy(filterGo);
@@ -125,8 +128,8 @@ namespace StatsUITweaks
         static void OnTabButtonClick(UIStatisticsWindow __instance) // 切換頁面時, 重新設置UI元件的父元件
         {
             if (!enable) return;
-            if (__instance.timeBox != null)
-                timerSlider.gameObject.transform.SetParent(__instance.timeBox.transform);
+            //if (__instance.timeBox != null)
+            //    timerSlider.gameObject.transform.SetParent(__instance.timeBox.transform);
             if (__instance.astroBox != null)
             {
                 filterGo.transform.SetParent(__instance.astroBox.transform);
@@ -229,6 +232,7 @@ namespace StatsUITweaks
         {
             if (!__instance.isStatisticsTab || __instance.astroBox == null) return;
 
+            /*
             // 如果有不同名稱的項目有同一個data(Bottleneck本地系統), 則回復原本的itemIndex
             try
             {
@@ -245,6 +249,7 @@ namespace StatsUITweaks
                 Plugin.Log.LogDebug(e);
 #endif
             }
+            */
 
             if (locateBtn == null) return;
             var astroId = __instance.astroFilter;
@@ -264,6 +269,7 @@ namespace StatsUITweaks
 
         #region 時間範圍 
 
+        /*
         static void OnSliderChange(float value)
         {
             if (value < 1)
@@ -556,7 +562,7 @@ new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[
             }
             __instance.killText.text = __instance.ToLevelString(production, timeLevel);
         }
-
+        */
         #endregion
     }
 }

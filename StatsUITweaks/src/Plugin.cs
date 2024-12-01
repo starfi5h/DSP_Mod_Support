@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.5.0";
+        public const string VERSION = "1.6.0";
 
         public static ManualLogSource Log;
         public static ConfigEntry<bool> DisplayPerSecond;
@@ -35,15 +35,15 @@ namespace StatsUITweaks
             var HotkeyListUp = Config.Bind("AstroBox", "HotkeyListUp", KeyCode.PageUp, "Move to previous item in list.\n切换至列表中上一个项目");
             var HotkeyListDown = Config.Bind("AstroBox", "HotkeyListDown", KeyCode.PageDown, "Move to next item in list.\n切换至列表中下一个项目");
 
-            var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
-            var TimeSliderSlice = Config.Bind("StatsUITweaks", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
+            //var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
+            //var TimeSliderSlice = Config.Bind("StatsUITweaks", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
             var ListWidthOffeset = Config.Bind("StatsUITweaks", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
             var NumericPlanetNo = Config.Bind("StatsUITweaks", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
 
             var FoldButton = Config.Bind("PerformancePanel", "FoldButton", true, "Add a button to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
 
             // Bottleneck compatibility for displayPerSecond            
-            BottleneckCompat();
+            //BottleneckCompat();
 
             Utils.OrderByName = OrderByName.Value;
             Utils.DropDownCount = DropDownCount.Value;
@@ -54,8 +54,8 @@ namespace StatsUITweaks
             Utils.PlanetPrefix = PlanetPrefix.Value;
             Utils.PlanetPostfix = PlanetPostfix.Value;
 
-            StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
-            StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
+            //StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
+            //StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
 
             harmony = new Harmony(GUID);
@@ -65,24 +65,6 @@ namespace StatsUITweaks
             if (FoldButton.Value)
                 harmony.PatchAll(typeof(PerformancePanelPatch));
             harmony.PatchAll(typeof(UIControlPanelPatch));
-        }
-
-        static void BottleneckCompat()
-        {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("Bottleneck", out var pluginInfo))
-                return;
-
-            try
-            {
-                var assembly = pluginInfo.Instance.GetType().Assembly;
-                var pluginConfig = assembly.GetType("Bottleneck.PluginConfig");
-                DisplayPerSecond = (ConfigEntry<bool>)(AccessTools.Field(pluginConfig, "displayPerSecond")?.GetValue(null) ?? null);
-            }
-            catch (Exception e)
-            {
-                Log.LogWarning("Can't find Bottleneck.PluginConfig.displayPerSecond");
-                Log.LogWarning(e);
-            }
         }
 
 #if DEBUG
