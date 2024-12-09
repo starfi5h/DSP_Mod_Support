@@ -17,7 +17,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "GenesisBook";
         public const string GUID = "org.LoShin.GenesisBook";
-        public const string VERSION = "3.0.10";
+        public const string VERSION = "3.0.14";
 
         const int QuantumStorageSize = 80;
 

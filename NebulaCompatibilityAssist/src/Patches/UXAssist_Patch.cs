@@ -12,7 +12,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "UXAssist";
         public const string GUID = "org.soardev.uxassist";
-        public const string VERSION = "1.2.8";
+        public const string VERSION = "1.2.12";
 
         public static void Init(Harmony harmony)
         {
@@ -112,7 +112,7 @@ namespace NebulaCompatibilityAssist.Patches
             return factory.AddPrebuildDataWithComponents(prebuild);
         }
 
-        public static void InitCurrentDysonLayer_Prefix(StarData star, int index)
+        public static void InitCurrentDysonLayer_Prefix(StarData star, int layerId)
         {
             if (star == null) return;
             if (NebulaModAPI.IsMultiplayerActive)
@@ -121,7 +121,7 @@ namespace NebulaCompatibilityAssist.Patches
                 {
                     Type = NC_UXA_Packet.EType.InitDysonSphere,
                     Value1 = star.index, // dysonIndex
-                    Value2 = index // layerId (-1 => remove all)
+                    Value2 = layerId // layerId (-1 => remove all)
                 };
                 NebulaModAPI.MultiplayerSession.Network.SendPacket(packet);
             }

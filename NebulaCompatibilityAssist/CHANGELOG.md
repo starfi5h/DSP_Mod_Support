@@ -1,5 +1,11 @@
 # Changelog
 
+#### v0.4.22 (Nebula 0.9.12)
+\- Update UXAssist v1.2.12 compat
+
+<details>
+<summary>Previous Changelog</summary>
+
 #### v0.4.21 (Nebula 0.9.11)
 \- Update UXAssist v1.2.8 compat  
 \- Add GenesisBook v3.0.10 comopat for quantum depot  
@@ -39,9 +45,6 @@
 \- Fix multiplayer chat settings - `show battle message` doesn't work  
 \- Fix NRE in NebulaPatcher.Patches.Transpilers.UIStatisticsWindow_Transpiler+<>c.<ComputePowerTab_Transpiler>b__2_9 (System.Int64 factoryIndex) [0x00025]  
 \- Suppress IndexOutOfRangeException in EnemyDFGroundSystem.CalcFormsSupply  
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.4.13 (Nebula 0.9.6)
 \- Fix IndexOutOfRangeException in EnemyUnitComponent.RunBehavior_Defense_Ground(IL_028B)  
