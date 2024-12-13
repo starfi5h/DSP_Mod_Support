@@ -1,8 +1,15 @@
 # StatsUITweaks
 
-![demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo1.jpg)  
 
 Adds QoL features to the statistics panel.  
+![mainWindow](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/mainWindow.png)
+- Toggle to display production/consumption rate in per second.
+- Toggle to extend the histogram to 2.5x width.
+- Slider to change the time interval.
+- Set production/consumption rate and reference rate text font size larger.
+- Preserve product filter when switching time range or closing the window.
+
+![astroBox](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/astroBox.jpg)  
 - Sort the astro list by system names.  
 - Type in the input field to filter the astro list.  
 - Custom prefix/postfix for planet/system names in the astro list. Use [Unity rich text](https://docs.unity3d.com/2018.4/Documentation/Manual/StyledText.html) to change text.  
@@ -27,15 +34,29 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
 | `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
 | `HotkeyListDown`    | PageDown | Move to next item in astro list |
-| StatsUITweaks | | |
+| MainWindow | | |
+| `TimeSliderSlice` | 20     | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
+| `RateFontSize`    | 26     | Adjust the font size of production rate. (Vanilla=18) |
+| Other | | |
+| `FoldButton`      | true   | Add a button in perforamnce test panel to fold pie chart |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
-| PerformancePanel | | |
-| `FoldButton`      | true    | Add a button to fold pie chart |
 
 ----
 
 增加统计面板UI的便利性
+
+- Display /s  
+将生产/消耗速率以秒显示
+
+- Extend Graph  
+延伸直条图的宽度至2.5倍
+
+- 字体大小  
+将生产/消耗速率和参考速率的字体放大(18->26)
+
+- 保存过滤条件  
+在切换时间范围或关闭视窗时保存产物的过滤条件，再打开时不会重置
 
 - 以星系名称排序列表  
 原本游戏是以到达的先后顺序排列下拉清单列表中的星系。启用后会改以星系名称来排序
@@ -68,10 +89,12 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `PlanetPostfix`   |                | 星球名称后缀 |
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
-| StatsUITweaks | | |
+| MainWindow | | |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
+| `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
+| `RateFontSize`    | 26       | 生产速率和参考速率的字体大小(原版=18) |
+| Other | | |
+| `FoldButton`      | true     | 在性能面板加入一个折叠饼图的按钮 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
-| PerformancePanel | | |
-| `FoldButton`      | true    | 在性能面板加入一个折叠饼图的按钮 |
 
 ![demo3](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo3.jpg)  

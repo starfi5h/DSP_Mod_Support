@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.1 (DSP 0.10.31.24710)
+- Add `TimeSliderSlice`, `RateFontSize` config option
+- Add display per second, extend graph, preserve filter function
+- 加入`时间范围滑杆`, `速率字体大小`配置
+- 新增以秒显示, 延长直方图, 保存过滤条件等功能
+
 ## v1.6.0 (DSP 0.10.31.24646)
 - Remove `TimeSliderSlice`, `SignificantDigits` to adapt the new game version.
 - 适应游戏版本更新, 移除`时间范围滑杆`,`产量数字精度`功能

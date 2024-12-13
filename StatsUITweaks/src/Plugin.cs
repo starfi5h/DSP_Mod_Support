@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.0";
+        public const string VERSION = "1.6.1";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -35,11 +35,12 @@ namespace StatsUITweaks
             var HotkeyListDown = Config.Bind("AstroBox", "HotkeyListDown", KeyCode.PageDown, "Move to next item in list.\n切换至列表中下一个项目");
 
             //var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
-            var TimeSliderSlice = Config.Bind("StatsUITweaks", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
-            var ListWidthOffeset = Config.Bind("StatsUITweaks", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
-            var NumericPlanetNo = Config.Bind("StatsUITweaks", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
+            var TimeSliderSlice = Config.Bind("MainWindow", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
+            var ListWidthOffeset = Config.Bind("MainWindow", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
+            var RateFontSize = Config.Bind("MainWindow", "RateFontSize", 26, "Adjust the font size of production rate. (Vanilla=18)\n生产速率和参考速率的字体大小(原版=18)");
 
-            var FoldButton = Config.Bind("PerformancePanel", "FoldButton", true, "Add a button to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
+            var NumericPlanetNo = Config.Bind("Other", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
+            var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
 
             Utils.OrderByName = OrderByName.Value;
             Utils.DropDownCount = DropDownCount.Value;
@@ -53,6 +54,7 @@ namespace StatsUITweaks
             //StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
             StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
             StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
+            StatsWindowPatch.RateFontSize = RateFontSize.Value;
 
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(StatsWindowPatch));

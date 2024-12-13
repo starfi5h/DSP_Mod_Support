@@ -9,6 +9,7 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
+        public static bool PreserveFilter = true; //保存過濾條件
         public static int SignificantDigits = 3; //有效位數(每秒)
         public static int TimeSliderSlice = 20; //時間滑桿刻度
         public static int ListWidthOffeset = 70; //星球列表寬度
@@ -25,7 +26,10 @@ namespace StatsUITweaks
         static GameObject filterGo;
         static GameObject extendGraphGo;
 
-        [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnOpen))]
+        static string nameFilter;
+        static int rawMaterialFilter;
+        static int endProductFilter;
+
         public static void Init(UIStatisticsWindow __instance)
         {
             if (initialized) return;
@@ -172,6 +176,38 @@ namespace StatsUITweaks
             ExtendGraph = value;
         }
 
+        [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnOpen))]
+        static void OnOpen_Postfix(UIStatisticsWindow __instance)
+        {
+            Init(__instance);
+
+            if (PreserveFilter)
+            {
+                __instance.productNameInputField.text = nameFilter;
+                __instance.rawMaterialFilter = rawMaterialFilter;
+                __instance.endProductFilter = endProductFilter;
+                __instance.RefreshFilterTag();
+                __instance.ComputeDetailNextTick();
+            }
+        }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnClose))]
+        static void OnClose_Postfix(UIStatisticsWindow __instance)
+        {
+            if (PreserveFilter)
+            {
+                nameFilter = __instance.nameFilter;
+                rawMaterialFilter = __instance.rawMaterialFilter;
+                endProductFilter = __instance.endProductFilter;
+            }
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.OnProductAstroBoxItemIndexChanged))]
+        static bool PreventClearingFilter()
+        {
+            return !PreserveFilter; //阻止視窗在切換時間範圍時將過濾條件重設nameFilter, rawMaterialFilter, endProductFilter
+        }
+
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.OnTabButtonClick))]
         static void OnTabButtonClick(UIStatisticsWindow __instance) // 切換頁面時, 重新設置UI元件的父元件
         {
@@ -276,7 +312,7 @@ namespace StatsUITweaks
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ValueToAstroBox))]
-        static void RestoreItemIndex(UIStatisticsWindow __instance, int __state)
+        static void RestoreItemIndex(UIStatisticsWindow __instance)
         {
             if (!__instance.isStatisticsTab || __instance.astroBox == null) return;
 
@@ -634,10 +670,9 @@ namespace StatsUITweaks
 
                 Vector3 mousePosition = Input.mousePosition;
                 RectTransform rectTransform = __instance.statGraph.rectTransform;
-                Vector2 vector;
                 if (__instance.isPointerEnter)
                 {
-                    if (UIRoot.ScreenPointIntoRect(mousePosition, rectTransform, out vector))
+                    if (UIRoot.ScreenPointIntoRect(mousePosition, rectTransform, out Vector2 vector))
                     {
                         vector = new Vector2(rectTransform.rect.width + vector.x, rectTransform.rect.height * 0.5f + vector.y);
                         if (vector.x > 0f && vector.x < statGraphWidth && vector.y > 0f && vector.y < 100f)
