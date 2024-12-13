@@ -13,6 +13,8 @@ namespace StatsUITweaks
         public static int TimeSliderSlice = 20; //時間滑桿刻度
         public static int ListWidthOffeset = 70; //星球列表寬度
         public static bool DisplayPerSecond = false; //以秒顯示
+        public static int RateFontSize = 26; //速率字型大小(不改=0 原版=18)
+        public static bool ExtendGraph = false; //展開直方圖
 
         static bool initialized;
         static bool enable;
@@ -20,7 +22,8 @@ namespace StatsUITweaks
         static Slider timerSlider;
         static InputField filterInput;
         static UIButton locateBtn;
-        static GameObject filterGo;        
+        static GameObject filterGo;
+        static GameObject extendGraphGo;
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnOpen))]
         public static void Init(UIStatisticsWindow __instance)
@@ -61,6 +64,7 @@ namespace StatsUITweaks
                 Utils.EnableRichText(__instance.killAstroBox);
 
                 GameObject go;
+                Text text;
                 Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                 GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
                 UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
@@ -71,14 +75,27 @@ namespace StatsUITweaks
                 perSecGo.name = "perSecGo";
                 perSecGo.transform.localPosition = new Vector3(0, 60, 0);
                 GameObject.Destroy(perSecGo.GetComponent<Localizer>());
-                var text_perSec = perSecGo.GetComponent<Text>();
-                //text_local.font = text_factory.font;
-                text_perSec.fontSize = 14;
-                text_perSec.text = "Display /s";
+                text = perSecGo.GetComponent<Text>();
+                text.fontSize = 14;
+                text.text = "Display /s";
                 var toggle_perSec = perSecGo.GetComponentInChildren<UIToggle>().toggle;
-                toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnSecToggleChange));
+                toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnDisplayPerSecondToggleChange));
                 go = toggle_perSec.gameObject;
-                go.transform.localPosition = new Vector3(70, 0); //60
+                go.transform.localPosition = new Vector3(70, 0);
+                go.transform.localScale = new Vector3(0.75f, 0.75f);
+
+                // 展開直方圖
+                extendGraphGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
+                extendGraphGo.name = "extendGraphGo";
+                extendGraphGo.transform.localPosition = new Vector3(120, 60, 0);
+                GameObject.Destroy(extendGraphGo.GetComponent<Localizer>());
+                text = extendGraphGo.GetComponent<Text>();
+                text.fontSize = 14;
+                text.text = "Extend Graph";
+                var toggle_extendGraph = extendGraphGo.GetComponentInChildren<UIToggle>().toggle;
+                toggle_extendGraph.onValueChanged.AddListener(new UnityAction<bool>(OnExtendGraphToggleChange));
+                go = toggle_extendGraph.gameObject;
+                go.transform.localPosition = new Vector3(70, 0);
                 go.transform.localScale = new Vector3(0.75f, 0.75f);
 
                 // 時間滑桿
@@ -137,6 +154,7 @@ namespace StatsUITweaks
         public static void OnDestory()
         {
             GameObject.Destroy(perSecGo);
+            GameObject.Destroy(extendGraphGo);
             GameObject.Destroy(timerSlider?.gameObject);
             GameObject.Destroy(filterInput?.gameObject);
             GameObject.Destroy(locateBtn?.gameObject);
@@ -144,9 +162,14 @@ namespace StatsUITweaks
             initialized = false;
         }
 
-        static void OnSecToggleChange(bool value)
+        static void OnDisplayPerSecondToggleChange(bool value)
         {
             DisplayPerSecond = value;
+        }
+
+        static void OnExtendGraphToggleChange(bool value)
+        {
+            ExtendGraph = value;
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.OnTabButtonClick))]
@@ -466,18 +489,33 @@ namespace StatsUITweaks
             }
 
             [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
-            [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //生產統計
+            [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //單項產物UI
             static void UIProductEntry_ShowInText(UIProductEntry __instance)
             {
-                if (__instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
+                if (!__instance.productionStatWindow.isProductionTab) return; //時間範圍限定在生產統計頁面生效
 
                 int level = __instance.productionStatWindow.timeLevel;
                 double production, consumption;
 
-                if (level < 5)
+                if (level < 5) //level = 5: total總計 不會有速率單位
                 {
                     __instance.productUnitLabel.text = __instance.consumeUnitLabel.text = DisplayPerSecond ? "/ s" : "/ min";
                 }
+
+                if (RateFontSize > 0) //修改速率/參考速率字型大小
+                {
+                    __instance.productText.fontSize = __instance.consumeText.fontSize = RateFontSize;
+                    __instance.productRefSpeedText.fontSize = __instance.consumeRefSpeedText.fontSize = RateFontSize;
+                }
+
+                // 展開直方圖 ExtendGraph
+                __instance.statGraph.transform.localScale = ExtendGraph ? new Vector3(2.5f, 1f, 1f) : Vector3.one;
+                __instance.importText.transform.parent.gameObject.SetActive(!ExtendGraph);
+                __instance.exportText.transform.parent.gameObject.SetActive(!ExtendGraph);
+                __instance.importStorageCountText.transform.parent.gameObject.SetActive(!ExtendGraph);
+                __instance.exportStorageCountText.transform.parent.gameObject.SetActive(!ExtendGraph);
+                __instance.storageCountText.transform.parent.gameObject.SetActive(!ExtendGraph);
+                __instance.trashCountText.transform.parent.gameObject.SetActive(!ExtendGraph);
 
                 if (ratio == 1.0f || !dict.TryGetValue(__instance.entryData.productDetail, out var value))
                 {
@@ -586,6 +624,90 @@ namespace StatsUITweaks
                     }
                 }
                 __instance.killText.text = __instance.ToLevelString(production, timeLevel);
+            }
+
+            [HarmonyPostfix, HarmonyPriority(Priority.VeryLow)]
+            [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry.RefreshStatGraphHover))] //直方圖單條彈出提示
+            static void RefreshStatGraphHover_Postfix(UIProductEntry __instance, float statGraphWidth)
+            {
+                if (ratio == 1.0f || __instance.mouseHoverStatGraphTip == null) return;
+
+                Vector3 mousePosition = Input.mousePosition;
+                RectTransform rectTransform = __instance.statGraph.rectTransform;
+                Vector2 vector;
+                if (__instance.isPointerEnter)
+                {
+                    if (UIRoot.ScreenPointIntoRect(mousePosition, rectTransform, out vector))
+                    {
+                        vector = new Vector2(rectTransform.rect.width + vector.x, rectTransform.rect.height * 0.5f + vector.y);
+                        if (vector.x > 0f && vector.x < statGraphWidth && vector.y > 0f && vector.y < 100f)
+                        {
+                            if (__instance.productionStatWindow.isProductionTab)
+                            {
+                                if (__instance.mouseHoverStatGraphTip.gameObject.activeSelf)
+                                {
+                                    // 移除第一和第二行, 並用ratio修正後的時間和週期取代
+                                    string tipText = __instance.statGraphTipSetting.tipText;
+                                    int index = tipText.IndexOf('\n', tipText.IndexOf('\n') + 1);
+                                    if (index > 0)
+                                    {
+                                        // time:依照鼠標位置得到起始時間
+                                        int num = (int)(vector.x / (__instance.columnWidth + __instance.columnInterval));
+                                        int num2 = (int)((statGraphWidth + __instance.columnInterval) / (__instance.columnWidth + __instance.columnInterval));
+                                        long num3 = GameMain.gameTick - __instance.levelTick;
+                                        int num4 = __instance.levelTick * __instance.columnDataCount;
+                                        long num5 = num3 / num4 * num4 - ((num2 - num - 1) * num4);
+                                        if (num5 < 0L)
+                                        {
+                                            num5 = 0L;
+                                        }
+                                        uint num6 = (uint)(num5 * 0.016666666666666666f * ratio);
+                                        uint num7 = num6 / 3600U;
+                                        uint num8 = num6 / 60U % 60U;
+                                        uint num9 = num6 % 60U;
+
+                                        __instance.sb3.Clear();
+                                        __instance.sb3.Append("00000:00:00");
+                                        StringBuilderUtility.WriteUInt(__instance.sb3, 0, 5, num7, 2, ' ');
+                                        StringBuilderUtility.WriteUInt(__instance.sb3, 6, 2, num8, 2, ' ');
+                                        StringBuilderUtility.WriteUInt(__instance.sb3, 9, 2, num9, 2, ' ');
+                                        StringBuilderUtility.TrimStart(__instance.sb3);
+                                        __instance.sb3.Insert(0, "起始时间冒号".Translate());
+
+                                        // period:由參數計算時間週期
+                                        float timeIntervalTick = (__instance.levelTick * __instance.columnDataCount) * ratio;
+                                        uint timeIntervalSec = (uint)(timeIntervalTick * 0.016666666666666666f);
+                                        uint num11 = timeIntervalSec / 3600U;
+                                        uint num12 = timeIntervalSec / 60U % 60U;
+                                        uint num13 = timeIntervalSec % 60U;
+                                        uint num14 = (uint)timeIntervalTick % 60;
+                                        __instance.sb3.Append("\n").Append("时间周期冒号".Translate());
+                                        if (num11 > 0U)
+                                        {
+                                            __instance.sb3.Append(num11).Append("h ");
+                                        }
+                                        if (num12 > 0U)
+                                        {
+                                            __instance.sb3.Append(num12).Append("min ");
+                                        }
+                                        if (num13 > 0U)
+                                        {
+                                            __instance.sb3.Append(num13).Append("s ");
+                                        }
+                                        if (num14 > 0U)
+                                        {
+                                            __instance.sb3.Append(num14).Append("t");
+                                        }
+
+                                        tipText = __instance.sb3.ToString() + tipText.Substring(index, tipText.Length - index);
+                                        __instance.statGraphTipSetting.tipText = tipText;
+                                    }
+                                    __instance.mouseHoverStatGraphTip.UpdateText(ref __instance.statGraphTipSetting, null, null);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
