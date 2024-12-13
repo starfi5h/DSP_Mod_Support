@@ -9,16 +9,18 @@ namespace StatsUITweaks
 {
     public class StatsWindowPatch
     {
-        //public static int SignificantDigits = 0;
-        //public static int TimeSliderSlice = 20;
-        public static int ListWidthOffeset = 70;
+        public static int SignificantDigits = 3; //有效位數(每秒)
+        public static int TimeSliderSlice = 20; //時間滑桿刻度
+        public static int ListWidthOffeset = 70; //星球列表寬度
+        public static bool DisplayPerSecond = false; //以秒顯示
 
         static bool initialized;
         static bool enable;
-        //static Slider timerSlider;
+        static GameObject perSecGo;
+        static Slider timerSlider;
         static InputField filterInput;
         static UIButton locateBtn;
-        static GameObject filterGo;
+        static GameObject filterGo;        
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnOpen))]
         public static void Init(UIStatisticsWindow __instance)
@@ -62,9 +64,25 @@ namespace StatsUITweaks
                 Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                 GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
                 UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
+                GameObject checkBoxWithTextTemple = UIRoot.instance.optionWindow.fullscreenComp.transform.parent.gameObject;
 
-                /*
-                var go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
+                // 單位:每秒按鈕
+                perSecGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
+                perSecGo.name = "perSecGo";
+                perSecGo.transform.localPosition = new Vector3(0, 60, 0);
+                GameObject.Destroy(perSecGo.GetComponent<Localizer>());
+                var text_perSec = perSecGo.GetComponent<Text>();
+                //text_local.font = text_factory.font;
+                text_perSec.fontSize = 14;
+                text_perSec.text = "Display /s";
+                var toggle_perSec = perSecGo.GetComponentInChildren<UIToggle>().toggle;
+                toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnSecToggleChange));
+                go = toggle_perSec.gameObject;
+                go.transform.localPosition = new Vector3(70, 0); //60
+                go.transform.localScale = new Vector3(0.75f, 0.75f);
+
+                // 時間滑桿
+                go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
                 go.name = "CustomStats_Ratio";
                 go.transform.localPosition = new Vector3(-153f, 8f, 0);
                 go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
@@ -73,11 +91,11 @@ namespace StatsUITweaks
                 timerSlider.maxValue = TimeSliderSlice;
                 timerSlider.wholeNumbers = true;
                 timerSlider.value = timerSlider.maxValue;
-                timerSlider.onValueChanged.AddListener(new UnityAction<float>(OnSliderChange));
+                timerSlider.onValueChanged.AddListener(new UnityAction<float>(Entry_Patch.OnSliderChange));
                 //tmp.transform.GetChild(1).GetComponent<Image>().color = new Color(0.3f, 1.0f, 1.0f, 0.47f); //改成亮藍色
                 go.SetActive(true);
-                */
 
+                // 星系列表搜尋欄
                 filterGo = GameObject.Instantiate(inputObj, __instance.productAstroBox.transform);
                 filterGo.name = "CustomStats_Fliter";
                 filterGo.transform.localPosition = new Vector3(0f, 20f, 0);
@@ -87,6 +105,7 @@ namespace StatsUITweaks
                 filterGo.GetComponent<RectTransform>().sizeDelta = new Vector2(((RectTransform)__instance.productAstroBox.transform).sizeDelta.x, 28f);
                 filterGo.SetActive(true);
 
+                // 星系導引按鈕
                 go = GameObject.Instantiate(uIButton0.gameObject, __instance.productAstroBox.transform);
                 go.name = "CustomStats_Navi";
                 go.transform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
@@ -117,19 +136,25 @@ namespace StatsUITweaks
 
         public static void OnDestory()
         {
-            //GameObject.Destroy(timerSlider?.gameObject);
+            GameObject.Destroy(perSecGo);
+            GameObject.Destroy(timerSlider?.gameObject);
             GameObject.Destroy(filterInput?.gameObject);
             GameObject.Destroy(locateBtn?.gameObject);
             GameObject.Destroy(filterGo);
             initialized = false;
         }
 
+        static void OnSecToggleChange(bool value)
+        {
+            DisplayPerSecond = value;
+        }
+
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.OnTabButtonClick))]
         static void OnTabButtonClick(UIStatisticsWindow __instance) // 切換頁面時, 重新設置UI元件的父元件
         {
             if (!enable) return;
-            //if (__instance.timeBox != null)
-            //    timerSlider.gameObject.transform.SetParent(__instance.timeBox.transform);
+            if (__instance.timeBox != null)
+                timerSlider.gameObject.transform.SetParent(__instance.timeBox.transform);
             if (__instance.astroBox != null)
             {
                 filterGo.transform.SetParent(__instance.astroBox.transform);
@@ -267,302 +292,301 @@ namespace StatsUITweaks
         }
         #endregion
 
-        #region 時間範圍 
-
-        /*
-        static void OnSliderChange(float value)
+        public class Entry_Patch // 時間範圍
         {
-            if (value < 1)
+
+            public static void OnSliderChange(float value)
             {
-                timerSlider.value = 1.0f;
-                return;
-            }
-
-            ratio = value / timerSlider.maxValue;
-            UIRoot.instance.uiGame.statWindow.ComputeDisplayEntriesDetail();
-            if (ratio == 1.0f)
-                UIRoot.instance.uiGame.statWindow.ValueToTimeBox(); // Reset string
-            else
-                ChangeTimeBoxText(UIRoot.instance.uiGame.statWindow);
-        }
-
-        [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ValueToTimeBox))]
-        static void ChangeTimeBoxText(UIStatisticsWindow __instance)
-        {
-            if (ratio == 1.0f || !__instance.isStatisticsTab) return;
-
-            string percentageStr = $" ({100f * ratio:N0}%)";
-            var input = UIRoot.instance.uiGame.statWindow.timeBox.m_Input;
-
-            switch (__instance.timeLevel)
-            {
-                case 0:
-                    input.text = ((int)(60f * ratio + 0.5f)).ToString() + "空格秒".Translate() + percentageStr;
-                    break;
-
-                case 1:
-                    input.text = (10f * ratio).ToString("F1") + "空格分钟".Translate() + percentageStr;
-                    break;
-
-                case 2:
-                    input.text = (60f * ratio).ToString("F1") + "空格分钟".Translate() + percentageStr;
-                    break;
-
-                case 3:
-                    input.text = (10f * ratio).ToString("F1") + "统计10小时".Translate().Replace("10", " ") + percentageStr;
-                    break;
-
-                case 4:
-                    input.text = (100f * ratio).ToString("F1") + "统计100小时".Translate().Replace("100", " ") + percentageStr;
-                    break;
-
-                case 5:
-                    input.text = "统计总计".Translate() + percentageStr;
-                    break;
-            }
-        }
-
-        struct Data
-        {
-            public long production;
-            public long consumption;
-        }
-
-        static float ratio = 1.0f;
-        static readonly Dictionary<long[], Data> dict = new();
-
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeDisplayEntriesDetail))]
-        static void ClearData()
-        {
-            dict.Clear();
-        }
-
-        // FirstHalf = 直方圖上半部分
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
-            new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
-        static bool ComputeFirstHalfDetail(int lastCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
-        {
-            if (ratio == 1.0f) return true;
-
-            dict.TryGetValue(targetDetail, out var data);
-            int start = (int)(lvlen * (1f - ratio) + 0.5f); //擷取最近的ratio%統計數據
-            int num = cur + start - 1;
-            for (int i = 0; i < lvlen - start; i++)
-            {
-                if (++num > lastCursor)
+                if (value < 1)
                 {
-                    num -= lvlen;
+                    timerSlider.value = 1.0f;
+                    return;
                 }
-                long value = detail[num];
-                data.production += value; //有多個facotryStat會累加至同一個UIProductEntry
-                int len = (int)((i + 1) / ratio); //直方圖拉伸
-                for (int j = (int)(i / ratio); j < len; j++)
-                    targetDetail[j] += value; //填滿直方圖
-                
+
+                ratio = value / timerSlider.maxValue;
+                UIRoot.instance.uiGame.statWindow.ComputeDisplayEntriesDetail();
+                if (ratio == 1.0f)
+                    UIRoot.instance.uiGame.statWindow.ValueToTimeBox(); // Reset string
+                else
+                    ChangeTimeBoxText(UIRoot.instance.uiGame.statWindow);
             }
-            dict[targetDetail] = data;
-            return false;
-        }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
-    new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[]) })] // 電力, 研究
-        static bool ComputeFirstHalfDetail(int lastCursor, int lvlen, int cur, long[] detail, long[] targetDetail)
-        {
-            if (ratio == 1.0f) return true;
-
-            dict.TryGetValue(targetDetail, out var data);
-            int start = (int)(lvlen * (1f - ratio) + 0.5f);
-            int num = cur + start - 1;
-            for (int i = 0; i < lvlen - start; i++)
+            [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ValueToTimeBox))]
+            static void ChangeTimeBoxText(UIStatisticsWindow __instance)
             {
-                if (++num > lastCursor)
+                if (ratio == 1.0f || !__instance.isStatisticsTab) return;
+
+                string percentageStr = $" ({100f * ratio:N0}%)";
+                var input = UIRoot.instance.uiGame.statWindow.timeBox.m_Input;
+
+                switch (__instance.timeLevel)
                 {
-                    num -= lvlen;
+                    case 0:
+                        input.text = ((int)(60f * ratio + 0.5f)).ToString() + "空格秒".Translate() + percentageStr;
+                        break;
+
+                    case 1:
+                        input.text = (10f * ratio).ToString("F1") + "空格分钟".Translate() + percentageStr;
+                        break;
+
+                    case 2:
+                        input.text = (60f * ratio).ToString("F1") + "空格分钟".Translate() + percentageStr;
+                        break;
+
+                    case 3:
+                        input.text = (10f * ratio).ToString("F1") + "统计10小时".Translate().Replace("10", " ") + percentageStr;
+                        break;
+
+                    case 4:
+                        input.text = (100f * ratio).ToString("F1") + "统计100小时".Translate().Replace("100", " ") + percentageStr;
+                        break;
+
+                    case 5:
+                        input.text = "统计总计".Translate() + percentageStr;
+                        break;
                 }
-                long value = detail[num];
-                data.production += value;
-                int len = (int)((i + 1) / ratio);
-                for (int j = (int)(i / ratio); j < len; j++)
-                    targetDetail[j] += value;
             }
-            dict[targetDetail] = data;
-            return false;
-        }
 
-        // SecondHalf = 直方圖下半部分
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
-    new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
-        static bool ComputeSecondHalfDetail(int lastCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
-        {
-            if (ratio == 1.0f) return true;
-
-            dict.TryGetValue(targetDetail, out var data);
-            int start = (int)(lvlen * (1f - ratio) + 0.5f);
-            int num = cur + start - 1;
-            for (int i = 0; i < lvlen - start; i++)
+            struct Data
             {
-                if (++num > lastCursor)
-                {
-                    num -= lvlen;
-                }
-                long value = detail[num];
-                data.consumption += value;
-                int len = (int)((i + 1) / ratio);
-                for (int j = (int)(i / ratio); j < len; j++)
-                    targetDetail[lvlen + j] += value;
+                public long production;
+                public long consumption;
             }
-            dict[targetDetail] = data;
-            return false;
-        }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
-new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[]) })]
-        static bool ComputeSecondHalfDetail(int lastCursor, int lvlen, int cur, long[] detail, long[] targetDetail)
-        {
-            if (ratio == 1.0f) return true;
+            static float ratio = 1.0f;
+            static readonly Dictionary<long[], Data> dict = new();
 
-            dict.TryGetValue(targetDetail, out var data);
-            int start = (int)(lvlen * (1f - ratio) + 0.5f);
-            int num = cur + start - 1;
-            for (int i = 0; i < lvlen - start; i++)
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeDisplayEntriesDetail))]
+            static void ClearData()
             {
-                if (++num > lastCursor)
-                {
-                    num -= lvlen;
-                }
-                long value = detail[num];
-                data.consumption += value;
-                int len = (int)((i + 1) / ratio);
-                for (int j = (int)(i / ratio); j < len; j++)
-                    targetDetail[lvlen + j] += value;
+                dict.Clear();
             }
-            dict[targetDetail] = data;
-            return false;
-        }
 
-        [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
-        [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //生產統計
-        static void UIProductEntry_ShowInText(UIProductEntry __instance)
-        {
-            if (__instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
-
-            int level = __instance.productionStatWindow.timeLevel;
-            double production, consumption;
-
-            if (ratio == 1.0f || !dict.TryGetValue(__instance.entryData.detail, out var value))
+            // FirstHalf = 直方圖上半部分
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
+                new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
+            static bool ComputeFirstHalfDetail(int endCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
             {
-                if (SignificantDigits > 0) //自訂有效位數
+                if (ratio == 1.0f) return true;
+
+                dict.TryGetValue(targetDetail, out var data);
+                int start = (int)(lvlen * (1f - ratio) + 0.5f); //擷取最近的ratio%統計數據
+                int num = cur + start - 1;
+                for (int i = 0; i < lvlen - start; i++)
                 {
-                    // 以下從UIProductEntry.ShowInText修改
-                    production = __instance.entryData.production;
-                    consumption = __instance.entryData.consumption;
-                    if (production < 0.0)
+                    if (++num > endCursor)
                     {
-                        production = -production;
+                        num -= lvlen;
                     }
-                    if (consumption < 0.0)
-                    {
-                        consumption = -consumption;
-                    }
+                    long value = detail[num];
+                    data.production += value; //有多個facotryStat會累加至同一個UIProductEntry
+                    int len = (int)((i + 1) / ratio); //直方圖拉伸
+                    for (int j = (int)(i / ratio); j < len; j++)
+                        targetDetail[j] += value; //填滿直方圖
 
-                    if (level < 5)
+                }
+                dict[targetDetail] = data;
+                return false;
+            }
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
+        new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[]) })] // 電力, 研究
+            static bool ComputeFirstHalfDetail(int endCursor, int lvlen, int cur, long[] detail, long[] targetDetail)
+            {
+                if (ratio == 1.0f) return true;
+
+                dict.TryGetValue(targetDetail, out var data);
+                int start = (int)(lvlen * (1f - ratio) + 0.5f);
+                int num = cur + start - 1;
+                for (int i = 0; i < lvlen - start; i++)
+                {
+                    if (++num > endCursor)
                     {
-                        production /= __instance.lvDivisors[level];
-                        consumption /= __instance.lvDivisors[level];
+                        num -= lvlen;
                     }
-                    if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
+                    long value = detail[num];
+                    data.production += value;
+                    int len = (int)((i + 1) / ratio);
+                    for (int j = (int)(i / ratio); j < len; j++)
+                        targetDetail[j] += value;
+                }
+                dict[targetDetail] = data;
+                return false;
+            }
+
+            // SecondHalf = 直方圖下半部分
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
+        new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
+            static bool ComputeSecondHalfDetail(int endCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
+            {
+                if (ratio == 1.0f) return true;
+
+                dict.TryGetValue(targetDetail, out var data);
+                int start = (int)(lvlen * (1f - ratio) + 0.5f);
+                int num = cur + start - 1;
+                for (int i = 0; i < lvlen - start; i++)
+                {
+                    if (++num > endCursor)
+                    {
+                        num -= lvlen;
+                    }
+                    long value = detail[num];
+                    data.consumption += value;
+                    int len = (int)((i + 1) / ratio);
+                    for (int j = (int)(i / ratio); j < len; j++)
+                        targetDetail[lvlen + j] += value;
+                }
+                dict[targetDetail] = data;
+                return false;
+            }
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
+    new Type[] { typeof(int), typeof(int), typeof(int), typeof(long[]), typeof(long[]) })]
+            static bool ComputeSecondHalfDetail(int endCursor, int lvlen, int cur, long[] detail, long[] targetDetail)
+            {
+                if (ratio == 1.0f) return true;
+
+                dict.TryGetValue(targetDetail, out var data);
+                int start = (int)(lvlen * (1f - ratio) + 0.5f);
+                int num = cur + start - 1;
+                for (int i = 0; i < lvlen - start; i++)
+                {
+                    if (++num > endCursor)
+                    {
+                        num -= lvlen;
+                    }
+                    long value = detail[num];
+                    data.consumption += value;
+                    int len = (int)((i + 1) / ratio);
+                    for (int j = (int)(i / ratio); j < len; j++)
+                        targetDetail[lvlen + j] += value;
+                }
+                dict[targetDetail] = data;
+                return false;
+            }
+
+            [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
+            [HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry._OnUpdate))] //生產統計
+            static void UIProductEntry_ShowInText(UIProductEntry __instance)
+            {
+                if (__instance.productionStatWindow.isPowerTab) return; //電力統計是實時數據, 不受時間範圍影響
+
+                int level = __instance.productionStatWindow.timeLevel;
+                double production, consumption;
+
+                if (level < 5)
+                {
+                    __instance.productUnitLabel.text = __instance.consumeUnitLabel.text = DisplayPerSecond ? "/ s" : "/ min";
+                }
+
+                if (ratio == 1.0f || !dict.TryGetValue(__instance.entryData.productDetail, out var value))
+                {
+                    if (DisplayPerSecond && level < 5)
+                    {
+                        // 以下從UIProductEntry.ShowInText修改
+                        production = __instance.entryData.production;
+                        consumption = __instance.entryData.consumption;
+                        if (production < 0.0) production = -production;
+                        if (consumption < 0.0) consumption = -consumption;
+
+                        if (level < 5)
+                        {
+                            var lvDivisor = __instance.lvDivisors[level];
+                            production /= lvDivisor;
+                            consumption /= lvDivisor;
+                            if (DisplayPerSecond) //顯示每秒產量
+                            {
+                                production /= 60;
+                                consumption /= 60;
+                            }
+                        }
+                        __instance.productText.text = ToLevelString(production); //自定義函數
+                        __instance.consumeText.text = ToLevelString(consumption);
+                    }
+                    return;
+                }
+
+                production = value.production;
+                consumption = value.consumption;
+                if (level < 5)
+                {
+                    production /= __instance.lvDivisors[level] * ratio; //依照時間範圍校正
+                    consumption /= __instance.lvDivisors[level] * ratio;
+                    if (DisplayPerSecond) //顯示每秒產量
                     {
                         production /= 60;
                         consumption /= 60;
                     }
-                    __instance.productText.text = ToLevelString(production); //自定義函數
+                }
+                if (DisplayPerSecond) //每秒時, 使用自定義函數
+                {
+                    __instance.productText.text = ToLevelString(production);
                     __instance.consumeText.text = ToLevelString(consumption);
                 }
-                return;
-            }
-
-            production = value.production;
-            consumption = value.consumption;
-            if (level != 5)
-            {
-                production /= __instance.lvDivisors[level] * ratio; //依照時間範圍校正
-                consumption /= __instance.lvDivisors[level] * ratio;
-            }
-            if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
-            {
-                production /= 60;
-                consumption /= 60;
-            }
-            if (SignificantDigits <= 0)
-            {
-                __instance.productText.text = __instance.ToLevelString(production, level);
-                __instance.consumeText.text = __instance.ToLevelString(consumption, level);
-            }
-            else
-            {
-                __instance.productText.text = ToLevelString(production);
-                __instance.consumeText.text = ToLevelString(consumption);
-            }
-        }
-
-        readonly static string[] formatF = { "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10" };
-        static string ToLevelString(double value) //輸出: {有效位數}+{單位}(K,M)
-        {
-            if (value == 0.0) return "0";
-
-            string unit = "";
-            if (value >= 1000000.0) // value >= 1M
-            {
-                value /= 1000000.0;
-                unit = " M";
-            }
-            else if (value >= 10000.0) // value >= 10k
-            {
-                value /= 1000.0;
-                unit = " k";
-            }
-
-            int digit = 0;
-            if (value >= 1000.0) digit = 3;
-            else if (value >= 100.0) digit = 2;
-            else if (value >= 10.0) digit = 1;
-
-            digit = SignificantDigits - digit - 1;
-            if (digit < 0) digit = 0;
-            if (digit >= formatF.Length) digit = formatF.Length - 1;
-
-            if (digit > 0)
-            {
-                double fraction = 0.1;
-                for (int i = 0; i < digit; i++)
+                else
                 {
-                    fraction *= 0.1;
+                    __instance.productText.text = __instance.ToLevelString(production, level);
+                    __instance.consumeText.text = __instance.ToLevelString(consumption, level);
                 }
-                if (value - (int)value < fraction) return value.ToString("F1") + unit; //小數部分皆為0,只保留1位
             }
-            return value.ToString(formatF[digit]) + unit;
-        }
 
-        [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
-        [HarmonyPatch(typeof(UIKillEntry), nameof(UIKillEntry._OnUpdate))] //擊殺統計
-        static void UIKillEntry_ShowInText(UIKillEntry __instance)
-        {
-            if (ratio == 1.0f) return;
-            if (!dict.TryGetValue(__instance.entryData.detail, out var value)) return;
+            readonly static string[] formatF = { "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10" };
+            static string ToLevelString(double value) //輸出: {有效位數}+{單位}(K,M)
+            {
+                if (value == 0.0) return "0";
 
-            int timeLevel = __instance.productionStatWindow.timeLevel;
-            double production = value.production;
-            if (timeLevel != 5)
-            {
-                production /= __instance.lvDivisors[timeLevel] * ratio; //依照時間範圍校正除數
+                string unit = "";
+                if (value >= 1000000.0) // value >= 1M
+                {
+                    value /= 1000000.0;
+                    unit = " M";
+                }
+                else if (value >= 10000.0) // value >= 10k
+                {
+                    value /= 1000.0;
+                    unit = " k";
+                }
+
+                int digit = 0;
+                if (value >= 1000.0) digit = 3;
+                else if (value >= 100.0) digit = 2;
+                else if (value >= 10.0) digit = 1;
+
+                digit = SignificantDigits - digit - 1;
+                if (digit < 0) digit = 0;
+                if (digit >= formatF.Length) digit = formatF.Length - 1;
+
+                if (digit > 0)
+                {
+                    double fraction = 0.1;
+                    for (int i = 0; i < digit; i++)
+                    {
+                        fraction *= 0.1;
+                    }
+                    if (value - (int)value < fraction) return value.ToString("F1") + unit; //小數部分皆為0,只保留1位
+                }
+                return value.ToString(formatF[digit]) + unit;
             }
-            if (Plugin.DisplayPerSecond != null && Plugin.DisplayPerSecond.Value) //顯示每秒產量(Bottleneck)
+
+            [HarmonyPostfix, HarmonyAfter("Bottleneck"), HarmonyPriority(Priority.VeryLow)]
+            [HarmonyPatch(typeof(UIKillEntry), nameof(UIKillEntry._OnUpdate))] //擊殺統計
+            static void UIKillEntry_ShowInText(UIKillEntry __instance)
             {
-                production /= 60;
+                if (ratio == 1.0f) return;
+                if (!dict.TryGetValue(__instance.entryData.detail, out var value)) return;
+
+                int timeLevel = __instance.productionStatWindow.timeLevel;
+                double production = value.production;
+                if (timeLevel < 5)
+                {
+                    production /= __instance.lvDivisors[timeLevel] * ratio; //依照時間範圍校正除數
+                    if (DisplayPerSecond) //顯示每秒產量
+                    {
+                        production /= 60;
+                    }
+                }
+                __instance.killText.text = __instance.ToLevelString(production, timeLevel);
             }
-            __instance.killText.text = __instance.ToLevelString(production, timeLevel);
         }
-        */
-        #endregion
     }
 }
