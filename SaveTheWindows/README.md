@@ -1,5 +1,14 @@
 # SaveTheWindows
 
+Add a drop-down list in save/load window to let the player switch between subfolders in `Dyson Sphere Program\Save` folder.  
+The player can use different subfolder to categorize their saves.  
+The selected subfolder will be use as directory to save/load saves from, and it will be remembered in the mod config file.  
+The top item with empty name is the original save folder.  
+在保存/加载窗口添加一个下拉列表，让玩家在`Dyson Sphere Program\Save`中的子文件夹之间切换加载/保存位置。  
+玩家可以使用不同的子文件夹对他们的存档进行分类。  
+最上面的空名项目是原始保存文件夹。  
+![subfolder](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SaveTheWindows/img/subfolder.png)  
+
 Fix a quality of life issue with the UI windows where the window positions are not persisted between sessions.  
 Instead of resetting to the default locations, they will appear where they were last when they were closed.  
 用户界面窗口在关闭游戏后会保存，重开游戏时会回复到上次关闭时的位置。  
@@ -22,8 +31,11 @@ To reset saved window position, delete the config file.
 [Config]  
 `Enable Save Window Position`: 启用窗口位置保存  
 `Enable Drag Window Offset`: 允许窗口部分超出边框   
+`Enable Save Subfolder`: 允许存档子文件夹功能  
+`Save Subfolder`: 当前存档子文件夹名称(空字串=原位置)  
 
 ## ChangeLogs
+- v1.1.0: Add save subfolder function. (DSP 0.10.31.24710)
 - v1.0.0: Initial released. (DSP 0.10.30.23430)  
 
 ## Acknowledgements
