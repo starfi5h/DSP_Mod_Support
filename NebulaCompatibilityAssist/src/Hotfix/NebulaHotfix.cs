@@ -45,11 +45,11 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //PatchPacketProcessor(harmony);
                     //Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
-                if (nebulaVersion < new System.Version(0, 9, 12))
+                if (nebulaVersion < new System.Version(0, 9, 13))
                 {
-                    harmony.PatchAll(typeof(Warper0911));
+                    harmony.PatchAll(typeof(Warper0912));
                     //PatchPacketProcessor(harmony);
-                    Log.Info("Nebula new feature 0.9.11 - OK");
+                    Log.Info("Nebula new feature 0.9.12 - OK");
                 }
             }
             catch (Exception e)
@@ -102,6 +102,8 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
         [HarmonyPatch(typeof(NearColliderLogic), nameof(NearColliderLogic.UpdateCursorNear))]
         [HarmonyPatch(typeof(PlayerAction_Combat), nameof(PlayerAction_Combat.AfterMechaGameTick))]
+        [HarmonyPatch(typeof(CargoTraffic_Patch), nameof(CargoTraffic_Patch.SetBeltSignalIcon_Postfix))]
+        [HarmonyPatch(typeof(CargoTraffic_Patch), nameof(CargoTraffic_Patch.SetBeltSignalNumber_Postfix))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
@@ -172,19 +174,14 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
     }
 
-    public static class Warper0911
+    public static class Warper0912
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChatWindow), nameof(ChatWindow.Toggle))]
-        static bool Toggle_Prefix(bool forceClosed, ChatWindow __instance)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(SimulatedWorld), nameof(SimulatedWorld.FixPlayerAfterImport))]
+        public static void FixPlayerAfterImport_Postfix()
         {
-            if (forceClosed == false && __instance.chatWindow.activeSelf && Config.Options.ChatHotkey.MainKey == KeyCode.Return)
-            {
-                // If player set enter as toggle hotkey, add a check for defualt open => close action
-                // So if player is typing and hit enter, it won't close the chatwindow immediately
-                return string.IsNullOrEmpty(__instance.chatBox.text);
-            }
-            return true;
+            // TODO: Sync energyShieldBurstUnlocked in importing
+            GameMain.mainPlayer.mecha.energyShieldBurstUnlocked = true;
         }
     }
 }

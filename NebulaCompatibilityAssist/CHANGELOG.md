@@ -1,5 +1,10 @@
 # Changelog
 
+#### v0.4.23 (Nebula 0.9.12)
+\- Fix client can't unlock shield brust  
+\- Suppress errors in `CargoTraffic_Patch.SetBeltSignalIcon_Postfix` and `CargoTraffic_Patch.SetBeltSignalNumber_Postfix`  
+\- Limit GenesisBook compatible patch to v3.0 (v3.1 and upper version is not supported)  
+
 #### v0.4.22 (Nebula 0.9.12)
 \- Update UXAssist v1.2.12 compat
 

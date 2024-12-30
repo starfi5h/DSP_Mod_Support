@@ -1,7 +1,8 @@
 # Nebula Compatibility Assist
 
 Nebula 0.9.12 hotfix:  
-- None
+- Fix client can't unlock shield brust
+- Suppress errors in `CargoTraffic_Patch.SetBeltSignalIcon_Postfix` and `CargoTraffic_Patch.SetBeltSignalNumber_Postfix`
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  

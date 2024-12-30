@@ -23,8 +23,13 @@ namespace NebulaCompatibilityAssist.Patches
 
         public static void Init(Harmony harmony)
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var _))
+            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
                 return;
+            if (pluginInfo.Metadata.Version >= new System.Version(3, 1, 0))
+            {
+                Log.Warn("Doesn't support GenesisBook version >= 3.1.0 !");
+                return;
+            }
 
             try
             {
