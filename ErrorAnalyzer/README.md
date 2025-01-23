@@ -18,7 +18,7 @@ Thread Error Exception!!! Thread idx:0 transport Factory idx: Positive Loop Syst
   at StationComponent.InternalTickRemote (PlanetFactory factory, System.Int32 timeGene, System.Single shipSailSpeed, System.Single shipWarpSpeed, System.Int32 shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3& relativePos, UnityEngine.Quaternion& relativeRot, System.Boolean starmap, System.Int32[] consumeRegister) [0x02f66] ;IL_2F66 
   at PlanetTransport.GameTick (System.Int64 time, System.Boolean isActive, System.Boolean isMultithreadMode) [0x00213] ;IL_0213 
   at WorkerThreadExecutor.TransportPartExecute () [0x000e4] ;IL_00E4 
-[== Mod patches on the stack ==]
+[== Mod patches on the stack ==] DemoPlugin1.0.0
 void DemoPlugin.Plugin::InternalTickRemote_Postfix(); InternalTickRemote(Postfix)
 ```
 Explanation:
@@ -35,7 +35,7 @@ Notes:
 ## Config
 The config file is `BepInEx\config\aaa.dsp.plugin.ErrorAnalyzer.cfg`, which can be found in mod manager's Config editor.  
 ```
-## Settings file was created by plugin ErrorAnalyzer v1.2.2
+## Settings file was created by plugin ErrorAnalyzer
 ## Plugin GUID: aaa.dsp.plugin.ErrorAnalyzer
 
 [DEBUG Mode]
@@ -62,6 +62,7 @@ When the DEBUG tracking mode is on, the navigate button will change color. In th
 
 
 ## ChangeLogs
+- v1.2.4: Copy button now only copy mod list when shift is pressed. Adapt to DSP 0.10.32.25496  
 - v1.2.3: Highlight plugin name on stacktrace.  
 - v1.2.2: Add config. Suppress `CargoTraffic.PickupBeltItems` error in debug tracking mode.  
 - v1.2.1: Suppress `CargoTraffic.SetBeltState` and `CargoContainer.RemoveCargo` error in debug tracking mode to dismantle the belts.  
@@ -90,7 +91,7 @@ Thread Error Exception!!! Thread idx:0 transport Factory idx: Positive Loop Syst
   at StationComponent.InternalTickRemote (PlanetFactory factory, System.Int32 timeGene, System.Single shipSailSpeed, System.Single shipWarpSpeed, System.Int32 shipCarries, StationComponent[] gStationPool, AstroData[] astroPoses, VectorLF3& relativePos, UnityEngine.Quaternion& relativeRot, System.Boolean starmap, System.Int32[] consumeRegister) [0x02f66] ;IL_2F66 
   at PlanetTransport.GameTick (System.Int64 time, System.Boolean isActive, System.Boolean isMultithreadMode) [0x00213] ;IL_0213 
   at WorkerThreadExecutor.TransportPartExecute () [0x000e4] ;IL_00E4 
-[== Mod patches on the stack ==]
+[== Mod patches on the stack ==] DemoPlugin1.0.0
 void DemoPlugin.Plugin::InternalTickRemote_Postfix(); InternalTickRemote(Postfix)
 ```
 - 第一行回报目前的游戏版本。  

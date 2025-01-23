@@ -24,8 +24,7 @@ namespace ErrorAnalyzer
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnRegEvent")]
-        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
-        private static void _OnRegEvent_Postfix()
+        private static void OnRegEvent_Postfix()
         {
             if (!Plugin.isRegisitered)
                 return;
@@ -115,6 +114,11 @@ namespace ErrorAnalyzer
         private static UIButton CreateButton(string path, Transform parent, Vector3 positionOffset, Action<int> onClickAction)
         {
             var go = GameObject.Find(path);
+            if (go == null)
+            {
+                Plugin.Log.LogWarning("Can't find " + path);
+                return null;
+            }
             return CreateButton(go, parent, positionOffset, onClickAction);
         }
 
@@ -142,8 +146,12 @@ namespace ErrorAnalyzer
         {
             if (btnClose != null) return;
 
-            const string PATH = "UI Root/Overlay Canvas/In Game/Windows/Window Template/panel-bg/btn-box/close-btn";
-            btnClose = CreateButton(PATH, __instance.transform, new Vector3(-5, 0, 0), OnCloseClick);
+            const string PATH1 = "UI Root/Overlay Canvas/In Game/Common Tools/Color Palette Panel/panel-bg/btn-box/close-wnd-btn"; // new path for version >= 0.10.32
+            btnClose = CreateButton(PATH1, __instance.transform, new Vector3(-5, 0, 0), OnCloseClick);
+            if (btnClose != null) return;
+
+            const string PATH2 = "UI Root/Overlay Canvas/In Game/Windows/Window Template/panel-bg/btn-box/close-btn"; // old path for version <= 0.10.31
+            btnClose = CreateButton(PATH2, __instance.transform, new Vector3(-5, 0, 0), OnCloseClick);
         }
 
         private static void CreateCopyBtn(UIFatalErrorTip __instance)
@@ -152,8 +160,8 @@ namespace ErrorAnalyzer
 
             const string PATH = "UI Root/Overlay Canvas/In Game/Windows/Dyson Sphere Editor/Dyson Editor Control Panel/hierarchy/layers/blueprint-group/blueprint-2/copy-button";
             btnCopy = CreateButton(PATH, __instance.transform, new Vector3(5, -55, 0), OnCopyClick);
-            btnCopy.tips.tipTitle = "Copy Error";
-            btnCopy.tips.tipText = "Copy the message to clipboard";
+            btnCopy.tips.tipTitle = "Copy Error Message";
+            btnCopy.tips.tipText = "Copy the message to clipboard\nShift-click to copy the mod list too";
         }
 
         private static void CreateInspectBtn(UIFatalErrorTip __instance)
@@ -168,7 +176,7 @@ namespace ErrorAnalyzer
 
             btnInspect.onRightClick += ToggleTrackMode;
             btnInspect.tips.tipTitle = "Find The Error Entity";
-            btnInspect.tips.tipText = "Left click to navigate\nRight click to toggle tracking mode";
+            btnInspect.tips.tipText = "Left click to navigate\nRight click to toggle debug mode";
 
             if (astroId > 0)
             {
@@ -200,11 +208,25 @@ namespace ErrorAnalyzer
             return stringBuilder.ToString();
         }
 
+        private static string GetShortTitle()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("Error report: Game version ");
+            stringBuilder.Append(GameConfig.gameVersion.ToString());
+            stringBuilder.Append('.');
+            stringBuilder.Append(GameConfig.gameVersion.Build);
+            stringBuilder.Append(" with ");
+            stringBuilder.Append(Chainloader.PluginInfos.Values.Count);
+            stringBuilder.Append(" mods used.");
+            return stringBuilder.ToString();
+        }
+
         private static void OnCopyClick(int id)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("```ini");
-            stringBuilder.AppendLine(Title());
+            if (VFInput.shift) stringBuilder.AppendLine(Title());
+            else stringBuilder.AppendLine(GetShortTitle());
             var subs = UIFatalErrorTip.instance.errorLogText.text.Split('\n', '\r');
             foreach (var str in subs)
             {

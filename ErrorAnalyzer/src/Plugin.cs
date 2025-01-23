@@ -16,7 +16,7 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.2.3";
+        public const string VERSION = "1.2.4";
 
         public static ManualLogSource Log;
         public static bool isRegisitered;

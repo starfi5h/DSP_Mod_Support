@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -121,7 +122,7 @@ namespace ErrorAnalyzer
 
                 if (i != 0 && (stackTypeNames[i] == "GameData" && stackMethodNames[i] == "GameTick"))
                 {
-                    // There are many mods hook on GameData.GameTick, so skip to avoid confusing
+                    // Whitelist: There are many mods hook on GameData.GameTick, so skip to avoid confusing
                     if (!ShowAllPatches) break;
                 }
                 if (patchMap.TryGetValue(stackTypeNames[i], out var list))
@@ -156,7 +157,8 @@ namespace ErrorAnalyzer
             {
                 sb.Insert(0, $"\n[== Mod patches on the stack ==]{modNames}\n");
             }
-            if (firstClassModifiedMethods?.Count > 0 && (stackTypeNames[0] != "VFPreload" && stackTypeNames[0] != "GameData"))
+            // Whitelist: VFPreload, GameData and PlanetFactory have too many mods patch on it
+            if (firstClassModifiedMethods?.Count > 0 && (stackTypeNames[0] != "VFPreload" && stackTypeNames[0] != "GameData" && stackTypeNames[0] != "PlanetFactory"))
             {
                 // Too many mods hook on VFPreload.InvokeOnLoadWorkEnded and GameData.GameTick, thus skip them
                 HashSet<string> modFullTypeNames = new();
@@ -179,20 +181,32 @@ namespace ErrorAnalyzer
         private static string GetBepInexNamesFromTypeNames(List<string> stackTypeNames)
         {
             // Test if namespace of methods on stacktrack is same as BepInEx plugin name
-            var pluginNames = new HashSet<string>();
+            var dict = new Dictionary<string, PluginInfo>();
             foreach (var pluginInfo in BepInEx.Bootstrap.Chainloader.PluginInfos.Values)
             {
-                pluginNames.Add(pluginInfo.Metadata.Name);
+                dict[pluginInfo.Metadata.Name] = pluginInfo;
             }
+            // Translate overhaul mods that have different namespace and plugin name
+            PluginInfo value;
+            if (dict.TryGetValue("Galactic Scale 2 Plug-In", out value)) dict["GalacticScale"] = value; //https://github.com/Touhma/DSP_Galactic_Scale/blob/main/Bootstrap.cs
+            if (dict.TryGetValue("GenesisBook", out value)) dict["ProjectGenesis"] = value; //https://github.com/Awbugl/ProjectGenesis/blob/main/src/ProjectGenesis.cs
+            if (dict.TryGetValue("NebulaMultiplayerMod", out value)) //https://github.com/NebulaModTeam/nebula/blob/master/NebulaPatcher/NebulaPlugin.cs
+            {
+                dict["NebulaModel"] = value;
+                dict["NebulaPatcher"] = value;
+                dict["NebulaNetwork"] = value;
+                dict["NebulaWorld"] = value;
+            }
+
             var resultString = "";
             foreach (var typeName in stackTypeNames)
             {
                 var dotIndex = typeName.IndexOf('.');
                 var namespaceName = dotIndex != -1 ? typeName.Substring(0, dotIndex) : typeName;
-                if (pluginNames.Contains(namespaceName))
+                if (dict.TryGetValue(namespaceName, out var pluginInfo))
                 {
-                    resultString += " " + namespaceName;
-                    pluginNames.Remove(namespaceName); // Prevent duplication
+                    resultString += " " + namespaceName + pluginInfo.Metadata.Version;
+                    dict.Remove(namespaceName); // Prevent duplication
                 }
             }
             return resultString;
