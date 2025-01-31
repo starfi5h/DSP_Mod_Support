@@ -1,5 +1,12 @@
 # Changelog
 
+## Gamae version 0.10.32
+
+#### v0.4.24 (Nebula 0.9.14)
+\- Update MoreMegaStructure v1.7.6 compat
+
+## Game version 0.10.31
+
 #### v0.4.23 (Nebula 0.9.12)
 \- Fix client can't unlock shield brust  
 \- Suppress errors in `CargoTraffic_Patch.SetBeltSignalIcon_Postfix` and `CargoTraffic_Patch.SetBeltSignalNumber_Postfix`  
@@ -114,7 +121,7 @@
 </details>
 
 
-## Nebula version 0.8.14
+## Game version 0.9.27
 
 <details>
 <summary>Previous Changelog</summary>

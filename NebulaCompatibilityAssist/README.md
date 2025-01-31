@@ -1,8 +1,6 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.12 hotfix:  
-- Fix client can't unlock shield brust
-- Suppress errors in `CargoTraffic_Patch.SetBeltSignalIcon_Postfix` and `CargoTraffic_Patch.SetBeltSignalNumber_Postfix`
+Nebula 0.9.14 hotfix: None  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -38,7 +36,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
 
-### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP)
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP, only for 3.0)
 - Partially support Quantum Depot syncing: Build, Manual User interaction, Transport in the same planet
 - Interplanetary cargo transport in Quantum Depot is not supported yet. Client may see different result.
 
@@ -47,7 +45,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [MoreMegaStructure](https://thunderstore.io/c/dyson-sphere-program/p/jinxOAO/MoreMegaStructure/)
 - Sync data when player change mega structure type in the editor.  
-- Sync data when player change star assembler slider.  
+- Sync data when player input star assembler value number.  
 - Sync data when player fire star cannon.  
 - Disable modification of the stats panel to avoid conflicts.  
 
@@ -119,7 +117,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - 让客机能显示远端星球的建物讯息(需求主机也安装mod)  
 
-### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP)
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP, only for 3.0)
 - 部分支持量子箱同步功能：建造、手动用户交互、同一星球内运输
 - 量子箱的跨星球运送尚不支持。客机可能会看到不同的结果。
 
