@@ -45,11 +45,11 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //PatchPacketProcessor(harmony);
                     //Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
-                if (nebulaVersion < new System.Version(0, 9, 13))
+                if (nebulaVersion < new System.Version(0, 9, 15))
                 {
-                    harmony.PatchAll(typeof(Warper0912));
+                    //harmony.PatchAll(typeof(Warper0914));
                     //PatchPacketProcessor(harmony);
-                    Log.Info("Nebula new feature 0.9.12 - OK");
+                    //Log.Info("Nebula new feature 0.9.14 - OK");
                 }
             }
             catch (Exception e)
@@ -102,8 +102,6 @@ namespace NebulaCompatibilityAssist.Hotfix
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.CalcFormsSupply))]
         [HarmonyPatch(typeof(NearColliderLogic), nameof(NearColliderLogic.UpdateCursorNear))]
         [HarmonyPatch(typeof(PlayerAction_Combat), nameof(PlayerAction_Combat.AfterMechaGameTick))]
-        [HarmonyPatch(typeof(CargoTraffic_Patch), nameof(CargoTraffic_Patch.SetBeltSignalIcon_Postfix))]
-        [HarmonyPatch(typeof(CargoTraffic_Patch), nameof(CargoTraffic_Patch.SetBeltSignalNumber_Postfix))]
         public static Exception EnemyGameTick_Finalizer(Exception __exception)
         {
             if (__exception != null && !suppressed)
@@ -162,26 +160,6 @@ namespace NebulaCompatibilityAssist.Hotfix
             stringBuilder.Append(modSB);
 
             __result = stringBuilder.ToString();
-        }
-
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(UITutorialTip), nameof(UITutorialTip.PopupTutorialTip))]
-        private static bool UITutorialTip_PopupTutorialTip_Prefix(int tutorialId)
-        {
-            GameMain.history.UnlockTutorial(tutorialId);
-            return false;
-        }
-    }
-
-    public static class Warper0912
-    {
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(SimulatedWorld), nameof(SimulatedWorld.FixPlayerAfterImport))]
-        public static void FixPlayerAfterImport_Postfix()
-        {
-            // TODO: Sync energyShieldBurstUnlocked in importing
-            GameMain.mainPlayer.mecha.energyShieldBurstUnlocked = true;
         }
     }
 }

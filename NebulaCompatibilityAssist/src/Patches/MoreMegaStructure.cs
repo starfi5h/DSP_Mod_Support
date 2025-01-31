@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.5.3";
+        private const string VERSION = "1.7.6";
 
         private static IModCanSave Save;
 
@@ -41,7 +41,7 @@ namespace NebulaCompatibilityAssist.Patches
                     Import(bytes);
                 };
                 
-                var sendDataMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SendData"));
+                var sendDataMethod = new HarmonyMethod(typeof(MoreMegaStructure).GetMethod(nameof(SendData)));
 
                 // Sync MegaStructure type
                 Type classType = assembly.GetType("MoreMegaStructure.MoreMegaStructure");
@@ -55,6 +55,9 @@ namespace NebulaCompatibilityAssist.Patches
                 // Sync StarAssembly recipeIds & weights 
                 classType = assembly.GetType("MoreMegaStructure.StarAssembly");
                 harmony.Patch(AccessTools.Method(classType, "OnRecipePickerReturn"), null, sendDataMethod);
+                harmony.Patch(AccessTools.Method(classType, "OnRecipeRemoveClick"), null, sendDataMethod);
+                harmony.Patch(AccessTools.Method(classType, "SetProductSpeedRequest"), null, sendDataMethod);
+                /* sliders are no longer in use
                 var sliders = AccessTools.StaticFieldRefAccess<List<Slider>>(classType, "sliders");
                 foreach (var slider in sliders)
                 {
@@ -63,6 +66,8 @@ namespace NebulaCompatibilityAssist.Patches
                     var handler = go.AddComponent<PointerDownUpHandler>();
                     handler.onPointerUp += (_) => SendData();
                 }
+                */
+
                 // Disable UI update when editor window is closed
                 harmony.Patch(AccessTools.Method(classType, "UIFrameUpdate"),  new HarmonyMethod(typeof(MoreMegaStructure).GetMethod("SuppressUIupdate")));
 
@@ -102,6 +107,7 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (NebulaModAPI.IsMultiplayerActive)
             {
+                Log.Debug("MoreMegaStructure.SendData");
                 NebulaModAPI.MultiplayerSession.Network.SendPacket(new NC_ModSaveData(GUID, Export()));
             }
         }
