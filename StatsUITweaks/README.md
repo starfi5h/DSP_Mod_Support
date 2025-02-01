@@ -10,13 +10,14 @@ Adds QoL features to the statistics panel.
 - Preserve product filter when switching time range or closing the window.
 
 ![astroBox](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/astroBox.jpg)  
+- Add local planetary system.  
 - Sort the astro list by system names.  
 - Type in the input field to filter the astro list.  
 - Custom prefix/postfix for planet/system names in the astro list. Use [Unity rich text](https://docs.unity3d.com/2018.4/Documentation/Manual/StyledText.html) to change text.  
 - PageUp/PageDown to go to the next item on the list. Ctrl + PageUp/PageDown to go to the next system.  
 - Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap. Show astroId and index of factory in the button tip.  
 
-![demo5](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo5.jpg)  
+![controlPanel](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/controlPanel.png)  
 Support astro list in Logistics Control Panel (I) too.  
 
 ## Configuration
@@ -38,6 +39,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `TimeSliderSlice` | 20     | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
 | `RateFontSize`    | 26     | Adjust the font size of production rate. (Vanilla=18) |
+| `RefRateTweak`    | false  | The reference rate (maximum theoretical value) is always applied proliferator settings, regardless the material |
 | Other | | |
 | `FoldButton`      | true   | Add a button in perforamnce test panel to fold pie chart |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
@@ -57,6 +59,9 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 
 - 保存过滤条件  
 在切换时间范围或关闭视窗时保存产物的过滤条件，再打开时不会重置
+
+- 统计当前星系  
+在下拉清单列表中加入本地星系项目
 
 - 以星系名称排序列表  
 原本游戏是以到达的先后顺序排列下拉清单列表中的星系。启用后会改以星系名称来排序
@@ -93,6 +98,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
 | `RateFontSize`    | 26       | 生产速率和参考速率的字体大小(原版=18) |
+| `RefRateTweak`    | false    | 参考速率(最大理论值)一律套用增产剂设定，无论原料是否已喷涂 |
 | Other | | |
 | `FoldButton`      | true     | 在性能面板加入一个折叠饼图的按钮 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |

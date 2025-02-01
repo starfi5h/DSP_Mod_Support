@@ -1,9 +1,15 @@
 # Changelog
 
+## v1.6.2 (DSP 0.10.32.25552)
+- Add local planetary systemin astro list
+- Add `RefRateTweak` config option
+- 新增统计本地星系
+- 新增`参考速率计算改动`配置
+
 ## v1.6.1 (DSP 0.10.31.24710)
 - Add `TimeSliderSlice`, `RateFontSize` config option
 - Add display per second, extend graph, preserve filter function
-- 加入`时间范围滑杆`, `速率字体大小`配置
+- 新增`时间范围滑杆`, `速率字体大小`配置
 - 新增以秒显示, 延长直方图, 保存过滤条件等功能
 
 ## v1.6.0 (DSP 0.10.31.24646)
