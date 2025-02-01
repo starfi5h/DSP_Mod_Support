@@ -29,10 +29,12 @@ namespace FactoryLocator
         readonly static Color CYAN     = new(0.2821f, 0.7455f, 1.0000f, 0.7059f); // itemCount (more blue)
         readonly static Color PINK     = new(1.0000f, 0.5000f, 0.5000f, 0.7059f); // new color
 
-        const int SIGNAL_BPERROR = 404;
-        const int SIGNAL_NOSPRAY = 600;
-        const int SIGNAL_NOINPUTBELT = 601;
-        const int SIGNAL_NOOUTPUTBELT = 602;
+        const int SIGNAL_BPERROR = 404;      // signal error
+        const int SIGNAL_NOSPRAY = 600;      // number 0
+        const int SIGNAL_NOINPUTBELT = 601;  // number 1
+        const int SIGNAL_NOOUTPUTBELT = 602; // number 2
+        const int SIGNAL_RR_CONTINUE = 503;  // signal lightning
+        const int SIGNAL_RR_NOLENS = 508;    // signal no fuel
 
         public int SetFactories(StarData star, PlanetData planet)
         {
@@ -576,6 +578,34 @@ namespace FactoryLocator
                     else if (signalId == key)
                     {
                         ref var entity = ref factory.entityPool[sprayer.entityId];
+                        localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
+                        detailIds.Add(entity.protoId);
+                        planetIds.Add(factory.planetId);
+                    }
+                }
+
+                cursor = factory.powerSystem.genCursor;
+                for (int id = 1; id < cursor; id++)
+                {
+                    ref var generator = ref factory.powerSystem.genPool[id];
+                    if (id != generator.id) continue;
+                    if (!generator.gamma) continue;
+
+                    int key = 0;
+                    if (generator.catalystPoint == 0) key = SIGNAL_RR_NOLENS; // "缺乏透镜"
+                    else if (generator.warmup < 0.999f) key = SIGNAL_RR_CONTINUE; // 射线接受率不足99.9%
+                    if (key == 0) continue;
+
+                    if (signalId == -1)
+                    {
+                        if (filterIds.ContainsKey(key))
+                            ++filterIds[key];
+                        else
+                            filterIds[key] = 1;
+                    }
+                    else if (signalId == key)
+                    {
+                        ref var entity = ref factory.entityPool[generator.entityId];
                         localPos.Add(entity.pos + entity.pos.normalized * 0.5f);
                         detailIds.Add(entity.protoId);
                         planetIds.Add(factory.planetId);
