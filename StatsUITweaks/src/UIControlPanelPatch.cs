@@ -31,7 +31,12 @@ namespace StatsUITweaks
             // [1]:0, "查看当前星球" 或 "查看当前星系"
             // 其餘皆為 星系 + 星球1 + 星球2 ..., 以星系的ID排序
 
-            Utils.UpdateAstroBox(__instance.astroFilterBox, 2, "");
+            int localStarAstroId = 0;
+            if (GameMain.localStar != null)
+            {
+                localStarAstroId = GameMain.localStar.astroId; // 新增统计当前星系
+            }
+            Utils.UpdateAstroBox(__instance.astroFilterBox, 2, localStarAstroId, "");
             //Plugin.Log.LogDebug(System.Environment.StackTrace);
         }
     }

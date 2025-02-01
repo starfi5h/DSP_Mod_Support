@@ -72,7 +72,7 @@ namespace StatsUITweaks
         static readonly List<string> newItems = new();
         static readonly List<int> newItemData = new();
 
-        public static void UpdateAstroBox(UIComboBox astroBox, int startIndex, string searchStr = "")
+        public static void UpdateAstroBox(UIComboBox astroBox, int startIndex, int localStarAstroId, string searchStr = "")
         {
             if (astroBox.Items.Count <= startIndex) return;
 
@@ -81,6 +81,13 @@ namespace StatsUITweaks
             systemList.Clear();
             newItems.Clear();
             newItemData.Clear();
+            bool localStarExist = false;
+
+            if (startIndex + 1 < astroBox.Items.Count && astroBox.Items[startIndex] == "统计当前星系".Translate())
+            {
+                startIndex++;
+                localStarExist = true;
+            }
 
             for (int i = startIndex; i < astroBox.Items.Count; i++)
             {
@@ -130,6 +137,13 @@ namespace StatsUITweaks
             }
             astroBox.Items.RemoveRange(startIndex, astroBox.Items.Count - startIndex);
             astroBox.ItemsData.RemoveRange(startIndex, astroBox.ItemsData.Count - startIndex);
+
+            if (localStarAstroId != 0 && !localStarExist)
+            {
+                astroBox.Items.Add("统计当前星系".Translate());
+                astroBox.ItemsData.Add(localStarAstroId);
+            }
+
             astroBox.Items.AddRange(newItems);
             astroBox.ItemsData.AddRange(newItemData);
 

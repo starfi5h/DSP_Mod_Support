@@ -297,27 +297,26 @@ namespace StatsUITweaks
             // [2]:?00, "localSystemLabel" Bottleneck新增的選項
             // 其餘皆為 星系 + 星球1 + 星球2 ..., 以星系的ID排序
             int startIndex = 1;
+            int localStarAstroId = 0;
             if (!__instance.isDysonTab && __instance.gameData.localPlanet != null)
             {
-                startIndex = 2;
-                if (__instance.astroBox.Items.Count > 2 
-                    && (__instance.astroBox.Items[2] == "Local System"
-                    || __instance.astroBox.Items[2] == "本地系统"
-                    || __instance.astroBox.Items[2] == "localSystemLabel".Translate()))
-                    startIndex = 3; // new option in Bottleneck
+                startIndex = 2; // 统计当前星球
             }
-            Utils.UpdateAstroBox(__instance.astroBox, startIndex, searchStr);
+            if (__instance.gameData.localStar != null)
+            {
+                localStarAstroId = __instance.gameData.localStar.astroId; // 新增统计当前星系
+            }
+            Utils.UpdateAstroBox(__instance.astroBox, startIndex, localStarAstroId, searchStr);
             __state = __instance.astroBox.itemIndex;
             //Plugin.Log.LogDebug(System.Environment.StackTrace);
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ValueToAstroBox))]
-        static void RestoreItemIndex(UIStatisticsWindow __instance)
+        static void RestoreItemIndex(UIStatisticsWindow __instance, int __state)
         {
             if (!__instance.isStatisticsTab || __instance.astroBox == null) return;
 
-            /*
-            // 如果有不同名稱的項目有同一個data(Bottleneck本地系統), 則回復原本的itemIndex
+            // 如果有不同名稱的項目有同一個data(本地系统), 則回復原本的itemIndex
             try
             {
                 int length = __instance.astroBox.ItemsData.Count;
@@ -333,7 +332,6 @@ namespace StatsUITweaks
                 Plugin.Log.LogDebug(e);
 #endif
             }
-            */
 
             if (locateBtn == null) return;
             var astroId = __instance.astroFilter;
