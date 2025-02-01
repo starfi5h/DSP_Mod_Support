@@ -151,10 +151,10 @@ namespace FactoryLocator.UI
             // Sigal Control settings
             x_ = 0f;
             iconText = CreateTitleText("Signal Icon");
-            AddElement(iconText.transform as RectTransform, 0f, 34f);
+            AddElement(iconText.transform as RectTransform, -20f, 34f);
 
             Util.CreateSignalIcon(out iconBtn, out iconImage);
-            AddElement(iconBtn.transform as RectTransform, 70f, -3f);
+            AddElement(iconBtn.transform as RectTransform, 90f, -3f);
             iconBtn.onClick += OnIconBtnClick;
 
             clearAllBtn = Util.CreateButton("Clear All", 70f, 24f);
