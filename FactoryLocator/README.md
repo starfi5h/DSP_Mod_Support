@@ -105,13 +105,17 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 - 淡蓝: 额外产出
 - 淡黄: 生产加速
 - 淡红: 混合
-
-![标红的蓝图建筑](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo5.jpg)  
+  
 在警报-全部子类别中, 蓝图标红建筑可以用红X(404)信号找寻  
+警报-全部可以查询当下射线接收站状态  
+- 黄电(信号503): 射线持续接受率不足99.9%  
+- 燃料不足(信号508): 缺乏透镜  
+  
 此外，数字标记0~2代表喷涂机状态:  
 - 0(信号600): 无增产剂  
 - 1(信号601): 缺失增产剂输入  
 - 2(信号602): 缺失增产剂输出  
+
 
 ![中键循序镜头](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)
 - 左键单击信标详细信息图标可以显示警报位置。单击其他区域以关闭它。  

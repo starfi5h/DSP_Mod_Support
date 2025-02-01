@@ -1,7 +1,7 @@
 {
   "name": "FactoryLocator",
   "description": "Find the positions of specified machines by type/recipe/content and ping on map. Ctrl + F to open the search window. 工厂定位:寻找星球上的产线/矿脉/箱子内物品的位置",
-  "version_number": "1.3.8",
+  "version_number": "1.3.9",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/FactoryLocator",
   "dependencies": [ "CommonAPI-CommonAPI-1.6.5" ]
 }

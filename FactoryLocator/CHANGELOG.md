@@ -1,3 +1,11 @@
+## DSP 0.10.32
+
+### v1.3.9
+\- Adapt to game version 0.10.32.25552  
+\- Add ray receiver warning: signal_lightning for continuous reciving < 99.9% and signal_no_fuel for no graviton lenses. Only available in Warning - All mode.  
+
+## DSP 0.10.31
+
 ### v1.3.8
 \- Add blueprint error signal 404. Only available in local planet and Warning - All mode.  
 
@@ -11,6 +19,9 @@
 ### v1.3.5
 \- Add signal picker subcategory Recording Mode.  
 \- Add spraycoater signal status 601 (no input belt) and 602 (no output belt)  
+
+<details>
+<summary>Previous Changelog</summary>
 
 ### v1.3.4
 \- Auto query the item/recipe under mouse cursor while opening the panel.  
@@ -40,8 +51,7 @@
 ### v1.2.1 (DSP 0.10.28.20829)  
 \- Adapt to CommonAPI 1.6.0  
 
-<details>
-<summary>Previous Changelog</summary>
+## DSP 0.9.27
 
 ### v1.2.0 (DSP 0.9.27.15466)
 \- Add Auto Clear Query.  
