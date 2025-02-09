@@ -21,7 +21,7 @@ namespace NebulaCompatibilityAssist
     {
         public const string GUID = "NebulaCompatibilityAssist";
         public const string NAME = "NebulaCompatibilityAssist";
-        public const string VERSION = "0.4.24";
+        public const string VERSION = "0.4.25";
 
         public static Plugin Instance { get; private set; }
         public Harmony Harmony { get; private set; }

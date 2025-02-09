@@ -19,6 +19,7 @@ using NebulaWorld.MonoBehaviours.Local.Chat;
 using NebulaWorld.Player;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using TMPro;
@@ -45,11 +46,11 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //PatchPacketProcessor(harmony);
                     //Log.Info("Nebula hotfix 0.9.10 - OK");
                 }
-                if (nebulaVersion < new System.Version(0, 9, 15))
+                if (nebulaVersion < new System.Version(0, 9, 14 + 1))
                 {
-                    //harmony.PatchAll(typeof(Warper0914));
+                    harmony.PatchAll(typeof(Warper0914));
                     //PatchPacketProcessor(harmony);
-                    //Log.Info("Nebula new feature 0.9.14 - OK");
+                    Log.Info("Nebula new feature 0.9.14 - OK");
                 }
             }
             catch (Exception e)
@@ -79,6 +80,58 @@ namespace NebulaCompatibilityAssist.Hotfix
             harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
         }
         */
+    }
+
+    public static class Warper0914
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UIControlPanelPlanetEntry), nameof(UIControlPanelPlanetEntry.Refresh))]
+        public static bool Refresh_Prefix(UIControlPanelPlanetEntry __instance)
+        {
+            if (!__instance.isTargetDataValid)
+            {
+                return false;
+            }
+            UpdateBanner(__instance); // ReversePatch
+            __instance.RefreshExpanded(__instance.isExpanded);
+            PlayerNavigation navigation = GameMain.mainPlayer.navigation;
+            __instance.navigationButton.highlighted = navigation.indicatorAstroId == __instance.planet.astroId;
+            return false;
+        }
+
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(UIControlPanelPlanetEntry), nameof(UIControlPanelPlanetEntry.UpdateBanner))]
+        public static void UpdateBanner(UIControlPanelPlanetEntry __instance)
+        {
+            IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                try
+                {
+                    // Change: this.planet.factory.gameData.mainPlayer.uPosition
+                    // To:     GameMain.player.uPosition
+                    var codeMacher = new CodeMatcher(instructions)
+                        .MatchForward(false,
+                            new CodeMatch(OpCodes.Ldarg_0),
+                            new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planet"),
+                            new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "factory"),
+                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_gameData"),
+                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_mainPlayer")
+                        )
+                        .RemoveInstructions(4)
+                        .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(GameMain), "get_mainPlayer"));
+
+                    return codeMacher.InstructionEnumeration();
+                }
+                catch (System.Exception e)
+                {
+                    Log.Warn("Transpiler UIControlPanelPlanetEntry.UpdateBanner error");
+                    Log.Warn(e);
+                    return instructions;
+                }
+            }
+
+            _ = Transpiler(null);
+        }
     }
 
     public static class SuppressErrors
@@ -114,7 +167,7 @@ namespace NebulaCompatibilityAssist.Hotfix
             return null;
         }
 
-        static List<string> IgnorePluginList = new()
+        static readonly List<string> IgnorePluginList = new()
         {
             "IlLine",
             "CloseError",

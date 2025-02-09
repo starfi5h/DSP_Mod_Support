@@ -2,6 +2,9 @@
 
 ## Gamae version 0.10.32
 
+#### v0.4.25 (Nebula 0.9.14)
+\- Fix MissingFieldException: Field 'UIControlPanelPlanetEntry.planetNameTextSettings' not found in UIControlPanelPlanetEntry.UpdateBanner  
+
 #### v0.4.24 (Nebula 0.9.14)
 \- Update MoreMegaStructure v1.7.6 compat
 

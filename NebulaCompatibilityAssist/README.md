@@ -1,6 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.14 hotfix: None  
+Nebula 0.9.14 hotfix:  
+- Fix MissingFieldException: Field 'UIControlPanelPlanetEntry.planetNameTextSettings' not found in UIControlPanelPlanetEntry.UpdateBanner  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
