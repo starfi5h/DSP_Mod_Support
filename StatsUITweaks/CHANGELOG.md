@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.3 (DSP 0.10.32.25595)
+- Add extend consumption power detail button
+- Prevent windows from closing when opening dashboard
+- Prevent control panel from closing when pressing E key
+- 新增'扩展耗电设施'按钮
+- 打开仪表板时不再关闭现有视窗
+- 在物流总控面板开启时，按E键不再关闭面板
+
 ## v1.6.2 (DSP 0.10.32.25552)
 - Add local planetary systemin astro list
 - Add `RefRateTweak` config option

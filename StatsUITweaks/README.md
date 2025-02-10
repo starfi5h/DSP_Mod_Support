@@ -18,7 +18,9 @@ Adds QoL features to the statistics panel.
 - Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap. Show astroId and index of factory in the button tip.  
 
 ![controlPanel](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/controlPanel.png)  
-Support astro list in Logistics Control Panel (I) too.  
+- Support astro list rich text and hotkey in Logistics Control Panel (I) too.  
+- Prevent windows from closing when opening dashboard.
+- Prevent control panel from closing when pressing E key.
 
 ## Configuration
 Run the game one time to generate `BepInEx\config\starfi5h.plugin.StatsUITweaks.cfg` file.  
@@ -48,6 +50,9 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 
 增加统计面板UI的便利性
 
+\- 打开仪表板时不再关闭现有视窗  
+\- 在物流总控面板开启时，按E键不再关闭面板  
+
 - Display /s  
 将生产/消耗速率以秒显示
 
@@ -58,7 +63,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 将生产/消耗速率和参考速率的字体放大(18->26)
 
 - 保存过滤条件  
-在切换时间范围或关闭视窗时保存产物的过滤条件，再打开时不会重置
+在切换时间范围或关闭视窗时保存产物的过滤条件，再开启时不会重置
 
 - 统计当前星系  
 在下拉清单列表中加入本地星系项目
@@ -104,3 +109,5 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
 
 ![demo3](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo3.jpg)  
+
+![extendPowerDetail](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/extendPowerDetail.png)  

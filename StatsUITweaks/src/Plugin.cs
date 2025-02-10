@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.2";
+        public const string VERSION = "1.6.3";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -62,11 +62,16 @@ namespace StatsUITweaks
             if (NumericPlanetNo.Value)
                 harmony.PatchAll(typeof(PlanetNamePatch));
             if (FoldButton.Value)
+            {
                 harmony.PatchAll(typeof(PerformancePanelPatch));
+                harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
+            }
             harmony.PatchAll(typeof(UIControlPanelPatch));
             harmony.PatchAll(typeof(StatsWindowPatch.Entry_Patch));
             if (RefRateTweak.Value)
                 harmony.PatchAll(typeof(RefProductSpeedPatch));
+            harmony.PatchAll(typeof(UIGamePatch));
+            harmony.PatchAll(typeof(StatPlanPatch));
         }
 
 #if DEBUG
@@ -74,6 +79,7 @@ namespace StatsUITweaks
         {
             StatsWindowPatch.OnDestory();
             PerformancePanelPatch.OnDestory();
+            UIStatisticsPowerDetailPanelPatch.OnDestory();
             harmony.UnpatchSelf();
             harmony = null;
         }
