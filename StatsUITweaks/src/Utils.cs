@@ -109,6 +109,7 @@ namespace StatsUITweaks
             if (OrderByName) // 以星系名稱排序
                 systemList.Sort();
 
+            bool applySearch = !string.IsNullOrEmpty(searchStr); //過濾名稱
             foreach (var tuple in systemList)
             {
                 int starId = tuple.Item2 / 100;
@@ -118,20 +119,35 @@ namespace StatsUITweaks
                     if (astroId / 100 == starId)
                     {
                         string itemName = astroBox.Items[i];
+                        bool shouldAdd = true;
 
                         if (astroId % 100 != 0)
                         {
                             if (!itemName.StartsWith(PlanetPrefix) || !itemName.EndsWith(PlanetPostfix))
                                 itemName = PlanetPrefix + itemName + PlanetPostfix;
+                            if (applySearch && itemName.Length > PlanetPrefix.Length)
+                            {
+                                int index = itemName.IndexOf(searchStr, PlanetPrefix.Length, StringComparison.OrdinalIgnoreCase);
+                                shouldAdd = index >= 0 && index < itemName.Length - PlanetPostfix.Length;
+                            }
+
                         }
                         else
                         {
                             if (!itemName.StartsWith(SystemPrefix) || !itemName.EndsWith(SystemPostfix))
                                 itemName = SystemPrefix + itemName + SystemPostfix;
+                            if (applySearch && itemName.Length > SystemPrefix.Length)
+                            {
+                                int index = itemName.IndexOf(searchStr, SystemPrefix.Length, StringComparison.OrdinalIgnoreCase);
+                                shouldAdd = index >= 0 && index < itemName.Length - SystemPostfix.Length;
+                            }
                         }
 
-                        newItems.Add(itemName);
-                        newItemData.Add(astroBox.ItemsData[i]);
+                        if (shouldAdd)
+                        {
+                            newItems.Add(itemName);
+                            newItemData.Add(astroBox.ItemsData[i]);
+                        }
                     }
                 }
             }
@@ -146,21 +162,6 @@ namespace StatsUITweaks
 
             astroBox.Items.AddRange(newItems);
             astroBox.ItemsData.AddRange(newItemData);
-
-            if (!string.IsNullOrEmpty(searchStr))
-            {
-                for (int i = astroBox.Items.Count - 1; i >= startIndex; i--)
-                {
-                    int nameStart = astroBox.ItemsData[i] % 100 == 0 ? SystemPrefix.Length : PlanetPrefix.Length;
-                    int nameEnd = astroBox.Items[i].Length - (astroBox.ItemsData[i] % 100 == 0 ? SystemPostfix.Length : PlanetPostfix.Length);
-                    int result = astroBox.Items[i].IndexOf(searchStr, nameStart, StringComparison.OrdinalIgnoreCase);
-                    if (result == -1 || (result + searchStr.Length) > nameEnd)
-                    {
-                        astroBox.Items.RemoveAt(i);
-                        astroBox.ItemsData.RemoveAt(i);
-                    }
-                }
-            }
         }
     }
 }

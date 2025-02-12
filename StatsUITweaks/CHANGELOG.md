@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.6.4
+- Fix exception of String.IndexOf in Utils.UpdateAstroBox
+
 ## v1.6.3 (DSP 0.10.32.25595)
 - Add extend consumption power detail button
 - Prevent windows from closing when opening dashboard
