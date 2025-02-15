@@ -20,7 +20,7 @@
             StringManager.RegisterString("Resume", "恢复");
             StringManager.RegisterString("Reset game speed back to 1x", "将游戏速度重设为1倍");
             StringManager.RegisterString("SpeedUp", "加速");
-            StringManager.RegisterString("Increase game speed (max 4x)", "加快游戏速度(最高4倍)");
+            StringManager.RegisterString("Left click to increase game speed\nRight click to set to max ({0}x)", "左键单击可提高游戏速度\n右键单击可设置为最大({0}x)");
 
             StringManager.RegisterString("Background autosave", "后台自动保存");
             StringManager.RegisterString("Read-Only", "只读模式");
@@ -34,6 +34,10 @@
             StringManager.RegisterString("Host is saving game...", "主机正在保存游戏...");
             StringManager.RegisterString("{0} arriving {1}", "{0} 即将抵达 {1}");
             StringManager.RegisterString("{0} joining the game", "{0} 正在加入游戏");
+
+            StringManager.RegisterString("{0} pause the game", "{0} 暂停游戏");
+            StringManager.RegisterString("{0} resume the game", "{0} 继续游戏");
+            StringManager.RegisterString("{0} set game speed = {1:F1}", "{0} 设置游戏速度 = {1:F1}");
         }
     }
 }

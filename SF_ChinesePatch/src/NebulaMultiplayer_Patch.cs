@@ -50,6 +50,8 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Streamer mode", "直播模式");
             StringManager.RegisterString("If enabled specific personal information like your IP address is hidden from the ingame chat and input fields.", "直播模式中，隐私数据（IP地址等）将会用星号隐藏");
             StringManager.RegisterString("Enable Achievement", "启用成就");
+            StringManager.RegisterString("Toggle to enable achievement in multiplayer game", "启用后，可以在联机模式中获得成就");
+            StringManager.RegisterString("Enable Other Player Sounds", "启用其他玩家的音效");
             StringManager.RegisterString("Player List Hotkey", "玩家列表热键");
 
             StringManager.RegisterString("Server Password", "服务器密码");
@@ -125,7 +127,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("You have been disconnected from the server.", "你已与服务器断开连接。");
 
             StringManager.RegisterString("Server Unavailable", "无法使用");
-            StringManager.RegisterString("Could not reach the server, please try again later.", "无法连接到服务器，请确认网络状态。");
+            StringManager.RegisterString("Can't reach the server. Please check the network status.\n(Refer Nebula wiki for troubleshooting)", "无法连接到服务器，请确认网络状态。");
             #endregion
 
             #region Popout 提示
@@ -151,6 +153,9 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Please wait for server respond", "请等待服务器响应");
             StringManager.RegisterString("(Desync) EntityId mismatch {0} != {1} on planet {2}. Clients should reconnect!", "(不同步) EntityId不匹配 {0} != {1} 在星球 {2} 上。请重新连接！");
             StringManager.RegisterString("(Desync) PrebuildId mismatch {0} != {1} on planet {2}. Please reconnect!", "(不同步) PrebuildId不匹配 {0} != {1} 在星球 {2} 上。请重新连接！");
+
+            StringManager.RegisterString("Server reject destruct request due to protoId desync", "(不同步) 服务器拒绝拆除请求");
+            StringManager.RegisterString("Server reject upgrade request due to protoId desync", "(不同步) 服务器拒绝升级请求");
             #endregion
 
             #region Battle notification 戰鬥提示
@@ -227,6 +232,7 @@ namespace SF_ChinesePatch
             StringManager.RegisterString("Mods installed:", "已安装模组:");
             StringManager.RegisterString("Client info:", "客户端信息:");
             StringManager.RegisterString("Host IP address: ", "主机 IP 地址: ");
+            StringManager.RegisterString("Server UPS: ", "主机逻辑帧率: ");            
             StringManager.RegisterString("Use '/info full' to see mod list.", "使用 '/info full' 查看模组列表。");
             StringManager.RegisterString("Get information about server", "获取服务器信息");
 
