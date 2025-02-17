@@ -10,7 +10,6 @@ namespace StatsUITweaks
         // 套用至每個呼叫FactoryProductionStat.AddRefProductSpeed的函式
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(ProductionExtraInfoCalculator), nameof(ProductionExtraInfoCalculator.CalculateFactory))]
-        [HarmonyPatch(typeof(ProductionStatistics), nameof(ProductionStatistics.RefreshItemsCyclicRefSpeedWithFactory))]
         [HarmonyPatch(typeof(UIReferenceSpeedTip), nameof(UIReferenceSpeedTip.AddEntryDataWithFactory))]
         public static IEnumerable<CodeInstruction> IncUsed_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
