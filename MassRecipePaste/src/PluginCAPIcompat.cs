@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿#if !DEBUG
+using BepInEx;
 using CommonAPI;
 using CommonAPI.Systems;
 using UnityEngine;
@@ -35,4 +36,5 @@ namespace MassRecipePaste
             return CustomKeyBindSystem.GetKeyBind("MassRecipePaste").keyValue;
         }
     }
-}
+}            
+#endif

@@ -15,7 +15,7 @@ namespace MassRecipePaste
     {
         public const string GUID = "starfi5h.plugin.MassRecipePaste";
         public const string NAME = "MassRecipePaste";
-        public const string VERSION = "1.1.1";
+        public const string VERSION = "1.1.2";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -35,6 +35,7 @@ namespace MassRecipePaste
             harmony.PatchAll(typeof(Patches));
             harmony.PatchAll(typeof(ExtraCopy));
             LoadConfigs();
+            Log.LogDebug(VERSION);
         }
 
         public void LoadConfigs()

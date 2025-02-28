@@ -74,6 +74,7 @@ MassPasteKey = Period + LeftControl
 
 ## Changelog
 
+v1.1.2 - Adapt to game version 0.10.32.25700   
 v1.1.1 - Fix KeyboardShortcut error in BepInEx version 5.4.22  
 v1.1.0 - Add CommonAPI compat to enable custom keybind in game.  
 v1.0.0 - Initial release. (DSP-0.10.30.22292)  

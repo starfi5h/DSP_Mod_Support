@@ -145,8 +145,7 @@ namespace MassRecipePaste
                             model.connRenderer.AddBlueprintBeltPoint(buildPreview.lpos, buildPreview.lrot, color);
                         }
                     }
-
-                    model.connRenderer.AddXSign(buildPreview.lpos, buildPreview.lrot);
+                    //model.connRenderer.AddXSign(buildPreview.lpos, buildPreview.lrot);
                 }
             }
         }
@@ -155,6 +154,7 @@ namespace MassRecipePaste
 
         public void UpdateRaycast()
         {
+            // Full copy from BuildTool_BlueprintCopy.UpdateRaycast
             castTerrain = false;
             castGround = false;
             castGroundPos = Vector3.zero;
@@ -261,6 +261,8 @@ namespace MassRecipePaste
 
             if (isSelecting)
             {
+                // Change cursor to indicate the selecting mode
+                UICursor.SetCursor(ECursor.TargetIn);
                 DetermineSelectGratBox();
                 if (lastSelectGratBox != selectGratBox)
                 {
@@ -501,7 +503,7 @@ namespace MassRecipePaste
             }
 
             ModelProto modelProto = LDB.models.Select(preview.desc.modelIndex);
-            Color32 color = Configs.builtin.pasteConfirmOkColor; // cyan Color32(44, 123, 250, byte.MaxValue)
+            Color32 color = new(44, 123, 250, 255); // cyan Configs.builtin.pasteConfirmOkColor
 
             if (modelProto.RendererType == 2)
             {

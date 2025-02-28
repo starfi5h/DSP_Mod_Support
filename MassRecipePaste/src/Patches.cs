@@ -22,6 +22,7 @@ namespace MassRecipePaste
             tool = new DragPasteTool();
             ourTools[ourTools.Length - 1] = tool;
             __instance.tools = ourTools;
+            Plugin.Log.LogDebug("Add DragPasteTool. Total tools count: " + ourTools.Length);
         }
 
         [HarmonyPostfix]
@@ -48,21 +49,23 @@ namespace MassRecipePaste
 
         static bool IsHotKey()
         {
+#if !DEBUG
             // Modify from VFInput._pasteKey, as it doesn't support modified key
             if (PluginCAPIcompat.IsRegisiter)
             {
                 return PluginCAPIcompat.IsPressed();
             }
-            else if (isCustomHotkey)
+#endif
+            if (isCustomHotkey)
             {
                 return Plugin.MassPasteKey.Value.IsPressed();
             }
 
             if (!VFInput.override_keys[31].IsNull())
             {
-                return VFInput.control && VFInput._InputValueNoCombatOrFullscreen(VFInput.axis_combine_key, 31).onDown;
+                return VFInput.control && VFInput._InputValueNoCombatOrFullscreenOrScreenshot(VFInput.axis_combine_key, 31).onDown;
             }
-            return VFInput.control && VFInput._InputValueNoCombatOrFullscreen(VFInput.axis_button, 33).onDown;
+            return VFInput.control && VFInput._InputValueNoCombatOrFullscreenOrScreenshot(VFInput.axis_button, 33).onDown;
         }
 
         [HarmonyPrefix]
@@ -77,12 +80,6 @@ namespace MassRecipePaste
             return true;
         }
 
-
-        static readonly int cursorGratBox = Shader.PropertyToID("_CursorGratBox");
-        static readonly int selectColor = Shader.PropertyToID("_SelectColor");
-        static readonly int tintColor = Shader.PropertyToID("_TintColor");
-        static readonly int showDivideLine = Shader.PropertyToID("_ShowDivideLine");
-
         [HarmonyPostfix, HarmonyPriority(Priority.Last)]
         [HarmonyPatch(typeof(UIBuildingGrid), nameof(UIBuildingGrid.Update))]
         public static void UpdateGrid(UIBuildingGrid __instance)
@@ -91,35 +88,37 @@ namespace MassRecipePaste
             PlanetFactory planetFactory = GameMain.localPlanet?.factory;
             if (planetFactory == null) return;
             if (GameMain.localPlanet.type == EPlanetType.Gas) return;
+            if (tool == null || !tool.active) return;
 
-            PlayerAction_Build actionBuild = mainPlayer?.controller.actionBuild;
+            PlayerAction_Build actionBuild = mainPlayer?.controller?.actionBuild;
             if (actionBuild == null) return;
             if (actionBuild.blueprintMode != EBlueprintMode.None) return;
 
-            if (!tool.active) return;
+            PlanetGrid planetGrid = null;
+            if (GameMain.localPlanet != null && GameMain.localPlanet.aux != null && GameMain.localPlanet.aux.activeGridIndex < GameMain.localPlanet.aux.customGrids.Count)
+            {
+                planetGrid = GameMain.localPlanet.aux.customGrids[GameMain.localPlanet.aux.activeGridIndex];
+            }
+            if (planetGrid == null) return;
 
+            Vector4 vector = Vector4.zero;
             if (tool.isSelecting)
             {
-                __instance.blueprintMaterial.SetColor(tintColor, __instance.blueprintColor); // Color.clear
-                __instance.blueprintMaterial.SetVector(cursorGratBox, (Vector4)tool.selectGratBox);
-                __instance.blueprintMaterial.SetVector(selectColor, __instance.buildColor); 
-                __instance.blueprintMaterial.SetFloat(showDivideLine, 0f);
-                __instance.blueprintGridRnd.enabled = true;
+                __instance.gridRnd.enabled = actionBuild.blueprintMode == EBlueprintMode.None;
+                __instance.gridRnd.transform.localScale = new Vector3(__instance.displayScale, __instance.displayScale, __instance.displayScale);
+                __instance.gridRnd.transform.rotation = planetGrid.rotation;
+
+                // using code part in if(mode == -2) of the upgrade tool
+                __instance.material.SetColor("_TintColor", new Color(0.4f, 0.5f, 0f)); // Color of the gird
+                __instance.material.SetFloat("_ReformMode", 0f);
+                __instance.material.SetFloat("_ZMin", -0.5f);
+                vector = (Vector4)tool.selectGratBox;
             }
             else
             {
-                __instance.blueprintMaterial.SetColor(tintColor, __instance.blueprintColor);
-                __instance.blueprintMaterial.SetVector(cursorGratBox, Vector4.zero);
-                __instance.blueprintMaterial.SetVector(selectColor, Vector4.one);
-                __instance.blueprintMaterial.SetFloat(showDivideLine, 0f);
-                __instance.blueprintGridRnd.enabled = false;
-            }
 
-            for (int l = 0; l < 64; l++)
-            {
-                __instance.blueprintMaterial.SetVector($"_CursorGratBox{l}", Vector4.zero);
-                __instance.blueprintMaterial.SetFloat($"_CursorGratBoxInfo{l}", 0f);
             }
+            __instance.material.SetVector("_CursorGratBox", vector);
         }
     }
 }
