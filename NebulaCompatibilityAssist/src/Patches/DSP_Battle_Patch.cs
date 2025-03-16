@@ -17,7 +17,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "DSP_Battle";
         private const string GUID = "com.ckcz123.DSP_Battle";
-        private const string VERSION = "3.1.2";
+        private const string VERSION = "3.4.10";
 
         private static IModCanSave Save;
 
@@ -84,7 +84,6 @@ namespace NebulaCompatibilityAssist.Patches
         {
             if (Save != null)
             {
-                Log.Dev($"AssemblerVerticalConstruction import data");
                 using var p = NebulaModAPI.GetBinaryReader(bytes);
                 Save.Import(p.BinaryReader);
             }
@@ -171,9 +170,6 @@ namespace NebulaCompatibilityAssist.Patches
             static void AddRelic_Postfix(int type, int num)
             {
                 if (!Multiplayer.IsActive || IsIncoming) return;
-
-                Log.Info(System.Environment.StackTrace);
-
                 Multiplayer.Session.Network.SendPacket(new NC_BattleUpdate(NC_BattleUpdate.EType.AddRelic, type, num));
             }
 
@@ -201,6 +197,59 @@ namespace NebulaCompatibilityAssist.Patches
                 if (!Multiplayer.IsActive || IsIncoming) return;
                 Multiplayer.Session.Network.SendPacket(new NC_BattleUpdate(NC_BattleUpdate.EType.ResetAuthorizationPoint,
                     0, 0));
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(PlanetFactory), nameof(PlanetFactory.KillEnemyFinally))]
+            static void KillEnemyFinally_Prefix(PlanetFactory __instance, int enemyId)
+            {
+                if (!Multiplayer.IsActive || !Multiplayer.Session.IsClient || !Multiplayer.Session.Combat.IsIncomingRequest.Value)
+                {
+                    return;
+                }
+
+                if (enemyId <= 0 || enemyId >= __instance.enemyPool.Length) return;
+
+                // 如果是由其他玩家擊殺(DFGKillEnemyProcessor.cs), 觸發地面敵人擊殺效果
+                try
+                {
+                    CombatStat combatStat = new();
+                    combatStat.astroId = __instance.planetId;
+                    combatStat.objectType = 4;
+                    combatStat.objectId = enemyId;
+                    DSP_Battle.EventSystem.ZeroHpInceptor(ref combatStat, GameMain.data, GameMain.data.spaceSector.skillSystem);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn(ex);
+                }
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(SpaceSector), nameof(SpaceSector.KillEnemyFinal))]
+            static void KillEnemyFinal_Prefix(SpaceSector __instance, int enemyId)
+            {
+                if (!Multiplayer.IsActive || !Multiplayer.Session.IsClient || !Multiplayer.Session.Enemies.IsIncomingRequest.Value)
+                {
+                    return;
+                }
+
+                if (enemyId <= 0 || enemyId >= __instance.enemyPool.Length) return;
+
+                // 如果是由其他玩家擊殺(DFSKillEnemyProcessor.cs), 觸發太空敵人擊殺效果
+                try
+                {
+                    ref EnemyData ptr = ref __instance.enemyPool[enemyId];
+                    CombatStat combatStat = new();
+                    combatStat.astroId = ptr.originAstroId;
+                    combatStat.objectType = 4;
+                    combatStat.objectId = enemyId;
+                    DSP_Battle.EventSystem.ZeroHpInceptor(ref combatStat, GameMain.data, GameMain.data.spaceSector.skillSystem);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn(ex);
+                }
             }
         }
     }
