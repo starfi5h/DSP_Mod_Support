@@ -42,6 +42,7 @@ namespace NebulaCompatibilityAssist.Patches
             AutoStationConfig.Init(harmony);
             Auxilaryfunction.Init(harmony);
             UXAssist_Patch.Init(harmony);
+            Dustbin.Init(harmony);
             DSPOptimizations.Init(harmony);
             SphereOpt_Patch.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
