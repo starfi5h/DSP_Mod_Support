@@ -34,6 +34,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [DSPStarMapMemo](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPStarMapMemo/)
 - Memo now sync when players add/remove icons, or finish editing text area.  
 
+### [Dustbin](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/Dustbin/)
+- Fix belt signal doesn't work for client when they land on the planet.  
+- Fix error when client leave the star system with belt signal.  
+
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
 
@@ -114,6 +118,10 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [DSPStarMapMemo](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPStarMapMemo/)
 - 同步星球註記  
+
+### [Dustbin](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/Dustbin/)
+- 修复客户端降落到行星上时传送带信号不起作用的问题。
+- 修复客户端离开带有传送带信号的星系时的错误。
 
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - 让客机能显示远端星球的建物讯息(需求主机也安装mod)  

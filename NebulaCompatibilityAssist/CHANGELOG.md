@@ -2,11 +2,15 @@
 
 ## Gamae version 0.10.32
 
+#### v0.4.26 (Nebula 0.9.16)
+\- Add Dustbin v1.3.3 compat  
+\- Update TheyComeFromVoid v3.4.10 compat  
+
 #### v0.4.25 (Nebula 0.9.14)
 \- Fix MissingFieldException: Field 'UIControlPanelPlanetEntry.planetNameTextSettings' not found in UIControlPanelPlanetEntry.UpdateBanner  
 
 #### v0.4.24 (Nebula 0.9.14)
-\- Update MoreMegaStructure v1.7.6 compat
+\- Update MoreMegaStructure v1.7.6 compat  
 
 ## Game version 0.10.31
 
