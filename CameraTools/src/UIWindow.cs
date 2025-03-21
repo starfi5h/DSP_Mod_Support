@@ -6,12 +6,12 @@ namespace CameraTools
     static class UIWindow
     {
         private static Rect modConfigWindow = new(320f, 20f, 400f, 350f);
-        private static Rect cameraListWindow = new(20f, 260f, 300f, 240f);
+        private static Rect cameraListWindow = new(20f, 260f, 300f, 300f);
         private static Rect cameraConfigWindow = new(320f, 260f, 300f, 380f);
         private static Rect pathListWindow = new(900f, 350f, 320f, 300f);
         private static Rect pathConfigWindow = new(1200f, 350f, 320f, 380f);
         private static Rect targetConfigWindow = new(900f, 350f, 300f, 300f);
-        private static Rect recordWindow = new(900f, 20f, 300f, 300f);
+        private static Rect recordWindow = new(900f, 20f, 320f, 350f);
 
         public static bool CanResize { get; private set; }
         public static CameraPoint EditingCam { get; set; }

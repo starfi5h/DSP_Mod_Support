@@ -12,6 +12,8 @@ namespace CameraTools
         public static ConfigEntry<string> ScreenshotFolderPath;
         public static ConfigEntry<int> ScreenshotWidth;
         public static ConfigEntry<int> ScreenshotHeight;
+        public static ConfigEntry<bool> UsePNG;
+        public static ConfigEntry<bool> UseHD;
         public static ConfigEntry<int> JpgQuality;
         public static ConfigEntry<bool> UseSubfolder;
 
@@ -29,11 +31,12 @@ namespace CameraTools
         static double lastTimeF; //上次邏輯幀的時間timef
         static bool inSession;   //還在錄製區段中
         static string folderPath = ""; //儲存截圖/錄製影片的資料夾
+        static float LOD_Culling_Mul = 1f; //截圖模式LOD倍率(?)
 
         // Image cature paramters
         static int fileIndex;
         readonly static string subfolderFormatString = "MMdd_HHmmss";
-        readonly static string fileFormatString = "{0:D6}.jpg";
+        readonly static string fileFormatString = "{0:D6}";
 
         // Video catpure paramters
         static bool videoRecordingEnabled = true;
@@ -56,8 +59,12 @@ namespace CameraTools
                 "Resolution width of timelapse screenshots");
             ScreenshotHeight = config.Bind("- TimeLapse -", "Output Height", 1080,
                 "Resolution height of timelapse screenshots");
+
+            UsePNG = config.Bind("- TimeLapse -", "UsePNG", true,
+                "If true, the screenshots image format is PNG; otherwise is JPG");
+            UseHD = config.Bind("- TimeLapse -", "UseHD", false);
             JpgQuality = config.Bind("- TimeLapse -", "JPG Quality", 95,
-                new ConfigDescription("Quality of screenshots", new AcceptableValueRange<int>(0, 100)));
+                new ConfigDescription("Quality of JPG screenshots", new AcceptableValueRange<int>(0, 100)));
             UseSubfolder = config.Bind("- TimeLapse -", "Use Subfolder", true,
                 "Screenshot will be saved in the subfolder in Datetime foramt MMdd_HHmmss");
 
@@ -122,7 +129,8 @@ namespace CameraTools
                 else
                 {
                     var fileName = Path.Combine(folderPath, string.Format(fileFormatString, fileIndex++));
-                    EncodeAndSave(texture2D, fileName, JpgQuality.Value);
+                    if (UsePNG.Value) EncodeAndSavePNG(texture2D, fileName + ".png");
+                    else EncodeAndSaveJPG(texture2D, fileName + ".jpg", JpgQuality.Value);
                 }
 
                 if (syncProgress && CapturingPath is { IsPlaying: false })
@@ -189,6 +197,7 @@ namespace CameraTools
                 Camera camera = GameCamera.main;
 
                 //stopwatch.Begin();
+                if (LOD_Culling_Mul != 1f) Shader.SetGlobalFloat("_Global_LOD_Culling_Mul", LOD_Culling_Mul); // Screenshot mode: HD
                 RenderTexture renderTexture = new(width, height, 24);
                 camera.targetTexture = renderTexture;
                 camera.cullingMask = (int)GameCamera.instance.gameLayerMask;
@@ -205,6 +214,7 @@ namespace CameraTools
                 //Plugin.Log.LogDebug("Render: \t" + stopwatch.duration);
 
                 //stopwatch.Begin();
+                if (LOD_Culling_Mul != 1f) Shader.SetGlobalFloat("_Global_LOD_Culling_Mul", 1f); // Screenshot mode: revert
                 Texture2D texture2D = new(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);                
                 RenderTexture.active = renderTexture;
                 texture2D.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0); // Expensive!
@@ -228,22 +238,21 @@ namespace CameraTools
         /// Encode Texture2D in JPG format and save as file in multi-thread, then release Texture2D in main thread
         /// </summary>
         /// <param name="jpgQuality">The quality of the jpg image, range from 0 to 100</param>
-        static void EncodeAndSave(Texture2D texture2D, string fileName, int jpgQuality = 100)
+        static void EncodeAndSaveJPG(Texture2D texture2D, string fileName, int jpgQuality = 100)
         {
             ThreadingHelper.Instance.StartAsyncInvoke(() =>
             {
                 try
                 {
-                    HighStopwatch stopwatch = new();
-                    stopwatch.Begin();
+                    HighStopwatch stopwatch = new(); stopwatch.Begin();
                     var bytes = texture2D.EncodeToJPG(jpgQuality);
-                    statusText = $"[{fileIndex:D6}.jpg] {stopwatch.duration*1000}ms";
+                    statusText = $"[{fileIndex:D6}.jpg] {stopwatch.duration * 1000}ms";
                     //Plugin.Log.LogDebug(statusText);
                     File.WriteAllBytes(fileName, bytes);
                 }
                 catch (Exception ex)
                 {
-                    Plugin.Log.LogError("EncodeAndSave Failed!\n" + ex);
+                    Plugin.Log.LogError("EncodeAndSaveJPG Failed!\n" + ex);
                 }
                 return () =>
                 {
@@ -252,9 +261,54 @@ namespace CameraTools
             });
         }
 
+        /// <summary>
+        /// Encode Texture2D in PNG format and save as file in multi-thread, then release Texture2D in main thread
+        /// </summary>
+        static void EncodeAndSavePNG(Texture2D texture2D, string fileName)
+        {
+            ThreadingHelper.Instance.StartAsyncInvoke(() =>
+            {
+                try
+                {
+                    HighStopwatch stopwatch = new(); stopwatch.Begin();
+                    var bytes = texture2D.EncodeToPNG();
+                    statusText = $"[{fileIndex:D6}.png] {stopwatch.duration * 1000}ms";
+                    //Plugin.Log.LogDebug(statusText);
+                    File.WriteAllBytes(fileName, bytes);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError("EncodeAndSavePNG Failed!\n" + ex);
+                }
+                return () =>
+                {
+                    UnityEngine.Object.Destroy(texture2D);
+                };
+            });
+        }
+
+        static void SetShaderParameters()
+        {
+            if (!UseHD.Value) LOD_Culling_Mul = 1.0f;
+
+            // From HDScreenshot.PrepareHDScreenshot
+            float num = Mathf.Tan(GameCamera.screenshotFovX / 2f * 0.017453292f) * 2f / ScreenshotWidth.Value;
+            float num2 = 0.0006017031f;
+            float num3 = num / num2;
+            float num4 = 1f / num3;
+            if (num4 < 1f)
+            {
+                num4 = 1f;
+            }
+            num4 *= 3f;
+            num4 *= num4;
+            LOD_Culling_Mul = num4;
+            Plugin.Log.LogDebug("[HD] LOD_Culling_Mul = " + LOD_Culling_Mul);
+        }
 
         static void StartRecordSession()
         {
+            statusText = "";
             folderPath = videoRecordingEnabled ? VideoFolderPath.Value : ScreenshotFolderPath.Value;
             if (!Directory.Exists(folderPath))
             {
@@ -359,6 +413,7 @@ namespace CameraTools
             {
                 if (GUILayout.Button("Start Record".Translate()))
                 {
+                    SetShaderParameters();
                     StartRecordSession();
                 }
                 syncProgress = GUILayout.Toggle(syncProgress, "Sync Progress".Translate());
@@ -441,9 +496,16 @@ namespace CameraTools
         }
 
         private static void ImageCaptureSettingPanel()
-        {
+        {            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Image Format".Translate());
+            UsePNG.Value = GUILayout.Toggle(UsePNG.Value, "PNG");
+            UsePNG.Value = !GUILayout.Toggle(!UsePNG.Value, "JPG");
+            UseHD.Value = !GUILayout.Toggle(!UseHD.Value, "(HD mode)".Translate());
+            GUILayout.EndHorizontal();
+
             var tmp = JpgQuality.Value;
-            Util.ConfigIntField(JpgQuality);
+            if (!UsePNG.Value) Util.ConfigIntField(JpgQuality);
             Util.ConfigIntField(ScreenshotWidth);
             Util.ConfigIntField(ScreenshotHeight);
             if (tmp != JpgQuality.Value) JpgQuality.Value = JpgQuality.Value > 100 ? 100 : JpgQuality.Value;

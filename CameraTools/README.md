@@ -74,13 +74,15 @@ If rotation speed is set to negative, it will go clockwise. Can set by rotation 
 
 ## Timelapse Record (Alt+F7)
 
+Record Type: Choose to save as a sequence of images (png or jpg), or as a video (mp4).  
+
 ### Image Capture
 ![record image window](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/CameraTools/img/record-image-window.png)  
 First, set the screenshot folder path, then click `Start Record` button to take screenshots with the assigned camera path every x second.  
-The file format is `%06d.jpg` starting with 1. The index reset after the game restart.  
+The file format is `%06d.png` or `%06d.jpg` starting with 1. The index reset after the game restart or clicking the reset button.  
 - Status Text: When recording, display how long until the next capture. After capture, display file name and encode time.
 - Path: Select a camera path from the list to record in the secondary camera. If not selected, it will capture the main camera. Click play button to let the camera move along the path during recording.  
-  Note: This secondary camera only works best **on the local planet**. For space timelapse it is adviced to use the main camera.
+  Note: This secondary camera only works best **on the local planet**. For space timelapse it is adviced to use the main camera.  
 - JPG Quality: JPG quality to encode with. [The range is 1 through 100. 1 is the lowest quality.](https://docs.unity3d.com/ScriptReference/ImageConversion.EncodeToJPG.html)  
 - Auto Create Subfolder: When capturing start/stop, it will auto create a subfolder in format of `MMdd_HHmmss` to store screenshots.  
   

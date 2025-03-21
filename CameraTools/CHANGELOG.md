@@ -1,3 +1,6 @@
+#### v0.6.6
+- Record: Add Image Format option PNG and HD mode. (DSP 0.10.32.25712)  
+
 #### v0.6.5
 - Record: Add "Sync Progress" option.
 

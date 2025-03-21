@@ -112,7 +112,9 @@ namespace CameraTools
             { "Record Type", "录制类型" },
             { "Image", "图片" },
             { "Video", "视频" },
-            
+            { "Image Format", "图片格式" },
+            { "(HD mode)", "(高清模式)" },
+
             { "Output Width", "输出宽度" },
             { "Output Height", "输出高度" },
             { "Folder", "保存路径" },
