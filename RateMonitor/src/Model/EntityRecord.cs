@@ -7,22 +7,30 @@ namespace RateMonitor
         public enum EWorkState
         {
             Running = 0, // 正常运转
-            Error = 1, // 在計算過程中出錯
+            Inefficient = 1, //低效            
             Idle = 2, // 停止运转 (待机)
             Removed = 3, // 无法监控
             Full = 4, // 产物堆积
             Lack = 5, // 缺少原材料            
             LackInc = 6, // 缺少增产剂
             LackMatrix = 7, // 矩阵不足
-            SlowMode
+            MinerSlowMode = 8, // 減速模式(礦機)
+            EjectorNoOrbit = 9, // 轨道未设置
+            EjectorBlocked = 10, // 路径被遮挡
+            EjectorAngleLimit = 11, // 俯仰限制
+            SiloNoNode = 12, // 待机无需求
+            GammaNoLens = 13, //鍋:沒有透鏡
+            GammaWarmUp = 14, //鍋:熱機中
+            Error, // 在計算過程中出錯
+            Max
         }
-        public const int MAX_WORKSTATE = 9;
-        public readonly static string[] workStateTexts = new string[MAX_WORKSTATE];        
+        public const int MAX_WORKSTATE = 20;
+        public readonly static string[] workStateTexts = new string[MAX_WORKSTATE];
 
         public static void InitStrings(bool isZHCN)
         {
             workStateTexts[0] = "正常运转".Translate();
-            workStateTexts[1] = "ERROR";
+            workStateTexts[1] = isZHCN ? "低效" : "Inefficient".Translate();
             workStateTexts[2] = "待机".Translate();
             workStateTexts[3] = "无法监控".Translate();
             workStateTexts[4] = "产物堆积".Translate();
@@ -30,6 +38,14 @@ namespace RateMonitor
             workStateTexts[6] = isZHCN ? "缺少增产剂" : "Lack of proliferator".Translate();
             workStateTexts[7] = "矩阵不足".Translate();
             workStateTexts[8] = isZHCN ? "减速模式" : "Slow Mode".Translate();
+            workStateTexts[9] = "轨道未设置".Translate();
+            workStateTexts[10] = "路径被遮挡".Translate();
+            workStateTexts[11] = "俯仰限制".Translate();
+            workStateTexts[12] = "待机无需求".Translate();
+            workStateTexts[13] = isZHCN ? "缺少透镜" : "Lack of lens".Translate();
+            workStateTexts[14] = isZHCN ? "热机中" : "Warm Up".Translate();
+
+            workStateTexts[(int)EWorkState.Error] = "Error";
         }
 
         public int entityInfoIndex;
@@ -44,11 +60,11 @@ namespace RateMonitor
             return workStateTexts[(int)worksate];
         }
 
-        public EntityRecord(PlanetFactory factory, int entityId, int entityInfoIndex)
+        public EntityRecord(PlanetFactory factory, int entityId, int entityInfoIndex, float workingRatio)
         {
             this.entityInfoIndex = entityInfoIndex;
             this.entityId = entityId;
-            worksate = EWorkState.Idle;
+            worksate = workingRatio < float.Epsilon ? EWorkState.Idle : EWorkState.Inefficient;
             itemId = 0;
 
             if (entityId < 0 || entityId >= factory.entityPool.Length)
@@ -92,6 +108,14 @@ namespace RateMonitor
                 else if (entity.siloId > 0)
                 {
                     GetSiloState(in factory.factorySystem.siloPool[entity.siloId]);
+                }
+                else if (entity.powerGenId > 0)
+                {
+                    GetPowerGeneratorState(in factory.powerSystem.genPool[entity.powerGenId]);
+                }
+                else if (entity.powerExcId > 0)
+                {
+                    GetPowerExchangerState(in factory.powerSystem.excPool[entity.powerExcId]);
                 }
             }
             catch (Exception ex)
@@ -250,17 +274,18 @@ namespace RateMonitor
 
         void GetLabStateResearchMode(in LabComponent labComponent)
         {
-            // 科研模式 UILabWindow.stateText 
-
-            if (labComponent.replicating) // 如果在運轉又被送來檢測, 那就是某個原料缺乏增產劑
+            // 科研模式 UILabWindow.stateText
+            if (labComponent.replicating) 
             {
+                // 如果在運轉又被送來檢測, 那就是某個原料缺乏增產劑
+                // 具體可以找InternalUpdateResearch中extraPowerRatio的設置
                 worksate = EWorkState.LackInc;
                 int maxIncLevel = CalDB.IncLevel;
-                for (int i = 0; i < labComponent.requireCounts.Length; i++)
+                for (int i = 0; i < labComponent.matrixServed.Length; i++)
                 {
-                    if (labComponent.incServed[i] < labComponent.served[i] * maxIncLevel)
+                    if (labComponent.matrixIncServed[i] < labComponent.matrixServed[i] * maxIncLevel)
                     {
-                        itemId = labComponent.requires[i];
+                        itemId = LabComponent.matrixIds[i];
                         break;
                     }
                 }
@@ -273,20 +298,20 @@ namespace RateMonitor
             {
                 if (labComponent.matrixServed[i] < labComponent.matrixPoints[i])
                 {
-                    itemId = labComponent.requires[i];
+                    itemId = LabComponent.matrixIds[i];
                     break;
                 }
             }
             if (itemId != 0)
             {
-                worksate = EWorkState.Lack;
+                worksate = EWorkState.LackMatrix; // 矩阵不足
                 return;
             }
         }
 
         void GetMinerState(in MinerComponent miner)
         {
-            worksate = EWorkState.SlowMode; //輸出受限
+            worksate = EWorkState.MinerSlowMode; //輸出受限
             if (miner.workstate == global::EWorkState.Full) worksate = EWorkState.Full; //堵住
             else if (miner.workstate == global::EWorkState.Idle) worksate = EWorkState.Idle; //已採完
         }
@@ -318,30 +343,101 @@ namespace RateMonitor
             if (ejector.direction != 0f) //可弹射
             {
                 itemId = ejector.bulletId;
-                worksate = EWorkState.LackInc;
-            }
-            else if (ejector.bulletCount == 0) //缺少弹射物
-            {
-                itemId = ejector.bulletId;
-                worksate = EWorkState.Lack;
-            }
-            // idle:路径被遮挡, 俯仰限制, 轨道未设置
-        }
-
-        void GetSiloState(in SiloComponent ejector)
-        {
-            // UISiloWindow._OnUpdate
-            if (ejector.direction != 0f) //可弹射
-            {
-                itemId = ejector.bulletId;
                 worksate = EWorkState.LackInc; //缺乏增產劑
+            }
+            else if (ejector.runtimeOrbitId == 0)
+            {
+                worksate = EWorkState.EjectorNoOrbit; // 轨道未设置
             }
             else if (ejector.bulletCount == 0) 
             {
                 itemId = ejector.bulletId;
+                worksate = EWorkState.Lack; //缺少弹射物
+            }
+            else if (ejector.targetState == EjectorComponent.ETargetState.Blocked)
+            {
+                worksate = EWorkState.EjectorBlocked; // 路径被遮挡
+            }
+            else if (ejector.targetState == EjectorComponent.ETargetState.AngleLimit)
+            {
+                worksate = EWorkState.EjectorAngleLimit; // 俯仰限制
+            }
+        }
+
+        void GetSiloState(in SiloComponent silo)
+        {
+            // UISiloWindow._OnUpdate
+            if (silo.direction != 0f) //可弹射
+            {
+                itemId = silo.bulletId;
+                worksate = EWorkState.LackInc; //缺乏增產劑
+            }
+            else if (silo.hasNode)
+            {
+                worksate = EWorkState.SiloNoNode; //待机无需求, 節點已滿
+            }
+            else if (silo.bulletCount == 0) 
+            {
+                itemId = silo.bulletId;
                 worksate = EWorkState.Lack; //缺少火箭
             }
-            // idle: 節點已滿
+        }
+
+        void GetPowerGeneratorState(in PowerGeneratorComponent powerGenerator)
+        {
+            worksate = EWorkState.Inefficient;
+            if (powerGenerator.gamma) // 鍋
+            {
+                if (powerGenerator.productCount >= 20f)
+                {
+                    worksate = EWorkState.Full; // "产物堆积"
+                    itemId = powerGenerator.productId;
+                }
+                else if (powerGenerator.catalystPoint == 0)
+                {
+                    worksate = EWorkState.GammaNoLens; // "缺少透鏡"
+                    itemId = powerGenerator.catalystId;
+                }
+                else if (powerGenerator.warmup < 0.999f)
+                {
+                    worksate = EWorkState.GammaNoLens; // 熱機中
+                }
+                else 
+                {
+                    worksate = EWorkState.Inefficient; // 可能是戴森球供電不足, 不顯示
+                }
+            }
+        }
+
+        void GetPowerExchangerState(in PowerExchangerComponent powerExchanger)
+        {
+            worksate = EWorkState.Idle;
+            if (powerExchanger.state == 1.0f)
+            {
+                if (powerExchanger.fullCount >= 20)
+                {
+                    worksate = EWorkState.Full;
+                    itemId = powerExchanger.fullId;
+                }
+                else if (powerExchanger.emptyCount == 0)
+                {
+                    worksate = EWorkState.Lack;
+                    itemId = powerExchanger.emptyId;                    
+                }
+            }
+            else if (powerExchanger.state == -1.0f)
+            {
+                if (powerExchanger.emptyCount >= 20)
+                {
+                    worksate = EWorkState.Full;
+                    itemId = powerExchanger.emptyId;
+                }
+                else if (powerExchanger.fullCount == 0)
+                {
+                    worksate = EWorkState.Lack;
+                    itemId = powerExchanger.fullId;
+                }
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace RateMonitor
     {
         public const string GUID = "starfi5h.plugin.RateMonitor";
         public const string NAME = "RateMonitor";
-        public const string VERSION = "0.1.0";
+        public const string VERSION = "0.2.0";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -25,7 +25,7 @@ namespace RateMonitor
         public static StatTable MainTable { get; set; }
         public static EOperation Operation { get; set; }
         public static string LastStatInfo { get; private set; } = "";
-        static List<int> lastEntityIds;
+        static List<int> lastEntityIds = new();
         static int lastPlanetId;
 
         public enum EOperation
@@ -50,12 +50,22 @@ namespace RateMonitor
                 CalDB.CompatGB = true;
             }
 
-            UI.Utils.Init(16.0f);
+            UI.Utils.Init();
+            UI.UIWindow.LoadUIWindowConfig();
+            Localization.OnLanguageChange += SP.Init;
         }
 
         public void OnGUI()
         {
             UI.UIWindow.OnGUI();
+        }
+
+        public void Update()
+        {
+            if (GameMain.localPlanet == null && SelectionTool_Patches.IsHotKey() && MainTable == null)
+            {
+                if (!LoadLastTable()) CreateMainTable(null, new List<int>(0));
+            }
         }
 
         public static void OnSelectionFinish(PlanetFactory factory, HashSet<int> entityIdSet)
@@ -104,6 +114,8 @@ namespace RateMonitor
 
         public static void CreateMainTable(PlanetFactory factory, List<int> entityIds)
         {
+            if (!SP.IsInit) SP.Init();
+
             MainTable = new StatTable();
             MainTable.Initialize(factory, entityIds);
             MainTable.PrintRefRates();
@@ -157,6 +169,7 @@ namespace RateMonitor
                 Log.LogError(ex);
                 MainTable.OnError();
             }
+            if (UI.UIWindow.InResizingArea) UICursor.SetCursor(ECursor.Horizontal);
         }
 
         [HarmonyPostfix]
@@ -164,12 +177,14 @@ namespace RateMonitor
         static void OnGameEnd()
         {
             MainTable = null;
+            UI.UIWindow.SaveUIWindowConfig();
         }
 
         public void OnDestroy()
         {
             harmony.UnpatchSelf();
             harmony = null;
+            Localization.OnLanguageChange -= SP.Init;
         }
     }
 }

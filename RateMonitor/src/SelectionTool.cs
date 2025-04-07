@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace RateMonitor
@@ -16,7 +15,6 @@ namespace RateMonitor
         Vector3 castGroundPos = Vector3.zero;
         Vector3 castGroundPosSnapped = Vector3.zero;
         int castObjectId;
-        Vector3 castObjectPos;
         bool cursorValid;
         Vector3 cursorTarget;
         Vector3 startGroundPosSnapped = Vector3.zero;
@@ -73,6 +71,19 @@ namespace RateMonitor
             {
                 return true;
             }
+            if (entityData.powerGenId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
+                if (ptr.gamma) return ptr.productId > 0; //只計算鍋的光子生產模式
+                if (ptr.wind || ptr.photovoltaic || ptr.geothermal) return false; //再生能源不計算
+                bool hasFuel = ptr.fuelHeat > 0L && ptr.fuelId > 0; //計算有燃料的
+                return CalDB.IncludeFuelGenerator & hasFuel;
+            }
+            if (entityData.powerExcId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
+                return ptr.state == 1.0f || ptr.state == -1.0f; //充電或放電模式
+            }
             return false;
         }
 
@@ -105,7 +116,6 @@ namespace RateMonitor
             startGroundPosSnapped = lastGroundPosSnapped = castGroundPosSnapped = Vector3.zero;
             lastSelectGratBox = selectGratBox = selectArcBox = BPGratBox.zero;
             castObjectId = 0;
-            castObjectPos = Vector3.zero;
             cursorValid = false;
             cursorTarget = Vector3.zero;
             IsSelecting = false;
@@ -118,7 +128,6 @@ namespace RateMonitor
             startGroundPosSnapped = lastGroundPosSnapped = castGroundPosSnapped = Vector3.zero;
             lastSelectGratBox = selectGratBox = selectArcBox = BPGratBox.zero;
             castObjectId = 0;
-            castObjectPos = Vector3.zero;
             cursorValid = false;
             cursorTarget = Vector3.zero;
             IsEnable = false;
@@ -199,7 +208,6 @@ namespace RateMonitor
             castGroundPos = Vector3.zero;
             castGroundPosSnapped = Vector3.zero;
             castObjectId = 0;
-            castObjectPos = Vector3.zero;
             cursorValid = false;
             cursorTarget = Vector3.zero;
             if (!VFInput.onGUI && VFInput.inScreen)

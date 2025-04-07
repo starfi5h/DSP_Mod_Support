@@ -22,17 +22,29 @@ namespace RateMonitor.UI
         }
 
         public void DrawPanel()
-        {            
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
+            #region UI Settings 介面設定
             GUILayout.BeginVertical(GUI.skin.box);
+            MiddleLabel(SP.uiSettingsText);
+
             GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.Label(SP.uiSettingsText);
+            ConfigBoolField(SP.showRealTimeRateText, ModSettings.ShowRealtimeRate);
+            ConfigBoolField(SP.showInPercentageText, ModSettings.ShowWorkingRateInPercentage);
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            ConfigIntField(SP.rateUnitText, ref rateUnitInput, ModSettings.RateUnit, 1, 14400);
+            if (GUILayout.Button("x2", GUILayout.Width(Utils.ShortButtonWidth)))
+            {
+                ModSettings.RateUnit.Value *= 2;
+                RefreshInputs();
+                UIWindow.RefreshTitle();
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            ConfigBoolField(SP.showRealTimeRateText, ModSettings.ShowRealtimeRate);
-            ConfigIntField(SP.rateUnitText, ref rateUnitInput, ModSettings.RateUnit, 1, 14400);
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(SP.perMinuteText, GUILayout.Width(Utils.InputWidth)))
@@ -51,37 +63,68 @@ namespace RateMonitor.UI
             {
                 if (GUILayout.Button(SP.perBeltTexts[i], GUILayout.Width(Utils.InputWidth)))
                 {
-                    ModSettings.RateUnit.Value = CalDB.BeltSpeeds[i] * CalDB.MaxBeltStack;
+                    ModSettings.RateUnit.Value = CalDB.BeltSpeeds[i];
                     RefreshInputs();
                     UIWindow.RefreshTitle();
                 }
             }
             GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
 
+            GUILayout.EndVertical();
+            #endregion
+
+            #region Calculate Settings 計算設定
             GUILayout.BeginVertical(GUI.skin.box);
+
+            MiddleLabel(SP.calculateSettingsText);
+
+            bool needRecalculate = false;
             GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.Label(SP.calculateSettingsText);
+            if (ConfigBoolField(SP.forceIncText, ModSettings.ForceInc)) needRecalculate = true;
+            if (ConfigBoolField(SP.forceLens, ModSettings.ForceLens)) needRecalculate = true;
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            bool needRecalculate = false;
-            if (ConfigBoolField(SP.forceIncText, ModSettings.ForceInc)) needRecalculate = true;
+
+            GUILayout.BeginHorizontal();
             if (ConfigIntField(SP.incLevelText, ref incLevelInput, ModSettings.IncLevel, -1, 10)) needRecalculate = true;
+            if (GUILayout.Button("-1", GUILayout.Width(Utils.ShortButtonWidth)))
+            {
+                if (ModSettings.IncLevel.Value >= 0) ModSettings.IncLevel.Value--;
+                needRecalculate = true;
+            }
+            if (GUILayout.Button("+1", GUILayout.Width(Utils.ShortButtonWidth)))
+            {
+                if (ModSettings.IncLevel.Value < 10) ModSettings.IncLevel.Value++;
+                needRecalculate = true;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
             if (needRecalculate) 
             {
                 var entityIds = Plugin.MainTable.GetEntityIds(out var factory);
                 Plugin.CreateMainTable(factory, entityIds);
             }
-            GUILayout.EndVertical();
 
-            GUILayout.EndScrollView();            
+            GUILayout.EndVertical();
+            #endregion
+
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
         }
 
-        public bool ConfigIntField(string name, ref string fieldString, ConfigEntry<int> configEntry, int min, int max = int.MaxValue)
+        private void MiddleLabel(string label)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(label);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        private bool ConfigIntField(string name, ref string fieldString, ConfigEntry<int> configEntry, int min, int max = int.MaxValue)
         {
             bool isChanged = false;
-            GUILayout.BeginHorizontal();
             GUILayout.Label(name);
             fieldString = GUILayout.TextField(fieldString, GUILayout.Width(Utils.InputWidth));
             if (GUILayout.Button(SP.settingButtonText, GUILayout.Width(Utils.ShortButtonWidth)))
@@ -96,12 +139,10 @@ namespace RateMonitor.UI
                     fieldString = configEntry.Value.ToString();
                 }
             }
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
             return isChanged;
         }
 
-        public bool ConfigBoolField(string name, ConfigEntry<bool> configEntry)
+        private bool ConfigBoolField(string name, ConfigEntry<bool> configEntry)
         {
             bool oldValue = configEntry.Value;
             bool newValue = GUILayout.Toggle(oldValue, name);

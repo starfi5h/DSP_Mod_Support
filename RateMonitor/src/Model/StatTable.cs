@@ -66,6 +66,11 @@ namespace RateMonitor
             factory = facotry;
             Profiles.Clear();
             TotalTick = 0;
+            if (facotry == null)
+            {
+                CalculateRefRate();
+                return;
+            }
 
             // Generate profiles
             var profileDict = new Dictionary<long, ProductionProfile>();
@@ -175,7 +180,7 @@ namespace RateMonitor
         {
             if (factory == null) return;
 
-            if (++TotalTick >= 36000) // Maximum record period: 10 minutes
+            if (++TotalTick >= 108000) // Maximum record period: 30 minutes
             {
                 TotalTick -= 15;
             }
@@ -183,12 +188,12 @@ namespace RateMonitor
             {
                 ref var entityInfo = ref entityInfos[i];
                 entityInfo.utilization *= (float)(TotalTick - 1) / TotalTick;
-                float workingRatio = GetEntityWorkingRatio(entityInfo.entityId, entityInfo.profile.incLevel);
+                float workingRatio = GetEntityWorkingRatio(entityInfo.entityId, entityInfo.profile);
                 entityInfo.utilization += workingRatio / TotalTick;
 
                 if (workingRatio < 0.999f && entityInfo.workState == EntityRecord.EWorkState.Running)
                 {
-                    var entityRecord = new EntityRecord(factory, entityInfo.entityId, i);
+                    var entityRecord = new EntityRecord(factory, entityInfo.entityId, i, workingRatio);
                     entityInfo.workState = entityRecord.worksate;
                     if (entityInfo.workState == EntityRecord.EWorkState.Running) entityInfo.workState = EntityRecord.EWorkState.Idle;
                     entityInfo.profile.AddEnittyRecord(entityRecord);
@@ -206,12 +211,13 @@ namespace RateMonitor
             factory = null;
         }
 
-        public float GetEntityWorkingRatio(int entityId, int incLevel)
+        public float GetEntityWorkingRatio(int entityId, ProductionProfile profile)
         {
             if (entityId <= 0 || entityId >= factory.entityCursor) return 0f;
             ref var entityData = ref factory.entityPool[entityId];
 
             // Reference SetPCState
+            int incLevel = profile.incLevel;
             float ratio = 0.0f;
             if (entityData.assemblerId > 0)
             {
@@ -252,6 +258,29 @@ namespace RateMonitor
                 if (ptr.direction == 0) ratio = 0f;
                 else if (ptr.incLevel < incLevel) ratio = 0.5f;
                 else ratio = 1f;
+            }
+            else if (entityData.powerGenId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
+                ratio = 1f;
+                if (ptr.gamma)
+                {
+                    ratio = 0f;
+                    if (ptr.productHeat > 0f && profile.itemRefSpeeds.Count > 0)
+                    {
+                        float speed = (float)ptr.capacityCurrentTick / ptr.productHeat * 3600; //當前參考速率
+                        ratio = speed / profile.itemRefSpeeds[0]; // 工作效率 = 當前 / 理論最大值
+                    }
+                }
+                else
+                {
+                    // TODO: 計算燃料發電機工作效率
+                }
+            }
+            else if (entityData.powerExcId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
+                ratio = ptr.currEnergyPerTick == 0f ? 0f : 1f; // 簡單的判定是否在工作中。不考慮實際電力情況
             }
             return ratio;
         }

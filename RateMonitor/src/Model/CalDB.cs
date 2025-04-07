@@ -16,8 +16,13 @@ namespace RateMonitor
 
         public static readonly int[] BeltSpeeds = new int[3] { 360, 720, 1800 }; // 黃帶，綠帶，藍帶速率
 
-        public static Action OnRefresh; // 委派，用於MOD兼容
+        // 電力設施選項
+        public static bool IncludeFuelGenerator { get; private set; } // 包含燃料發電機
+        public static bool ForceGammaCatalyst { get; private set; } // 是否要強制套用透鏡
 
+
+
+        public static Action OnRefresh; // 委派，用於MOD兼容
         public static bool CompatGB { get; set; } = false;
 
 
@@ -27,12 +32,13 @@ namespace RateMonitor
             if (history == null) return;
             ForceInc = ModSettings.ForceInc.Value;
             IncLevel = ModSettings.IncLevel.Value;
+            ForceGammaCatalyst = ModSettings.ForceLens.Value;
 
             if (IncLevel < 0 || IncLevel > 10)
             {
                 IncLevel = 0;
                 ItemProto itemProto = LDB.items.Select(2313); //噴塗機id
-                int[] incItemIds = ((itemProto != null) ? itemProto.prefabDesc.incItemId : null);
+                int[] incItemIds = itemProto?.prefabDesc.incItemId;
                 if (incItemIds != null)
                 {
                     for (int i = 0; i < incItemIds.Length; i++)
@@ -57,7 +63,6 @@ namespace RateMonitor
             if (CompatGB) OnRefresh_GB();
 
             OnRefresh?.Invoke();
-            UI.UIWindow.RefreshTitle();
         }
 
         static void OnRefresh_GB()

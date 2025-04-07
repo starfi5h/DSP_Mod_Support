@@ -46,7 +46,7 @@ namespace RateMonitor
             }
         }
 
-        static bool IsHotKey()
+        public static bool IsHotKey()
         {
 #if !DEBUG
             // Modify from VFInput._pasteKey, as it doesn't support modified key

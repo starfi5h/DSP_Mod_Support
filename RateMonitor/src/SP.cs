@@ -2,9 +2,12 @@
 {
     public static class SP // Strings Pool
     {
+        public static bool IsInit { get; private set; }
+
         // Setting Panel
         public static string uiSettingsText;
         public static string showRealTimeRateText;
+        public static string showInPercentageText;
         public static string rateUnitText;
         public static string perMinuteText;
         public static string perSecondText;
@@ -14,6 +17,7 @@
         public static string incLevelText;
         public static string forceIncText;
         public static string forceText;
+        public static string forceLens;
 
         // UI Window
         public static string settingButtonText;
@@ -24,7 +28,9 @@
         // Operaction Panel
         public static string addActionText;
         public static string subActionText;
-        public static string wholePlanetText;
+        public static string planetSelectDescriptionText;
+        public static string wholeLocalPlanetText;
+        public static string wholeRemotePlanetText;
         public static string loadLastText;
         public static string resetTimerText;
 
@@ -53,6 +59,7 @@
             // Setting Panel
             uiSettingsText = isZHCN ? "UI设定" : "UI Settings".Translate();
             showRealTimeRateText = isZHCN ? "显示即时监控速率" : "Show Real-time Monitoring Rate".Translate();
+            showInPercentageText = isZHCN ? "以百分比显示" : "Show In Percentage".Translate();
             rateUnitText = isZHCN ? "速率单位: " : "RateUnit: ".Translate();
             perMinuteText = isZHCN ? "每分钟" : "Per Minute".Translate();
             perSecondText = isZHCN ? "每秒钟" : "Per Second".Translate();
@@ -63,6 +70,7 @@
             calculateSettingsText = isZHCN ? "計算设定" : "Calculate Settings".Translate();
             incLevelText = isZHCN ? "增产等级: " : "ProliferatorLevel: ".Translate();
             forceIncText = isZHCN ? "强制增产" : "ForceProliferator".Translate();
+            forceLens = isZHCN ? "强制透镜" : "ForceGravitonLens".Translate();
             forceText = isZHCN ? "强制" : "Force".Translate();
 
             // UI Window
@@ -74,7 +82,11 @@
             // Operaction Panel
             addActionText = isZHCN ? "添增选取" : "Add Selection".Translate();
             subActionText = isZHCN ? "移除选取" : "Sub Selection".Translate();
-            wholePlanetText = isZHCN ? "选取本地全球机器" : "Select Whole Local Planet".Translate();
+            planetSelectDescriptionText = isZHCN ? "可以在统计面板或总控面板选择星球来框选全建筑" :
+                "Select a planet in the statistics panel or control panel to select all buildings on it".Translate();
+
+            wholeLocalPlanetText = isZHCN ? "选取本地全球机器" : "Select Whole Local Planet".Translate();
+            wholeRemotePlanetText = isZHCN ? "选取远端全球机器" : "Select Whole Remote Planet".Translate();
             loadLastText = isZHCN ? "载入上一个选取" : "Load Last Selection".Translate();
             resetTimerText = isZHCN ? "重置计时器" : "Reset Timer".Translate();
 
@@ -97,6 +109,8 @@
             recordTooltipText = isZHCN ? "导航至机器" : "Navigate to the machine".Translate();
 
             EntityRecord.InitStrings(isZHCN);
+
+            IsInit = true;
         }
     }
 }

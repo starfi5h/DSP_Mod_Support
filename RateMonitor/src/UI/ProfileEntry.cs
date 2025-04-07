@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RateMonitor.UI
 {
@@ -32,7 +31,10 @@ namespace RateMonitor.UI
             float workingRate = Profile.WorkingMachineCount / totalMachineCount;
             if (ModSettings.ShowRealtimeRate.Value)
             {
-                referenceRateStr += workingRate > CalDB.WORKING_THRESHOLD ? " (100%)" : " (" + (int)(workingRate * 100) + "%)";
+                if (ModSettings.ShowWorkingRateInPercentage.Value)
+                    referenceRateStr += workingRate > CalDB.WORKING_THRESHOLD ? " (100%)" : " (" + (int)(workingRate * 100) + "%)";
+                else
+                    referenceRateStr += " (" + Utils.RateKMG(Profile.itemRefSpeeds[index] * Profile.WorkingMachineCount) + ")";
             }
             GUILayout.Label(referenceRateStr, GUILayout.Width(freespace / 3));
 
@@ -114,6 +116,7 @@ namespace RateMonitor.UI
                 {
                     foreach (var entityRecord in profile.entityRecords)
                     {
+                        if (entityRecord.worksate == EntityRecord.EWorkState.Inefficient) continue;
                         Utils.EntityRecordButton(entityRecord);
                     }
                 }

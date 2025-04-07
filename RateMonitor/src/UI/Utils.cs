@@ -18,9 +18,19 @@ namespace RateMonitor.UI
         static GUIStyle focusItemIconStyle;
         static GUIStyle normalIconStyle;
 
-        public static void Init(float scale)
+        public static void SetScale(float scale)
         {
-            BaseScale = scale; // TODO: scale with input?
+            RecordHeight = 24 * scale;
+            IconHeight = 32 * scale;
+            RateWidth = 55 * scale;
+            ShortButtonWidth = 64 * scale;
+            LargeButtonWidth = 200 * scale;
+            InputWidth = 100 * scale;
+            iconoptions = new[] { GUILayout.Width(IconHeight), GUILayout.Height(IconHeight) };
+        }
+
+        public static void Init()
+        {
             iconoptions = new[] { GUILayout.Width(IconHeight), GUILayout.Height(IconHeight) };
             iconTextContent = new GUIContent();
             
@@ -76,7 +86,7 @@ namespace RateMonitor.UI
 
         public static void NavigateToEntity(PlanetFactory factory, int entityId)
         {
-            if (GameMain.mainPlayer == null) return;
+            if (GameMain.mainPlayer == null || factory == null) return;
             if (GameMain.data.localPlanet?.factory == factory)
             {
                 // Locate the entity on the local planet

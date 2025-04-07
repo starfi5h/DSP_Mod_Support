@@ -53,6 +53,18 @@ namespace RateMonitor
                 ref var ptr = ref factory.factorySystem.minerPool[entityData.minerId];
                 if (ptr.type != EMinerType.Water) hashId |= (long)entityData.minerId << 32;
             }
+            else if (entityData.powerGenId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
+                if (ptr.gamma) return hashId;
+                // For fuel generator, add fuelId too
+                hashId |= (long)ptr.fuelId << 32;
+            }
+            else if (entityData.powerExcId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
+                if (ptr.state < 0f) hashId = -hashId;
+            }
             return hashId;
         }
 
@@ -92,6 +104,7 @@ namespace RateMonitor
             {
                 ref var ptr = ref factory.factorySystem.minerPool[entityData.minerId];
                 incUsed = false;
+                incLevel = 0;
                 CalculateRefSpeed(in ptr, factory);
                 if (desc?.isVeinCollector ?? false) workEnergyW *= 3; // TODO: Get the real multiplier (OnMaxChargePowerSliderValueChange)
             }
@@ -120,6 +133,25 @@ namespace RateMonitor
                 if (!incUsed) incLevel = 0;
                 CalculateRefSpeed(in ptr, incLevel);
                 workEnergyW *= (float)Cargo.powerTableRatio[incLevel]; // SiloComponent.SetPCState
+            }
+            else if (entityData.powerGenId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
+                bool useLen = ptr.catalystPoint > 0 || CalDB.ForceGammaCatalyst;
+                accMode = true;
+                incUsed = ptr.catalystIncLevel > 0 || forceInc;
+                if (!useLen) incLevel = 0;
+                CalculateRefSpeed(in ptr, incLevel, useLen);
+            }
+            else if (entityData.powerExcId > 0)
+            {
+                ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
+                accMode = true;
+                int localInc = 0;
+                if (ptr.fullCount > 0) localInc = ptr.fullInc / ptr.fullCount;
+                if (ptr.emptyCount > 0) localInc = ptr.emptyInc / ptr.emptyCount;
+                incUsed = localInc > 0 || forceInc;
+                CalculateRefSpeed(in ptr, incLevel);
             }
         }
 
@@ -317,6 +349,54 @@ namespace RateMonitor
             float refSpeed = 36000000f / (ptr.chargeSpend + ptr.coldSpend);
             refSpeed = (incUsed ? (refSpeed * accMul) : refSpeed);
             AddRefSpeed(ptr.bulletId, -refSpeed);
+        }
+
+        private void CalculateRefSpeed(in PowerGeneratorComponent ptr, int incAbility, bool useLen)
+        {
+            if (ptr.gamma)
+            {
+                if (ptr.productId == 1208 && ptr.productHeat != 0L)
+                {
+                    //float refSpeed = (3600f * ptr.capacityCurrentTick) / ptr.productHeat; //遊戲的參考速率算法,會受戴森球影響
+                    if (useLen)
+                    {
+                        float accMul = 1f + (float)Cargo.accTableMilli[incAbility];
+                        float refSpeed = 12f * accMul;  //直接用常數計算臨界光子產量
+                        AddRefSpeed(1208, refSpeed); //臨界光子
+                        //AddRefSpeed(1209, -0.1f); // 引力透鏡
+                    }
+                    else
+                    {
+                        AddRefSpeed(1208, 6f); //臨界光子
+                    }
+                }
+            }
+            else
+            {
+                if (ptr.fuelHeat > 0L && ptr.fuelId > 0)
+                {
+                    float refSpeed = (3600f * ptr.useFuelPerTick) / ptr.fuelHeat;
+                    AddRefSpeed(ptr.fuelId, -refSpeed);
+                }
+            }
+        }
+
+        public void CalculateRefSpeed(in PowerExchangerComponent ptr, int incLevel)
+        {
+            float accMul = 1f + (float)Cargo.accTableMilli[incLevel];
+            float rate = accMul * (ptr.energyPerTick * 3600f / ptr.maxPoolEnergy);
+
+            if (ptr.state == 1.0f) // Input
+            {
+                AddRefSpeed(ptr.emptyId, -rate);
+                AddRefSpeed(ptr.fullId, rate);
+                workEnergyW = (ptr.energyPerTick * accMul) * 60;
+            }
+            else if (ptr.state == -1.0f) // Output
+            {
+                AddRefSpeed(ptr.fullId, -rate);
+                AddRefSpeed(ptr.emptyId, rate);
+            }
         }
     }
 }

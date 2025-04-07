@@ -5,6 +5,8 @@ namespace RateMonitor.UI
 {
     public class RatePanel // 速率面板
     {
+        public bool IsActive { get; set; }
+
         Vector2 scrollPosition;
         readonly StatTable statTable;
 
