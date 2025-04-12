@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using BepInEx.Bootstrap;
 using HarmonyLib;
@@ -12,6 +11,7 @@ namespace ErrorAnalyzer
     [HarmonyPatch(typeof(UIFatalErrorTip))]
     internal class UIFatalErrorTip_Patch
     {
+        public static string ExtarTitleString { get; set; } = "";
 
         private static UIButton btnClose;
         private static UIButton btnCopy;
@@ -33,8 +33,25 @@ namespace ErrorAnalyzer
             try
             {
                 Application.logMessageReceived -= Plugin.HandleLog;
-                if (!string.IsNullOrEmpty(Plugin.errorString))
-                    UIFatalErrorTip.instance.ShowError(Plugin.errorString, Plugin.errorStackTrace);
+                if (string.IsNullOrEmpty(Plugin.errorString)) return;
+                    
+                string[] lines = Plugin.errorStackTrace.Split('\n', '\r');
+                Plugin.Log.LogDebug("Error captured during loading. Lines count: " + lines.Length);
+                if (lines.Length > 15) // Skip the middle part if the error message is too long
+                {
+                    var sb = new StringBuilder();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        sb.AppendLine(lines[i].TrimEnd('\n', '\r'));
+                    }
+                    sb.AppendLine($"...(skip the middle {lines.Length - 15} lines)");
+                    for (int i = lines.Length - 10; i < lines.Length; i++)
+                    {
+                        sb.AppendLine(lines[i].TrimEnd('\n', '\r'));
+                    }
+                    Plugin.errorStackTrace = sb.ToString();
+                }
+                UIFatalErrorTip.instance.ShowError(Plugin.errorString, Plugin.errorStackTrace);
             }
             catch (Exception e)
             {
@@ -71,8 +88,8 @@ namespace ErrorAnalyzer
             TryCreateButton(() => CreateCopyBtn(__instance), "Copy Button");
             TryCreateButton(() => CreateInspectBtn(__instance), "Inspect Button");
 
-            __instance.transform.Find("tip-text-0").GetComponent<Text>().text = Title();
-            __instance.transform.Find("tip-text-1").GetComponent<Text>().text = Title();
+            __instance.transform.Find("tip-text-0").GetComponent<Text>().text = GetShortTitle();
+            __instance.transform.Find("tip-text-1").GetComponent<Text>().text = GetShortTitle();
             Object.Destroy(__instance.transform.Find("tip-text-0").GetComponent<Localizer>());
             Object.Destroy(__instance.transform.Find("tip-text-1").GetComponent<Localizer>());
         }
@@ -189,15 +206,16 @@ namespace ErrorAnalyzer
             SetInsepctButton();
         }
 
-        private static string Title()
+        private static string GetFullTitle()
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("An error has occurred! Game version ");
+            stringBuilder.Append("Error report: Game version ");
             stringBuilder.Append(GameConfig.gameVersion.ToString());
             stringBuilder.Append('.');
             stringBuilder.Append(GameConfig.gameVersion.Build);
-            stringBuilder.AppendLine();
-            stringBuilder.Append(Chainloader.PluginInfos.Values.Count + " Mods used: ");
+            stringBuilder.Append(" with ");
+            stringBuilder.Append(Chainloader.PluginInfos.Values.Count);
+            stringBuilder.AppendLine(" mods used.");
             foreach (var pluginInfo in Chainloader.PluginInfos.Values)
             {
                 stringBuilder.Append('[');
@@ -218,6 +236,11 @@ namespace ErrorAnalyzer
             stringBuilder.Append(" with ");
             stringBuilder.Append(Chainloader.PluginInfos.Values.Count);
             stringBuilder.Append(" mods used.");
+            if (!string.IsNullOrWhiteSpace(ExtarTitleString))
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.Append(ExtarTitleString);
+            }
             return stringBuilder.ToString();
         }
 
@@ -225,7 +248,7 @@ namespace ErrorAnalyzer
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("```ini");
-            if (VFInput.shift) stringBuilder.AppendLine(Title());
+            if (VFInput.shift) stringBuilder.AppendLine(GetFullTitle());
             else stringBuilder.AppendLine(GetShortTitle());
             var subs = UIFatalErrorTip.instance.errorLogText.text.Split('\n', '\r');
             foreach (var str in subs)
@@ -248,7 +271,7 @@ namespace ErrorAnalyzer
                 }
             }
             // Apply format for ini code style
-            stringBuilder.Replace(" (at", ";(");
+            stringBuilder.Replace(" (at", "; (");
             stringBuilder.Replace(" inIL_", " ;IL_");
             stringBuilder.AppendLine("```");
 

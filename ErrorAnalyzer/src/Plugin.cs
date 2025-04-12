@@ -5,6 +5,7 @@ using HarmonyLib;
 using System.Reflection;
 using System;
 using UnityEngine;
+using BepInEx.Configuration;
 
 [assembly: AssemblyTitle(ErrorAnalyzer.Plugin.NAME)]
 [assembly: AssemblyVersion(ErrorAnalyzer.Plugin.VERSION)]
@@ -16,12 +17,14 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.2.4";
+        public const string VERSION = "1.3.0";
 
         public static ManualLogSource Log;
         public static bool isRegisitered;
         public static string errorString;
         public static string errorStackTrace;
+        public static ConfigEntry<bool> ShowFullstack { get; private set; }
+
         static Harmony harmony;
 
         public void Awake()
@@ -29,7 +32,7 @@ namespace ErrorAnalyzer
             Log = Logger;
             harmony = new Harmony(GUID);
             var enableDebug = Config.Bind("DEBUG Mode", "Enable", false, "Enable DEBUG mode to track the entity when starting up the game").Value;
-            var showFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)").Value;
+            ShowFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)");
             var dumpPatchMap = Config.Bind("Message", "Dump All Patches", false, "Dump Harmony patches of all mods when the game load in BepInEx\\LogOutput.log").Value;
 
             if (Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer"))
@@ -54,7 +57,7 @@ namespace ErrorAnalyzer
             {
                 try
                 {
-                    harmony.PatchAll(typeof(StacktraceParser));
+                    harmony.PatchAll(typeof(UIErrorEnhancer));
                 }
                 catch (Exception e)
                 {
@@ -80,8 +83,8 @@ namespace ErrorAnalyzer
         {
             if (init) return;
             init = true;
-            StacktraceParser.GeneratePatchMap();
-            StacktraceParser.DumpPatchMap();
+            var harmonyPatcherMapper = new HarmonyPatcherMapper();
+            Log.LogInfo(harmonyPatcherMapper.DumpPatchMap());
         }
 
 #if DEBUG

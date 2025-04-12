@@ -27,9 +27,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\DSP_Mod\Libs\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="System.Windows.Forms">
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Windows.Forms.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\DSP_Mod\Libs\UnityEngine.UI.dll</HintPath>
     </Reference>
