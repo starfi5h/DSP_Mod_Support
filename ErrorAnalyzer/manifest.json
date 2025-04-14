@@ -1,7 +1,7 @@
 {
     "name": "ErrorAnalyzer",
-    "description": "Add buttons to close/copy/navigate the error message, and list functions of mods on the call stack. 错误分析:增加可以关闭/复制/导航错误讯息的按钮,列出调用栈上的mod补丁函数名称",
-    "version_number": "1.2.4",
+    "description": "Add buttons to close or copy the error message. Enhance error message to helps identify possible problematic mod, or guide to corrupted machines. 错误分析:增加可以关闭或复制错误讯息的按钮。辅助找出可能报错的mod或建筑",
+    "version_number": "1.3.0",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/ErrorAnalyzer",
     "dependencies": [ "xiaoye97-BepInEx-5.4.17", "PhantomGamers-IlLine-1.0.0" ]
 }
