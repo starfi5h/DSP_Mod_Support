@@ -12,6 +12,7 @@
         public static string perMinuteText;
         public static string perSecondText;
         public static string[] perBeltTexts = new string[3];
+        public static string fontSizeText;
 
         public static string calculateSettingsText;
         public static string incLevelText;
@@ -24,6 +25,7 @@
         public static string operationButtonText;
         public static string backButtonText;
         public static string entityCountText;
+        public static string countMultiplierText;
 
         // Operaction Panel
         public static string addActionText;
@@ -66,6 +68,7 @@
             perBeltTexts[0] = isZHCN ? "黄带" : "Mk1 Belt".Translate();
             perBeltTexts[1] = isZHCN ? "绿带" : "Mk2 Belt".Translate();
             perBeltTexts[2] = isZHCN ? "蓝带" : "Mk3 Belt".Translate();
+            fontSizeText = isZHCN ? "字体大小" : "Font Size".Translate();
 
             calculateSettingsText = isZHCN ? "計算设定" : "Calculate Settings".Translate();
             incLevelText = isZHCN ? "增产等级: " : "ProliferatorLevel: ".Translate();
@@ -78,6 +81,7 @@
             operationButtonText = isZHCN ? "操作" : "Operate".Translate();
             backButtonText = isZHCN ? "返回" : "Back".Translate();
             entityCountText = isZHCN ? "建筑数量: " : "EntityCount: ".Translate();
+            countMultiplierText = isZHCN ? "建筑数量倍数" : "Count Multiplier".Translate();
 
             // Operaction Panel
             addActionText = isZHCN ? "添增选取" : "Add Selection".Translate();
@@ -105,8 +109,8 @@
 
             // Profile Panel - Detail
             netMachineText = isZHCN ? "净机器: " : "Net Machine: ".Translate();
-            expandRecordText = isZHCN ? "检视详情" : "Detail".Translate();
-            recordTooltipText = isZHCN ? "导航至机器" : "Navigate to the machine".Translate();
+            expandRecordText = isZHCN ? "检视" : "Detail".Translate();
+            recordTooltipText = isZHCN ? "导航至机器" : "Navigate to machine".Translate();
 
             EntityRecord.InitStrings(isZHCN);
 

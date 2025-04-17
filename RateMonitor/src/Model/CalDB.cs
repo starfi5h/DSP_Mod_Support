@@ -20,6 +20,8 @@ namespace RateMonitor
         public static bool IncludeFuelGenerator { get; private set; } // 包含燃料發電機
         public static bool ForceGammaCatalyst { get; private set; } // 是否要強制套用透鏡
 
+        // UI選項
+        public static int CountMultiplier { get; set; } // 機器個數倍率
 
 
         public static Action OnRefresh; // 委派，用於MOD兼容

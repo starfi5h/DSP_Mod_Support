@@ -62,10 +62,10 @@ namespace RateMonitor.UI
 
                 GUILayout.BeginHorizontal();
                 Utils.FocusItemIconButton(itemId);
-                GUILayout.Label(Utils.RateKMG(statTable.ItemRefRates[itemId]), GUILayout.MinWidth(Utils.RateWidth));
+                GUILayout.Label(Utils.RateKMG(statTable.ItemRefRates[itemId] * CalDB.CountMultiplier), GUILayout.MinWidth(Utils.RateWidth));
                 if (ModSettings.ShowRealtimeRate.Value)
                 {
-                    GUILayout.Label(Utils.RateKMG(statTable.ItemEstRates[itemId]));
+                    GUILayout.Label(Utils.RateKMG(statTable.ItemEstRates[itemId] * CalDB.CountMultiplier));
                 }
                 GUILayout.EndHorizontal();
             }

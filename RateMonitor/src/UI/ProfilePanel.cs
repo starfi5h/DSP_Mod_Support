@@ -53,19 +53,19 @@ namespace RateMonitor.UI
                 string productionText = "";
                 if (totalConsumption > float.Epsilon)
                 {
-                    productionText = SP.totalConsumptionText + Utils.RateKMG(totalConsumption);
+                    productionText = SP.totalConsumptionText + Utils.RateKMG(totalConsumption * CalDB.CountMultiplier);
                     if (ModSettings.ShowRealtimeRate.Value)
                     {
-                        productionText += " (" + Utils.RateKMG(workingConsumption) + ")";
+                        productionText += " (" + Utils.RateKMG(workingConsumption * CalDB.CountMultiplier) + ")";
                     }
                 }
                 if (totalProduction > float.Epsilon)
                 {
                     if (productionText != "") productionText += "\n";
-                    productionText += SP.totalProductionText + Utils.RateKMG(totalProduction);
+                    productionText += SP.totalProductionText + Utils.RateKMG(totalProduction * CalDB.CountMultiplier);
                     if (ModSettings.ShowRealtimeRate.Value)
                     {
-                        productionText += " (" + Utils.RateKMG(workingProduction) + ")";
+                        productionText += " (" + Utils.RateKMG(workingProduction * CalDB.CountMultiplier) + ")";
                     }
                 }
                 GUILayout.Label(productionText);
@@ -77,10 +77,10 @@ namespace RateMonitor.UI
             }
             else // 全局: 計算增產劑消耗
             {
-                string proliferatorText = SP.proliferatorCostText + Utils.KMG(-totalMaxIncCost * CalDB.IncToProliferatorRatio);
+                string proliferatorText = SP.proliferatorCostText + Utils.KMG(-totalMaxIncCost * CalDB.IncToProliferatorRatio * CalDB.CountMultiplier);
                 if (ModSettings.ShowRealtimeRate.Value)
                 {
-                    proliferatorText += " (" + Utils.KMG(-workingIncCost * CalDB.IncToProliferatorRatio) + ")";
+                    proliferatorText += " (" + Utils.KMG(-workingIncCost * CalDB.IncToProliferatorRatio * CalDB.CountMultiplier) + ")";
                 }
                 GUILayout.Label(proliferatorText);
                 totalMaxIncCost = workingIncCost = 0f;
@@ -92,7 +92,7 @@ namespace RateMonitor.UI
 
             // 耗電計算
             GUILayout.BeginHorizontal();
-            string powerText = SP.powerCostText + Utils.KMG(totalMaxPowerCost);
+            string powerText = SP.powerCostText + Utils.KMG(totalMaxPowerCost * CalDB.CountMultiplier);
             powerText += "W";
             if (ModSettings.ShowRealtimeRate.Value)
             {

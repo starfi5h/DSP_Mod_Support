@@ -23,6 +23,7 @@ namespace RateMonitor.UI
         private OperactionPanel operactionPanel;
         private SettingPanel settingPanel;
         private string titleText = "";
+        private bool isExpandTitleSettings = false;
 
         public static void OnGUI()
         {
@@ -30,15 +31,25 @@ namespace RateMonitor.UI
             if (Instance == null) Instance = new UIWindow();
             if (Instance.Table != Plugin.MainTable) Instance.Init(Plugin.MainTable);
 
-            // Make the window draggable and get the returned position
-            Color originalColor = GUI.backgroundColor; // Save the original color
+            // Use custom skin so it doesn't affect other mods
+            if (!Utils.IsInit)
+            {
+                Utils.Init();
+                Utils.SetScale(ModSettings.FontSize.Value);
+            }
+            var originalSkin = GUI.skin;
+            var originalColor = GUI.backgroundColor; // Save the original color
+            GUI.skin = Utils.CustomSkin;
             GUI.backgroundColor = new Color(1f, 1f, 1f, 1f);
-            Instance.windowRect = GUILayout.Window(windowId, Instance.windowRect, Instance.DrawWindow, Instance.windowName);
 
+            // Make the window draggable and get the returned position
+            Instance.windowRect = GUILayout.Window(windowId, Instance.windowRect, Instance.DrawWindow, Instance.windowName);
             InResizingArea = false;
             if(Instance.ratePanel.IsActive) Instance.HandlePanelResize(ref Instance.windowRect);
             Instance.HandleWindowResize(ref Instance.windowRect);
+
             GUI.backgroundColor = originalColor;
+            GUI.skin = originalSkin;
         }
 
         public static void RefreshTitle()
@@ -58,6 +69,7 @@ namespace RateMonitor.UI
             Instance.windowRect.width = ModSettings.WindowWidth.Value;
             Instance.windowRect.height = ModSettings.WindowHeight.Value;
             Instance.RatePanelWidth = ModSettings.WindowRatePanelWidth.Value;
+            Instance.ProfilePanelWidth = Instance.windowRect.width - Instance.RatePanelWidth - 40;
         }
 
         public static void SaveUIWindowConfig()
@@ -81,14 +93,14 @@ namespace RateMonitor.UI
         private void DrawWindow(int windowID)
         {
             // Draw close button
-            if (GUI.Button(new Rect(windowRect.width - 23, 3, 20, 20), "X"))
+            if (GUI.Button(new Rect(windowRect.width - 3 - (Utils.BaseScale + 4), 3, Utils.BaseScale + 4, Utils.BaseScale + 4), "X")) // 20
             {
                 Plugin.SaveCurrentTable();
                 Plugin.MainTable = null;
                 return;
             }
 
-            GUILayout.Space(2);
+            GUILayout.Space(Utils.BaseScale - 14);
             DrawTitle();
             GUILayout.Space(2);
 
@@ -117,6 +129,10 @@ namespace RateMonitor.UI
             // 標題顯示當前時間單位(/min)和選中的建築數量
             GUILayout.BeginHorizontal();
 
+            if (GUILayout.Button(isExpandTitleSettings ? "-" : "+", GUILayout.Width(Utils.BaseScale * 1.5f)))
+            {
+                isExpandTitleSettings = !isExpandTitleSettings;
+            }
             GUILayout.Label(titleText);
             GUILayout.FlexibleSpace();
 
@@ -136,6 +152,16 @@ namespace RateMonitor.UI
             }
             ratePanel.IsActive = !operactionPanel.IsActive && !settingPanel.IsActive;
             GUILayout.EndHorizontal();
+
+            if (isExpandTitleSettings)
+            {
+                settingPanel.RateUnitQuickBar();
+                settingPanel.CountMultiplierSetter();
+            }
+            else
+            {
+                CalDB.CountMultiplier = 1;
+            }
         }
 
         private void HandleWindowResize(ref Rect windowRect)
@@ -168,7 +194,10 @@ namespace RateMonitor.UI
             if (!(Input.GetMouseButton(0) || Input.GetMouseButtonDown(0))) //Eat only when left-click
                 return;
             if (windowRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
-                Input.ResetInputAxes();
+            {
+                // If it is selecting, then let the tool penetrate
+                if (!SelectionTool_Patches.tool?.IsSelecting ?? true) Input.ResetInputAxes();
+            }
         }
 
         private void HandlePanelResize(ref Rect windowRect)
@@ -194,6 +223,7 @@ namespace RateMonitor.UI
                 // Calculate new RatePanelWidth based on mouse position x, keeping the minimum panel size
                 RatePanelWidth = Event.current.mousePosition.x - windowRect.xMin - 12f;
                 RatePanelWidth = (float)Maths.Clamp(RatePanelWidth, 10f, windowRect.width - 60f);
+                ProfilePanelWidth = windowRect.width - RatePanelWidth - 40;
             }
         }
     }

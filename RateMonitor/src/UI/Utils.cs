@@ -4,11 +4,13 @@ namespace RateMonitor.UI
 {
     public static class Utils
     {
+        public static bool IsInit = false;
+        public static GUISkin CustomSkin;
         public static float BaseScale = 16;
         public static float RecordHeight = 24;
         public static float IconHeight = 32;
-        public static float RateWidth = 55;
-        public static float ShortButtonWidth = 64;
+        public static float RateWidth = 56;
+        public static float ShortButtonWidth = 72;
         public static float LargeButtonWidth = 200;
         public static float InputWidth = 100;
 
@@ -18,19 +20,33 @@ namespace RateMonitor.UI
         static GUIStyle focusItemIconStyle;
         static GUIStyle normalIconStyle;
 
-        public static void SetScale(float scale)
+        public static void SetScale(float baseScale)
         {
+            float scale = baseScale / 16.0f;
+            BaseScale = baseScale;
             RecordHeight = 24 * scale;
             IconHeight = 32 * scale;
-            RateWidth = 55 * scale;
-            ShortButtonWidth = 64 * scale;
+            RateWidth = 56 * scale;
+            ShortButtonWidth = 72 * scale;
             LargeButtonWidth = 200 * scale;
             InputWidth = 100 * scale;
             iconoptions = new[] { GUILayout.Width(IconHeight), GUILayout.Height(IconHeight) };
+
+            int fontSize = (int)(baseScale + 0.5f);
+            UpdateFontSize(fontSize);
+        }
+
+        public static void OnDestroy()
+        {
+            Object.Destroy(CustomSkin);
         }
 
         public static void Init()
         {
+            IsInit = true;
+            CustomSkin = ScriptableObject.CreateInstance<GUISkin>();
+            CloneCurrentSkinSettings();
+
             iconoptions = new[] { GUILayout.Width(IconHeight), GUILayout.Height(IconHeight) };
             iconTextContent = new GUIContent();
             
@@ -55,6 +71,52 @@ namespace RateMonitor.UI
             focusItemIconStyle = new GUIStyle();
             focusItemIconStyle.normal.background = normalBackgroundYellow;
             focusItemIconStyle.hover.background = hoveredBackgroundYellow;
+        }
+
+        static void CloneCurrentSkinSettings()
+        {
+            if (CustomSkin == null || GUI.skin == null) return;
+
+            // Clone all styles from the current skin
+            CustomSkin.box = new GUIStyle(GUI.skin.box);
+            CustomSkin.button = new GUIStyle(GUI.skin.button);
+            CustomSkin.label = new GUIStyle(GUI.skin.label);
+            CustomSkin.textField = new GUIStyle(GUI.skin.textField);
+            CustomSkin.textArea = new GUIStyle(GUI.skin.textArea);
+            CustomSkin.toggle = new GUIStyle(GUI.skin.toggle);
+            CustomSkin.window = new GUIStyle(GUI.skin.window);
+            CustomSkin.horizontalSlider = new GUIStyle(GUI.skin.horizontalSlider);
+            CustomSkin.horizontalSliderThumb = new GUIStyle(GUI.skin.horizontalSliderThumb);
+            CustomSkin.verticalSlider = new GUIStyle(GUI.skin.verticalSlider);
+            CustomSkin.verticalSliderThumb = new GUIStyle(GUI.skin.verticalSliderThumb);
+            CustomSkin.horizontalScrollbar = new GUIStyle(GUI.skin.horizontalScrollbar);
+            CustomSkin.horizontalScrollbarThumb = new GUIStyle(GUI.skin.horizontalScrollbarThumb);
+            CustomSkin.horizontalScrollbarLeftButton = new GUIStyle(GUI.skin.horizontalScrollbarLeftButton);
+            CustomSkin.horizontalScrollbarRightButton = new GUIStyle(GUI.skin.horizontalScrollbarRightButton);
+            CustomSkin.verticalScrollbar = new GUIStyle(GUI.skin.verticalScrollbar);
+            CustomSkin.verticalScrollbarThumb = new GUIStyle(GUI.skin.verticalScrollbarThumb);
+            CustomSkin.verticalScrollbarUpButton = new GUIStyle(GUI.skin.verticalScrollbarUpButton);
+            CustomSkin.verticalScrollbarDownButton = new GUIStyle(GUI.skin.verticalScrollbarDownButton);
+            CustomSkin.scrollView = new GUIStyle(GUI.skin.scrollView);
+
+            // Copy settings arrays
+            //CustomSkin.settings = new GUISettings(GUI.skin.settings);
+            CustomSkin.customStyles = GUI.skin.customStyles != null ?
+                                      (GUIStyle[])GUI.skin.customStyles.Clone() :
+                                      new GUIStyle[0];
+        }
+
+        static void UpdateFontSize(int fontSize)
+        {
+            if (CustomSkin == null) return;
+
+            CustomSkin.label.fontSize = fontSize;
+            CustomSkin.button.fontSize = fontSize;
+            CustomSkin.toggle.fontSize = fontSize;
+            CustomSkin.textField.fontSize = fontSize;
+            CustomSkin.textArea.fontSize = fontSize;
+            CustomSkin.box.fontSize = fontSize;
+            CustomSkin.window.fontSize = fontSize;
         }
 
         public static void FocusItemIconButton(int itemId)

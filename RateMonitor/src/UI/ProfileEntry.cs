@@ -27,7 +27,7 @@ namespace RateMonitor.UI
             Utils.FocusItemIconButton(itemId);
 
             // Reference net rate (working percentage)
-            string referenceRateStr = Utils.RateKMG(Profile.itemRefSpeeds[index] * totalMachineCount);
+            string referenceRateStr = Utils.RateKMG(Profile.itemRefSpeeds[index] * totalMachineCount * CalDB.CountMultiplier);
             float workingRate = Profile.WorkingMachineCount / totalMachineCount;
             if (ModSettings.ShowRealtimeRate.Value)
             {
@@ -43,10 +43,10 @@ namespace RateMonitor.UI
             {
                 IsExpand = !IsExpand;
             }
-            string machineCountStr = "  " + totalMachineCount;
+            string machineCountStr = "  " + totalMachineCount * CalDB.CountMultiplier;
             if (ModSettings.ShowRealtimeRate.Value)
             {
-                machineCountStr += " (" + Utils.KMG(Profile.WorkingMachineCount) + ")";
+                machineCountStr += " (" + Utils.KMG(Profile.WorkingMachineCount * CalDB.CountMultiplier) + ")";
             }
             GUILayout.Label(machineCountStr, GUILayout.Width(freespace / 3 - 10));
 
@@ -92,8 +92,8 @@ namespace RateMonitor.UI
             if (ProfilePanel.FocusItmeId != 0 && ProfilePanel.FocusItmeId == itemId)
             {
                 var statTable = UIWindow.Instance.Table;
-                float netRefMachineCount = statTable.ItemRefRates[itemId] / profile.itemRefSpeeds[index];
-                float netEstMachineCount = statTable.ItemEstRates[itemId] / profile.itemRefSpeeds[index];
+                float netRefMachineCount = statTable.ItemRefRates[itemId] / profile.itemRefSpeeds[index] * CalDB.CountMultiplier;
+                float netEstMachineCount = statTable.ItemEstRates[itemId] / profile.itemRefSpeeds[index] * CalDB.CountMultiplier;
                 string machineCountText = SP.netMachineText + netRefMachineCount.ToString("0.##");
                 if (ModSettings.ShowRealtimeRate.Value)
                 {
@@ -128,17 +128,17 @@ namespace RateMonitor.UI
             if (profile.materialCount > 0)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(SP.itemIdConsumeText, GUILayout.Width(Utils.RateWidth));
+                GUILayout.Label(SP.itemIdConsumeText, GUILayout.Width(Utils.RateWidth + 2));
                 for (int i = 0; i < profile.itemRefSpeeds.Count; i++)
                 {
                     float refSpeed = profile.itemRefSpeeds[i];
                     if (refSpeed <= 0f)
                     {
                         Utils.FocusItemIconButton(profile.itemIds[i]);
-                        string referenceRateStr = " " + Utils.RateKMG(refSpeed * profile.TotalMachineCount);
+                        string referenceRateStr = " " + Utils.RateKMG(refSpeed * profile.TotalMachineCount * CalDB.CountMultiplier);
                         if (ModSettings.ShowRealtimeRate.Value)
                         {
-                            referenceRateStr += "\n(" + Utils.RateKMG(refSpeed * profile.WorkingMachineCount) + ")";
+                            referenceRateStr += "\n(" + Utils.RateKMG(refSpeed * profile.WorkingMachineCount * CalDB.CountMultiplier) + ")";
                         }
                         GUILayout.Label(referenceRateStr);
                     }
@@ -151,17 +151,17 @@ namespace RateMonitor.UI
             if (profile.productCount > 0)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(SP.itemIdProduceText, GUILayout.Width(Utils.RateWidth));
+                GUILayout.Label(SP.itemIdProduceText, GUILayout.Width(Utils.RateWidth + 2));
                 for (int i = 0; i < profile.itemRefSpeeds.Count; i++)
                 {
                     float refSpeed = profile.itemRefSpeeds[i];
                     if (refSpeed >= 0f)
                     {
                         Utils.FocusItemIconButton(profile.itemIds[i]);
-                        string referenceRateStr = " " + Utils.RateKMG(refSpeed * profile.TotalMachineCount);
+                        string referenceRateStr = " " + Utils.RateKMG(refSpeed * profile.TotalMachineCount * CalDB.CountMultiplier);
                         if (ModSettings.ShowRealtimeRate.Value)
                         {
-                            referenceRateStr += "\n(" + Utils.RateKMG(refSpeed * profile.WorkingMachineCount) + ")";
+                            referenceRateStr += "\n(" + Utils.RateKMG(refSpeed * profile.WorkingMachineCount * CalDB.CountMultiplier) + ")";
                         }
                         GUILayout.Label(referenceRateStr);
                     }

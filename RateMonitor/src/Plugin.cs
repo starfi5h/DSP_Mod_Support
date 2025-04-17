@@ -16,7 +16,7 @@ namespace RateMonitor
     {
         public const string GUID = "starfi5h.plugin.RateMonitor";
         public const string NAME = "RateMonitor";
-        public const string VERSION = "0.2.0";
+        public const string VERSION = "0.3.0";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -50,7 +50,6 @@ namespace RateMonitor
                 CalDB.CompatGB = true;
             }
 
-            UI.Utils.Init();
             UI.UIWindow.LoadUIWindowConfig();
             Localization.OnLanguageChange += SP.Init;
         }
@@ -185,6 +184,7 @@ namespace RateMonitor
             harmony.UnpatchSelf();
             harmony = null;
             Localization.OnLanguageChange -= SP.Init;
+            UI.Utils.OnDestroy();
         }
     }
 }

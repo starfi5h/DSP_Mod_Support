@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RateMonitor
@@ -6,6 +7,32 @@ namespace RateMonitor
     public class SelectionTool_Patches
     {
         public static SelectionTool tool;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
+        public static void PlayerControllerGameTick_Prefix(PlayerController __instance)
+        {
+            if (Plugin.MainTable == null || Plugin.MainTable.GetFactory()?.planet != GameMain.localPlanet) return;
+            if (__instance.actionInspect.hoveringEntityId != 0 && Input.GetMouseButton(1)) // Right click on building
+            {
+                int entityId = __instance.actionInspect.hoveringEntityId;
+                var list = Plugin.MainTable.GetEntityIds(out var factory);
+                if (VFInput.control)
+                {                    
+                    list.Add(entityId);
+                    Plugin.CreateMainTable(factory, list);
+                    Input.ResetInputAxes(); // Eat input so the mecha won't move to the building
+                }
+                else if (VFInput.shift)
+                {
+                    if (list.Remove(entityId))
+                    {
+                        Plugin.CreateMainTable(factory, list);
+                        Input.ResetInputAxes();
+                    }
+                }
+            }
+        }
 
         [HarmonyPostfix, HarmonyAfter("org.kremnev8.plugin.BlueprintTweaks")]
         [HarmonyPatch(typeof(PlayerAction_Build), nameof(PlayerAction_Build.Init))]
@@ -34,15 +61,19 @@ namespace RateMonitor
                 __result = true; // keep PlayerAction_Build active
                 return;
             }
-            if (VFInput.readyToBuild && VFInput.inScreen && IsHotKey())
+            if (__instance.blueprintMode == EBlueprintMode.None && IsHotKey())
             {
-                // Modify from OpenBlueprintCopyMode()
-                if (__instance.blueprintMode != EBlueprintMode.None) return;
-
-                Plugin.Log.LogDebug("Enable selection tool");
-                __instance.player.controller.cmd.SetNoneCommand();
-                tool.IsEnable = true;
-                __result = true;
+                if (VFInput.readyToBuild)
+                {
+                    Plugin.Log.LogDebug("Enable selection tool");
+                    __instance.player.controller.cmd.SetNoneCommand();
+                    tool.IsEnable = true;
+                    __result = true;
+                }
+                else if (Plugin.MainTable == null)
+                {
+                    if (!Plugin.LoadLastTable()) Plugin.CreateMainTable(null, new List<int>(0));
+                }
             }
         }
 

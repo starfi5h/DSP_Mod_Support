@@ -2,13 +2,14 @@
 
 Rate Monitor is a Dyson Sphere Program mod inspired by [Rate Calculator](https://mods.factorio.com/mod/RateCalculator) from Factorio. It lets you select machines in an area (using Alt + X) to calculate their input/output rates, track working ratios, and discover why some machines may not be running at full capacity.  
 本模组受到Factorio的[Rate Calculator](https://mods.factorio.com/mod/RateCalculator)启发，通过按下 Alt + X 区域框选建筑，即可计算产出和消耗速率，监控工作效率，并快速找出机器停工的原因。  
+![Demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/demo1.png)  
 
 ## Key Features 核心功能
 
 - Area Selection (Alt + X)
   - Drag a box around production or mining facilities, matrix labs, ray receivers, and more.
   - Once selected, a GUI window shows production and consumption rates, plus a real-time working ratio.
-  - If you’re in space, pressing Alt + X will reopen the last selection’s data.
+  - If you’re in space or map view, pressing Alt + X will reopen the last selection’s data.
 
 - Production/Consumption Overview
   - Quickly see net rates (production minus consumption) for raw materials, intermediate goods, and final products.
@@ -23,7 +24,7 @@ Rate Monitor is a Dyson Sphere Program mod inspired by [Rate Calculator](https:/
 - 区域框选（Alt + X）
   - 框选制造设备、采矿设备、矩阵研究站、射线接收站、戴森球设施等。  
   - 框选后会弹出一个数据窗口，展示实时产出和消耗速率，以及各类机器的工作比率。  
-  - 如果你在太空中，按 Alt + X 会重新打开上次的框选结果。  
+  - 如果你在太空中或行星视图，按 Alt + X 会重新打开上次的框选结果。  
   - 可以在操作面板框选本地/外地星球的全部建筑
 
 - 产出/消耗总览
@@ -58,8 +59,10 @@ Alt + X 区域框选建筑。支持的建筑种类有:
 ![expand entry](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/expand.gif)  
 
 After selection done, a gui window will appear. When in space, hotkey Alt + X will open the window with the last selection.  
+When the window is open, Ctrl+right click can continue to add selected buildings (repeatable), and Shift+right click can remove selected buildings.  
 Click on the item icon to focus, click on the building icon to expand that recipe entry.  
 选择完成后，将出现一个 GUI 窗口。当不在星球上时，热键Alt + X会用上次的框选打开窗口。  
+在窗口打开时，Ctrl+右键可以继续添加选择建筑(可重复)，Shfit+右键可以移除选择建筑。  
 单击项目图标以聚焦，过滤消耗/生产该物品的项目。可以检视总消耗量和生产量，以及净机器数目。  
 单击建筑图标以展开该配方条目，可以检视效率不足的原因。  
 
@@ -74,9 +77,11 @@ When opened, the Rate Monitor window displays multiple panels showing your facto
 
 ### Header
 
+- (Entity Count): Displays how many machines (assemblers, smelters, chemical plants, etc.) are included in this monitor's calculation.  
+- "+"/"-" button: The button to expand/fold quick change rate unit and count multiplier functions.  
 - Rate Unit: The time unit for the data. Common settings include “per minute”(1/min) or “per second”(60/min)  
 - Proliferator Level: Shows the current level of proliferator effects (if applicable) on the production lines being tracked.  
-- Entity Count: Displays how many machines or entities (assemblers, smelters, chemical plants, etc.) are included in this monitor's calculation.  
+
 - Operate: Open the operation panel to do actions.  
 - Config: Open the settings panel to change the config file.  
 
@@ -125,9 +130,10 @@ The value indicates if the machine-recipe groups have a net surplus/deficit. Neg
 
 ### 标题区域
 
+- **(实体数量)**：计算中包含的机器数量（如组装机、熔炉、化工厂等）  
 - **速率单位**：用于统计数据的时间单位。常见为“每分钟（1/min）”或“每秒（60/min）”  
 - **增产剂等级**：显示当前监控的生产线中，增产剂的使用等级（如有）  
-- **实体数量**：计算中包含的机器数量（如组装机、熔炉、化工厂等）  
+- **+/-按钮**：用于展开/折叠快速更改速率单位和建筑数量倍数功能的按钮。  
 - **操作**：打开操作面板，执行相关操作  
 - **配置**：打开设置面板，修改配置文件  
 

@@ -10,6 +10,7 @@ namespace RateMonitor.UI
         Vector2 scrollPosition;
         string rateUnitInput;
         string incLevelInput;
+        bool use4stack = false;
 
         public SettingPanel(StatTable _)
         {
@@ -35,6 +36,7 @@ namespace RateMonitor.UI
             ConfigBoolField(SP.showInPercentageText, ModSettings.ShowWorkingRateInPercentage);
             GUILayout.EndHorizontal();
 
+            // Rate Unit Input settings
             GUILayout.BeginHorizontal();
             ConfigIntField(SP.rateUnitText, ref rateUnitInput, ModSettings.RateUnit, 1, 14400);
             if (GUILayout.Button("x2", GUILayout.Width(Utils.ShortButtonWidth)))
@@ -46,28 +48,19 @@ namespace RateMonitor.UI
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
+            // Rate Unit Quick Bar
+            RateUnitQuickBar();
+
+            // Font Size Settings
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(SP.perMinuteText, GUILayout.Width(Utils.InputWidth)))
+            int fontSize = (int)GUILayout.HorizontalSlider(ModSettings.FontSize.Value, 8f, 48f, GUILayout.Width(Utils.InputWidth * 4));
+            if (fontSize != ModSettings.FontSize.Value)
             {
-                ModSettings.RateUnit.Value = 1;
-                RefreshInputs();
-                UIWindow.RefreshTitle();
+                ModSettings.FontSize.Value = fontSize;
+                Utils.SetScale(fontSize);
             }
-            if (GUILayout.Button(SP.perSecondText, GUILayout.Width(Utils.InputWidth)))
-            {
-                ModSettings.RateUnit.Value = 60;
-                RefreshInputs();
-                UIWindow.RefreshTitle();
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                if (GUILayout.Button(SP.perBeltTexts[i], GUILayout.Width(Utils.InputWidth)))
-                {
-                    ModSettings.RateUnit.Value = CalDB.BeltSpeeds[i];
-                    RefreshInputs();
-                    UIWindow.RefreshTitle();
-                }
-            }
+            GUILayout.Label(SP.fontSizeText + ": " + ModSettings.FontSize.Value);
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
@@ -111,6 +104,48 @@ namespace RateMonitor.UI
 
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
+        }
+
+        public void RateUnitQuickBar()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(SP.perMinuteText, GUILayout.Width(Utils.InputWidth)))
+            {
+                ModSettings.RateUnit.Value = 1;
+                RefreshInputs();
+                UIWindow.RefreshTitle();
+            }
+            if (GUILayout.Button(SP.perSecondText, GUILayout.Width(Utils.InputWidth)))
+            {
+                ModSettings.RateUnit.Value = 60;
+                RefreshInputs();
+                UIWindow.RefreshTitle();
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                if (GUILayout.Button(SP.perBeltTexts[i], GUILayout.Width(Utils.InputWidth)))
+                {
+                    ModSettings.RateUnit.Value = use4stack ? CalDB.BeltSpeeds[i] * 4 : CalDB.BeltSpeeds[i];
+                    RefreshInputs();
+                    UIWindow.RefreshTitle();
+                }
+            }
+            use4stack = GUILayout.Toggle(use4stack, "4 stack");
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        public void CountMultiplierSetter()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(SP.countMultiplierText + ": " + CalDB.CountMultiplier.ToString() + " ");
+            if (GUILayout.Button("-10", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier -= 10;
+            if (GUILayout.Button("-1", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier -= 1;
+            if (GUILayout.Button("+1", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier += 1;
+            if (GUILayout.Button("+10", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier += 10;
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            if (CalDB.CountMultiplier < 1) CalDB.CountMultiplier = 1;
         }
 
         private void MiddleLabel(string label)

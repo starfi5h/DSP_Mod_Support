@@ -7,6 +7,7 @@ namespace RateMonitor
     {
         public static ConfigEntry<KeyboardShortcut> SelectionToolKey;
         public static ConfigEntry<int> RateUnit;
+        public static ConfigEntry<int> FontSize;
         public static ConfigEntry<bool> ShowRealtimeRate;
         public static ConfigEntry<bool> ShowWorkingRateInPercentage;
         public static ConfigEntry<float> WindowWidth;
@@ -24,6 +25,7 @@ namespace RateMonitor
             RateUnit = config.Bind("UI", "Rate Unit", 1,
                 new ConfigDescription("Timescale unit (x item per minute)\n速率单位(每分钟x个物品)", new AcceptableValueRange<int>(1, 14400)));
 
+            FontSize = config.Bind("UI", "Font Size", 16);
             WindowWidth = config.Bind("UI", "Window Width", 580f);
             WindowHeight = config.Bind("UI", "Window Height", 400f);
             WindowRatePanelWidth = config.Bind("UI", "Window Rate Panel Width", 190f);
