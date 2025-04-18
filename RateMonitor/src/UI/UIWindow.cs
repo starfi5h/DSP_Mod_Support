@@ -136,6 +136,10 @@ namespace RateMonitor.UI
             GUILayout.Label(titleText);
             GUILayout.FlexibleSpace();
 
+            if (GUILayout.Button("<", GUILayout.Width(Utils.BaseScale * 2)))
+            {
+                Plugin.LoadLastTable();
+            }
             if (GUILayout.Button(operactionPanel.IsActive ? SP.backButtonText : SP.operationButtonText, GUILayout.Width(Utils.ShortButtonWidth)))
             {
                 operactionPanel.IsActive = !operactionPanel.IsActive;

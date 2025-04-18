@@ -166,7 +166,7 @@ namespace RateMonitor
             return 0;
         }
 
-        public void Reset()
+        public void ResetTimer()
         {
             entityRecords.Clear();
             isEntityRecordsDirty = true;

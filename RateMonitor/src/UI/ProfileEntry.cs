@@ -8,6 +8,8 @@ namespace RateMonitor.UI
         public bool IsExpand { get; set; }
         public bool IsExpandRecords { get; set; }
 
+        static ushort entityCursor = 0;
+
         public ProfileEntry(ProductionProfile profile)
         {
             Profile = profile;
@@ -122,6 +124,29 @@ namespace RateMonitor.UI
                 }
 
                 GUILayout.EndVertical();
+            }
+            else if (profile.entityIds.Count > 0)
+            {
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.Label(SP.naviToMachineText);
+                bool isPressed = false;
+                if (GUILayout.Button("<", GUILayout.Width(Utils.BaseScale * 2)))
+                {
+                    entityCursor = (ushort)((entityCursor + profile.entityIds.Count - 1) % profile.entityIds.Count);
+                    isPressed = true;
+                }
+                if (GUILayout.Button(">", GUILayout.Width(Utils.BaseScale * 2)))
+                {
+                    entityCursor = (ushort)((entityCursor + 1) % profile.entityIds.Count);
+                    isPressed = true;
+                }
+                if (isPressed)
+                {
+                    int entityId = profile.entityIds[entityCursor];
+                    Utils.NavigateToEntity(Plugin.MainTable.GetFactory(), entityId);
+                }
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
             }
 
             // Consume items rate(ref + est)

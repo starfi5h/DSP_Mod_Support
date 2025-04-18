@@ -162,6 +162,7 @@ namespace RateMonitor.UI
                 //UIRoot.instance.uiGame.globemap.MoveToViewTargetTwoStep(localPos,
                 //    (float)localPos.magnitude - GameMain.data.localPlanet.realRadius);
                 GameMain.data.mainPlayer.Order(OrderNode.MoveTo(localPos), false);
+                UIRealtimeTip.Popup($"Move to entity {entityId}");
             }
             else
             {

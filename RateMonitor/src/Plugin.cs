@@ -16,7 +16,7 @@ namespace RateMonitor
     {
         public const string GUID = "starfi5h.plugin.RateMonitor";
         public const string NAME = "RateMonitor";
-        public const string VERSION = "0.3.0";
+        public const string VERSION = "0.3.1";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -52,6 +52,7 @@ namespace RateMonitor
 
             UI.UIWindow.LoadUIWindowConfig();
             Localization.OnLanguageChange += SP.Init;
+            if (ModSettings.EnableQuickBarButton.Value) harmony.PatchAll(typeof(QuickBarButton));
         }
 
         public void OnGUI()
@@ -117,8 +118,10 @@ namespace RateMonitor
 
             MainTable = new StatTable();
             MainTable.Initialize(factory, entityIds);
+#if DEBUG
             MainTable.PrintRefRates();
             MainTable.PrintProifles();
+#endif
             Log.LogDebug("CreateMainTable: " + MainTable.GetEntityCount());
         }
 
@@ -185,6 +188,16 @@ namespace RateMonitor
             harmony = null;
             Localization.OnLanguageChange -= SP.Init;
             UI.Utils.OnDestroy();
+            QuickBarButton.Destroy();
         }
+
+#if DEBUG
+
+        public void Start()
+        {
+            QuickBarButton.CrateButton();
+        }
+
+#endif
     }
 }

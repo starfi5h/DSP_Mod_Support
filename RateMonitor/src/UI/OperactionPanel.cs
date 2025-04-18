@@ -86,11 +86,7 @@ namespace RateMonitor.UI
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(SP.resetTimerText, GUILayout.MaxWidth(Utils.LargeButtonWidth)))
             {
-                statTable.TotalTick = 0;
-                foreach (var profile in statTable.Profiles)
-                {
-                    profile.Reset();
-                }
+                statTable.ResetTimer();
             }
             GUILayout.Label((statTable.TotalTick / 60f).ToString("F2") + "s");
             GUILayout.EndHorizontal();

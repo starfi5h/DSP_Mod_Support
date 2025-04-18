@@ -211,6 +211,19 @@ namespace RateMonitor
             factory = null;
         }
 
+        public void ResetTimer()
+        {
+            TotalTick = 0;
+            foreach (var profile in Profiles)
+            {
+                profile.ResetTimer();
+            }
+            for (int i = 0; i < entityInfos.Length; i++)
+            {
+                entityInfos[i].workState = EntityRecord.EWorkState.Running;
+            }
+        }
+
         public float GetEntityWorkingRatio(int entityId, ProductionProfile profile)
         {
             if (entityId <= 0 || entityId >= factory.entityCursor) return 0f;

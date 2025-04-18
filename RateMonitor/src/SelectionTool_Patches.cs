@@ -7,18 +7,20 @@ namespace RateMonitor
     public class SelectionTool_Patches
     {
         public static SelectionTool tool;
+        public static bool activateInNextTick;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
         public static void PlayerControllerGameTick_Prefix(PlayerController __instance)
         {
+            if (!ModSettings.EnableSingleBuildingClick.Value) return;
             if (Plugin.MainTable == null || Plugin.MainTable.GetFactory()?.planet != GameMain.localPlanet) return;
             if (__instance.actionInspect.hoveringEntityId != 0 && Input.GetMouseButton(1)) // Right click on building
             {
                 int entityId = __instance.actionInspect.hoveringEntityId;
                 var list = Plugin.MainTable.GetEntityIds(out var factory);
                 if (VFInput.control)
-                {                    
+                {
                     list.Add(entityId);
                     Plugin.CreateMainTable(factory, list);
                     Input.ResetInputAxes(); // Eat input so the mecha won't move to the building
@@ -27,9 +29,9 @@ namespace RateMonitor
                 {
                     if (list.Remove(entityId))
                     {
-                        Plugin.CreateMainTable(factory, list);
-                        Input.ResetInputAxes();
+                        Plugin.CreateMainTable(factory, list);                        
                     }
+                    Input.ResetInputAxes();
                 }
             }
         }
@@ -55,13 +57,16 @@ namespace RateMonitor
         [HarmonyPatch(typeof(PlayerAction_Build), nameof(PlayerAction_Build.DetermineActive))]
         public static void UpdateCommandState(PlayerAction_Build __instance, ref bool __result)
         {
+            if (tool == null) return;
+
             // Modify from PlayerController.UpdateCommandState
             if (tool.IsEnable && __instance.activeTool == tool)
             {
                 __result = true; // keep PlayerAction_Build active
+                activateInNextTick = false;
                 return;
             }
-            if (__instance.blueprintMode == EBlueprintMode.None && IsHotKey())
+            if (__instance.blueprintMode == EBlueprintMode.None && (IsHotKey() || activateInNextTick))
             {
                 if (VFInput.readyToBuild)
                 {
@@ -75,6 +80,7 @@ namespace RateMonitor
                     if (!Plugin.LoadLastTable()) Plugin.CreateMainTable(null, new List<int>(0));
                 }
             }
+            activateInNextTick = false;
         }
 
         public static bool IsHotKey()

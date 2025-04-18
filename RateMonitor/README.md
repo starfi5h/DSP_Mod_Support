@@ -2,7 +2,7 @@
 
 Rate Monitor is a Dyson Sphere Program mod inspired by [Rate Calculator](https://mods.factorio.com/mod/RateCalculator) from Factorio. It lets you select machines in an area (using Alt + X) to calculate their input/output rates, track working ratios, and discover why some machines may not be running at full capacity.  
 本模组受到Factorio的[Rate Calculator](https://mods.factorio.com/mod/RateCalculator)启发，通过按下 Alt + X 区域框选建筑，即可计算产出和消耗速率，监控工作效率，并快速找出机器停工的原因。  
-![Demo](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/demo1.png)  
+![Button](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/button.png)  
 
 ## Key Features 核心功能
 
@@ -189,6 +189,31 @@ Run the game one time to generate `BepInEx\config\starfi5h.plugin.RateMonitor.cf
 ```
 ## Plugin GUID: starfi5h.plugin.RateMonitor
 
+[Display]
+
+## Timescale unit (x item per minute)
+## 速率单位(每分钟x个物品)
+# Setting type: Int32
+# Default value: 1
+# Acceptable value range: From 1 to 14400
+Rate Unit = 1
+
+# Setting type: Int32
+# Default value: 14
+Font Size = 14
+
+## Show Real-time Monitoring Rate
+## 显示即时监控速率
+# Setting type: Boolean
+# Default value: true
+Show Realtime Rate = true
+
+## Show Real-time Working Rate in percentage
+## 以百分比显示工作效率
+# Setting type: Boolean
+# Default value: true
+Show Working Rate in percentage = true
+
 [General]
 
 ## Level of proliferator [1,2,4]. Auto dectect: -1
@@ -199,13 +224,13 @@ Run the game one time to generate `BepInEx\config\starfi5h.plugin.RateMonitor.cf
 Proliferator Level = -1
 
 ## The theoretical max rate always apply proliferator, regardless the material.
-## 计算理论上限时是否强制套用增产设定(否=依照当下原料决定)
+## 计算理论上限时是否强制套用增产设定(false=依照当下原料决定)
 # Setting type: Boolean
 # Default value: false
 Force Proliferator = false
 
 ## The theoretical max rate always apply gravity lens.
-## 计算射线接收站时总是套用透镜(否=依照当下决定)
+## 计算射线接收站时总是套用透镜(false=依照当下决定)
 # Setting type: Boolean
 # Default value: false
 Force Gravity Lens in Ray Receiver = false
@@ -220,24 +245,17 @@ SelectToolKey = X + LeftAlt
 
 [UI]
 
-## Timescale unit (x item per minute)
-## 速率单位(每分钟x个物品)
-# Setting type: Int32
-# Default value: 1
-# Acceptable value range: From 1 to 14400
-Rate Unit = 1
-
-## Show Real-time Monitoring Rate
-## 显示即时监控速率
+## Create a button in mecha energy bar
+## 在机甲能量条创建一个mod开关按钮
 # Setting type: Boolean
 # Default value: true
-Show Realtime Rate = true
+Enable Quick Bar Button = true
 
-## Show Real-time Working Rate in percentage
-## 以百分比显示工作效率
+## When mod window is open, enable ctrl/shift + RMB to add/remove building
+## 在窗口打开时，Ctrl/Shift+右键可以添加/移除建筑
 # Setting type: Boolean
 # Default value: true
-Show Working Rate in percentage = true
+Enable Single Building Click = true
 ```
 
 </details>

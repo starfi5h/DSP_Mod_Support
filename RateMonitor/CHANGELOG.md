@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.1
+- Add a button besides mecha energy bar to open mod window and selection tool (configurable).  
+- Reorganize config group. Some UI settings may be reset.  
+- Enable navigate to machine group that is working 100%  
+- Add "<" button in top-right to load the last selection.  
+
 ## v0.3.0
 - Add config UI: Font Size. Default value is 16.
 - Add expandable button (+) in title to quick change rate unit and count multiplier.
