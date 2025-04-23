@@ -27,7 +27,7 @@ namespace RateMonitor
                 name = "RateMonitorSelectionToolKey",
                 canOverride = true
             });
-            LocalizationModule.RegisterTranslation("RateMonitorSelection", "(Mod) RateMonitor Selection", "(Mod) RateMonitor框选计算", "(Mod) Rate Monitor Selection");
+            LocalizationModule.RegisterTranslation("KEYRateMonitorSelectionToolKey", "(RateMonitor) Enable Selection Tool", "(RateMonitor) 启用框选工具", "(RateMonitor) Selection Tool");
             IsRegisiter = true;
         }
 

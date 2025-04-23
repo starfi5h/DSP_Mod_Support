@@ -30,6 +30,7 @@
         public static string backButtonText;
         public static string entityCountText;
         public static string countMultiplierText;
+        public static string recalculateText;
 
         // Operaction Panel
         public static string addActionText;
@@ -90,6 +91,7 @@
             backButtonText = isZHCN ? "返回" : "Back".Translate();
             entityCountText = isZHCN ? "建筑数量: " : "EntityCount: ".Translate();
             countMultiplierText = isZHCN ? "建筑数量倍数" : "Count Multiplier".Translate();
+            recalculateText = isZHCN ? "重新计算" : "Recalculate".Translate();
 
             // Operaction Panel
             addActionText = isZHCN ? "添加选取" : "Add Selection".Translate();

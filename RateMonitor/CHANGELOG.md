@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.2
+- Change button behavior: Clicking the button when the window is open will now close the window and selection tool.
+If Ctrl is pressed, it will activate the selection tool instead.  
+- Esc can now close the widow.
+- Add the 'Recalculate' button to the expanded title to refresh the building settings of selected machines.
+
 ## v0.3.1
 - Add a button besides mecha energy bar to open mod window and selection tool (configurable).  
 - Reorganize config group. Some UI settings may be reset.  

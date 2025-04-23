@@ -11,8 +11,9 @@ namespace RateMonitor.UI
         public static float IconHeight = 32;
         public static float RateWidth = 56;
         public static float ShortButtonWidth = 72;
-        public static float LargeButtonWidth = 200;
+        public static float MediumButtonWidth = 86;
         public static float InputWidth = 100;
+        public static float LargeButtonWidth = 200;
 
         static GUILayoutOption[] iconoptions;
         static GUIContent iconTextContent;
@@ -28,6 +29,7 @@ namespace RateMonitor.UI
             IconHeight = 32 * scale;
             RateWidth = 56 * scale;
             ShortButtonWidth = 72 * scale;
+            MediumButtonWidth = 86 * scale;
             LargeButtonWidth = 200 * scale;
             InputWidth = 100 * scale;
             iconoptions = new[] { GUILayout.Width(IconHeight), GUILayout.Height(IconHeight) };

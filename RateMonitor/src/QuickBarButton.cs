@@ -43,9 +43,10 @@ namespace RateMonitor
                 enableButton.onClick += OnButtonClick;
                 enableButton.tips.corner = 8;
                 enableButton.tips.tipTitle = "Rate Monitor";
-                enableButton.tips.tipText = "Click to open the window and selection tool";
-                enableButton.transitions[0].highlightColorOverride = new Color(0.6f, 0.6f, 0.6f, 0.1f); // button background
-                enableButton.transitions[1].highlightColorOverride = new Color(1.0f, 1.0f, 1.0f, 1.0f); // icon color blue
+                enableButton.tips.tipText = "Click to open/close the window and selection tool";
+                enableButton.transitions[1].normalColor = new Color(1.0f, 1.0f, 1.0f, 0.8f); // icon color
+                enableButton.transitions[1].mouseoverColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+                enableButton.transitions[0].mouseoverColor = new Color(0.6f, 0.6f, 1.0f, 0.2f); //background color
             }
             catch (System.Exception ex)
             {
@@ -57,13 +58,21 @@ namespace RateMonitor
 
         public static void OnButtonClick(int _)
         {
-            if (Plugin.MainTable == null) // Window is not open
+            if (Plugin.MainTable == null) // When window is not open, open window and enable selection tool
             {
                 if (!Plugin.LoadLastTable()) Plugin.CreateMainTable(null, new List<int>(0));
+                if (VFInput.readyToBuild) SelectionTool_Patches.SetEnable(true);
             }
-            if (VFInput.readyToBuild)
+            else // When window is open, close window and disable selection tool 
             {
-                SelectionTool_Patches.activateInNextTick = true;
+                if (VFInput.control) // Holding control: enable selection tool
+                {
+                    if (VFInput.readyToBuild) SelectionTool_Patches.SetEnable(true);
+                    return;
+                }
+                Plugin.SaveCurrentTable();
+                Plugin.MainTable = null;
+                SelectionTool_Patches.SetEnable(false);
             }
         }
 

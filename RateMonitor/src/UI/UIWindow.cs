@@ -31,6 +31,15 @@ namespace RateMonitor.UI
             if (Instance == null) Instance = new UIWindow();
             if (Instance.Table != Plugin.MainTable) Instance.Init(Plugin.MainTable);
 
+            // 當ESC時，關閉視窗
+            if (VFInput.escape)
+            {
+                VFInput.UseEscape();
+                Plugin.SaveCurrentTable();
+                Plugin.MainTable = null;
+                return;
+            }
+
             // Use custom skin so it doesn't affect other mods
             if (!Utils.IsInit)
             {
@@ -93,7 +102,7 @@ namespace RateMonitor.UI
         private void DrawWindow(int windowID)
         {
             // Draw close button
-            if (GUI.Button(new Rect(windowRect.width - 3 - (Utils.BaseScale + 4), 3, Utils.BaseScale + 4, Utils.BaseScale + 4), "X")) // 20
+            if (GUI.Button(new Rect(windowRect.width - 3 - (Utils.BaseScale + 4), 3, Utils.BaseScale + 4, Utils.BaseScale + 4), "X"))
             {
                 Plugin.SaveCurrentTable();
                 Plugin.MainTable = null;
@@ -136,6 +145,7 @@ namespace RateMonitor.UI
             GUILayout.Label(titleText);
             GUILayout.FlexibleSpace();
 
+            // 回到上一個選取
             if (GUILayout.Button("<", GUILayout.Width(Utils.BaseScale * 2)))
             {
                 Plugin.LoadLastTable();

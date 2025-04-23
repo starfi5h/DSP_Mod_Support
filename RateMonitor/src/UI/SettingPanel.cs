@@ -52,7 +52,7 @@ namespace RateMonitor.UI
             }
             for (int i = 0; i < 3; i++)
             {
-                if (GUILayout.Button(SP.perBeltTexts[i], GUILayout.Width(Utils.InputWidth - 10)))
+                if (GUILayout.Button(SP.perBeltTexts[i], GUILayout.Width(Utils.MediumButtonWidth - 2)))
                 {
                     ModSettings.RateUnit.Value = use4stack ? CalDB.BeltSpeeds[i] * 4 : CalDB.BeltSpeeds[i];
                     RefreshInputs();
@@ -72,6 +72,11 @@ namespace RateMonitor.UI
             if (GUILayout.Button("-1", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier -= 1;
             if (GUILayout.Button("+1", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier += 1;
             if (GUILayout.Button("+5", GUILayout.Width(Utils.RateWidth))) CalDB.CountMultiplier += 5;
+            if (GUILayout.Button(SP.recalculateText, GUILayout.Width(Utils.InputWidth)))
+            {
+                var entityIds = Plugin.MainTable.GetEntityIds(out var factory);
+                Plugin.CreateMainTable(factory, entityIds);
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             if (CalDB.CountMultiplier < 1) CalDB.CountMultiplier = 1;

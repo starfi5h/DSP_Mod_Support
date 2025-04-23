@@ -7,7 +7,20 @@ namespace RateMonitor
     public class SelectionTool_Patches
     {
         public static SelectionTool tool;
-        public static bool activateInNextTick;
+        static bool activateInNextTick;
+
+        public static void SetEnable(bool active)
+        {
+            if (active)
+            {
+                activateInNextTick = true;
+            }
+            else if (tool != null)
+            {
+                tool.IsEnable = false;
+            }
+        }
+
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerController), nameof(PlayerController.GameTick))]
