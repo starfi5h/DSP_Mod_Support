@@ -1,8 +1,9 @@
-﻿using System;
+﻿using RateMonitor.Model;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RateMonitor
+namespace RateMonitor.Patches
 {
     public class SelectionTool : BuildTool
     {
@@ -76,13 +77,18 @@ namespace RateMonitor
                 ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
                 if (ptr.gamma) return ptr.productId > 0; //只計算鍋的光子生產模式
                 if (ptr.wind || ptr.photovoltaic || ptr.geothermal) return false; //再生能源不計算
-                bool hasFuel = ptr.fuelHeat > 0L && ptr.fuelId > 0; //計算有燃料的
+                bool hasFuel = ptr.curFuelId > 0; //計算有燃料的
                 return CalDB.IncludeFuelGenerator & hasFuel;
             }
             if (entityData.powerExcId > 0)
             {
                 ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
                 return ptr.state == 1.0f || ptr.state == -1.0f; //充電或放電模式
+            }
+            if (entityData.spraycoaterId > 0)
+            {
+                ref var ptr = ref factory.cargoTraffic.spraycoaterPool[entityData.spraycoaterId];
+                return ptr.incItemId > 0 && ptr.cargoBeltId > 0; //有補充增產劑並且下面有貨物帶
             }
             return false;
         }

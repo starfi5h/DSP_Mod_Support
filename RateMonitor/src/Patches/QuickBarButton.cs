@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace RateMonitor
+namespace RateMonitor.Patches
 {
     public class QuickBarButton
     {

@@ -1,7 +1,8 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System;
+using RateMonitor.Model;
+using RateMonitor.Patches;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +17,7 @@ namespace RateMonitor
     {
         public const string GUID = "starfi5h.plugin.RateMonitor";
         public const string NAME = "RateMonitor";
-        public const string VERSION = "0.3.2";
+        public const string VERSION = "0.4.0";
 
         public static ManualLogSource Log;
         public static Plugin instance;
@@ -41,7 +42,7 @@ namespace RateMonitor
             instance = this;
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(SelectionTool_Patches));
-            harmony.PatchAll(typeof(Plugin));
+            harmony.PatchAll(typeof(MainPatches));
             ModSettings.LoadConfigs(Config);
 
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("org.LoShin.GenesisBook", out var _))
@@ -153,33 +154,6 @@ namespace RateMonitor
             SaveCurrentTable();
             CreateMainTable(factory, entityIds);
             return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
-        static void UpdateMonitor(bool __runOriginal)
-        {
-            // If other mods have stop factory simulation, then skip
-            if (MainTable == null || !__runOriginal) return;
-
-            try
-            {
-                MainTable.OnGameTick();
-            }
-            catch (Exception ex)
-            {
-                Log.LogError(ex);
-                MainTable.OnError();
-            }
-            if (UI.UIWindow.InResizingArea) UICursor.SetCursor(ECursor.Horizontal);
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameMain), nameof(GameMain.End))]
-        static void OnGameEnd()
-        {
-            MainTable = null;
-            UI.UIWindow.SaveUIWindowConfig();
         }
 
         public void OnDestroy()

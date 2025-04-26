@@ -1,4 +1,6 @@
 ﻿using System;
+using RateMonitor.Model;
+using RateMonitor.Patches;
 using UnityEngine;
 
 namespace RateMonitor.UI
@@ -7,6 +9,7 @@ namespace RateMonitor.UI
     {
         public static UIWindow Instance { get; private set; }
         public static bool InResizingArea { get; private set; }
+        public static bool InWindow { get; private set; }
         public StatTable Table { get; private set; }
         public float RatePanelWidth { get; private set; } = 190f;
         public float ProfilePanelWidth { get; private set; } = 350f;
@@ -27,6 +30,7 @@ namespace RateMonitor.UI
 
         public static void OnGUI()
         {
+            InWindow = false;
             if (Plugin.MainTable == null) return;
             if (Instance == null) Instance = new UIWindow();
             if (Instance.Table != Plugin.MainTable) Instance.Init(Plugin.MainTable);
@@ -180,9 +184,11 @@ namespace RateMonitor.UI
 
         private void HandleWindowResize(ref Rect windowRect)
         {
+            var mousPos = Event.current.mousePosition;
             var resizeHandleRect = new Rect(windowRect.xMax - 10, windowRect.yMax - 10, 25, 25);
+            InWindow = windowRect.Contains(mousPos);
 
-            if (resizeHandleRect.Contains(Event.current.mousePosition) && !windowRect.Contains(Event.current.mousePosition))
+            if (resizeHandleRect.Contains(mousPos) && !InWindow)
             {
                 InResizingArea = true;
                 GUI.Box(resizeHandleRect, "↘"); // Draw a resize handle in the bottom-right corner for 20x20 pixel
@@ -204,13 +210,12 @@ namespace RateMonitor.UI
                 ProfilePanelWidth = windowRect.width - RatePanelWidth - 40;
             }
 
-            // EatInputInRect
-            if (!(Input.GetMouseButton(0) || Input.GetMouseButtonDown(0))) //Eat only when left-click
-                return;
-            if (windowRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+            if (InWindow)
             {
-                // If it is selecting, then let the tool penetrate
-                if (!SelectionTool_Patches.tool?.IsSelecting ?? true) Input.ResetInputAxes();
+                if (Input.GetMouseButton(0) || Input.GetMouseButtonDown(0)) //EatInputInRect only when left-click
+                {
+                    if (!SelectionTool_Patches.tool?.IsSelecting ?? true) Input.ResetInputAxes(); // If it is selecting, then let the tool penetrate
+                }
             }
         }
 

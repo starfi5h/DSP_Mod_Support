@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿using RateMonitor.Model;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace RateMonitor.UI

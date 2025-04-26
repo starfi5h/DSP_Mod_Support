@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using RateMonitor.Model;
+using RateMonitor.Patches;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RateMonitor.UI
@@ -91,6 +93,9 @@ namespace RateMonitor.UI
             GUILayout.Label((statTable.TotalTick / 60f).ToString("F2") + "s");
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
+
+            // MOD介面使用說明
+            GUILayout.Label(SP.modGuideText);
 
             GUILayout.EndScrollView();
             GUILayout.EndVertical();

@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using RateMonitor.Patches;
 using UnityEngine;
 
 namespace RateMonitor

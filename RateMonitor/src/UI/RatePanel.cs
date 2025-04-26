@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RateMonitor.Model;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RateMonitor.UI

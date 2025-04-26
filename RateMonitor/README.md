@@ -1,7 +1,9 @@
 # Rate Monitor 速率仪
 
 Rate Monitor is a Dyson Sphere Program mod inspired by [Rate Calculator](https://mods.factorio.com/mod/RateCalculator) from Factorio. It lets you select machines in an area (using Alt + X) to calculate their input/output rates, track working ratios, and discover why some machines may not be running at full capacity.  
-本模组受到Factorio的[Rate Calculator](https://mods.factorio.com/mod/RateCalculator)启发，通过按下 Alt + X 区域框选建筑，即可计算产出和消耗速率，监控工作效率，并快速找出机器停工的原因。  
+This is pure info mod and does not affect achievements.  
+通过按下 Alt + X 区域框选建筑，即可计算产出和消耗速率，监控工作效率，并快速找出机器停工的原因。  
+本模组受到Factorio的[Rate Calculator](https://mods.factorio.com/mod/RateCalculator)启发，为純信息模組，不会影响成就。  
 ![Button](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/button.png)  
 
 ## Key Features 核心功能
@@ -46,15 +48,17 @@ Area select machines with Alt + X. Support machine types:
 1. production facility (assembler, smlter, fractionator, etc)
 2. mining facility (mining machine, water pump, oil extractor)
 3. matrix lab
-4. energy exchanger, ray receiver
+4. energy exchanger, ray receiver, fuel generator  
 5. ejector, silo  
+6. spray coater  
 
 Alt + X 区域框选建筑。支持的建筑种类有:  
 1. 生产建筑(制造台、熔炉、分馏塔等)  
 2. 采集建筑(矿机、大矿机、抽水站等)  
 3. 研究站(生产模式 & 科研模式)
-4. 生产物品的电力设施(能量枢纽、射线接收站)
+4. 生产/消耗物品的电力设施(能量枢纽、射线接收站、燃料发电)
 5. 戴森球设施(电磁弹射器、垂直发射井)  
+6. 喷涂机
 
 ![expand entry](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/RateMonitor/img/expand.gif)  
 

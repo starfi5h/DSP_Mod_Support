@@ -1,4 +1,6 @@
-﻿namespace RateMonitor
+﻿using RateMonitor.Model;
+
+namespace RateMonitor
 {
     public static class SP // Strings Pool
     {
@@ -40,6 +42,7 @@
         public static string wholeRemotePlanetText;
         public static string loadLastText;
         public static string resetTimerText;
+        public static string modGuideText;
 
         // Rate Panel
         public static string itemIdProduceText;
@@ -103,6 +106,9 @@
             wholeRemotePlanetText = isZHCN ? "选取远端全球机器" : "Select Whole Remote Planet".Translate();
             loadLastText = isZHCN ? "载入上一个选取" : "Load Last Selection".Translate();
             resetTimerText = isZHCN ? "重置计时器" : "Reset Timer".Translate();
+
+            modGuideText = isZHCN ? "点击物品图示可以过滤该产物\n点击机器图示可以展开详细信息" :
+                "Click on the item icon to filter the product\nClick on the machine icon to expand the detailed information".Translate();
 
             // Rate Panel
             itemIdProduceText = isZHCN ? "产物" : "Product ".Translate();

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0
+- Support fuel generator and spray coater.
+- Detail summary now shows the lacking item for lack material and lack proliferator machines.
+- Prevent mouse wheel zoom in/out in mod window.
+- Fix input field error in settings panel.
+- Refactor code.
+
 ## v0.3.2
 - Change button behavior: Clicking the button when the window is open will now close the window and selection tool.
 If Ctrl is pressed, it will activate the selection tool instead.  

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using RateMonitor.Model;
+using UnityEngine;
 
 namespace RateMonitor.UI
 {
@@ -106,6 +107,8 @@ namespace RateMonitor.UI
             CustomSkin.customStyles = GUI.skin.customStyles != null ?
                                       (GUIStyle[])GUI.skin.customStyles.Clone() :
                                       new GUIStyle[0];
+
+            CustomSkin.font = GUI.skin.font;
         }
 
         static void UpdateFontSize(int fontSize)

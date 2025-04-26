@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using RateMonitor.Model;
+using UnityEngine;
 
 namespace RateMonitor.UI
 {
@@ -118,7 +119,7 @@ namespace RateMonitor.UI
                 {
                     foreach (var entityRecord in profile.entityRecords)
                     {
-                        if (entityRecord.worksate == EntityRecord.EWorkState.Inefficient) continue;
+                        if (entityRecord.worksate == EWorkingState.Inefficient) continue;
                         Utils.EntityRecordButton(entityRecord);
                     }
                 }

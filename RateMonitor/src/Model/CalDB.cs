@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RateMonitor
+namespace RateMonitor.Model
 {
     /// <summary>
     /// 計算過程用到的相關環境變數
@@ -17,7 +17,7 @@ namespace RateMonitor
         public static readonly int[] BeltSpeeds = new int[3] { 360, 720, 1800 }; // 黃帶，綠帶，藍帶速率
 
         // 電力設施選項
-        public static bool IncludeFuelGenerator { get; private set; } // 包含燃料發電機
+        public static bool IncludeFuelGenerator { get; private set; } = true; // 包含燃料發電機
         public static bool ForceGammaCatalyst { get; private set; } // 是否要強制套用透鏡
 
         // UI選項

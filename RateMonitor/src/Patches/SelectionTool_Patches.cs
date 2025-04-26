@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RateMonitor
+namespace RateMonitor.Patches
 {
     public class SelectionTool_Patches
     {

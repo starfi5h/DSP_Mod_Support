@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RateMonitor.Model;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RateMonitor.UI
@@ -121,11 +122,23 @@ namespace RateMonitor.UI
                 totalMaxPowerCost += profile.workEnergyW * totalMachineCount;
                 workingPowerCost += profile.workEnergyW * profile.WorkingMachineCount + profile.idleEnergyW * idleMachineCount;
 
+                bool hasProduct = false;
                 for (int i = 0; i < profile.itemIds.Count; i++)
                 {
                     if (profile.itemRefSpeeds[i] > 0f)
                     {
                         entry.DrawProfileItem(i);
+                        hasProduct = true;
+                    }
+                }
+                if (!hasProduct)
+                {
+                    for (int i = 0; i < profile.itemIds.Count; i++)
+                    {
+                        if (profile.itemRefSpeeds[i] < 0f)
+                        {
+                            entry.DrawProfileItem(i); // pure consumer e.g. fuel generator
+                        }
                     }
                 }
             }

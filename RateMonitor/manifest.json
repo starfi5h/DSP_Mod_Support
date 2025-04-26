@@ -1,7 +1,7 @@
 {
   "name": "RateMonitor",
   "description": "Area select machines with Alt + X, calculate their production rates and track their working ratio. 速率仪: Alt + X 区域框选建筑，计算产量及监控工作效率",
-  "version_number": "0.3.2",
+  "version_number": "0.4.0",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/RateMonitor",
   "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace RateMonitor
+namespace RateMonitor.Model
 {
     public class StatTable
     {
@@ -10,7 +10,7 @@ namespace RateMonitor
         {
             public int entityId;
             public float utilization; // 工作效率
-            public EntityRecord.EWorkState workState; // 上一個工作異常狀態
+            public EWorkingState workState; // 上一個工作異常狀態
             public ProductionProfile profile;
         }
 
@@ -191,18 +191,17 @@ namespace RateMonitor
                 float workingRatio = GetEntityWorkingRatio(entityInfo.entityId, entityInfo.profile);
                 entityInfo.utilization += workingRatio / TotalTick;
 
-                if (workingRatio < 0.999f && entityInfo.workState == EntityRecord.EWorkState.Running)
+                if (workingRatio < 0.999f && entityInfo.workState == EWorkingState.Running)
                 {
-                    var entityRecord = new EntityRecord(factory, entityInfo.entityId, i, workingRatio);
+                    var entityRecord = new EntityRecord(factory, entityInfo.entityId, i, workingRatio, entityInfo.profile);
                     entityInfo.workState = entityRecord.worksate;
-                    if (entityInfo.workState == EntityRecord.EWorkState.Running) entityInfo.workState = EntityRecord.EWorkState.Idle;
+                    if (entityInfo.workState == EWorkingState.Running) entityInfo.workState = EWorkingState.Idle;
                     entityInfo.profile.AddEnittyRecord(entityRecord);
                 }
             }
             if (TotalTick % 15 == 0)
             {
                 CalculateEstRate();
-                //PrintProifles(true);
             }
         }
 
@@ -220,7 +219,7 @@ namespace RateMonitor
             }
             for (int i = 0; i < entityInfos.Length; i++)
             {
-                entityInfos[i].workState = EntityRecord.EWorkState.Running;
+                entityInfos[i].workState = EWorkingState.Running;
             }
         }
 
@@ -231,71 +230,7 @@ namespace RateMonitor
 
             // Reference SetPCState
             int incLevel = profile.incLevel;
-            float ratio = 0.0f;
-            if (entityData.assemblerId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.assemblerPool[entityData.assemblerId];
-                if (!ptr.replicating) ratio = 0f;
-                else if (ptr.extraPowerRatio < Cargo.powerTable[incLevel]) ratio = 0.5f;  // 未達指定增產劑等級
-                else ratio = 1.0f;
-            }
-            else if (entityData.labId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.labPool[entityData.labId];
-                if (!ptr.replicating) ratio = 0f;
-                else if (ptr.extraPowerRatio < Cargo.powerTable[incLevel]) ratio = 0.5f;  // 未達指定增產劑等級
-                else ratio = 1.0f;
-            }
-            else if (entityData.minerId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.minerPool[entityData.minerId];
-                ratio = ptr.workstate > EWorkState.Idle ? ptr.speedDamper * ptr.speed * ptr.speed / 100000000.0f : 0f;
-            }
-            else if (entityData.fractionatorId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.fractionatorPool[entityData.fractionatorId];
-                if (!ptr.isWorking) ratio = 0f;
-                else if (ptr.incLevel < incLevel) ratio = 0.5f;
-                else ratio = 1f;
-            }
-            else if (entityData.ejectorId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.ejectorPool[entityData.ejectorId];
-                if (ptr.direction == 0) ratio = 0f;
-                else if (ptr.incLevel < incLevel) ratio = 0.5f;
-                else ratio = 1f;
-            }
-            else if (entityData.siloId > 0)
-            {
-                ref var ptr = ref factory.factorySystem.siloPool[entityData.siloId];
-                if (ptr.direction == 0) ratio = 0f;
-                else if (ptr.incLevel < incLevel) ratio = 0.5f;
-                else ratio = 1f;
-            }
-            else if (entityData.powerGenId > 0)
-            {
-                ref var ptr = ref factory.powerSystem.genPool[entityData.powerGenId];
-                ratio = 1f;
-                if (ptr.gamma)
-                {
-                    ratio = 0f;
-                    if (ptr.productHeat > 0f && profile.itemRefSpeeds.Count > 0)
-                    {
-                        float speed = (float)ptr.capacityCurrentTick / ptr.productHeat * 3600; //當前參考速率
-                        ratio = speed / profile.itemRefSpeeds[0]; // 工作效率 = 當前 / 理論最大值
-                    }
-                }
-                else
-                {
-                    // TODO: 計算燃料發電機工作效率
-                }
-            }
-            else if (entityData.powerExcId > 0)
-            {
-                ref var ptr = ref factory.powerSystem.excPool[entityData.powerExcId];
-                ratio = ptr.currEnergyPerTick == 0f ? 0f : 1f; // 簡單的判定是否在工作中。不考慮實際電力情況
-            }
-            return ratio;
+            return profile.entityProcessor.CalculateWorkingRatio(factory, entityId, incLevel);
         }
 
         public void PrintRefRates()
