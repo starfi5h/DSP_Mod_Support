@@ -2,6 +2,11 @@
 
 ## Gamae version 0.10.32
 
+#### v0.4.27 (Nebula 0.9.17)
+\- Fix Dark Fog kill count not register when request by clients.  
+\- Attempt to fix vein disappear issue for client in GalacticScale  
+\- Update UXAssist v1.3.2 compat: sync station configs  
+
 #### v0.4.26 (Nebula 0.9.16)
 \- Add Dustbin v1.3.3 compat  
 \- Update TheyComeFromVoid v3.4.10 compat  

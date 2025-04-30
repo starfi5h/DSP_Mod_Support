@@ -1,7 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.14 hotfix:  
-- Fix MissingFieldException: Field 'UIControlPanelPlanetEntry.planetNameTextSettings' not found in UIControlPanelPlanetEntry.UpdateBanner  
+Nebula 0.9.17 hotfix:  
+- Fix Dark Fog kill count not register when request by clients.  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -73,6 +73,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)
 - Sync `Quick dismantle all buildings`, `Quick build Orbital Collectors`, `Re-initialize Dyson Spheres`, `Quick dismantle Dyson Shells`  
+- Sync auto station config functions.  
 - `Re-intialize planet` is not available in multiplayer mode.  
 
 </details>
@@ -157,6 +158,7 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 
 ### [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)
 - 同步`快速拆除所有建筑`, `快速建造轨道采集器`, `初始化戴森球`, `快速拆除戴森壳`
+- 同步物流站自动配置相关功能  
 - `初始化本行星`功能在联机中不可用  
 
 </details>

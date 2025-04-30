@@ -1,5 +1,4 @@
-﻿/*
-using HarmonyLib;
+﻿using HarmonyLib;
 using NebulaAPI;
 using NebulaModel.Networking;
 using NebulaModel.Packets.Combat.GroundEnemy;
@@ -42,17 +41,47 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
         }
 
-
         public static bool DFGKillEnemyProcessor(DFGKillEnemyPacket packet, NebulaConnection conn)
         {
-            var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
-            if (factory == null || packet.EnemyId >= factory.enemyPool.Length) return true;
+            ProcessPacket(packet);
+            return false;
+        }
 
-            ref var enemy = ref factory.enemyPool[packet.EnemyId];
-            if (enemy.dfGBaseId != 0)
-                Log.Debug($"DFGKill: base[{enemy.dfGBaseId}]: id={enemy.id} isInvincible={enemy.isInvincible}");
-            return true;
+        static void ProcessPacket(DFGKillEnemyPacket packet)
+        {
+            var factory = GameMain.galaxy.PlanetById(packet.PlanetId)?.factory;
+            if (factory == null || packet.EnemyId >= factory.enemyPool.Length) return;
+
+            ref var ptr = ref factory.enemyPool[packet.EnemyId];
+            var killStatistics = GameMain.data.spaceSector.skillSystem.killStatistics;            
+            if (Multiplayer.Session.IsServer)
+            {
+                // Alive, broadcast the event to all clients in the system
+                if (ptr.id > 0)
+                {
+                    killStatistics.RegisterFactoryKillStat(factory.index, ptr.modelIndex);
+                    factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                }
+                // If the enemy is already dead, that mean the client is behind and kill event has been sent by the server
+            }
+            else
+            {
+                using (Multiplayer.Session.Combat.IsIncomingRequest.On())
+                {                    
+                    if (ptr.id > 0)
+                    {
+                        killStatistics.RegisterFactoryKillStat(factory.index, ptr.modelIndex);
+                        factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                    }
+                    else if (ptr.isInvincible) // Mark
+                    {
+                        ptr.id = packet.EnemyId;
+                        ptr.isInvincible = false;
+                        killStatistics.RegisterFactoryKillStat(factory.index, ptr.modelIndex);
+                        factory.KillEnemyFinally(GameMain.mainPlayer, packet.EnemyId, ref CombatStat.empty);
+                    }
+                }
+            }
         }
     }
 }
-*/

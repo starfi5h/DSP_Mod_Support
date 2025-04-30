@@ -52,6 +52,11 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //PatchPacketProcessor(harmony);
                     Log.Info("Nebula new feature 0.9.14 - OK");
                 }
+                if (nebulaVersion < new System.Version(0, 9, 17 + 1))
+                {
+                    PatchPacketProcessor(harmony);
+                    Log.Info("Nebula new feature 0.9.17 - OK");
+                }
             }
             catch (Exception e)
             {
@@ -72,14 +77,12 @@ namespace NebulaCompatibilityAssist.Hotfix
             }
         }
 
-        /*
         private static void PatchPacketProcessor(Harmony harmony)
         {
             Type classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
             harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
             harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
         }
-        */
     }
 
     public static class Warper0914
