@@ -34,6 +34,7 @@ namespace NebulaCompatibilityAssist.Patches
             Harmony harmony = Plugin.Instance.Harmony;
             ConfigFile config = Plugin.Instance.Config;
 
+            GalacticScale.Init(harmony);
             LSTM.Init(harmony);
             if (config.Bind("Sync Patch", "DSPStarMapMemo", true, "Enable patching DSPStarMapMemo").Value)
                 DSPStarMapMemo.Init(harmony);
