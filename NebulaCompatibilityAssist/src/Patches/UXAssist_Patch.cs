@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using NebulaAPI;
+using NebulaAPI.GameState;
 using NebulaCompatibilityAssist.Packets;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "UXAssist";
         public const string GUID = "org.soardev.uxassist";
-        public const string VERSION = "1.2.12";
+        public const string VERSION = "1.3.2";
 
         public static void Init(Harmony harmony)
         {
@@ -47,6 +48,14 @@ namespace NebulaCompatibilityAssist.Patches
                 // 物流系統改進 - 在控制台物流塔清單中右鍵點選物品圖示快速設定為篩選條件
                 harmony.Patch(AccessTools.Method(classType, "OnStationEntryItemIconRightClick"),
                     new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(OnStationEntryItemIconRightClick_Prefix))));
+
+
+                classType = assembly.GetType("UXAssist.Patches.LogisticsPatch+AutoConfigLogistics");
+
+                // 自動配置物流站
+                harmony.Patch(AccessTools.Method(classType, "DoConfigStation"),
+                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(DoConfigStation_Prefix))),
+                    new HarmonyMethod(typeof(UXAssist_Patch).GetMethod(nameof(DoConfigStation_Postfix))));
 
                 Log.Info($"{NAME} - OK");
             }
@@ -150,6 +159,29 @@ namespace NebulaCompatibilityAssist.Patches
             filterPanel.RefreshFilterUI();
             UIRoot.instance.uiGame.controlPanelWindow.DetermineFilterResults();
             return false;
+        }
+
+        public static bool DoConfigStation_Prefix()
+        {
+            if (!NebulaModAPI.IsMultiplayerActive)
+                return true;
+
+            // Apply StationConfig if author (the drone owner) is local player
+            IFactoryManager factoryManager = NebulaModAPI.MultiplayerSession.Factories;
+            return factoryManager.PacketAuthor == NebulaModAPI.MultiplayerSession.LocalPlayer.Id
+                || (NebulaModAPI.MultiplayerSession.LocalPlayer.IsHost && factoryManager.PacketAuthor == NebulaModAPI.AUTHOR_NONE);
+        }
+
+        public static void DoConfigStation_Postfix(PlanetFactory __0, StationComponent __1, bool __runOriginal)
+        {
+            if (NebulaModAPI.IsMultiplayerActive && __runOriginal)
+            {
+                PlanetFactory factory = __0;
+                NebulaModAPI.MultiplayerSession.Network.SendPacketToLocalStar(
+                    new NC_StationConfig(__1, factory));
+                NebulaModAPI.MultiplayerSession.Network.SendPacketToLocalStar(
+                    new NC_StationShipCount(__1, factory.planetId));
+            }
         }
     }
 }
