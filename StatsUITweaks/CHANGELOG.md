@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.6
+- Add config `RefRateMinerLimit`
+- 新增`抽水機和油井的参考速率上限`配置
+
 ## v1.6.5 (DSP 0.10.32.25682)
 - Adapt to new game version.
 

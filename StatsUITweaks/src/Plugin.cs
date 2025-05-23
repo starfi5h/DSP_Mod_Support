@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.5";
+        public const string VERSION = "1.6.6";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -39,6 +39,7 @@ namespace StatsUITweaks
             var ListWidthOffeset = Config.Bind("MainWindow", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
             var RateFontSize = Config.Bind("MainWindow", "RateFontSize", 26, "Adjust the font size of production rate. (Vanilla=18)\n生产速率和参考速率的字体大小(原版=18)");
             var RefRateTweak = Config.Bind("MainWindow", "RefRateTweak", false, "The reference rate (maximum theoretical value) is always applied proliferator settings, regardless the material.\n参考速率(最大理论值)一律套用增产剂设定，无论原料是否已喷涂");
+            var RefRateMinerLimit = Config.Bind("MainWindow", "RefRateMinerLimit", 14400, "Set reference rate max limit for pump and oil extractor\n為抽水機和油井的参考速率設定上限");
 
             var NumericPlanetNo = Config.Bind("Other", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
             var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
@@ -68,8 +69,8 @@ namespace StatsUITweaks
             }
             harmony.PatchAll(typeof(UIControlPanelPatch));
             harmony.PatchAll(typeof(StatsWindowPatch.Entry_Patch));
-            if (RefRateTweak.Value)
-                harmony.PatchAll(typeof(RefProductSpeedPatch));
+
+            RefProductSpeedPatch.Init(harmony, RefRateTweak.Value, RefRateMinerLimit.Value);
             harmony.PatchAll(typeof(UIGamePatch));
             harmony.PatchAll(typeof(StatPlanPatch));
         }
