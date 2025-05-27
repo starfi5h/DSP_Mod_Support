@@ -37,6 +37,8 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
 | `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
 | `HotkeyListDown`    | PageDown | Move to next item in astro list |
+| Dashboard | | |
+| `TabSizeSwitch`   | true   | Tab to switch size when hovering on an item |
 | MainWindow | | |
 | `TimeSliderSlice` | 20     | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
@@ -100,6 +102,8 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `PlanetPostfix`   |                | 星球名称后缀 |
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
+| Dashboard | | |
+| `TabSizeSwitch`   | true     | 鼠标悬停在某个统计项上时，按Tab键切换尺寸 |
 | MainWindow | | |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |

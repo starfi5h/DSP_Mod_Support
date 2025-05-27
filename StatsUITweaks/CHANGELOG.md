@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.7
+- Add config `TabSizeSwitch`  
+- 新增`鼠标悬停在某个统计项上时，按Tab键切换尺寸`配置
+
 ## v1.6.6
 - Add config `RefRateMinerLimit`
 - 新增`抽水機和油井的参考速率上限`配置

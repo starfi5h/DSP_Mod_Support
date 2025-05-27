@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.6";
+        public const string VERSION = "1.6.7";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -43,6 +43,8 @@ namespace StatsUITweaks
 
             var NumericPlanetNo = Config.Bind("Other", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
             var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
+            
+            var TabSizeSwitch = Config.Bind("Dashboard", "TabSizeSwitch", true, "Tab to switch size when hovering on an item.\n鼠标悬停在某个统计项上时，按Tab键切换尺寸");
 
             Utils.OrderByName = OrderByName.Value;
             Utils.DropDownCount = DropDownCount.Value;
@@ -72,7 +74,10 @@ namespace StatsUITweaks
 
             RefProductSpeedPatch.Init(harmony, RefRateTweak.Value, RefRateMinerLimit.Value);
             harmony.PatchAll(typeof(UIGamePatch));
+
             harmony.PatchAll(typeof(StatPlanPatch));
+            if (TabSizeSwitch.Value)
+                harmony.PatchAll(typeof(UIChartPatch));
         }
 
 #if DEBUG
