@@ -117,9 +117,9 @@ namespace ErrorAnalyzer
             if (patchInfo == null) return "";
 
             var sb = new StringBuilder();
-            PatchesToString(sb, patchInfo.Prefixes, $"; {targetMethod.Name}(Prefix)");
-            PatchesToString(sb, patchInfo.Postfixes, $"; {targetMethod.Name}(Postfix)");
-            PatchesToString(sb, patchInfo.Transpilers, $"; {targetMethod.Name}(Transpiler)");
+            PatchesToString(sb, patchInfo.Prefixes, $"; {targetMethod.DeclaringType.Name + "." + targetMethod.Name}(Prefix)");
+            PatchesToString(sb, patchInfo.Postfixes, $"; {targetMethod.DeclaringType.Name + "." + targetMethod.Name}(Postfix)");
+            PatchesToString(sb, patchInfo.Transpilers, $"; {targetMethod.DeclaringType.Name + "." + targetMethod.Name}(Transpiler)");
             return sb.ToString();
         }
 

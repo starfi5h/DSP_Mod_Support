@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.1
+- Support both 0.10.32 and 0.10.33 (public-test).  
+- Wrapper dynamic-method (DMD) is now parsable.  
+
 ## v1.3.0
 Overhaul enhance error message:  
 - Title now show "possible candidates" plugin names instead of all installed mods.  

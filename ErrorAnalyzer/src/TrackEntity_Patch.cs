@@ -20,7 +20,16 @@ namespace ErrorAnalyzer
             if (on)
             {
                 _patch ??= Harmony.CreateAndPatchAll(typeof(TrackEntity_Patch));
-                Plugin.Log.LogInfo("TrackEntity_Patch enable");
+                if (GameConfig.gameVersion < new Version(0, 10, 33))
+                {
+                    _patch.PatchAll(typeof(Patch1032));
+                    Plugin.Log.LogInfo("TrackEntity_Patch enable (0.10.32)");
+                }
+                else
+                {
+                    _patch.PatchAll(typeof(Patch1033));
+                    Plugin.Log.LogInfo("TrackEntity_Patch enable");
+                }                
                 return;
             }
             _patch?.UnpatchSelf();
@@ -43,21 +52,44 @@ namespace ErrorAnalyzer
         }
 
 
-        // Only track for multithread functions
-        [HarmonyFinalizer]
-        [HarmonyPatch(typeof(FactorySystem), "GameTick", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int), typeof(int) })]
-        [HarmonyPatch(typeof(FactorySystem), "GameTickLabProduceMode", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int), typeof(int) })]
-        [HarmonyPatch(typeof(FactorySystem), "GameTickLabResearchMode", new Type[] { typeof(long), typeof(bool) })]
-        [HarmonyPatch(typeof(FactorySystem), "GameTickInserters", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int) })]
-        [HarmonyPatch(typeof(PowerSystem), "GameTick")]
-        [HarmonyPatch(typeof(CargoTraffic), "SpraycoaterGameTick")]
-        [HarmonyPatch(typeof(CargoTraffic), "PresentCargoPathsAsync")]
-        [HarmonyPatch(typeof(DefenseSystem), "GameTick")]
-        [HarmonyPatch(typeof(ConstructionSystem), "GameTick")]
-        static Exception GetFactoryId(Exception __exception, PlanetFactory ___factory)
+        static class Patch1033
         {
-            if (__exception != null && AstroId == 0) AstroId = ___factory.planet.astroId;
-            return __exception;
+            // Rework of multithread functions in 0.10.33
+            [HarmonyFinalizer]
+            [HarmonyPatch(typeof(FactorySystem), "GameTick")]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickLabProduceMode")]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickLabResearchMode")]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickInserters")]
+            [HarmonyPatch(typeof(PowerSystem), "GameTick")]
+            [HarmonyPatch(typeof(CargoTraffic), "SpraycoaterGameTick")]
+            [HarmonyPatch(typeof(DefenseSystem), "GameTick")]
+            [HarmonyPatch(typeof(ConstructionSystem), "GameTick")]
+            static Exception GetFactoryId(Exception __exception, PlanetFactory ___factory)
+            {
+                if (__exception != null && AstroId == 0) AstroId = ___factory.planet.astroId;
+                return __exception;
+            }
+        }
+
+        static class Patch1032
+        {
+            // Last target version: 0.10.32.25783
+            // Only track for multithread functions
+            [HarmonyFinalizer]
+            [HarmonyPatch(typeof(FactorySystem), "GameTick", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int), typeof(int) })]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickLabProduceMode", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int), typeof(int) })]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickLabResearchMode", new Type[] { typeof(long), typeof(bool) })]
+            [HarmonyPatch(typeof(FactorySystem), "GameTickInserters", new Type[] { typeof(long), typeof(bool), typeof(int), typeof(int) })]
+            [HarmonyPatch(typeof(PowerSystem), "GameTick")]
+            [HarmonyPatch(typeof(CargoTraffic), "SpraycoaterGameTick")]
+            [HarmonyPatch(typeof(CargoTraffic), "PresentCargoPathsAsync")]
+            [HarmonyPatch(typeof(DefenseSystem), "GameTick")]
+            [HarmonyPatch(typeof(ConstructionSystem), "GameTick")]
+            static Exception GetFactoryId(Exception __exception, PlanetFactory ___factory)
+            {
+                if (__exception != null && AstroId == 0) AstroId = ___factory.planet.astroId;
+                return __exception;
+            }
         }
 
         [HarmonyFinalizer]

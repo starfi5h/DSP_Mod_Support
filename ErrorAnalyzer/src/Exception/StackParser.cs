@@ -50,15 +50,33 @@ namespace ErrorAnalyzer
                 int end = line.IndexOf('(');
                 if (end == -1) continue;
 
-                int typeEnd = line.LastIndexOf('.', end);
-                if (typeEnd == -1 || (end - typeEnd - 2) <= 0) continue;
+                // case DMD
+                // e.g. at (wrapper dynamic-method) at (wrapper dynamic-method) StationComponent.DMD<StationComponent::DetermineDispatch>
+                int dmdIndex = line.IndexOf(".DMD<");
+                if (dmdIndex != -1)
+                {                    
+                    int typeEnd = line.IndexOf(':', dmdIndex);
+                    if (typeEnd == -1) continue;
+                    end = line.IndexOf('>', typeEnd);
+                    if (end == -1) continue;
+                    
+                    string typeString = line.Substring(dmdIndex + 5, typeEnd - dmdIndex - 5);
+                    string methodString = line.Substring(typeEnd + 2, end - typeEnd - 2);
+                    list.Add((typeString, methodString));
+                }
+                // case normal
+                // e.g. at GameLogic.GalacticTransportGameTick ()
+                else
+                {
+                    int typeEnd = line.LastIndexOf('.', end);
+                    if (typeEnd == -1 || (end - typeEnd - 2) <= 0) continue;
 
-                string typeString = line.StartsWith("  at ")
-                    ? line.Substring(5, typeEnd - 5)
-                    : line.Substring(0, typeEnd);
-                string methodString = line.Substring(typeEnd + 1, end - typeEnd - 2);
-
-                list.Add((typeString, methodString));
+                    string typeString = line.StartsWith("  at ")
+                        ? line.Substring(5, typeEnd - 5)
+                        : line.Substring(0, typeEnd);
+                    string methodString = line.Substring(typeEnd + 1, end - typeEnd - 2);
+                    list.Add((typeString, methodString));
+                }
             }
             return list;
         }
