@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BepInEx;
 using BepInEx.Logging;
@@ -13,12 +14,31 @@ namespace ModFixerOne
     public static class Preloader
     {
         public static ManualLogSource logSource = Logger.CreateLogSource("ModFixerOne Preloader");      
-        public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
+        public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll", "UnityEngine.CoreModule.dll" };
         public static IEnumerable<string> Guids; //Chainloader.PluginInfos will only added after successful load
 
         public static void Patch(AssemblyDefinition assembly)
         {
-            ModifyMainGame(assembly);
+            try
+            {
+                if (assembly.Name.Name == "Assembly-CSharp")
+                {
+                    ModifyMainGame(assembly);
+                }
+                else if (assembly.Name.Name == "UnityEngine.CoreModule")
+                {
+                    TypeForwardInput(assembly);
+                }
+                else
+                {
+                    logSource.LogWarning("Unexpect assembly: " + assembly.Name.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                logSource.LogError("Error when patching assembly " + assembly.Name.Name);
+                logSource.LogError(ex);
+            }
         }
 
         public static void Finish()
@@ -26,22 +46,47 @@ namespace ModFixerOne
             RemoveProcessFiler();
         }
 
+        private static void TypeForwardInput(AssemblyDefinition assembly)
+        {
+            if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "DSPGAME_Data", "Managed", "UnityEngine.InputLegacyModule.dll")))
+            {
+                logSource.LogInfo("Skip type forward due to UnityEngine.InputLegacyModule doesn't exist");
+                return;
+            }
+
+            var module = assembly.MainModule;
+            // Create a reference to the target assembly (UnityEngine.InputLegacyModule)
+            var targetAssemblyRef = new AssemblyNameReference("UnityEngine.InputLegacyModule", new Version(0, 0, 0, 0));
+            // Add the assembly reference if it doesn't already exist
+            if (!module.AssemblyReferences.Any(ar => ar.Name == targetAssemblyRef.Name))
+            {
+                module.AssemblyReferences.Add(targetAssemblyRef);
+            }
+
+            // Create the type forward
+            var exportedType = new ExportedType("UnityEngine", "Input", module, targetAssemblyRef)
+            {
+                Attributes = TypeAttributes.Public | TypeAttributes.Forwarder,
+                // The Forwarder flag is important - it marks this as a type forwarder
+            };
+
+            // Add the exported type to the module
+            module.ExportedTypes.Add(exportedType);
+            logSource.LogInfo("Type forward for UnityEngine.Input: UnityEngine.CoreModule => UnityEngine.InputLegacyModule");
+        }
+
         private static void ModifyMainGame(AssemblyDefinition assembly)
         {
             try
             {
-                // Add field: UIStorageGrid UIGame.inventory as dummy field
-                assembly.MainModule.GetType("UIGame").AddFied("inventory", assembly.MainModule.GetType("UIStorageGrid"));
-                logSource.LogDebug("UIStorageGrid UIGame.inventory");
-
                 // Add field: string StationComponent.name as dummy field
                 assembly.MainModule.GetType("StationComponent").AddFied("name", assembly.MainModule.TypeSystem.String);
                 logSource.LogDebug("string StationComponent.name");
-
+                
                 // Add method: void PlanetTransport.RefreshTraffic(int) to call PlanetTransport.RefreshStationTraffic(int)
                 Injection.RefreshTraffic(assembly);
                 logSource.LogDebug("void PlanetTransport.RefreshTraffic(int)");
-
+                
                 // Add enum Language { zhCN, enUS, frFR, Max } and Localization.language
                 var enumType = Injection.Language(assembly);
                 logSource.LogDebug("enum Language { zhCN, enUS, frFR, Max }");
@@ -50,10 +95,21 @@ namespace ModFixerOne
                 // Add method StringTranslate.Translate(this string s, Language _ = null) to call Localization.Translate(this string s)
                 Injection.StringTranslate(assembly, enumType);
                 logSource.LogDebug("public static string StringTranslate.Translate(this string s)");
-
+                
                 // Add StringProto
                 Injection.StringProto(assembly);
                 logSource.LogDebug("public StringProto");
+
+                // 0.10.33 update
+
+                // TryAdd method: void GameData.GameTick(long time)
+                if (Injection.GameDataGameTick(assembly))
+                    logSource.LogDebug("void GameData.GameTick(long)");
+
+                // TODO: Fix crash when patching the following
+                // TryAdd field: UIToggle UIOptionWindow.fullscreenComp
+                // if (Injection.UIOptionWindowfullscreenComp(assembly))
+                //    logSource.LogDebug("UIToggle UIOptionWindow.fullscreenComp");
             }
             catch (Exception e)
             {

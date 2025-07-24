@@ -1,7 +1,7 @@
 {
   "name": "ModFixerOne",
-  "description": "v1.3.2 - Solve TypeLoadException of StringTranslate, Language, StringProto for outdated mods. Remove process filters of old mods that block game pass version. 模组修理器-修复一些过时的mod",
-  "version_number": "1.3.2",
+  "description": "Repair TypeLoadException of UnityEngine.Input for outdated mods in game version 0.10.33. Remove process filters of old mods. (适配测试版)模组修理器-修复API,使一些旧的mod可以在新版本中使用",
+  "version_number": "2.0.0",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
-  "dependencies": ["xiaoye97-BepInEx-5.4.17"]
+  "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

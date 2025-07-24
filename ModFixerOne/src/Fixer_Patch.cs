@@ -14,6 +14,15 @@ namespace ModFixerOne
             try
             {
                 Harmony harmony = Plugin.Instance.Harmony;
+                /*
+                if (GameConfig.gameVersion < new Version(0, 10, 33))
+                {
+                    ErrorMessage = $"Modfixer " + Plugin.VERSION + " only support game version 0.10.33 or higher!\nModfixer仅支援0.10.33以上游戏版本!";
+                    Plugin.Log.LogWarning(ErrorMessage);
+                    harmony.PatchAll(typeof(Fixer_Patch));
+                    return;
+                }
+                */
                 if (!IsVaild())
                 {
                     ErrorMessage = "Can't find injected fields or methods!\n Please make sure that ModFixerOnePreloader.dll is installed in BepInEx\\patchers.";
@@ -26,6 +35,7 @@ namespace ModFixerOne
                 if (ErrorMessage != "")
                 {
                     ErrorMessage = "Error occurred when patching following mods:" + ErrorMessage;
+                    Plugin.Log.LogWarning(ErrorMessage);
                     harmony.PatchAll(typeof(Fixer_Patch));
                 }
             }
@@ -83,23 +93,14 @@ namespace ModFixerOne
 
         private static bool IsVaild()
         {
-            if (typeof(UIGame).GetField("inventory") == null)
-                return false;
-
-            if (typeof(PlanetTransport).GetMethod("RefreshTraffic") == null)
-                return false;
-                
             var type = AccessTools.TypeByName("Language");
-            if (type == null)
-                return false;
+            if (type == null) return false;
 
             type = AccessTools.TypeByName("StringTranslate");
-            if (type == null)
-                return false;
+            if (type == null) return false;
 
             type = AccessTools.TypeByName("StringProto");
-            if (type == null)
-                return false;
+            if (type == null) return false;
 
             return true;
         }

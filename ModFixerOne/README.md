@@ -1,7 +1,7 @@
 # Mod Fixer One
 
-1. Make some outdated mods to work on the Dark Fog game version. (0.10.x)  
-2. Remove process filter of plugins that block PC game pass version.  
+1. Make some outdated mods to work on the new multithreading system game version. (0.10.33+)  
+2. Remove process filter of plugins that block Microsoft Store version.  
 This solves `[Warning:BepInEx] Skipping ... because of process filters (DSPGAME.exe)` that prevent the mods from loading.  
 3. Fix for save that has mecha upgrade drone task points exceeding vanilla limit 4, which causes an error in `ConstructionModuleComponent.InsertBuildTarget`.  
 
@@ -10,21 +10,26 @@ This solves `[Warning:BepInEx] Skipping ... because of process filters (DSPGAME.
 This mod add the following removed classes/fields/methods back to the game assembly via preloader, so the mod that using them will not trigger TypeLoadException/MissingMethodException/MissingFieldException.
 
 ```cs
-UIStorageGrid UIGame.inventory
 string StationComponent.name
 void PlanetTransport.RefreshTraffic(int)
 enum Language { zhCN, enUS, frFR, Max }
 public static Language Localization.get_language()
 public static string StringTranslate.Translate(this string s)
 public StringProto
+void GameData.GameTick(long)
 ```
-
+Type forward for UnityEngine.CoreModule => UnityEngine.InputLegacyModule, so mods that using old Input system can find the reference.  
+  
 ## Support Mods
 
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/) v1.4.0  
 - Fix `MissingMethodExcpetion: void PlanetTransport.Refresh(int)` when loading. ([#19](https://github.com/Pasukaru/DSP-Mods/issues/19))  
-You can also use the [1.4.0-fix version](https://github.com/soarqin/DSP_AutoStationConfig/releases/tag/1.4.0-fix) by soarqin for more features.   
+You can also use the [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/) by soarqin for more features.   
 
+### [LDBTool](https://thunderstore.io/c/dyson-sphere-program/p/xiaoye97/LDBTool/) v3.0.1  
+- Fix `TypeLoadException: Could not resolve type with token 0100002d from typeref (expected class 'UnityEngine.Input' in assembly 'UnityEngine.CoreModule`  
+It can now run on the public-test branch version (0.10.33.x).  
+  
 Some other mods are fixed too. Check the wiki in this mod page for more detail!
 
 ## Installation
@@ -39,6 +44,7 @@ Move `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.
 
 ## Changelog
 
+v2.0.0 - Type forward UnityEngine.Input. Compatible to public-test version. (DSP0.10.33.26482)  
 v1.3.2 - Remove PersonalLogistics support. Add construction drones task points fix. (DSP0.10.29.21950)  
 v1.3.1 - Let ModFixerOne load first. Add Nebula multiplayer mod pre-release version support. (DSP0.10.28.21247)    
 v1.3.0 - Update to Dark Fog version. Remove LongArm, 4DPocket support. (DSP0.10.28.21014)  

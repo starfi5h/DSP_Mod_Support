@@ -31,7 +31,6 @@ namespace ModFixerOne.Mods
 #pragma warning disable CS0618
         private class Warper
         {
-
             [HarmonyPrefix]
             [HarmonyPatch(typeof(LDBTool), nameof(LDBTool.PreAddProto), new Type[] { typeof(ProtoType), typeof(Proto) })]
             static bool PreAddProto_Guard(ProtoType protoType)

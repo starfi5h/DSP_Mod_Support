@@ -143,5 +143,54 @@ namespace ModFixerOne
             stringProtoClass.AddFied("ENUS", assembly.MainModule.TypeSystem.String);
             stringProtoClass.AddFied("FRFR", assembly.MainModule.TypeSystem.String);
         }
+
+        internal static bool GameDataGameTick(AssemblyDefinition assembly)
+        {
+            // TryAdd method: GameData.GameTick(long time) to call at the end of LogicFrame
+            var targetType = assembly.MainModule.GetType("GameData");
+            if (targetType.Methods.FirstOrDefault(m => m.Name == "GameTick") != null) return false;
+
+            var gameTickMethod = targetType.AddMethod("GameTick", assembly.MainModule.TypeSystem.Void, new TypeReference[] { assembly.MainModule.TypeSystem.Int64 });
+            ILProcessor ilProcessor = gameTickMethod.Body.GetILProcessor();
+            ilProcessor.Emit(OpCodes.Ret);
+
+            // Append the function call
+            targetType = assembly.MainModule.GetType("GameLogic");
+            var gameDataField = targetType.Fields.FirstOrDefault(f => f.Name == "data");
+            var timeiField = targetType.Fields.FirstOrDefault(f => f.Name == "timei");
+            var logicFrameMethod = targetType.Methods.FirstOrDefault(m => m.Name == "LogicFrame");
+            if (gameDataField == null || timeiField == null || logicFrameMethod == null) return false;
+
+            ilProcessor = logicFrameMethod.Body.GetILProcessor();
+            var instructionsToInject = new Instruction[]
+            {
+                ilProcessor.Create(OpCodes.Ldarg_0),
+                ilProcessor.Create(OpCodes.Ldfld, gameDataField),
+                ilProcessor.Create(OpCodes.Ldarg_0),
+                ilProcessor.Create(OpCodes.Ldfld, timeiField),
+                ilProcessor.Create(OpCodes.Callvirt, gameTickMethod)
+            };
+            Instruction lastInstruction; // Assume single Ret at last line
+            foreach (Instruction instruction in instructionsToInject)
+            {
+                lastInstruction = logicFrameMethod.Body.Instructions.Last();
+                ilProcessor.InsertBefore(lastInstruction, instruction);
+            }
+            return true;
+        }
+
+        /*
+        internal static bool UIOptionWindowfullscreenComp(AssemblyDefinition assembly)
+        {
+            // TryAdd field: UIToggle UIOptionWindow.fullscreenComp
+            var targetType = assembly.MainModule.GetType("UIOptionWindow");
+            if (targetType.Fields.FirstOrDefault(m => m.Name == "fullscreenComp") != null) return false;
+
+            var uiToggle = assembly.MainModule.Types.First(t => t.FullName == "UIToggle");
+            TypeReference uiToggleReference = assembly.MainModule.ImportReference(uiToggle);
+            targetType.AddFied("fullscreenComp", uiToggleReference);
+            return true;
+        }
+        */
     }
 }
