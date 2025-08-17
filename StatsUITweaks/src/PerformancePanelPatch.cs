@@ -56,9 +56,12 @@ namespace StatsUITweaks
 
         public static void OnDestory()
         {
-            Toggle(false);
-            GameObject.Destroy(foldBtn?.gameObject);
-            initialized = false;
+            if (initialized)
+            {
+                Toggle(false);
+                GameObject.Destroy(foldBtn?.gameObject);
+                initialized = false;
+            }
         }
 
         static void OnFoldButtonClick(int obj)

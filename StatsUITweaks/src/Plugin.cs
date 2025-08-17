@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.7";
+        public const string VERSION = "1.6.8";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -43,7 +43,9 @@ namespace StatsUITweaks
 
             var NumericPlanetNo = Config.Bind("Other", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
             var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
-            
+            var HideLitterNotification = Config.Bind("Other", "HideLitterNotification", false, "Don't show trash notification (still visable in Z mode)\n隐藏平常模式的垃圾提示(Z模式仍可见)");
+            var HideSoilNotification = Config.Bind("Other", "HideSoilNotification", false, "Don't show soil notification\n隐藏沙土数量变动的提示");
+
             var TabSizeSwitch = Config.Bind("Dashboard", "TabSizeSwitch", true, "Tab to switch size when hovering on an item.\n鼠标悬停在某个统计项上时，按Tab键切换尺寸");
 
             Utils.OrderByName = OrderByName.Value;
@@ -66,8 +68,11 @@ namespace StatsUITweaks
                 harmony.PatchAll(typeof(PlanetNamePatch));
             if (FoldButton.Value)
             {
-                harmony.PatchAll(typeof(PerformancePanelPatch));
-                harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
+                if (GameConfig.gameVersion < new Version(0, 10, 33))
+                {
+                    harmony.PatchAll(typeof(PerformancePanelPatch));
+                    harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
+                }
             }
             harmony.PatchAll(typeof(UIControlPanelPatch));
             harmony.PatchAll(typeof(StatsWindowPatch.Entry_Patch));
@@ -78,6 +83,17 @@ namespace StatsUITweaks
             harmony.PatchAll(typeof(StatPlanPatch));
             if (TabSizeSwitch.Value)
                 harmony.PatchAll(typeof(UIChartPatch));
+
+            var harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(Block_Prefix)));
+            if (HideLitterNotification.Value)
+                harmony.Patch(AccessTools.Method(typeof(UITrashPanel), nameof(UITrashPanel.DetermineVisible)), harmonyMethod);
+            if (HideSoilNotification.Value)
+                harmony.Patch(AccessTools.Method(typeof(UIGame), nameof(UIGame.OnSandCountChanged)), harmonyMethod);
+        }
+
+        public static bool Block_Prefix()
+        {
+            return false;
         }
 
 #if DEBUG

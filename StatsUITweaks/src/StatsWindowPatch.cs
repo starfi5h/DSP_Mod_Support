@@ -72,7 +72,7 @@ namespace StatsUITweaks
                 Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                 GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
                 UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
-                GameObject checkBoxWithTextTemple = UIRoot.instance.optionWindow.fullscreenComp.transform.parent.gameObject;
+                GameObject checkBoxWithTextTemple = UIRoot.instance.optionWindow.vsyncComp.transform.parent.gameObject;
 
                 // 單位:每秒按鈕
                 perSecGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);

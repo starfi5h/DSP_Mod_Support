@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.8
+- Add config `HideLitterNotification`, `HideSoilNotification`
+- 新增`隐藏垃圾提示`,`隐藏沙土提示`配置
+- Compatible to game version 0.10.33.26540 by disable fold button in 0.10.33
+- 通过在 0.10.33 中禁用折叠按钮，与游戏版本 0.10.33.26540 兼容
+
 ## v1.6.7
 - Add config `TabSizeSwitch`  
 - 新增`鼠标悬停在某个统计项上时，按Tab键切换尺寸`配置
