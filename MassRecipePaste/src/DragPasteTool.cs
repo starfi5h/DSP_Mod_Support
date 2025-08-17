@@ -426,8 +426,44 @@ namespace MassRecipePaste
         }
 
         public bool ShouldAddObject(int objId)
-        {
-            return BuildingParameters.clipboard.CanPasteToFactoryObject(objId, factory);
+        {            
+            bool result = BuildingParameters.clipboard.CanPasteToFactoryObject(objId, factory);
+            // CanPasteToFactoryObject大多數情況都是簡單判斷建築種類是否相同
+            // 對於Assembler和Lab會額外判斷配方建築類型是否吻合和配方是否相同
+            // 但是因為沒有判斷增產方式是否不同, 所以我們要在這裡額外補上
+
+            if (result == false && objId > 0)
+            {
+                if (BuildingParameters.clipboard.type == BuildingType.Assembler || BuildingParameters.clipboard.type == BuildingType.Lab)
+                {
+                    int recipeId = BuildingParameters.clipboard.recipeId;
+                    var entityPool = factory.entityPool;
+                    var factorySystem = factory.factorySystem;
+                    switch (BuildingParameters.clipboard.type)
+                    {
+                        case BuildingType.Assembler:
+                            int assemblerId = entityPool[objId].assemblerId;
+                            if (assemblerId == 0 || recipeId == 0 || factorySystem.assemblerPool[assemblerId].recipeId != recipeId) break;
+                            if (BuildingParameters.clipboard.parameters != null && BuildingParameters.clipboard.parameters.Length >= 1)
+                            {
+                                bool forceAccMode = BuildingParameters.clipboard.parameters[0] > 0;
+                                result |= factorySystem.assemblerPool[assemblerId].forceAccMode != forceAccMode;
+                            }
+                            break;
+
+                        case BuildingType.Lab:
+                            int labId = entityPool[objId].labId;
+                            if (labId == 0 || recipeId == 0) break;
+                            if (true)
+                            {
+                                bool forceAccMode = BuildingParameters.clipboard.mode1 == 1;
+                                result |= factorySystem.labPool[labId].forceAccMode != forceAccMode;
+                            }
+                            break;
+                    }
+                }
+            }
+            return result;
         }
 
         public void ClearSelection()
