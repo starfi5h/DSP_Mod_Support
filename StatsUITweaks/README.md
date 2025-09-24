@@ -22,6 +22,9 @@ Adds QoL features to the statistics panel.
 - Prevent windows from closing when opening dashboard.
 - Prevent control panel from closing when pressing E key.
 
+Others
+- Add more layout reference height options (500~800) so it can go lower than 900 to scale the overall UI larger.  
+
 ## Configuration
 Run the game one time to generate `BepInEx\config\starfi5h.plugin.StatsUITweaks.cfg` file.  
 Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptReference/KeyCode.html) for available hotkey names.  
@@ -38,7 +41,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
 | `HotkeyListDown`    | PageDown | Move to next item in astro list |
 | Dashboard | | |
-| `TabSizeSwitch`   | true   | Tab to switch size when hovering on an item |
+| `TabSizeSwitch`   | true   | When hovering on an item, Tab to switch size, Ctrl+Tab to swtich title. |
 | MainWindow | | |
 | `TimeSliderSlice` | 20     | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
@@ -88,6 +91,10 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 - 热键切换  
 PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会切换至上/下一个星系。
 
+- 更多UI布局选项  
+添加更多布局参考高度选项（500~800），使它可以被设置低于900来放大整体UI。  
+
+
 ## 配置   
 配置文件(.cfg)需要先运行过游戏一次才会出现。修改后需重启游戏才会生效。    
 管理器安装: 左边选项Config editor -> 找到`starfi5h.plugin.StatsUITweaks` -> Edit Config  
@@ -105,7 +112,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
 | Dashboard | | |
-| `TabSizeSwitch`   | true     | 鼠标悬停在某个统计项上时，按Tab键切换尺寸 |
+| `TabSizeSwitch`   | true     | 鼠标悬停在某个统计项上时，Tab键切换尺寸，Ctrl+Tab键切换标题 |
 | MainWindow | | |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |

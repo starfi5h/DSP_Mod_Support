@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.8";
+        public const string VERSION = "1.6.9";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -46,7 +46,7 @@ namespace StatsUITweaks
             var HideLitterNotification = Config.Bind("Other", "HideLitterNotification", false, "Don't show trash notification (still visable in Z mode)\n隐藏平常模式的垃圾提示(Z模式仍可见)");
             var HideSoilNotification = Config.Bind("Other", "HideSoilNotification", false, "Don't show soil notification\n隐藏沙土数量变动的提示");
 
-            var TabSizeSwitch = Config.Bind("Dashboard", "TabSizeSwitch", true, "Tab to switch size when hovering on an item.\n鼠标悬停在某个统计项上时，按Tab键切换尺寸");
+            var TabSizeSwitch = Config.Bind("Dashboard", "TabSizeSwitch", true, "When hovering on an item, Tab to switch size, Ctrl+Tab to swtich title.\n鼠标悬停在某个统计项上时，Tab键切换尺寸，Ctrl+Tab键切换标题");
 
             Utils.OrderByName = OrderByName.Value;
             Utils.DropDownCount = DropDownCount.Value;
@@ -89,11 +89,29 @@ namespace StatsUITweaks
                 harmony.Patch(AccessTools.Method(typeof(UITrashPanel), nameof(UITrashPanel.DetermineVisible)), harmonyMethod);
             if (HideSoilNotification.Value)
                 harmony.Patch(AccessTools.Method(typeof(UIGame), nameof(UIGame.OnSandCountChanged)), harmonyMethod);
+
+            // Add extra UILayoutHeights
+            var originalMethod = AccessTools.Method(typeof(UIOptionWindow), nameof(UIOptionWindow.CollectUILayoutHeights));
+            if (originalMethod != null)
+            {
+                harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(CollectUILayoutHeights_Postfix)));
+                harmony.Patch(originalMethod, null, harmonyMethod);
+            }
         }
 
         public static bool Block_Prefix()
         {
             return false;
+        }
+
+        public static void CollectUILayoutHeights_Postfix(UIOptionWindow __instance)
+        {
+            var uiLayoutHeights = __instance.uiLayoutHeights;
+            uiLayoutHeights.Add(500);
+            uiLayoutHeights.Add(600);
+            uiLayoutHeights.Add(700);
+            uiLayoutHeights.Add(800);
+            uiLayoutHeights.Sort();
         }
 
 #if DEBUG

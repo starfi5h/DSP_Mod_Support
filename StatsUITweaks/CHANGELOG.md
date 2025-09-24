@@ -1,10 +1,16 @@
 # Changelog
 
+## v1.6.9
+- Add extra layout reference height options: 500 to 800
+- 新增更多UI布局高度选项: 500到800
+- Add new feature to config `TabSizeSwitch`: Ctrl+Tab to switch title  
+- `TabSizeSwitch`新增功能: 鼠标悬停在某个统计项上时，按Ctrl+Tab键切换标题
+
 ## v1.6.8
 - Add config `HideLitterNotification`, `HideSoilNotification`
 - 新增`隐藏垃圾提示`,`隐藏沙土提示`配置
-- Compatible to game version 0.10.33.26540 by disable fold button in 0.10.33
-- 通过在 0.10.33 中禁用折叠按钮，与游戏版本 0.10.33.26540 兼容
+- Compatible to game version 0.10.33.26540 by disable fold button in 0.10.33 (Require ModFixerOne)
+- 通过在 0.10.33 中禁用折叠按钮，与游戏版本 0.10.33.26540 兼容 (需要ModFixerOne前置)
 
 ## v1.6.7
 - Add config `TabSizeSwitch`  
