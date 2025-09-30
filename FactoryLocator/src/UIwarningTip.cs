@@ -12,7 +12,7 @@ namespace FactoryLocator
             if (tip != null)
                 GameObject.Destroy(tip.gameObject);
 
-            int detailId = itemEntry.signalId;
+            int detailId = itemEntry.detailId1;
             string title = detailId < 20000 ? LDB.ItemName(detailId) : LDB.RecipeName(detailId - 20000);
             string text = GetText(signalId, detailId);
             Transform parent = itemEntry.transform;
@@ -35,7 +35,7 @@ namespace FactoryLocator
                 for (int i = 1; i < ws.warningCursor; i++)
                 {
                     ref var data = ref ws.warningPool[i];
-                    if (data.id == i && data.state > 0 && data.signalId == signalId && data.detailId == detailId)
+                    if (data.id == i && data.state > 0 && data.signalId == signalId && data.detailId1 == detailId)
                     {
                         if (map.ContainsKey(data.astroId))
                             ++map[data.astroId];

@@ -1,8 +1,16 @@
+## DSP 0.10.33
+
+### v1.3.10
+\- Adapt to game version 0.10.33.26941. No longer work in 0.10.32 and below
+
 ## DSP 0.10.32
 
 ### v1.3.9
 \- Adapt to game version 0.10.32.25552  
 \- Add ray receiver warning: signal_lightning for continuous reciving < 99.9% and signal_no_fuel for no graviton lenses. Only available in Warning - All mode.  
+
+<details>
+<summary>Previous Changelog</summary>
 
 ## DSP 0.10.31
 
@@ -20,8 +28,7 @@
 \- Add signal picker subcategory Recording Mode.  
 \- Add spraycoater signal status 601 (no input belt) and 602 (no output belt)  
 
-<details>
-<summary>Previous Changelog</summary>
+## DSP 0.10.30
 
 ### v1.3.4
 \- Auto query the item/recipe under mouse cursor while opening the panel.  

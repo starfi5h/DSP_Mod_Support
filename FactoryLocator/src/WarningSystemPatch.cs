@@ -42,7 +42,7 @@ namespace FactoryLocator
 				if (__instance.warningPool[i].factoryId <= INDEXUPPERBOND)
 				{
 					// recalculate detailId
-					__instance.warningPool[i].detailId = -__instance.warningPool[i].factoryId + INDEXUPPERBOND;
+					__instance.warningPool[i].detailId1 = -__instance.warningPool[i].factoryId + INDEXUPPERBOND;
 				}
 			}
 		}
@@ -93,12 +93,12 @@ namespace FactoryLocator
 						{
 							if (Input.GetKeyDown(KeyCode.Mouse0)) // Left click
 							{
-								if (VFInput.control) SeekNextSignal(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
+								if (VFInput.control) SeekNextSignal(__instance.selectedSignalId, __instance.itemEntries[i].detailId1);
 								else UIwarningTip.Create(__instance.itemEntries[i], __instance.selectedSignalId);
 							}
 							else if (Input.GetKeyDown(KeyCode.Mouse1)) // Right click
 							{
-								HideGroup(__instance.selectedSignalId, __instance.itemEntries[i].signalId);
+								HideGroup(__instance.selectedSignalId, __instance.itemEntries[i].detailId1);
 							}
 							break;
 						}
@@ -169,8 +169,8 @@ namespace FactoryLocator
 				warning.id = warningId;
 				warning.state = 1; // ON
 				warning.signalId = signalId; // Config
-				warning.detailId = warningDetailId;
-				warning.factoryId = INDEXUPPERBOND - warning.detailId; // a negative value so it won't get updated
+				warning.detailId1 = warningDetailId;
+				warning.factoryId = INDEXUPPERBOND - warning.detailId1; // a negative value so it won't get updated
 				warning.astroId = planetIds[i]; // local pos reference plaent
 				warning.localPos = localPos[i];
 			}
@@ -224,7 +224,7 @@ namespace FactoryLocator
 				for (int i = 1; i < ws.warningCursor; i++)
 				{
 					ref var warning = ref ws.warningPool[i];
-					if (warning.id == i && warning.state > 0 && warning.signalId == signalId && warning.detailId == detailId)
+					if (warning.id == i && warning.state > 0 && warning.signalId == signalId && warning.detailId1 == detailId)
 					{
 						if (warning.factoryId <= INDEXUPPERBOND) // Only apply to query warning icons
 						{
@@ -253,7 +253,7 @@ namespace FactoryLocator
 			{
 				currentIndex = (currentIndex + 1) % ws.warningCursor;
 				ref var warning = ref ws.warningPool[currentIndex];
-				if (warning.signalId == signalId && warning.detailId == detailId && warning.id == currentIndex && warning.state > 0)
+				if (warning.signalId == signalId && warning.detailId1 == detailId && warning.id == currentIndex && warning.state > 0)
                 {
 					if (warning.astroId == localPlanetId)
                     {

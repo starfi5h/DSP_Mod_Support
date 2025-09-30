@@ -25,7 +25,7 @@ namespace FactoryLocator
     {
         public const string GUID = "starfi5h.plugin.FactoryLocator";
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.3.9";
+        public const string VERSION = "1.3.10";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
@@ -35,6 +35,11 @@ namespace FactoryLocator
         {
             Log.LogSource = Logger;
             harmony = new(GUID);
+            if (GameConfig.gameVersion < new Version(0, 10, 33))
+            {
+                Log.Error($"Skip due to game version < 0.10.33  Current:" + GameConfig.gameVersion);
+                return;
+            }
             harmony.PatchAll(typeof(WarningSystemPatch));
             harmony.PatchAll(typeof(UIentryCount));
 
@@ -118,6 +123,7 @@ namespace FactoryLocator
 #if DEBUG
             if (Input.GetKeyDown(KeyCode.F4))
             {
+                Log.Debug(mainWindow);
                 if (!mainWindow.active)
                     mainWindow.OpenWindow();
                 else

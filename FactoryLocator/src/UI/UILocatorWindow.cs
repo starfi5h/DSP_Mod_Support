@@ -500,7 +500,7 @@ namespace FactoryLocator.UI
         private void OnSignalPickReturn(int signalId)
         {
             Sprite sprite = LDB.signals.IconSprite(signalId);
-            if (sprite != null)
+            if (sprite != null && signalId != WarningData.DASHBOARD_SIGNALID) // 518 有特殊的dashboard邏輯,因此不可使用
             {
                 Plugin.mainLogic.SignalId = signalId;
                 iconImage.sprite = sprite;

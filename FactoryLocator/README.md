@@ -14,14 +14,14 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 ### Main Window
 ![status tip](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo3.jpg)  
 **Power Status**: Hover over planet name to show power status of all networks.  
-**Signal Icon**: Click on the icon to set the icon for search results.  
+**Signal Icon**: Click on the icon to set the icon for search results. (signal-518 is not available)  
 **Display All Warning**: Toggle to show or hide all warnings.  
-**Auto Clear Query**: When disable, the created signals will remain until Clear button is clicked.  
+**Auto Clear Query**: When disabled, the created signals will remain until Clear button is clicked.  
 
 ### Picker Window
 ![subcategory](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory.png)  
 **Draggable Window**: The item/recipe picker window can be moved around by dragging the window background.  
-**Subcategory**: The dropdown can select the subcategory for extra search critia:  
+**Subcategory**: The dropdown can select the subcategory for extra search criteria:  
 - Building: Power network groups  
 - Vein: Collection Planned, Not Yet Planned  
 - Recipe: Extra products, Production speedup, Lack of material, Product overflow  
@@ -61,7 +61,7 @@ Requrie [CommonAPI](https://dsp.thunderstore.io/package/CommonAPI/CommonAPI/) as
 
 ## Mod compatibility
 This mod is compat with the following mods:
-- [GenesisBook](https://dsp.thunderstore.io/package/HiddenCirno/GenesisBook/) v2.9.12  
+- [GenesisBook](https://dsp.thunderstore.io/package/HiddenCirno/GenesisBook/) v3.1.0  
 - [BetterWarningIcons](https://dsp.thunderstore.io/package/Raptor/BetterWarningIcons/) v0.0.5  
 
 ### Nebula multiplayer mod compat  
@@ -87,7 +87,7 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 
 ![键位设置](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/keybind_c.jpg)  
 打开窗口的默认热键是Ctrl + F。可以在"游戏设置-键位-打开FactoryLocator窗口"更改。  
-打开面板时自动将鼠标的指向物品或配方设为筛选条件。 
+打开面板时自动将鼠标的指向物品或配方设为筛选条件。  
 默认情况下，该模组将在本地星球上搜索建筑物。  
 在星图视图中，如果选中的星球上有工厂，该模组将更改搜索星球。选择恒星时，它将搜索星系中的所有星球。  
 
