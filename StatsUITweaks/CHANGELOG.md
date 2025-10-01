@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.6.10
+- Adapt to game version 0.10.33.26941.  
+
 ## v1.6.9
 - Add extra layout reference height options: 500 to 800
 - 新增更多UI布局高度选项: 500到800

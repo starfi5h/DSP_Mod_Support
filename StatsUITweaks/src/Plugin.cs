@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.9";
+        public const string VERSION = "1.6.10";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -68,7 +68,7 @@ namespace StatsUITweaks
                 harmony.PatchAll(typeof(PlanetNamePatch));
             if (FoldButton.Value)
             {
-                if (GameConfig.gameVersion < new Version(0, 10, 33))
+                if (GameConfig.gameVersion > new Version(0, 10, 32))
                 {
                     harmony.PatchAll(typeof(PerformancePanelPatch));
                     harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));

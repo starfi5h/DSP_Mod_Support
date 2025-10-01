@@ -77,36 +77,36 @@ namespace StatsUITweaks
                 // 單位:每秒按鈕
                 perSecGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
                 perSecGo.name = "perSecGo";
-                perSecGo.transform.localPosition = new Vector3(0, 60, 0);
+                perSecGo.transform.localPosition = new Vector3(0, 40, 0);
                 GameObject.Destroy(perSecGo.GetComponent<Localizer>());
                 text = perSecGo.GetComponent<Text>();
-                text.fontSize = 14;
+                text.fontSize = 12;
                 text.text = "Display /s";
                 var toggle_perSec = perSecGo.GetComponentInChildren<UIToggle>().toggle;
                 toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnDisplayPerSecondToggleChange));
                 go = toggle_perSec.gameObject;
-                go.transform.localPosition = new Vector3(70, 0);
-                go.transform.localScale = new Vector3(0.75f, 0.75f);
+                go.transform.localPosition = new Vector3(65, -5);
+                go.transform.localScale = new Vector3(0.60f, 0.60f);
 
                 // 展開直方圖
                 extendGraphGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
                 extendGraphGo.name = "extendGraphGo";
-                extendGraphGo.transform.localPosition = new Vector3(120, 60, 0);
+                extendGraphGo.transform.localPosition = new Vector3(120, 40, 0);
                 GameObject.Destroy(extendGraphGo.GetComponent<Localizer>());
                 text = extendGraphGo.GetComponent<Text>();
-                text.fontSize = 14;
+                text.fontSize = 12;
                 text.text = "Extend Graph";
                 var toggle_extendGraph = extendGraphGo.GetComponentInChildren<UIToggle>().toggle;
                 toggle_extendGraph.onValueChanged.AddListener(new UnityAction<bool>(OnExtendGraphToggleChange));
                 go = toggle_extendGraph.gameObject;
-                go.transform.localPosition = new Vector3(70, 0);
-                go.transform.localScale = new Vector3(0.75f, 0.75f);
+                go.transform.localPosition = new Vector3(65, -5);
+                go.transform.localScale = new Vector3(0.60f, 0.60f);
 
                 // 時間滑桿
                 go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
                 go.name = "CustomStats_Ratio";
-                go.transform.localPosition = new Vector3(-153f, 8f, 0);
-                go.GetComponent<RectTransform>().sizeDelta = new Vector2(155.5f, 13);
+                go.transform.localPosition = new Vector3(3f, 8f, 0); // 相對於時間欄的位置
+                go.transform.localScale = new Vector3(1.6f, 1.3f, 0); // 因為rect不知為何長度會被重置,所以改用scale
                 timerSlider = go.GetComponent<Slider>();
                 timerSlider.minValue = 0;
                 timerSlider.maxValue = TimeSliderSlice;
@@ -236,8 +236,8 @@ namespace StatsUITweaks
         {
             int astroId = UIRoot.instance.uiGame.statWindow.astroFilter;
             if (astroId <= 0) return;
-
-            GameMain.mainPlayer.navigation.indicatorAstroId = astroId;
+            int indicatorAstroId = GameMain.mainPlayer.navigation.indicatorAstroId;
+            GameMain.mainPlayer.navigation.indicatorAstroId = indicatorAstroId == astroId ? 0 : astroId;
         }
 
         static void OnLocateButtonRightClick(int obj)
@@ -341,7 +341,7 @@ namespace StatsUITweaks
                 return;
             }
 
-            string locateString = "Locate " + astroId;
+            string locateString = "astroId=" + astroId;
             var planet = GameMain.galaxy.PlanetById(astroId);
             if (planet?.factory != null)
                 locateString += " idx=" + planet.factory.index;
@@ -420,7 +420,7 @@ namespace StatsUITweaks
             }
 
             // FirstHalf = 直方圖上半部分
-            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetail),
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeFirstHalfDetailExceptLast),
                 new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
             static bool ComputeFirstHalfDetail(int endCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
             {
@@ -472,7 +472,7 @@ namespace StatsUITweaks
             }
 
             // SecondHalf = 直方圖下半部分
-            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetail),
+            [HarmonyPrefix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow.ComputeSecondHalfDetailExceptLast),
         new Type[] { typeof(int), typeof(int), typeof(int), typeof(int[]), typeof(long[]) })]
             static bool ComputeSecondHalfDetail(int endCursor, int lvlen, int cur, int[] detail, long[] targetDetail)
             {

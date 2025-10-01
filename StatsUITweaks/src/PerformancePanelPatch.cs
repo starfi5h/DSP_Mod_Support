@@ -41,8 +41,8 @@ namespace StatsUITweaks
                 go.SetActive(true);
 
                 // Record original values
-                scrollHeight = __instance.cpuScrollRect.rectTransform.sizeDelta.y;
-                scrollY = __instance.cpuScrollRect.transform.localPosition.y;
+                scrollHeight = __instance.cpuScrollRect.viewport.sizeDelta.y;
+                scrollY = __instance.cpuScrollRect.viewport.localPosition.y;
 
                 initialized = true;
             }
@@ -76,18 +76,19 @@ namespace StatsUITweaks
             if (initialized)
             {
                 var panel = UIRoot.instance.uiGame.statWindow.performancePanelUI;
-                Adjust(panel.cpuScrollRect.rectTransform, extendScroll);
-                Adjust(panel.gpuScrollRect.rectTransform, extendScroll);
-                Adjust(panel.dataScrollRect.rectTransform, extendScroll);
+                Adjust(panel.cpuScrollRect.viewport, extendScroll);
+                Adjust(panel.gpuScrollRect.viewport, extendScroll);
+                Adjust(panel.dataScrollRect.viewport, extendScroll);
             }
         }
 
         private static void Adjust(RectTransform scrollRect, bool extendScroll)
         {
-            foreach (Transform child in scrollRect.parent)
+            foreach (Transform child in scrollRect.parent.parent)
             {
                 child.gameObject.SetActive(!extendScroll);
             }
+            scrollRect.parent.gameObject.SetActive(true);
             scrollRect.gameObject.SetActive(true);
             scrollRect.localPosition = new Vector3(scrollRect.localPosition.x, extendScroll ? scrollY + 362f : scrollY, 0f);
             scrollRect.sizeDelta = new Vector2(scrollRect.sizeDelta.x, extendScroll ? scrollHeight + 372f : scrollHeight);
