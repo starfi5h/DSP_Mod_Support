@@ -20,8 +20,6 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.4.17" />
-    <PackageReference Include="DysonSphereProgram.GameLibs" Version="0.10.32.25779-r.0" />
-	<PackageReference Include="UnityEngine.Modules" Version="2018.4.12" IncludeAssets="compile" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -33,11 +31,20 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\assemblies\Assembly-CSharp-publicized.dll</HintPath>
+    </Reference>
     <Reference Include="LDBTool">
       <HintPath>lib\LDBTool.dll</HintPath>
     </Reference>
     <Reference Include="NebulaPatcher">
       <HintPath>lib\NebulaPatcher-publicized.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\assemblies\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\assemblies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

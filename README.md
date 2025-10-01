@@ -17,3 +17,25 @@ Provide Nebula multiplayer mod compatibility for other mods. Sometimes contains 
 ## [ModFixerOne](https://dsp.thunderstore.io/package/starfi5h/ModFixerOne/)
 Try to fix broken mods to make them work in latest DSP version.  
 嘗試修復一些壞掉的mod, 使其可以在最新的遊戲版本中使用.  
+
+
+## Setting up a development environment
+
+1. Fork the repository to your own Github account.
+2. Pull git repository locally `git clone ...`
+3. Create a folder named `assemblies` in the repo folder
+4. Put the following reference dll files into `assemblies` folder  
+```
+Assembly-CSharp-publicized.dll  
+UnityEngine.CoreModule.dll  
+UnityEngine.dll  
+UnityEngine.IMGUIModule.dll  
+UnityEngine.InputLegacyModule.dll
+UnityEngine.PhysicsModule.dll
+UnityEngine.TextRenderingModule.dll
+UnityEngine.UI.dll
+UnityEngine.UIModule.dll
+```
+
+You can find the Unity modules in game install folder `Dyson Sphere Program\DSPGAME_Data\Managed`  
+`Assembly-CSharp-publicized.dll` can be obtained by using [AssemblyPublicizer](https://github.com/BepInEx/BepInEx.AssemblyPublicizer) on game's `Assembly-CSharp.dll` in the same folder.   

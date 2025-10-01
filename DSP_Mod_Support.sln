@@ -19,13 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ErrorAnalyzer", "ErrorAnaly
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MassRecipePaste", "MassRecipePaste\MassRecipePaste.csproj", "{3DD57F28-F167-4729-A348-F927FD5F0915}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoTranslatorHelper", "AutoTranslatorHelper\AutoTranslatorHelper.csproj", "{78D8C433-F815-4657-B313-6CEA99FDA2CD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveTheWindows", "SaveTheWindows\SaveTheWindows.csproj", "{5404C57F-3D28-4502-9DC3-68A82C108B4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SaveTheWindows", "SaveTheWindows\SaveTheWindows.csproj", "{5404C57F-3D28-4502-9DC3-68A82C108B4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CameraTools", "CameraTools\CameraTools.csproj", "{1F752EBC-B919-4A7E-AC02-D0000E61FAD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateMonitor", "RateMonitor\RateMonitor.csproj", "{E8FD28A8-FE56-4C07-A967-5B51A065EB87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RateMonitor", "RateMonitor\RateMonitor.csproj", "{E8FD28A8-FE56-4C07-A967-5B51A065EB87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +63,6 @@ Global
 		{3DD57F28-F167-4729-A348-F927FD5F0915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DD57F28-F167-4729-A348-F927FD5F0915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DD57F28-F167-4729-A348-F927FD5F0915}.Release|Any CPU.Build.0 = Release|Any CPU
-		{78D8C433-F815-4657-B313-6CEA99FDA2CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{78D8C433-F815-4657-B313-6CEA99FDA2CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{78D8C433-F815-4657-B313-6CEA99FDA2CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{78D8C433-F815-4657-B313-6CEA99FDA2CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5404C57F-3D28-4502-9DC3-68A82C108B4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5404C57F-3D28-4502-9DC3-68A82C108B4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5404C57F-3D28-4502-9DC3-68A82C108B4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
