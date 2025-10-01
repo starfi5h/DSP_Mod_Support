@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.4.1
+- Adapt to game version 0.10.33.26941. No longer supports 0.10.32 and below versions  
+
+----
+
 ## v0.4.0
 - Support fuel generator and spray coater.
 - Detail summary now shows the lacking item for lack material and lack proliferator machines.

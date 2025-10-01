@@ -6,7 +6,7 @@ namespace RateMonitor.Patches
     public class MainPatches
     {
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameData), nameof(GameData.GameTick))]
+        [HarmonyPatch(typeof(GameLogic), nameof(GameLogic.LogicFrame))]
         static void UpdateMonitor(bool __runOriginal)
         {
             // If other mods have stop factory simulation, then skip
