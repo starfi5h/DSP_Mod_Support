@@ -30,7 +30,7 @@ namespace ErrorAnalyzer
 
             // Process the stack trace text and generate analysis result string
             string errorLogText = __instance.errorLogText.text;
-            string resultString = ParseAndAnalysis(errorLogText, Plugin.ShowFullstack.Value);            
+            string resultString = ParseAndAnalysis(errorLogText, Plugin.ShowFullStack.Value);            
             errorLogText = StackParser.CleanStacktrace(errorLogText);
             Plugin.Log.LogInfo(resultString);
 
@@ -106,6 +106,12 @@ namespace ErrorAnalyzer
                         // Stop when reaching common update loop entry
                         if (methodName == "GameTick" && (typeName == "GameData" || typeName == "PlanetFactory")) shouldSkipPatches = true;
 
+                        // Stop when reaching common update loop entry (MMS)
+                        if (methodName == "ProcessFrame" && typeName == "ThreadManager") shouldSkipPatches = true;
+
+                        // Stop when reaching common update loop entry
+                        if (methodName == "LogicFrame" && typeName == "GameLogic") shouldSkipPatches = true;
+
                         if (shouldSkipPatches) continue;
                     }
 
@@ -137,14 +143,14 @@ namespace ErrorAnalyzer
                 resultString += "\n" + patchesDescription;
             }
 
-            UpdateExtarTitleString(patchesAssemblies);
+            UpdateExtraTitleString(patchesAssemblies);
 
             return resultString;
         }
 
-        private static void UpdateExtarTitleString(HashSet<Assembly> relevantAssemblies)
+        private static void UpdateExtraTitleString(HashSet<Assembly> relevantAssemblies)
         {
-            UIFatalErrorTip_Patch.ExtarTitleString = relevantAssemblies.Count > 0 ? "possible candidates: " : "";
+            UIFatalErrorTip_Patch.ExtraTitleString = relevantAssemblies.Count > 0 ? "possible candidates: " : "";
             foreach (var asm in relevantAssemblies)
             {
                 var pluginInfos = bepInExPluginIdentifier.GetPluginInfoList(asm);
@@ -152,7 +158,7 @@ namespace ErrorAnalyzer
                 {
                     string pluginName = pluginInfo.Metadata.Name;
                     string pluginVersion = pluginInfo.Metadata.Version.ToString();
-                    UIFatalErrorTip_Patch.ExtarTitleString += $"[{pluginName}{pluginVersion}]";
+                    UIFatalErrorTip_Patch.ExtraTitleString += $"[{pluginName}{pluginVersion}]";
                 }
             }
         }

@@ -30,6 +30,10 @@ namespace ErrorAnalyzer.Testing
 
         public void Update()
         {
+            if (Input.GetKeyDown(KeyCode.F4))
+            {
+                throw new IndexOutOfRangeException();
+            }
             if (Input.GetKeyDown(KeyCode.F5))
             {
                 enableError = !enableError;
@@ -37,9 +41,9 @@ namespace ErrorAnalyzer.Testing
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(StationComponent), nameof(StationComponent.DetermineDispatch))]
-        public static void DetermineDispatch_Postfix()
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(StationComponent), nameof(StationComponent.DetermineDispatch))]
+        public static void ExceptionTest()
         {
             if (enableError)
             {
@@ -47,8 +51,16 @@ namespace ErrorAnalyzer.Testing
             }
         }
 
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(DigitalSystem), nameof(DigitalSystem.GameTick))]
+        //[HarmonyPostfix, HarmonyPatch(typeof(GameData), nameof(GameData.Import))]
+        public static void Import_Postfix()
+        {
+            if (enableError)
+            {
+                ExceptionTest();
+            }
+        }
+
+        //[HarmonyPostfix, HarmonyPatch(typeof(DigitalSystem), nameof(DigitalSystem.GameTick))]
         public static void DigitalSystemGameTick_Postfix()
         {
             if (enableError)
@@ -57,11 +69,46 @@ namespace ErrorAnalyzer.Testing
             }
         }
 
+        //[HarmonyPostfix, HarmonyPatch(typeof(LabComponent), nameof(LabComponent.InternalUpdateResearch))]
+        public static void InternalUpdateResearch_Postfix(in LabComponent __instance)
+        {
+            if (enableError)
+            {
+                throw new IndexOutOfRangeException();
+            }
+        }
+
+        //[HarmonyFinalizer]
+        //[HarmonyPatch(typeof(GameLogic), "OnGameLogicFrame")]
+        public static Exception OnGameLogicFrame(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                Debug.LogError(__exception);
+            }
+            return __exception;
+        }
+
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(UIEscMenu), "OnButton1Click")]
         public static void OnButton1Click_Postfix()
         {
             throw new NullReferenceException();
+        }
+
+        public static void TestLog()
+        {
+            try
+            {
+                int a = 0;
+                int b = 1 / a;
+            }
+            catch (Exception ex)
+            {
+                //Debug.LogException(ex);
+                Debug.LogError(ex);
+            }
         }
     }
 }

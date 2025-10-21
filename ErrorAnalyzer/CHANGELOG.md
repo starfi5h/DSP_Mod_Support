@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.2
+- Fix a bug that after closing a running error when count > 100, the error window won't show up again.  
+- Now patches to `ThreadManager.ProcessFrame` don't show if the function is not at the top.  
+
 ## v1.3.1
 - Support both 0.10.32 and 0.10.33 (public-test).  
 - Wrapper dynamic-method (DMD) is now parsable.  
@@ -11,7 +15,7 @@ Overhaul enhance error message:
 - Bottom extra info now show related assembly names intead of plugin names.  
 
 ## v1.2.4
--  Copy button now only copy mod list when shift is pressed.  
+- Copy button now only copy mod list when shift is pressed.  
 - Adapt to DSP 0.10.32.25496  
 
 ## v1.2.3

@@ -34,6 +34,9 @@
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>..\assemblies\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\assemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\assemblies\UnityEngine.UI.dll</HintPath>
     </Reference>

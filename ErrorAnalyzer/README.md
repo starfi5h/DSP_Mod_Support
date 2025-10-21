@@ -31,6 +31,7 @@ If an entity (factory machines, belt, etc.) is identified as part of the running
 - Click on the [Inspect button] to enter DEBUG mode (the button will turn green)
 - When the error occur again, it will capture the location and move mecha to that entity in the game world
 - If the entity is not on the same planet, a navigation line will guide to the planet
+- Some types of entity can only be tracked in single-threaded mode
 
 ### Sharing Error Information
 To report errors to mod developers:
@@ -64,7 +65,7 @@ Notes:
 - Removing the erroring machine may or may not solve the issues, so backup the save before dismantling. Sometimes you'll need more powerful purge tools e.g. `Re-intialize planet` in [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/). If they still not work then you'll have to roll back to the previous normal save.  
 - When the following conditions are matched, the mods will be determinated as possible candidates:  
 1. Mods that appear directly in the stack trace (judge by namespace)  
-2. The first patched method on the stack trace, which is not the common patched functions (VFPreload, GameMain, GameData.GameTick, PlanetFactory.GameTick)  
+2. The first patched method on the stack trace, which is not the common patched functions (VFPreload, GameMain, ThreadManager.ProcessFrame)  
 3. Mods that modify the same type as the first function in the stack trace, if the first function is not mod or patched function  
 
 
@@ -129,6 +130,7 @@ When the DEBUG tracking mode is on, the navigate button will change color. In th
 - 点击[导航按钮]进入 DEBUG 模式（按钮将变为绿色）
 - 当错误再次发生时，它将捕获位置并在游戏世界中将机甲移动到该实体处
 - 如果该实体不在同一行星上，将有一条导航线引导至该行星
+- 某些类型的实体只能在单线程模式下追踪
 
 ### 分享错误信息
 向模组开发者报告错误：
@@ -163,5 +165,5 @@ void ErrorAnalyzer.Testing.Plugin::DetermineDispatch_Postfix(); DetermineDispatc
 - 移除出错的机器可能会也可能不会解决问题，因此在拆除前请备份存档。有时您需要更强大的清除工具，例如 [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/)  中的"重新初始化行星"功能。如果这些方法仍然不起作用，那么您将不得不回退到之前的正常存档。
 - 当满足以下条件时，模组将被确定为可能的候选项：
 1. 直接出现在堆栈跟踪中的模组（根据命名空间判断）
-2. 堆栈跟踪上的第一个被补丁修改的方法，且不是常见的被修补函数（VFPreload、GameMain、GameData.GameTick、PlanetFactory.GameTick）
-3. 如果堆栈跟踪中的第一个函数不是模组函数或被补丁修改的函数，则修改与第一个函数相同类型的模组
+2. 堆栈跟踪上的第一个被补丁修改的方法，且不是常见的被修补函数（VFPreload、GameMain、ThreadManager.ProcessFrame）
+3. 如果堆栈跟踪中的第一个函数不是模组函数或被补丁修改的函数，则修改与第一个函数相同类型的模组将加入

@@ -19,22 +19,27 @@ namespace ErrorAnalyzer
             EntityId = 0;
             if (on)
             {
-                _patch ??= Harmony.CreateAndPatchAll(typeof(TrackEntity_Patch));
-                if (GameConfig.gameVersion < new Version(0, 10, 33))
+                if (_patch == null)
                 {
-                    _patch.PatchAll(typeof(Patch1032));
-                    Plugin.Log.LogInfo("TrackEntity_Patch enable (0.10.32)");
+                    _patch = Harmony.CreateAndPatchAll(typeof(TrackEntity_Patch));
+                    if (GameConfig.gameVersion < new Version(0, 10, 33))
+                    {
+                        _patch.PatchAll(typeof(Patch1032));
+                        Plugin.Log.LogInfo("TrackEntity_Patch enable (0.10.32)");
+                    }
+                    else
+                    {
+                        _patch.PatchAll(typeof(Patch1033));
+                        Plugin.Log.LogInfo("TrackEntity_Patch enable");
+                    }
                 }
-                else
-                {
-                    _patch.PatchAll(typeof(Patch1033));
-                    Plugin.Log.LogInfo("TrackEntity_Patch enable");
-                }                
-                return;
             }
-            _patch?.UnpatchSelf();
-            _patch = null;
-            Plugin.Log.LogInfo("TrackEntity_Patch disable");
+            else
+            {
+                _patch?.UnpatchSelf();
+                _patch = null;
+                Plugin.Log.LogInfo("TrackEntity_Patch disable");
+            }
         }
 
         public static void ResetId()

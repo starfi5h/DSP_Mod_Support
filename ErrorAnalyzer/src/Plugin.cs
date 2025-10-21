@@ -17,13 +17,13 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.3.1";
+        public const string VERSION = "1.3.2";
 
         public static ManualLogSource Log;
-        public static bool isRegisitered;
+        public static bool isRegistered;
         public static string errorString;
         public static string errorStackTrace;
-        public static ConfigEntry<bool> ShowFullstack { get; private set; }
+        public static ConfigEntry<bool> ShowFullStack { get; private set; }
 
         static Harmony harmony;
 
@@ -32,7 +32,7 @@ namespace ErrorAnalyzer
             Log = Logger;
             harmony = new Harmony(GUID);
             var enableDebug = Config.Bind("DEBUG Mode", "Enable", false, "Enable DEBUG mode to track the entity when starting up the game").Value;
-            ShowFullstack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stacktrace (By default it will not list GameData.Gametick() and below methods)");
+            ShowFullStack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stack trace (By default it will not list GameData.Gametick() and below methods)");
             var dumpPatchMap = Config.Bind("Message", "Dump All Patches", false, "Dump Harmony patches of all mods when the game load in BepInEx\\LogOutput.log").Value;
 
             if (Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer"))
@@ -45,7 +45,7 @@ namespace ErrorAnalyzer
                 {
                     harmony.PatchAll(typeof(UIFatalErrorTip_Patch));
                     Application.logMessageReceived += HandleLog;
-                    isRegisitered = true;
+                    isRegistered = true;
                 }
                 catch (Exception e)
                 {

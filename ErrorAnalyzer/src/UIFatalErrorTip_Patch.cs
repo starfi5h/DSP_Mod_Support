@@ -11,7 +11,7 @@ namespace ErrorAnalyzer
     [HarmonyPatch(typeof(UIFatalErrorTip))]
     internal class UIFatalErrorTip_Patch
     {
-        public static string ExtarTitleString { get; set; } = "";
+        public static string ExtraTitleString { get; set; } = "";
 
         private static UIButton btnClose;
         private static UIButton btnCopy;
@@ -26,9 +26,9 @@ namespace ErrorAnalyzer
         [HarmonyPatch("_OnRegEvent")]
         private static void OnRegEvent_Postfix()
         {
-            if (!Plugin.isRegisitered)
+            if (!Plugin.isRegistered)
                 return;
-            Plugin.isRegisitered = false;
+            Plugin.isRegistered = false;
 
             try
             {
@@ -236,10 +236,10 @@ namespace ErrorAnalyzer
             stringBuilder.Append(" with ");
             stringBuilder.Append(Chainloader.PluginInfos.Values.Count);
             stringBuilder.Append(" mods used.");
-            if (!string.IsNullOrWhiteSpace(ExtarTitleString))
+            if (!string.IsNullOrWhiteSpace(ExtraTitleString))
             {
                 stringBuilder.AppendLine();
-                stringBuilder.Append(ExtarTitleString);
+                stringBuilder.Append(ExtraTitleString);
             }
             return stringBuilder.ToString();
         }
@@ -284,6 +284,23 @@ namespace ErrorAnalyzer
         {
             waitingToRefresh = false;
             UIFatalErrorTip.ClearError();
+            if (!(GameConfig.gameVersion < new Version(0, 10, 33))) ClearErrorCount();
+        }
+
+        public static void ClearErrorCount()
+        {
+            // Note: In ThreadManager.ProcessFrame, if frameErrorCountMainThread and erroredFrameCount exceed limit (5,100)
+            // The error message will no longer displayed
+            // So we need to reset those values when closing the error
+            var threadManager = GameMain.logic?.threadController?.threadManager;
+            if (threadManager == null) return;
+
+            // From ThreadManager.Free() that call when the game ends
+            Plugin.Log.LogDebug($"Error closed. frameErrorCountMainThread={threadManager.frameErrorCountMainThread} erroredFrameCount={threadManager.erroredFrameCount}");
+            threadManager.frameErrorCountAllThreads = 0;
+            threadManager.frameErrorCountMainThread = 0;
+            threadManager.erroredFrameCount = 0;
+            threadManager.totalErrorCount = 0;
         }
 
         private static void OnInspectClick(int _)
