@@ -17,7 +17,7 @@ namespace ErrorAnalyzer
     {
         public const string GUID = "aaa.dsp.plugin.ErrorAnalyzer"; // Change guid to make it load first
         public const string NAME = "ErrorAnalyzer";
-        public const string VERSION = "1.3.2";
+        public const string VERSION = "1.3.3";
 
         public static ManualLogSource Log;
         public static bool isRegistered;
@@ -35,44 +35,56 @@ namespace ErrorAnalyzer
             ShowFullStack = Config.Bind("Message", "Show All Patches", false, "Show all mod patches on the stack trace (By default it will not list GameData.Gametick() and below methods)");
             var dumpPatchMap = Config.Bind("Message", "Dump All Patches", false, "Dump Harmony patches of all mods when the game load in BepInEx\\LogOutput.log").Value;
 
-            if (Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer"))
+            try
             {
-                Log.LogInfo("Skip patching UIFatalErrorTip_Patch for Nebula is enabled");
+                harmony.PatchAll(typeof(UIFatalErrorTip_Patch));
+                Application.logMessageReceived += HandleLog;
+                isRegistered = true;
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    harmony.PatchAll(typeof(UIFatalErrorTip_Patch));
-                    Application.logMessageReceived += HandleLog;
-                    isRegistered = true;
-                }
-                catch (Exception e)
-                {
-                    Log.LogError("Error when patching UIFatalErrorTip_Patch");
-                    Log.LogError(e);
-                }
+                Log.LogError("Error when patching UIFatalErrorTip_Patch");
+                Log.LogError(e);
             }
 
+            try
             {
-                try
-                {
-                    harmony.PatchAll(typeof(UIErrorEnhancer));
-                }
-                catch (Exception e)
-                {
-                    Log.LogError("Error when patching StacktraceParser");
-                    Log.LogError(e);
-                }
+                harmony.PatchAll(typeof(UIErrorEnhancer));
+            }
+            catch (Exception e)
+            {
+                Log.LogError("Error when patching StacktraceParser");
+                Log.LogError(e);
             }
 
             if (enableDebug)
             {
-                TrackEntity_Patch.Enable(true);
+                try
+                {
+                    TrackEntity_Patch.Enable(true);
+                }
+                catch (Exception e)
+                {
+                    Log.LogError("Error when patching TrackEntity_Patch");
+                    Log.LogError(e);
+                }
             }
             if (dumpPatchMap)
             {
                 harmony.PatchAll(typeof(Plugin));
+            }
+            
+            // Show ILline in stacktrace
+            harmony.PatchAll(typeof(StackTrace_Patch));
+
+            try
+            {
+                harmony.PatchAll(typeof(XLogHandler_Patch));
+            }
+            catch (Exception e)
+            {
+                Log.LogWarning("Error when patching XLogHandler_Patch");
+                Log.LogWarning(e);
             }
         }
 

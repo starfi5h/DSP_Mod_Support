@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.3
+- IlLine is now built in, and also shown for wrapper dynamic-method.  
+- Temporary fix for threaded logString message in 0.10.33.27024  
+
 ## v1.3.2
 - Fix a bug that after closing a running error when count > 100, the error window won't show up again.  
 - Now patches to `ThreadManager.ProcessFrame` don't show if the function is not at the top.  

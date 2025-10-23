@@ -33,7 +33,7 @@ namespace ErrorAnalyzer
             try
             {
                 Application.logMessageReceived -= Plugin.HandleLog;
-                if (string.IsNullOrEmpty(Plugin.errorString)) return;
+                if (string.IsNullOrEmpty(Plugin.errorString) || Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer")) return;
                     
                 string[] lines = Plugin.errorStackTrace.Split('\n', '\r');
                 Plugin.Log.LogDebug("Error captured during loading. Lines count: " + lines.Length);
@@ -83,15 +83,22 @@ namespace ErrorAnalyzer
         private static void OnOpen_Postfix(UIFatalErrorTip __instance)
         {
             if (btnClose != null || btnCopy != null || btnInspect != null) return;
+            bool isNebulaInstalled = Chainloader.PluginInfos.ContainsKey("dsp.nebula-multiplayer");
 
-            TryCreateButton(() => CreateCloseBtn(__instance), "Close Button");
-            TryCreateButton(() => CreateCopyBtn(__instance), "Copy Button");
+            if (!isNebulaInstalled)
+            {
+                TryCreateButton(() => CreateCloseBtn(__instance), "Close Button");
+                TryCreateButton(() => CreateCopyBtn(__instance), "Copy Button");
+            }
             TryCreateButton(() => CreateInspectBtn(__instance), "Inspect Button");
 
-            __instance.transform.Find("tip-text-0").GetComponent<Text>().text = GetShortTitle();
-            __instance.transform.Find("tip-text-1").GetComponent<Text>().text = GetShortTitle();
-            Object.Destroy(__instance.transform.Find("tip-text-0").GetComponent<Localizer>());
-            Object.Destroy(__instance.transform.Find("tip-text-1").GetComponent<Localizer>());
+            if (!isNebulaInstalled)
+            {
+                __instance.transform.Find("tip-text-0").GetComponent<Text>().text = GetShortTitle();
+                __instance.transform.Find("tip-text-1").GetComponent<Text>().text = GetShortTitle();
+                Object.Destroy(__instance.transform.Find("tip-text-0").GetComponent<Localizer>());
+                Object.Destroy(__instance.transform.Find("tip-text-1").GetComponent<Localizer>());
+            }
         }
 
         [HarmonyPostfix]

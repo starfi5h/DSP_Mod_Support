@@ -65,12 +65,21 @@ namespace ErrorAnalyzer.Testing
         {
             if (enableError)
             {
-                throw new IndexOutOfRangeException();
+                //throw new IndexOutOfRangeException();
+            }
+        }
+
+        //[HarmonyPostfix, HarmonyPatch(typeof(AssemblerComponent), nameof(AssemblerComponent.InternalUpdate))]
+        public static void AssemblerComponentInternalUpdate_Postfix()
+        {
+            if (enableError)
+            {
+                TriggerIndexOutOfRange();
             }
         }
 
         //[HarmonyPostfix, HarmonyPatch(typeof(LabComponent), nameof(LabComponent.InternalUpdateResearch))]
-        public static void InternalUpdateResearch_Postfix(in LabComponent __instance)
+        public static void InternalUpdateResearch_Postfix()
         {
             if (enableError)
             {
@@ -94,7 +103,19 @@ namespace ErrorAnalyzer.Testing
         [HarmonyPatch(typeof(UIEscMenu), "OnButton1Click")]
         public static void OnButton1Click_Postfix()
         {
-            throw new NullReferenceException();
+            TriggerNullReference();
+        }
+
+        public static void TriggerIndexOutOfRange()
+        {
+            int[] arr = new int[1];
+            arr[2] = 0;
+        }
+
+        public static void TriggerNullReference()
+        {
+            string str = null;
+            str.Trim();
         }
 
         public static void TestLog()
