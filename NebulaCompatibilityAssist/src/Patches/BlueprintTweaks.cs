@@ -1,4 +1,5 @@
-﻿using BepInEx.Configuration;
+﻿/*
+using BepInEx.Configuration;
 using HarmonyLib;
 using System;
 using System.Reflection;
@@ -35,3 +36,4 @@ namespace NebulaCompatibilityAssist.Patches
         }
     }
 }
+*/

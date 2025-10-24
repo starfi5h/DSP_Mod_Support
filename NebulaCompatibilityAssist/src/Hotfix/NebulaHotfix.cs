@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using TMPro;
 using UnityEngine;
 
 namespace NebulaCompatibilityAssist.Hotfix
@@ -34,7 +33,7 @@ namespace NebulaCompatibilityAssist.Hotfix
 
         public static void Init(Harmony harmony)
         {
-            if (!BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
+            if (!Chainloader.PluginInfos.TryGetValue(GUID, out var pluginInfo))
                 return;
 
             try
@@ -45,12 +44,6 @@ namespace NebulaCompatibilityAssist.Hotfix
                     //harmony.PatchAll(typeof(Warper0910));
                     //PatchPacketProcessor(harmony);
                     //Log.Info("Nebula hotfix 0.9.10 - OK");
-                }
-                if (nebulaVersion < new System.Version(0, 9, 14 + 1))
-                {
-                    harmony.PatchAll(typeof(Warper0914));
-                    //PatchPacketProcessor(harmony);
-                    Log.Info("Nebula new feature 0.9.14 - OK");
                 }
                 if (nebulaVersion < new System.Version(0, 9, 17 + 1))
                 {
@@ -80,60 +73,8 @@ namespace NebulaCompatibilityAssist.Hotfix
         private static void PatchPacketProcessor(Harmony harmony)
         {
             Type classType = AccessTools.TypeByName("NebulaWorld.Multiplayer");
-            harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
-            harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
-        }
-    }
-
-    public static class Warper0914
-    {
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(UIControlPanelPlanetEntry), nameof(UIControlPanelPlanetEntry.Refresh))]
-        public static bool Refresh_Prefix(UIControlPanelPlanetEntry __instance)
-        {
-            if (!__instance.isTargetDataValid)
-            {
-                return false;
-            }
-            UpdateBanner(__instance); // ReversePatch
-            __instance.RefreshExpanded(__instance.isExpanded);
-            PlayerNavigation navigation = GameMain.mainPlayer.navigation;
-            __instance.navigationButton.highlighted = navigation.indicatorAstroId == __instance.planet.astroId;
-            return false;
-        }
-
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(UIControlPanelPlanetEntry), nameof(UIControlPanelPlanetEntry.UpdateBanner))]
-        public static void UpdateBanner(UIControlPanelPlanetEntry __instance)
-        {
-            IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                try
-                {
-                    // Change: this.planet.factory.gameData.mainPlayer.uPosition
-                    // To:     GameMain.player.uPosition
-                    var codeMacher = new CodeMatcher(instructions)
-                        .MatchForward(false,
-                            new CodeMatch(OpCodes.Ldarg_0),
-                            new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "planet"),
-                            new CodeMatch(i => i.opcode == OpCodes.Ldfld && ((FieldInfo)i.operand).Name == "factory"),
-                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_gameData"),
-                            new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodInfo)i.operand).Name == "get_mainPlayer")
-                        )
-                        .RemoveInstructions(4)
-                        .SetAndAdvance(OpCodes.Call, AccessTools.Method(typeof(GameMain), "get_mainPlayer"));
-
-                    return codeMacher.InstructionEnumeration();
-                }
-                catch (System.Exception e)
-                {
-                    Log.Warn("Transpiler UIControlPanelPlanetEntry.UpdateBanner error");
-                    Log.Warn(e);
-                    return instructions;
-                }
-            }
-
-            _ = Transpiler(null);
+            //harmony.Patch(AccessTools.Method(classType, "HostGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
+            //harmony.Patch(AccessTools.Method(classType, "JoinGame"), new HarmonyMethod(typeof(NebulaNetworkPatch).GetMethod(nameof(NebulaNetworkPatch.BeforeMultiplayerGame))));
         }
     }
 
@@ -148,7 +89,7 @@ namespace NebulaCompatibilityAssist.Hotfix
         }
 
         [HarmonyFinalizer]
-        [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.GameTickLogic))]
+        [HarmonyPatch(typeof(GameLogic), nameof(GameLogic.EnemyGroundGameTick))]
         [HarmonyPatch(typeof(EnemyDFGroundSystem), nameof(EnemyDFGroundSystem.KeyTickLogic))]
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.GameTickLogic))]
         [HarmonyPatch(typeof(EnemyDFHiveSystem), nameof(EnemyDFHiveSystem.KeyTickLogic))]
@@ -185,37 +126,5 @@ namespace NebulaCompatibilityAssist.Hotfix
             "BuildBarTool.CheckPlugins",
             "BuildBarTool_RebindBuildBarCompat"
         };
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIFatalErrorTip_Patch), nameof(UIFatalErrorTip_Patch.Title))]
-        static void Title(ref string __result)
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("An error has occurred! Game version ");
-            stringBuilder.Append(GameConfig.gameVersion.ToString());
-            stringBuilder.Append('.');
-            stringBuilder.Append(GameConfig.gameVersion.Build);
-            if (Multiplayer.IsActive)
-            {
-                stringBuilder.Append(Multiplayer.Session.LocalPlayer.IsHost ? " (Host)" : " (Client)");
-            }
-            stringBuilder.AppendLine();
-
-            var modSB = new StringBuilder();
-            var modCount = 0;
-            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
-            {
-                if (IgnorePluginList.Contains(pluginInfo.Metadata.Name)) continue;
-                modSB.Append('[');
-                modSB.Append(pluginInfo.Metadata.Name);
-                modSB.Append(pluginInfo.Metadata.Version);
-                modSB.Append("] ");
-                modCount++;
-            }
-            stringBuilder.Append(modCount + " Mods used: ");
-            stringBuilder.Append(modSB);
-
-            __result = stringBuilder.ToString();
-        }
     }
 }

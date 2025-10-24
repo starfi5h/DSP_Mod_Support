@@ -50,12 +50,12 @@ namespace NebulaCompatibilityAssist.Patches
             SplitterOverBelt.Init(harmony);
             if (config.Bind("Sync Patch", "MoreMegaStructure", true, "Enable patching MoreMegaStructure").Value)
                 MoreMegaStructure.Init(harmony);
-            BlueprintTweaks.Init(harmony);
+            //BlueprintTweaks.Init(harmony);
             DSPAutoSorter.Init(harmony);
             if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
                 AssemblerVerticalConstruction.Init(harmony);
-            if (config.Bind("Sync Patch", "GenesisBook", true, "Enable patching GenesisBook").Value)
-                GenesisBook_Patch.Init(harmony);
+            //if (config.Bind("Sync Patch", "GenesisBook", true, "Enable patching GenesisBook").Value)
+            //    GenesisBook_Patch.Init(harmony);
             if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
                 DSP_Battle_Patch.Init(harmony);
             

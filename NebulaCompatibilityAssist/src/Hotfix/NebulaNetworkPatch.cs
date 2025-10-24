@@ -14,6 +14,7 @@ namespace NebulaCompatibilityAssist.Hotfix
     {
         private static bool isPatched = false;
 
+        /*
         public static void BeforeMultiplayerGame()
         {
             if (!isPatched)
@@ -83,5 +84,6 @@ namespace NebulaCompatibilityAssist.Hotfix
                 }
             }
         }
+        */
     }
 }

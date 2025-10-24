@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿/*
+using HarmonyLib;
 using NebulaAPI;
 using NebulaCompatibilityAssist.Hotfix;
 using NebulaCompatibilityAssist.Packets;
@@ -268,3 +269,4 @@ namespace NebulaCompatibilityAssist.Patches
         }
     }
 }
+*/

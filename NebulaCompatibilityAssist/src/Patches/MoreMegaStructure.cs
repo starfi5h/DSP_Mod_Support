@@ -16,7 +16,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         private const string NAME = "MoreMegaStructure";
         private const string GUID = "Gnimaerd.DSP.plugin.MoreMegaStructure";
-        private const string VERSION = "1.7.6";
+        private const string VERSION = "1.8.5";
 
         private static IModCanSave Save;
 
@@ -167,14 +167,9 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 CodeMatcher codeMatcher = new CodeMatcher(instructions)
                     .End()
-                    .MatchBack(true,
-                        new CodeMatch(i => i.IsLdloc()),
-                        new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PowerSystem), "dysonSphere")),
-                        new CodeMatch(OpCodes.Ldnull),
-                        new CodeMatch(OpCodes.Cgt_Un)
-                    );
-                codeMatcher.Advance(1)
-                    .Insert(
+                    .MatchBack(true, new CodeMatch(i => i.opcode == OpCodes.Stfld && ((FieldInfo)i.operand).Name == "energyReqCurrentTick"))
+                    .MatchBack(true, new CodeMatch(OpCodes.Brfalse));
+                codeMatcher.Insert(
                         new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(NC_Patch), "IsClient")),
                         new CodeInstruction(OpCodes.Not),
                         new CodeInstruction(OpCodes.And)

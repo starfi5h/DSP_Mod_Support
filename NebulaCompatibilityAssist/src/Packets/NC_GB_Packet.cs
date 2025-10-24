@@ -1,9 +1,10 @@
-﻿using NebulaAPI;
+﻿/*
+using NebulaAPI;
 using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 
 namespace NebulaCompatibilityAssist.Packets
-{
+{    
     public class NC_GB_Packet
     {
         public EType Type { get; set; }
@@ -73,3 +74,4 @@ namespace NebulaCompatibilityAssist.Packets
         }
     }
 }
+*/
