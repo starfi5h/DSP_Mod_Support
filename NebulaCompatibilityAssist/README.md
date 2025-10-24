@@ -1,7 +1,7 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.17 hotfix:  
-- Fix Dark Fog kill count not register when request by clients.  
+Nebula 0.9.18 known issue:  
+- Wireless power chargers don't sync when charging mecha.  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
 This mod tries to patch some mods to make them work better in Nebula Multiplayer Mod.  
@@ -11,14 +11,13 @@ This mod tries to patch some mods to make them work better in Nebula Multiplayer
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
 - Sync station configuration and drone, ship, warper count.   
-- Note: AutoStationConfig v1.4.0 is broken after DSP-0.9.27. Required [ModFixerOne](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/ModFixerOne/) to fix it.  
+- Note: AutoStationConfig v1.4.0 is broken after DSP-0.9.27. Required [ModFixerOne](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/ModFixerOne/) to fix it. Recommend to use UXAssist mod instead!  
 
 ### [Auxilaryfunction](https://thunderstore.io/c/dyson-sphere-program/p/blacksnipebiu/Auxilaryfunction/)
 - Sync auto station config functions.  
 - Sync planetary item fill (ships, fuel) functions.  
 
 ### [BlueprintTweaks](https://thunderstore.io/c/dyson-sphere-program/p/kremnev8/BlueprintTweaks/)
-- Set `useFastDismantle` = false in config file to prevent host from crashing.  
 - Note: Some players reported issues when using this mod in multiplayer.  
 
 ### [DSPAutoSorter](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPAutoSorter/)
@@ -41,9 +40,8 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - Client can now see info of remote planet (Require Host to install FactoryLocator too).   
 
-### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP, only for 3.0)
-- Partially support Quantum Depot syncing: Build, Manual User interaction, Transport in the same planet
-- Interplanetary cargo transport in Quantum Depot is not supported yet. Client may see different result.
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (N/A)
+- Not recommend to use Quantum Depot in Multiplayer mode!
 
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - Client can now see all ILS stations when choosing system/global tab.  
@@ -97,14 +95,13 @@ When disable, the syncing patch will no longer functional. The host's mod data w
 
 ### [AutoStationConfig](https://thunderstore.io/c/dyson-sphere-program/p/Pasukaru/AutoStationConfig/)
 - 同步物流站自动配置  
-- 注意：AutoStationConfigv1.4.0 与 游戏版本v0.9.27 不兼容, 需要安装ModFixerOne修复  
+- 注意：AutoStationConfigv1.4.0 与 游戏版本v0.9.27 不兼容, 需要安装ModFixerOne修复。建议改用UXAssist的功能  
 
 ### [Auxilaryfunction](https://thunderstore.io/c/dyson-sphere-program/p/blacksnipebiu/Auxilaryfunction/) [辅助多功能mod](https://www.bilibili.com/video/BV1SS4y1X75n)
 - 同步物流站自动配置相关功能  
 - 同步一键填充星球上的飞机飞船翘曲器、燃料  
 
 ### [BlueprintTweaks](https://thunderstore.io/c/dyson-sphere-program/p/kremnev8/BlueprintTweaks/)
-- 在配置文件中设置 `useFastDismantle` = false 以防止主机崩溃。  
 - 注意: 此mod在多人游戏中不稳定, 请谨慎使用  
 
 ### [DSPAutoSorter](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPAutoSorter/)
@@ -127,9 +124,8 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [FactoryLocator](https://thunderstore.io/c/dyson-sphere-program/p/starfi5h/FactoryLocator/)
 - 让客机能显示远端星球的建物讯息(需求主机也安装mod)  
 
-### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (WIP, only for 3.0)
-- 部分支持量子箱同步功能：建造、手动用户交互、同一星球内运输
-- 量子箱的跨星球运送尚不支持。客机可能会看到不同的结果。
+### [GenesisBook](https://thunderstore.io/c/dyson-sphere-program/p/HiddenCirno/GenesisBook/) (N/A)
+- 不建议在联机模式使用量子箱!
 
 ### [LSTM](https://thunderstore.io/c/dyson-sphere-program/p/hetima/LSTM/)
 - 让客机显示所有星际物流塔的内容  

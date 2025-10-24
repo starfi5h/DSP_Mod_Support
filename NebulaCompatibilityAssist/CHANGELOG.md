@@ -1,6 +1,14 @@
 # Changelog
 
-## Gamae version 0.10.32
+## Game version 0.10.33
+
+#### v0.5.0 (Nebula 0.9.18)
+- Tempoaray remove GenesisBook, MoreMegaStructure support
+
+<details>
+<summary>Previous Changelog</summary>
+
+## Game version 0.10.32
 
 #### v0.4.27 (Nebula 0.9.17)
 \- Fix Dark Fog kill count not register when request by clients.  
@@ -26,9 +34,6 @@
 
 #### v0.4.22 (Nebula 0.9.12)
 \- Update UXAssist v1.2.12 compat
-
-<details>
-<summary>Previous Changelog</summary>
 
 #### v0.4.21 (Nebula 0.9.11)
 \- Update UXAssist v1.2.8 compat  
