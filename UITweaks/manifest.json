@@ -1,0 +1,7 @@
+{
+  "name": "UITweaks",
+  "description": "Custom UI layout scale and some QoL enhancement. UI增强: 科技树UI增强,物流站快捷操作,自定义UI布局",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/starfi5h/DSP_Mod_Support/tree/main/UITweaks",
+  "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
+}
