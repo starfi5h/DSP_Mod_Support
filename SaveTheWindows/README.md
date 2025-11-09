@@ -8,6 +8,11 @@ The top item with empty name is the original save folder.
 玩家可以使用不同的子文件夹对他们的存档进行分类。  
 最上面的空名项目是原始保存文件夹。  
 ![subfolder](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SaveTheWindows/img/subfolder.png)  
+  
+Add a drop-down menu in save/load window to let player switch sort order: Sort by file name, created date, or file size in ascending or descending order.  
+在保存/加载窗口中添加下拉菜单，允许玩家切换排序方式：按文件名、创建日期、或文件大小，以升序或降序排序。  
+![sortOrder](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/SaveTheWindows/img/sortOrder.png)  
+  
 
 Fix a quality of life issue with the UI windows where the window positions are not persisted between sessions.  
 Instead of resetting to the default locations, they will appear where they were last when they were closed.  
@@ -33,8 +38,10 @@ To reset saved window position, delete the config file.
 `Enable Drag Window Offset`: 允许窗口部分超出边框   
 `Enable Save Subfolder`: 允许存档子文件夹功能  
 `Save Subfolder`: 当前存档子文件夹名称(空字串=原位置)  
+`Save Order`: 存档排序的方式  
 
 ## ChangeLogs
+- v1.1.1: Add save order function. (DSP 0.10.33.27026)
 - v1.1.0: Add save subfolder function. (DSP 0.10.31.24710)
 - v1.0.0: Initial released. (DSP 0.10.30.23430)  
 

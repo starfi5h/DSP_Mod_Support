@@ -9,16 +9,27 @@ using System.Reflection;
 
 namespace SaveTheWindows
 {
+    public enum ESortOrder
+    {
+        NameAsc,
+        NameDesc,
+        DateAsc,
+        DateDesc,
+        SizeAsc,
+        SizeDesc
+    }
+
     [BepInPlugin(GUID, NAME, VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         public const string GUID = "starfi5h.plugin.SaveTheWindows";
         public const string NAME = "SaveTheWindows";
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.1.1";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
         public static ConfigEntry<string> SubFolder;
+        public static ConfigEntry<ESortOrder> SaveOrder;
         static Harmony harmony;
 
         public void Awake()
@@ -30,6 +41,8 @@ namespace SaveTheWindows
             var dragWindowOffset = Config.Bind("Config", "Enable Drag Window Offset", true, "允许窗口部分超出边框");
             var enableSaveSubfolder = Config.Bind("Config", "Enable Save Subfolder", true, "允许存档子文件夹功能");
             SubFolder = Config.Bind("Config", "Save Subfolder", "", "Name of the current subfolder\n当前存档子文件夹名称(空字串=原位置)");
+            SaveOrder = Config.Bind("Config", "Save Order", ESortOrder.NameAsc, "Sort order of save files.\n存档排序的方式");
+            SaveOrder.SettingChanged += (_, _) => SaveFolder_Patch.OnSaveOrderChange();
 
             harmony = new Harmony(GUID);
             if (saveWindowPosition.Value)

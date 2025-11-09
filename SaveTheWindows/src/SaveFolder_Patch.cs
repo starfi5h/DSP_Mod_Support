@@ -11,12 +11,79 @@ namespace SaveTheWindows
         static string subfolder = "";
         static GameObject group;
         static UIComboBox subfolderComboBox;
+        static UIComboBox orderComboBox;
 
         [HarmonyPostfix, HarmonyPatch(typeof(GameConfig), "gameSaveFolder", MethodType.Getter)]
         public static void GetGameSaveSubfolder(ref string __result)
         {
             if (string.IsNullOrEmpty(subfolder)) return;
-            __result = __result + "/" + subfolder + "/";
+            if (!__result.EndsWith("/")) __result += "/";
+            __result += subfolder + "/";
+        }
+
+        public static void OnOrderComboBoxIndexChange()
+        {
+            if (orderComboBox.itemIndex >= 0 && orderComboBox.itemIndex < orderComboBox.Items.Count)
+            {
+                Plugin.SaveOrder.Value = (ESortOrder)orderComboBox.itemIndex;
+                Plugin.Log.LogDebug("Change order to " + Plugin.SaveOrder.Value);
+            }
+        }
+
+        public static void OnSaveOrderChange()
+        {
+            if (UIRoot.instance.loadGameWindow.active) UIRoot.instance.loadGameWindow.RefreshList();
+            if (UIRoot.instance.saveGameWindow.active) UIRoot.instance.saveGameWindow.RefreshList();
+        }
+
+        [HarmonyPostfix, HarmonyPriority(Priority.Low)]
+        [HarmonyPatch(typeof(UILoadGameWindow), nameof(UILoadGameWindow.RefreshList))]
+        [HarmonyPatch(typeof(UISaveGameWindow), nameof(UISaveGameWindow.RefreshList))]
+        static void RefreshList(List<UIGameSaveEntry> ___entries)
+        {
+            if (Plugin.SaveOrder.Value == ESortOrder.NameAsc) return;
+
+            var list = new List<UIGameSaveEntry>();
+            for (var i = ___entries.Count - 1; i >= 0; i--)
+            {
+                var entry = ___entries[i];
+                if (entry.indexText.text != "")
+                {
+                    list.Add(entry);
+                    ___entries.RemoveAt(i);
+                }
+            }
+
+            switch (Plugin.SaveOrder.Value)
+            {
+                case ESortOrder.NameDesc:
+                    list.Sort((x, y) => string.Compare(x.fileInfo.Name, y.fileInfo.Name));
+                    break;
+
+                case ESortOrder.DateAsc:
+                    list.Sort((x, y) => DateTime.Compare(x.fileInfo.CreationTime, y.fileInfo.CreationTime));
+                    break;
+
+                case ESortOrder.DateDesc:
+                    list.Sort((x, y) => -DateTime.Compare(x.fileInfo.CreationTime, y.fileInfo.CreationTime));
+                    break;
+
+                case ESortOrder.SizeAsc:
+                    list.Sort((x, y) => (int)(x.fileInfo.Length - y.fileInfo.Length));
+                    break;
+
+                case ESortOrder.SizeDesc:
+                    list.Sort((x, y) => -(int)(x.fileInfo.Length - y.fileInfo.Length));
+                    break;
+            }
+
+            int index = ___entries.Count;
+            for (var displayIndex = 1; displayIndex <= list.Count; displayIndex++)
+            {
+                var entry = list[displayIndex - 1];
+                entry.SetEntry(++index, displayIndex, entry.fileInfo);
+                ___entries.Add(entry);
+            }
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(UIMainMenu), nameof(UIMainMenu._OnOpen))] //主選單開啟時, 初始化子資料夾選單UI
@@ -51,10 +118,25 @@ namespace SaveTheWindows
                 subfolderComboBox.DropDownCount = 25;
                 subfolderComboBox.itemIndex = 0;
 
-                RefreshComboBoxList();
-                subfolderComboBox.onItemIndexChange.AddListener(OnComboBoxIndexChange);
+                RefreshSubfolderComboBoxList();
+                subfolderComboBox.onItemIndexChange.AddListener(OnSubfolderComboBoxIndexChange);
                 SetGameSaveSubfolder(Plugin.SubFolder.Value);
                 Plugin.Log.LogDebug("UI Subfolder init");
+
+
+                var go2 = GameObject.Instantiate(go, group.transform, false);
+                go2.name = "Order ComboBox";
+                go2.transform.localPosition = new Vector3(320, 0, 0);
+
+                orderComboBox = go2.GetComponentInChildren<UIComboBox>();
+                orderComboBox.onItemIndexChange.RemoveAllListeners();
+                orderComboBox.DropDownCount = 6;
+                orderComboBox.Items.Clear();
+                orderComboBox.ItemsData.Clear();
+                orderComboBox.Items.AddRange(new string[] { "Name (Asc)", "Name (Desc)", "Date (Asc)", "Date (Desc)", "Size (Asc)", "Size (Desc)" });
+                orderComboBox.ItemsData.AddRange(new int[] { 0, 1, 2, 3, 4, 5 });
+                orderComboBox.itemIndex = (int)Plugin.SaveOrder.Value;
+                orderComboBox.onItemIndexChange.AddListener(OnOrderComboBoxIndexChange);
             }
             catch (Exception ex)
             {
@@ -74,7 +156,7 @@ namespace SaveTheWindows
                 group.transform.SetParent(__instance.showButton.transform.parent);
                 group.transform.localPosition = __instance.showButton.transform.localPosition + new Vector3(0, -45, 0);
                 group.transform.localScale = Vector3.one;
-                RefreshComboBoxList();
+                RefreshSubfolderComboBoxList();
             }
             catch (Exception ex)
             {
@@ -93,7 +175,7 @@ namespace SaveTheWindows
                 group.transform.SetParent(__instance.showButton.transform.parent);
                 group.transform.localPosition = __instance.showButton.transform.localPosition + new Vector3(0, -45, 0);
                 group.transform.localScale = Vector3.one;
-                RefreshComboBoxList();
+                RefreshSubfolderComboBoxList();
             }
             catch (Exception ex)
             {
@@ -125,7 +207,7 @@ namespace SaveTheWindows
             }
         }
 
-        public static void OnComboBoxIndexChange()
+        public static void OnSubfolderComboBoxIndexChange()
         {
             if (subfolderComboBox.itemIndex >= 0 && subfolderComboBox.itemIndex < subfolderComboBox.Items.Count)
             {
@@ -138,7 +220,7 @@ namespace SaveTheWindows
             }
         }
 
-        static void RefreshComboBoxList()
+        static void RefreshSubfolderComboBoxList()
         {
             subfolderComboBox.Items.Clear();
             subfolderComboBox.ItemsData.Clear();

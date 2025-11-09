@@ -34,6 +34,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\assemblies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\assemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>..\assemblies\UnityEngine.UIModule.dll</HintPath>
     </Reference>
