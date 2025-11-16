@@ -23,17 +23,23 @@ namespace FactoryLocator
         nameof(CustomKeyBindSystem), nameof(PickerExtensionsSystem))]
     public class Plugin : BaseUnityPlugin
     {
+#if DEBUG
+        public const string GUID = "starfi5h.plugin.FactoryLocator.test";
+#else
         public const string GUID = "starfi5h.plugin.FactoryLocator";
+#endif
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.3.10";
+        public const string VERSION = "1.3.11";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
+        public static ModConfig config;
         public static Harmony harmony;
 
         public void Awake()
         {
             Log.LogSource = Logger;
+            config = new ModConfig(Config);
             harmony = new(GUID);
             if (GameConfig.gameVersion < new Version(0, 10, 33))
             {
@@ -81,7 +87,10 @@ namespace FactoryLocator
             if (mainLogic == null)
             {
                 Log.Debug("Initing...");
-                mainLogic = new MainLogic();
+                mainLogic = new MainLogic
+                {
+                    RecordRecipeSignal = config.RecordRecipeSignal.Value
+                };
                 mainWindow = UILocatorWindow.CreateWindow();
                 NebulaCompat.Init();
                 DSPMoreRecipesCompat.Init();

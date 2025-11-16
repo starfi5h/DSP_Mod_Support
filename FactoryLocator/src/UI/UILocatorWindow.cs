@@ -178,7 +178,10 @@ namespace FactoryLocator.UI
         {
             if (!initialized)
             {
-                OnSignalPickReturn(401);
+                // Load the user config
+                OnSignalPickReturn(Plugin.config.SignalIconId.Value);
+                if (!Plugin.config.AutoClearQuery.Value)
+                    autoclearCheckBox.OnClick(0);
                 initialized = true;
             }
             SetText();
@@ -195,6 +198,10 @@ namespace FactoryLocator.UI
             UIentryCount.OnClose();
             NebulaCompat.OnClose();
             comboBox?.gameObject.SetActive(false);
+
+            // Save the user config
+            Plugin.config.SignalIconId.Value = Plugin.mainLogic.SignalId;
+            Plugin.config.AutoClearQuery.Value = autoclear_enable;
         }
 
         public void SetText()

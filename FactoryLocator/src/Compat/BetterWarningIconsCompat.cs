@@ -49,10 +49,11 @@ namespace FactoryLocator.Compat
         private static void SetIcon()
         {
             var signal = LDB.signals.Select(InsufficientInputSignalId);
-            signal._iconSprite = (Sprite)AccessTools.TypeByName("DysonSphereProgram.Modding.BetterWarningIcons.InsufficientInputIconPatch").GetField("iconSprite").GetValue(null);
             signal.Name = "Insufficient Input";
             signal.name = "Insufficient Input".Translate();
-            Log.Debug(signal.name);
+            // The icon spirte setter gets NRE error
+            //signal._iconSprite = (Sprite)AccessTools.TypeByName("DysonSphereProgram.Modding.BetterWarningIcons.InsufficientInputIconPatch").GetField("iconSprite").GetValue(null);
+            //Log.Debug(signal.name);
         }
     }
 }

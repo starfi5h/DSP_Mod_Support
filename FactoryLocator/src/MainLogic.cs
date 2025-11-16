@@ -7,6 +7,7 @@ namespace FactoryLocator
     public class MainLogic
     {
         public int SignalId { get; set; } = 401;
+        public bool RecordRecipeSignal { get; set; } = true;
 
         private readonly List<PlanetFactory> factories = new();
         private readonly Dictionary<int, int> filterIds = new();
@@ -646,20 +647,52 @@ namespace FactoryLocator
 
         public void RecordAllSignal()
         {
+            bool TryAddHash(int key, long value)
+            {
+                if (!hashDict.TryGetValue(key, out var hashIds))
+                {
+                    hashIds = new HashSet<long>();
+                    hashDict.Add(key, hashIds);
+                }
+                return hashIds.Add(value);
+            }
+
             foreach (var factory in factories)
             {
                 int cursor = factory.entityCursor;
                 for (int id = 1; id < cursor; id++)
                 {
-                    if (factory.entitySignPool[id].signType <= 0) continue;
-                    int key = (int)factory.entitySignPool[id].signType + 500;
+                    ref var entitySign = ref factory.entitySignPool[id];
+                    if (entitySign.signType <= 0) continue;
+                    int key = (int)entitySign.signType + 500;
                     long value = ((long)factory.index << 32) | ((long)id);
-                    if (!hashDict.TryGetValue(key, out var hashIds))
+                    if (TryAddHash(key, value) && entitySign.iconId0 > 0)
                     {
-                        hashIds = new HashSet<long>();
-                        hashDict.Add(key, hashIds);
+                        if (RecordRecipeSignal && entitySign.iconType < 3)
+                        {
+                            if ((ESignalType)entitySign.iconType == ESignalType.Recipe)
+                            {
+                                var recipeId = (int)entitySign.iconId0;
+                                var recipe = LDB.recipes.Select(recipeId);
+                                if (recipe == null) continue;
+                                if (recipe.hasIcon) //配方有專屬圖標
+                                {
+                                    key = SignalProtoSet.SignalId(ESignalType.Recipe, recipeId);
+                                    TryAddHash(key, value);
+                                }
+                                else if (recipe.Results.Length > 0) //配方有至少一個產物
+                                {
+                                    key = SignalProtoSet.SignalId(ESignalType.Item, recipe.Results[0]);
+                                    TryAddHash(key, value);
+                                }                                
+                            }
+                            else
+                            {
+                                key = SignalProtoSet.SignalId(ESignalType.Item, (int)entitySign.iconId0);
+                                TryAddHash(key, value);
+                            }
+                        }
                     }
-                    hashIds.Add(value);
                 }
 
                 cursor = factory.cargoTraffic.spraycoaterCursor;
@@ -675,12 +708,7 @@ namespace FactoryLocator
                     if (key == 0) continue;
 
                     long value = ((long)factory.index << 32) | ((long)sprayer.entityId);
-                    if (!hashDict.TryGetValue(key, out var hashIds))
-                    {
-                        hashIds = new HashSet<long>();
-                        hashDict.Add(key, hashIds);
-                    }
-                    hashIds.Add(value);
+                    TryAddHash(key, value);
                 }
             }
         }

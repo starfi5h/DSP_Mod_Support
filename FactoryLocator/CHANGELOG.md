@@ -1,5 +1,9 @@
 ## DSP 0.10.33
 
+### v1.3.11
+\- Remeber user settings in the config file.  
+\- Record mode now show recipe signal too (configurable).  
+
 ### v1.3.10
 \- Adapt to game version 0.10.33.26941. No longer work in 0.10.32 and below
 
