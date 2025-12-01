@@ -48,6 +48,7 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `RateFontSize`    | 26     | Adjust the font size of production rate. (Vanilla=18) |
 | `RefRateTweak`    | false  | The reference rate (maximum theoretical value) is always applied proliferator settings, regardless the material |
 | `RefRateMinerLimit`| 14400 | Set reference rate max limit for pump and oil extractor |
+| `ExcludeTrafficPeak` | false  | When calculating the height of a histogram, exclude peak values ​​from input and output |
 | Other | | |
 | `FoldButton`      | true   | Add a button in perforamnce test panel to fold pie chart |
 | `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
@@ -119,6 +120,7 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `RateFontSize`    | 26       | 生产速率和参考速率的字体大小(原版=18) |
 | `RefRateTweak`    | false    | 参考速率(最大理论值)一律套用增产剂设定，无论原料是否已喷涂 |
 | `RefRateMinerLimit`| 14400   | 為抽水機和油井的参考速率設定上限 |
+| `ExcludeTrafficPeak` | false  | 计算柱状图高度时, 排除输入和输出的峰值 |
 | Other | | |
 | `FoldButton`      | true     | 在性能面板加入一个折叠饼图的按钮 |
 | `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |

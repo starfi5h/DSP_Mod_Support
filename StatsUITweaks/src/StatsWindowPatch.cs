@@ -16,6 +16,7 @@ namespace StatsUITweaks
         public static bool DisplayPerSecond = false; //以秒顯示
         public static int RateFontSize = 26; //速率字型大小(不改=0 原版=18)
         public static bool ExtendGraph = false; //展開直方圖
+        public static bool ExcludeTrafficPeak = false; //計算柱狀圖高度時,排除輸入和輸出的峰值
 
         static bool initialized;
         static bool enable;
@@ -589,6 +590,9 @@ namespace StatsUITweaks
                         production /= 60;
                         consumption /= 60;
                     }
+                    // 懸浮詳細數據: >1000時顯示整數, <1000時顯示至小數2位
+                    __instance.productSpeedTip.description = ((production >= 1000.0) ? production.ToString("#,##0") : production.ToString("#,##0.#0"));
+                    __instance.consumeSpeedTip.description = ((consumption >= 1000.0) ? consumption.ToString("#,##0") : consumption.ToString("#,##0.#0"));
                 }
                 if (DisplayPerSecond) //每秒時, 使用自定義函數
                 {
@@ -742,6 +746,136 @@ namespace StatsUITweaks
                     }
                 }
             }
+
+
+
+            [HarmonyPrefix, HarmonyPatch(typeof(UIProductEntry), nameof(UIProductEntry.ComputePeak))]
+            static bool ComputePeak(UIProductEntry __instance, int firstColumnDataCount, ref long __result) //柱狀圖峰值計算
+            {
+                if (!ExcludeTrafficPeak) return true; //使用原版
+
+                long[] productDetail = __instance.entryData.productDetail;
+                long num = 0L;
+                if (__instance.productionStatWindow.isProductionTab || __instance.productionStatWindow.isDysonTab)
+                {
+                    long[] trafficDetail = __instance.entryData.trafficDetail;
+                    bool isProductionTab = __instance.productionStatWindow.isProductionTab && false; //唯一改動:峰值計算不含輸入輸出
+                    long num2 = 0L;
+                    int num3 = (isProductionTab ? (trafficDetail.Length - 1) : 0);
+                    int num4 = (isProductionTab ? (trafficDetail.Length / 2 - 1) : 0);
+                    int num6;
+                    if (firstColumnDataCount > 0)
+                    {
+                        int num5 = productDetail.Length - 1;
+                        num6 = productDetail.Length - firstColumnDataCount;
+                        for (int i = num5; i >= num6; i--)
+                        {
+                            num2 += productDetail[i];
+                        }
+                        if (isProductionTab)
+                        {
+                            num2 += trafficDetail[num3--];
+                        }
+                        if (num2 > num)
+                        {
+                            num = num2;
+                        }
+                        num2 = 0L;
+                        int num7 = productDetail.Length / 2 - 1;
+                        num6 = productDetail.Length / 2 - firstColumnDataCount;
+                        for (int j = num7; j >= num6; j--)
+                        {
+                            num2 += productDetail[j];
+                        }
+                        if (isProductionTab)
+                        {
+                            num2 += trafficDetail[num4--];
+                        }
+                        if (num2 > num)
+                        {
+                            num = num2;
+                        }
+                        num2 = 0L;
+                    }
+                    int num8 = 0;
+                    int num9 = productDetail.Length - firstColumnDataCount - 1;
+                    num6 = productDetail.Length / 2;
+                    for (int k = num9; k >= num6; k--)
+                    {
+                        num2 += productDetail[k];
+                        num8++;
+                        if (num8 == __instance.columnDataCount)
+                        {
+                            num8 = 0;
+                            if (isProductionTab)
+                            {
+                                num2 += trafficDetail[num3--];
+                            }
+                            if (num2 > num)
+                            {
+                                num = num2;
+                            }
+                            num2 = 0L;
+                        }
+                    }
+                    num2 = 0L;
+                    num8 = 0;
+                    int num10 = productDetail.Length / 2 - firstColumnDataCount - 1;
+                    num6 = 0;
+                    for (int l = num10; l >= num6; l--)
+                    {
+                        num2 += productDetail[l];
+                        num8++;
+                        if (num8 == __instance.columnDataCount)
+                        {
+                            num8 = 0;
+                            if (isProductionTab)
+                            {
+                                num2 += trafficDetail[num4--];
+                            }
+                            if (num2 > num)
+                            {
+                                num = num2;
+                            }
+                            num2 = 0L;
+                        }
+                    }
+                }
+                else
+                {
+                    int num11 = productDetail.Length;
+                    if (__instance.extraEntryData != null)
+                    {
+                        for (int m = 0; m < num11; m++)
+                        {
+                            long num12 = productDetail[m];
+                            for (int n = 0; n < __instance.extraEntryData.Length; n++)
+                            {
+                                num12 += __instance.extraEntryData[n].productDetail[m];
+                            }
+                            if (num12 > num)
+                            {
+                                num = num12;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int num13 = 0; num13 < num11; num13++)
+                        {
+                            long num14 = productDetail[num13];
+                            if (num14 > num)
+                            {
+                                num = num14;
+                            }
+                        }
+                    }
+                }
+
+                __result = num;
+                return false;
+            }
+
         }
     }
 }

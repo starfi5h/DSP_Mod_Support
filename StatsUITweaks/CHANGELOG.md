@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.11
+- Add config `ExcludeTrafficPeak`: When calculating the height of a histogram, exclude peak values ​​from input and output
+- 新增配置`ExcludeTrafficPeak`: 计算柱状图高度时, 排除输入和输出的峰值
+
 ## v1.6.10
 - Adapt to game version 0.10.33.26941.  
 
