@@ -85,6 +85,7 @@ namespace StatsUITweaks
             harmony.PatchAll(typeof(StatPlanPatch));
             if (TabSizeSwitch.Value)
                 harmony.PatchAll(typeof(UIChartPatch));
+            harmony.PatchAll(typeof(UIChartAstroItemProductionPatch));
 
             var harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(Block_Prefix)));
             if (HideLitterNotification.Value)
