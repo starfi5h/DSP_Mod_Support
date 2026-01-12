@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.12
+- Add production/consumption vs theoretical speed display to 1 * 1 and 2 * 1 dashboard layout (Credit to FyisFe)
+- 在 1 * 1 和 2 * 1 仪表盘布局中添加生产/消耗量与理论速度监控 (感谢FyisFe)
+
 ## v1.6.11
 - Add config `ExcludeTrafficPeak`: When calculating the height of a histogram, exclude peak values ​​from input and output
 - 新增配置`ExcludeTrafficPeak`: 计算柱状图高度时, 排除输入和输出的峰值

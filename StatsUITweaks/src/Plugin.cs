@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.11";
+        public const string VERSION = "1.6.12";
 
         public static ManualLogSource Log;
         static Harmony harmony;
