@@ -151,6 +151,10 @@ namespace ModFixerOne
             if (targetType.Methods.FirstOrDefault(m => m.Name == "GameTick") != null) return false;
 
             var gameTickMethod = targetType.AddMethod("GameTick", assembly.MainModule.TypeSystem.Void, new TypeReference[] { assembly.MainModule.TypeSystem.Int64 });
+            if (gameTickMethod.Parameters.Count > 0)
+            {
+                gameTickMethod.Parameters[0].Name = "time";
+            }
             ILProcessor ilProcessor = gameTickMethod.Body.GetILProcessor();
             ilProcessor.Emit(OpCodes.Ret);
 
@@ -192,5 +196,79 @@ namespace ModFixerOne
             return true;
         }
         */
+
+        internal static bool InputFieldReadOnly(AssemblyDefinition assembly)
+        {
+            var module = assembly.MainModule;
+
+            // 1. 尋找 InputField 類別
+            // 注意：如果 InputField 有 Namespace，請用 FullName 或篩選條件
+            var type = module.Types.FirstOrDefault(t => t.Name == "InputField");
+            if (type == null)
+            {
+                Console.WriteLine("Class 'InputField' not found.");
+                return false;
+            }
+
+            // 2. 檢查屬性是否已存在 (避免重複注入)
+            if (type.Properties.Any(p => p.Name == "readOnly"))
+            {
+                Console.WriteLine("Property 'readOnly' already exists.");
+                return false;
+            }
+
+            // 3. 獲取背後的欄位 m_ReadOnly (這是 getter/setter 操作的目標)
+            var backingField = type.Fields.FirstOrDefault(f => f.Name == "m_ReadOnly");
+            if (backingField == null)
+            {
+                Console.WriteLine("Field 'm_ReadOnly' not found. Cannot create property wrapper.");
+                return false;
+            }
+
+            // 準備型別引用
+            var boolType = module.TypeSystem.Boolean;
+            var voidType = module.TypeSystem.Void;
+
+            // 4. 定義屬性 (PropertyDefinition)
+            var property = new PropertyDefinition("readOnly", PropertyAttributes.None, boolType);
+
+            // 設定方法屬性: Public + SpecialName (表示這是屬性存取器) + HideBySig
+            var methodAttrs = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+
+            // --- 5. 建立 Getter (get_readOnly) ---
+            var getter = new MethodDefinition("get_readOnly", methodAttrs, boolType);
+            var getIL = getter.Body.GetILProcessor();
+
+            getIL.Emit(OpCodes.Ldarg_0);        // 載入 this
+            getIL.Emit(OpCodes.Ldfld, backingField); // 讀取 m_ReadOnly
+            getIL.Emit(OpCodes.Ret);            // 返回值
+
+            // --- 6. 建立 Setter (set_readOnly) ---
+            var setter = new MethodDefinition("set_readOnly", methodAttrs, voidType);
+            // Setter 需要一個參數 'value'
+            setter.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, boolType));
+            var setIL = setter.Body.GetILProcessor();
+
+            setIL.Emit(OpCodes.Ldarg_0);        // 載入 this
+            setIL.Emit(OpCodes.Ldarg_1);        // 載入 value (參數 1)
+            setIL.Emit(OpCodes.Stfld, backingField); // 寫入 m_ReadOnly
+            setIL.Emit(OpCodes.Ret);            // 返回
+
+            // --- 7. 綁定並加入類別 ---
+
+            // 將方法設為屬性的 Get/Set 方法
+            property.GetMethod = getter;
+            property.SetMethod = setter;
+
+            // 將方法加入類別的方法列表
+            type.Methods.Add(getter);
+            type.Methods.Add(setter);
+
+            // 將屬性加入類別的屬性列表
+            type.Properties.Add(property);
+
+            Console.WriteLine("Successfully injected property 'readOnly' into 'InputField'.");
+            return true;
+        }
     }
 }

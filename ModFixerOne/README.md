@@ -19,6 +19,7 @@ public StringProto
 void GameData.GameTick(long)
 ```
 Type forward for UnityEngine.CoreModule => UnityEngine.InputLegacyModule, so mods that using old Input system can find the reference.  
+Add property InputField.readOnly so UnityExplorer can work in game v0.10.34.  
   
 ## Support Mods
 
@@ -44,6 +45,7 @@ Move `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.
 
 ## Changelog
 
+v2.1.0 - Add property InputField.readOnly. (DSP0.10.34.28281)  
 v2.0.0 - Type forward UnityEngine.Input. Compatible to public-test version. (DSP0.10.33.26482)  
 v1.3.2 - Remove PersonalLogistics support. Add construction drones task points fix. (DSP0.10.29.21950)  
 v1.3.1 - Let ModFixerOne load first. Add Nebula multiplayer mod pre-release version support. (DSP0.10.28.21247)    

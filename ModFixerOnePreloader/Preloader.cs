@@ -14,7 +14,7 @@ namespace ModFixerOne
     public static class Preloader
     {
         public static ManualLogSource logSource = Logger.CreateLogSource("ModFixerOne Preloader");      
-        public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll", "UnityEngine.CoreModule.dll" };
+        public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll", "UnityEngine.CoreModule.dll", "UnityEngine.UI.dll" };
         public static IEnumerable<string> Guids; //Chainloader.PluginInfos will only added after successful load
 
         public static void Patch(AssemblyDefinition assembly)
@@ -28,6 +28,10 @@ namespace ModFixerOne
                 else if (assembly.Name.Name == "UnityEngine.CoreModule")
                 {
                     TypeForwardInput(assembly);
+                }
+                else if (assembly.Name.Name == "UnityEngine.UI")
+                {
+                    RestoreMissingUI(assembly);
                 }
                 else
                 {
@@ -114,6 +118,22 @@ namespace ModFixerOne
             catch (Exception e)
             {
                 logSource.LogError("Error when patching!");
+                logSource.LogError(e);
+            }
+        }
+
+        private static void RestoreMissingUI(AssemblyDefinition assembly)
+        {
+            try
+            {
+                if (Injection.InputFieldReadOnly(assembly))
+                {
+                    logSource.LogDebug("void InputField.readOnly");
+                }
+            }
+            catch (Exception e)
+            {
+                logSource.LogError("Error when patching UnityEngine.UI.dll!");
                 logSource.LogError(e);
             }
         }
