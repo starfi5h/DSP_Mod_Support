@@ -33,7 +33,10 @@ namespace StatsUITweaks
 
         public static void Init(UIStatisticsWindow __instance)
         {
-            if (initialized) return;
+            if (initialized)
+            {
+                return;
+            }
             initialized = true;
 
             try
@@ -73,35 +76,40 @@ namespace StatsUITweaks
                 Slider slider0 = UIRoot.instance.uiGame.dysonEditor.controlPanel.inspector.layerInfo.slider0;
                 GameObject inputObj = GameObject.Find("UI Root/Overlay Canvas/In Game/Windows/Control Panel Window/filter-group/sub-group/search-filter");
                 UIButton uIButton0 = UIRoot.instance.uiGame.researchQueue.pauseButton;
-                GameObject checkBoxWithTextTemple = UIRoot.instance.optionWindow.vsyncComp.transform.parent.gameObject;
+                GameObject checkBoxWithTextTemple = UIRoot.instance.loadGameWindow.loadSandboxGroup;
 
-                // 單位:每秒按鈕
-                perSecGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
-                perSecGo.name = "perSecGo";
-                perSecGo.transform.localPosition = new Vector3(0, 40, 0);
-                GameObject.Destroy(perSecGo.GetComponent<Localizer>());
-                text = perSecGo.GetComponent<Text>();
-                text.fontSize = 12;
-                text.text = "Display /s";
-                var toggle_perSec = perSecGo.GetComponentInChildren<UIToggle>().toggle;
-                toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnDisplayPerSecondToggleChange));
-                go = toggle_perSec.gameObject;
-                go.transform.localPosition = new Vector3(65, -5);
-                go.transform.localScale = new Vector3(0.60f, 0.60f);
+                if (GameConfig.gameVersion > new Version(0, 10, 33))
+                {
+                    // 單位:每秒按鈕
+                    perSecGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
+                    perSecGo.name = "perSecGo";
+                    perSecGo.transform.localPosition = new Vector3(20, 10, 0);
+                    perSecGo.SetActive(true);
+                    GameObject.Destroy(perSecGo.GetComponent<Localizer>());
+                    text = perSecGo.GetComponent<Text>();
+                    text.fontSize = 12;
+                    text.text = "Display /s";
+                    var toggle_perSec = perSecGo.GetComponentInChildren<UIToggle>().toggle;
+                    toggle_perSec.onValueChanged.AddListener(new UnityAction<bool>(OnDisplayPerSecondToggleChange));
+                    go = toggle_perSec.gameObject;
+                    go.transform.localScale = new Vector3(0.60f, 0.60f);
+                    go.transform.localPosition = new Vector3(-4, 27, 0);
 
-                // 展開直方圖
-                extendGraphGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
-                extendGraphGo.name = "extendGraphGo";
-                extendGraphGo.transform.localPosition = new Vector3(120, 40, 0);
-                GameObject.Destroy(extendGraphGo.GetComponent<Localizer>());
-                text = extendGraphGo.GetComponent<Text>();
-                text.fontSize = 12;
-                text.text = "Extend Graph";
-                var toggle_extendGraph = extendGraphGo.GetComponentInChildren<UIToggle>().toggle;
-                toggle_extendGraph.onValueChanged.AddListener(new UnityAction<bool>(OnExtendGraphToggleChange));
-                go = toggle_extendGraph.gameObject;
-                go.transform.localPosition = new Vector3(65, -5);
-                go.transform.localScale = new Vector3(0.60f, 0.60f);
+                    // 展開直方圖
+                    extendGraphGo = GameObject.Instantiate(checkBoxWithTextTemple, __instance.productNameInputField.transform);
+                    extendGraphGo.name = "extendGraphGo";
+                    extendGraphGo.transform.localPosition = new Vector3(145, 10, 0);
+                    extendGraphGo.SetActive(true);
+                    GameObject.Destroy(extendGraphGo.GetComponent<Localizer>());
+                    text = extendGraphGo.GetComponent<Text>();
+                    text.fontSize = 12;
+                    text.text = "Extend Graph";
+                    var toggle_extendGraph = extendGraphGo.GetComponentInChildren<UIToggle>().toggle;
+                    toggle_extendGraph.onValueChanged.AddListener(new UnityAction<bool>(OnExtendGraphToggleChange));
+                    go = toggle_extendGraph.gameObject;
+                    go.transform.localScale = new Vector3(0.60f, 0.60f);
+                    go.transform.localPosition = new Vector3(-4, 27, 0);
+                }
 
                 // 時間滑桿
                 go = GameObject.Instantiate(slider0.gameObject, __instance.productTimeBox.transform);
@@ -190,6 +198,9 @@ namespace StatsUITweaks
                 __instance.RefreshFilterTag();
                 __instance.ComputeDetailNextTick();
             }
+
+            if (perSecGo != null) perSecGo.transform.localPosition = new Vector3(20, 10, 0);
+            if (extendGraphGo != null) extendGraphGo.transform.localPosition = new Vector3(145, 10, 0);
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStatisticsWindow), nameof(UIStatisticsWindow._OnClose))]

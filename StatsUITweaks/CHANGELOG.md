@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.13 (DSP 0.10.34.28326)
+- Adapt to game version 0.10.34.28326  
+- 适配游戏版本0.10.34.28326  
+- Remove config `NumericPlanetNo` (Move to mod UITweaks)  
+- 移除配置`NumericPlanetNo` (移到mod UITweaks)  
+
 ## v1.6.12
 - Add production/consumption vs theoretical speed display to 1 * 1 and 2 * 1 dashboard layout (Credit to FyisFe)
 - 在 1 * 1 和 2 * 1 仪表盘布局中添加生产/消耗量与理论速度监控 (感谢FyisFe)
@@ -8,7 +14,7 @@
 - Add config `ExcludeTrafficPeak`: When calculating the height of a histogram, exclude peak values ​​from input and output
 - 新增配置`ExcludeTrafficPeak`: 计算柱状图高度时, 排除输入和输出的峰值
 
-## v1.6.10
+## v1.6.10 (DSP 0.10.33.26941)
 - Adapt to game version 0.10.33.26941.  
 
 ## v1.6.9

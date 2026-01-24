@@ -51,7 +51,6 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `ExcludeTrafficPeak` | false  | When calculating the height of a histogram, exclude peak values ​​from input and output |
 | Other | | |
 | `FoldButton`      | true   | Add a button in perforamnce test panel to fold pie chart |
-| `NumericPlanetNo` | false  | Convert planet no. from Roman numerals to numbers |
 | `HideLitterNotification` | false    | Don't show trash notification (still visable in Z mode) |
 | `HideSoilNotification` | false    | Don't show soil notification |
 
@@ -123,7 +122,6 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `ExcludeTrafficPeak` | false  | 计算柱状图高度时, 排除输入和输出的峰值 |
 | Other | | |
 | `FoldButton`      | true     | 在性能面板加入一个折叠饼图的按钮 |
-| `NumericPlanetNo` | false    | 将星球序号从罗马数字转为十进位数字 |
 | `HideLitterNotification` | false    | 隐藏平常模式的垃圾提示(Z模式仍可见) |
 | `HideSoilNotification` | false    | 隐藏沙土数量变动的提示 |
 

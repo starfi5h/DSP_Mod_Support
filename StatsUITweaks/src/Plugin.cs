@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.12";
+        public const string VERSION = "1.6.13";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -42,7 +42,7 @@ namespace StatsUITweaks
             var RefRateMinerLimit = Config.Bind("MainWindow", "RefRateMinerLimit", 14400, "Set reference rate max limit for pump and oil extractor\n為抽水機和油井的参考速率設定上限");
             var ExcludeTrafficPeak = Config.Bind("MainWindow", "ExcludeTrafficPeak", false, "When calculating the height of a histogram, exclude peak values ​​from input and output.\n计算柱状图高度时, 排除输入和输出的峰值");
 
-            var NumericPlanetNo = Config.Bind("Other", "NumericPlanetNo", false, "Convert planet no. from Roman numerals to numbers.\n将星球序号从罗马数字转为十进位数字");
+            
             var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
             var HideLitterNotification = Config.Bind("Other", "HideLitterNotification", false, "Don't show trash notification (still visable in Z mode)\n隐藏平常模式的垃圾提示(Z模式仍可见)");
             var HideSoilNotification = Config.Bind("Other", "HideSoilNotification", false, "Don't show soil notification\n隐藏沙土数量变动的提示");
@@ -66,8 +66,7 @@ namespace StatsUITweaks
 
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(StatsWindowPatch));
-            if (NumericPlanetNo.Value)
-                harmony.PatchAll(typeof(PlanetNamePatch));
+
             if (FoldButton.Value)
             {
                 if (GameConfig.gameVersion > new Version(0, 10, 32))
