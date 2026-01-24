@@ -62,7 +62,6 @@ Requrie [CommonAPI](https://dsp.thunderstore.io/package/CommonAPI/CommonAPI/) as
 ## Mod compatibility
 This mod is compat with the following mods:
 - [GenesisBook](https://dsp.thunderstore.io/package/HiddenCirno/GenesisBook/) v3.1.0  
-- [BetterWarningIcons](https://dsp.thunderstore.io/package/Raptor/BetterWarningIcons/) v0.0.5  
 
 ### Nebula multiplayer mod compat  
 The mod don't have to install on both host and client. Some behaviors will be different though.  

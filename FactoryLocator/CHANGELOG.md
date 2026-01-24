@@ -1,3 +1,8 @@
+## DSP 0.10.34
+
+### v1.3.12
+\- Adapt to game version 0.10.34.28326. No longer work in 0.10.33 and below  
+
 ## DSP 0.10.33
 
 ### v1.3.11
@@ -5,16 +10,16 @@
 \- Record mode now show recipe signal too (configurable).  
 
 ### v1.3.10
-\- Adapt to game version 0.10.33.26941. No longer work in 0.10.32 and below
+\- Adapt to game version 0.10.33.26941. No longer work in 0.10.32 and below  
+
+<details>
+<summary>Previous Changelog</summary>
 
 ## DSP 0.10.32
 
 ### v1.3.9
 \- Adapt to game version 0.10.32.25552  
 \- Add ray receiver warning: signal_lightning for continuous reciving < 99.9% and signal_no_fuel for no graviton lenses. Only available in Warning - All mode.  
-
-<details>
-<summary>Previous Changelog</summary>
 
 ## DSP 0.10.31
 

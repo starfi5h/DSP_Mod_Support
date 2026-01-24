@@ -49,6 +49,7 @@ namespace FactoryLocator.UI
         public void OpenWindow()
         {
             MyWindowCtl.OpenWindow(this);
+            if (windowTrans != null) windowTrans.sizeDelta = new Vector2(260f, 290f);
         }
 
         public override void _OnCreate()

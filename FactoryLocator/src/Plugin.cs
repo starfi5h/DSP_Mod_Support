@@ -29,7 +29,7 @@ namespace FactoryLocator
         public const string GUID = "starfi5h.plugin.FactoryLocator";
 #endif
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.3.11";
+        public const string VERSION = "1.3.12";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
@@ -41,9 +41,9 @@ namespace FactoryLocator
             Log.LogSource = Logger;
             config = new ModConfig(Config);
             harmony = new(GUID);
-            if (GameConfig.gameVersion < new Version(0, 10, 33))
+            if (GameConfig.gameVersion < new Version(0, 10, 34))
             {
-                Log.Error($"Skip due to game version < 0.10.33  Current:" + GameConfig.gameVersion);
+                Log.Error($"FactoryLocator v{VERSION} only works on game 0.10.34+ \n Current Game Version: {GameConfig.gameVersion}");
                 return;
             }
             harmony.PatchAll(typeof(WarningSystemPatch));

@@ -388,7 +388,7 @@ namespace FactoryLocator
                             continue;
 
                         // logic from UIAssemblerWindow.RefreshIncUIs. productive = 配方是否可以增產
-                        if (assembler.productive && !assembler.forceAccMode) // Extra products: CYAN
+                        if ((assembler.recipeExecuteData?.productive ?? false) && !assembler.forceAccMode) // Extra products: CYAN
                         {
                             if (mode == 2) continue;
                             if (filterColors.TryGetValue(assembler.recipeId, out var storeColor) && storeColor != CYAN)
@@ -435,7 +435,7 @@ namespace FactoryLocator
                             continue;
 
                         // logic from UILabWindow.RefreshIncUIs
-                        if (lab.productive && !lab.forceAccMode) // Extra products: CYAN
+                        if ((lab.recipeExecuteData?.productive ?? false) && !lab.forceAccMode) // Extra products: CYAN
                         {
                             if (mode == 2) continue;
                             if (filterColors.TryGetValue(lab.recipeId, out var storeColor) && storeColor != CYAN)
@@ -482,13 +482,17 @@ namespace FactoryLocator
             }
             else
             {
-                if (assembler.time >= assembler.timeSpend) //产物堆积 Product overflow
+                if (assembler.recipeExecuteData == null)
+                {
+                    return -1; // 沒有配方
+                }
+                if (assembler.time >= assembler.recipeExecuteData.timeSpend) //产物堆积 Product overflow
                 {
                     return 4;
                 }
-                for (int j = 0; j < assembler.requireCounts.Length; j++)
+                for (int j = 0; j < assembler.recipeExecuteData.requireCounts.Length; j++)
                 {
-                    if (assembler.served[j] < assembler.requireCounts[j])
+                    if (assembler.served[j] < assembler.recipeExecuteData.requireCounts[j])
                     {
                         return 3; //缺少原材料	Lack of material
                     }
@@ -505,13 +509,17 @@ namespace FactoryLocator
             }
             else
             {
-                if (lab.time >= lab.timeSpend) //产物堆积 Product overflow
+                if (lab.recipeExecuteData == null)
+                {
+                    return -1; // 沒有配方
+                }
+                if (lab.time >= lab.recipeExecuteData.timeSpend) //产物堆积 Product overflow
                 {
                     return 4;
                 }
-                for (int j = 0; j < lab.requireCounts.Length; j++)
+                for (int j = 0; j < lab.recipeExecuteData.requireCounts.Length; j++)
                 {
-                    if (lab.served[j] < lab.requireCounts[j])
+                    if (lab.served[j] < lab.recipeExecuteData.requireCounts[j])
                     {
                         return 3; //缺少原材料	Lack of material
                     }
