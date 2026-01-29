@@ -17,7 +17,7 @@ namespace RateMonitor
     {
         public const string GUID = "starfi5h.plugin.RateMonitor";
         public const string NAME = "RateMonitor";
-        public const string VERSION = "0.4.1";
+        public const string VERSION = "0.4.2";
 
         public static ManualLogSource Log;
         public static Plugin instance;

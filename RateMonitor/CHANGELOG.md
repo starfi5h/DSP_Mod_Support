@@ -1,7 +1,10 @@
 # Changelog
 
+## v0.4.2
+- Adpat to game version 0.10.34.28347. No longer supports 0.10.33 and below versions.  
+
 ## v0.4.1
-- Adapt to game version 0.10.33.26941. No longer supports 0.10.32 and below versions  
+- Adapt to game version 0.10.33.26941. No longer supports 0.10.32 and below versions.  
 
 ----
 

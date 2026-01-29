@@ -41,13 +41,13 @@ namespace RateMonitor.Model
             {
                 ref var ptr = ref factory.factorySystem.assemblerPool[entityData.assemblerId];
                 hashId |= (long)ptr.recipeId << 32;
-                if (ptr.productive && !ptr.forceAccMode) hashId = -hashId;
+                if ((ptr.recipeExecuteData?.productive ?? false) && !ptr.forceAccMode) hashId = -hashId;
             }
             else if (entityData.labId > 0)
             {
                 ref var ptr = ref factory.factorySystem.labPool[entityData.labId];
                 hashId |= (long)ptr.recipeId << 32;
-                if (ptr.productive && !ptr.forceAccMode) hashId = -hashId;
+                if ((ptr.recipeExecuteData?.productive ?? false) && !ptr.forceAccMode) hashId = -hashId;
             }
             else if (entityData.minerId > 0)
             {
@@ -95,7 +95,7 @@ namespace RateMonitor.Model
             {
                 ref var ptr = ref factory.factorySystem.assemblerPool[entityData.assemblerId];
                 recipeId = ptr.recipeId;
-                accMode = !(ptr.productive && !ptr.forceAccMode);
+                accMode = !((ptr.recipeExecuteData?.productive ?? false) && !ptr.forceAccMode);
                 incUsed = ptr.incUsed | forceInc;
                 if (!incUsed) incLevel = 0;
                 entityProcessor.CalculateRefSpeed(factory, entityData.id, this);
@@ -105,7 +105,7 @@ namespace RateMonitor.Model
             {
                 ref var ptr = ref factory.factorySystem.labPool[entityData.labId];
                 recipeId = ptr.recipeId;
-                accMode = !(ptr.productive && !ptr.forceAccMode);
+                accMode = !((ptr.recipeExecuteData?.productive ?? false) && !ptr.forceAccMode);
                 incUsed = ptr.incUsed | forceInc;
                 if (!incUsed) incLevel = 0;
                 entityProcessor.CalculateRefSpeed(factory, entityData.id, this);

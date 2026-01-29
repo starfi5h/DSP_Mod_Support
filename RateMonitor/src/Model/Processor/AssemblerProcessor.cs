@@ -10,26 +10,27 @@
 
             float incMul = 1f + (float)Cargo.incTableMilli[profile.incLevel];
             float accMul = 1f + (float)Cargo.accTableMilli[profile.incLevel];
-            if (ptr.requires != null && ptr.products != null)
+            if (ptr.recipeExecuteData != null)
             {
-                float baseSpeed = (3600f * ptr.speed) / ptr.timeSpend;
+                var recipeExecuteData = ptr.recipeExecuteData;
+                float baseSpeed = (3600f * ptr.speed) / recipeExecuteData.timeSpend;
                 float finalSpeed = baseSpeed;
                 if (profile.incUsed)
                 {
-                    finalSpeed = ((ptr.productive && !ptr.forceAccMode) ? finalSpeed : (finalSpeed * accMul));
+                    finalSpeed = ((recipeExecuteData.productive && !ptr.forceAccMode) ? finalSpeed : (finalSpeed * accMul));
                 }
-                for (int i = 0; i < ptr.requires.Length; i++)
+                for (int i = 0; i < recipeExecuteData.requires.Length; i++)
                 {
-                    profile.AddRefSpeed(ptr.requires[i], -finalSpeed * ptr.requireCounts[i]);
+                    profile.AddRefSpeed(recipeExecuteData.requires[i], -finalSpeed * recipeExecuteData.requireCounts[i]);
                 }
                 finalSpeed = baseSpeed;
                 if (profile.incUsed)
                 {
-                    finalSpeed = ((ptr.productive && !ptr.forceAccMode) ? (finalSpeed * incMul) : (finalSpeed * accMul));
+                    finalSpeed = ((recipeExecuteData.productive && !ptr.forceAccMode) ? (finalSpeed * incMul) : (finalSpeed * accMul));
                 }
-                for (int i = 0; i < ptr.products.Length; i++)
+                for (int i = 0; i < recipeExecuteData.products.Length; i++)
                 {
-                    profile.AddRefSpeed(ptr.products[i], finalSpeed * ptr.productCounts[i]);
+                    profile.AddRefSpeed(recipeExecuteData.products[i], finalSpeed * recipeExecuteData.productCounts[i]);
                 }
             }
         }
@@ -57,42 +58,49 @@
                 return;
             }
             ref var ptr = ref factory.factorySystem.assemblerPool[entityData.assemblerId];
+            var recipeExecuteData = ptr.recipeExecuteData;
+
+            if (recipeExecuteData == null) // 無配方
+            {
+                entityRecord.worksate = EWorkingState.Removed;
+                return;
+            }
 
             if (ptr.replicating) // 如果在運轉又被送來檢測, 那就是某個原料缺乏增產劑
             {
                 entityRecord.worksate = EWorkingState.LackInc;
-                for (int i = 0; i < ptr.requireCounts.Length; i++)
+                for (int i = 0; i < recipeExecuteData.requireCounts.Length; i++)
                 {
                     if (ptr.incServed[i] < ptr.served[i] * incLevel)
                     {
-                        entityRecord.itemId = ptr.requires[i];
+                        entityRecord.itemId = recipeExecuteData.requires[i];
                         break;
                     }
                 }
                 return;
             }
 
-            if (ptr.time >= ptr.timeSpend) // 产物堆积
+            if (ptr.time >= recipeExecuteData.timeSpend) // 产物堆积
             {
                 entityRecord.worksate = EWorkingState.Full;
 
-                if (ptr.products.Length == 0)
+                if (recipeExecuteData.products.Length == 0)
                     return;
-                if (ptr.products.Length == 1)
+                if (recipeExecuteData.products.Length == 1)
                 {
-                    entityRecord.itemId = ptr.products[0];
+                    entityRecord.itemId = recipeExecuteData.products[0];
                     return;
                 }
 
                 // 在有多個產物時，需要找出是那一個產物堆積了
-                int productLength = ptr.products.Length;
+                int productLength = recipeExecuteData.products.Length;
                 if (ptr.recipeType == ERecipeType.Assemble)
                 {
                     for (int i = 0; i < productLength; i++)
                     {
-                        if (ptr.produced[i] > ptr.productCounts[i] * 9)
+                        if (ptr.produced[i] > recipeExecuteData.productCounts[i] * 9)
                         {
-                            entityRecord.itemId = ptr.products[i];
+                            entityRecord.itemId = recipeExecuteData.products[i];
                             return;
                         }
                     }
@@ -101,18 +109,18 @@
                 {
                     for (int i = 0; i < productLength; i++)
                     {
-                        if (ptr.produced[i] + ptr.productCounts[i] > 100)
+                        if (ptr.produced[i] + recipeExecuteData.productCounts[i] > 100)
                         {
-                            entityRecord.itemId = ptr.products[i];
+                            entityRecord.itemId = recipeExecuteData.products[i];
                             return;
                         }
                     }
                 }
                 for (int i = 0; i < productLength; i++)
                 {
-                    if (ptr.produced[i] > ptr.productCounts[i] * 19)
+                    if (ptr.produced[i] > recipeExecuteData.productCounts[i] * 19)
                     {
-                        entityRecord.itemId = ptr.products[i];
+                        entityRecord.itemId = recipeExecuteData.products[i];
                         return;
                     }
                 }
@@ -121,11 +129,11 @@
             else // 缺少原材料
             {
                 entityRecord.itemId = 0;
-                for (int i = 0; i < ptr.requireCounts.Length; i++)
+                for (int i = 0; i < recipeExecuteData.requireCounts.Length; i++)
                 {
-                    if (ptr.served[i] < ptr.requireCounts[i])
+                    if (ptr.served[i] < recipeExecuteData.requireCounts[i])
                     {
-                        entityRecord.itemId = ptr.requires[i];
+                        entityRecord.itemId = recipeExecuteData.requires[i];
                         break;
                     }
                 }
