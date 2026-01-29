@@ -1,7 +1,7 @@
 {
   "name": "ModFixerOne",
-  "description": "Repair TypeLoadException of UnityEngine.Input for outdated mods in game version 0.10.33. Remove process filters of old mods. (适配测试版)模组修理器-修复API,使一些旧的mod可以在新版本中使用",
-  "version_number": "2.1.0",
+  "description": "Repair TypeLoadException of UnityEngine.Input and KeyNotFoundException for old mods in game version 0.10.34. Remove process filters of old mods. 模组修理器-修复API,使一些旧的mod可以在新版本(0.10.34)中使用",
+  "version_number": "2.1.1",
   "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
   "dependencies": [ "xiaoye97-BepInEx-5.4.17" ]
 }

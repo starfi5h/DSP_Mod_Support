@@ -37,17 +37,6 @@ namespace ModFixerOne
             }
         }
 
-        //[HarmonyPostfix, HarmonyPatch(typeof(UIOptionWindow), "_Init")]
-        public static void CopyUIComponents(UIOptionWindow __instance)
-        {
-            var fi = AccessTools.Field(typeof(UIOptionWindow), "fullscreenComp");
-            if (fi == null) return;
-            UIToggle toggle = GameObject.Instantiate(__instance.vsyncComp, __instance.vsyncComp.transform.parent);
-            toggle.transform.localPosition = new Vector3(-300, -300);
-            fi.SetValue(__instance, toggle);
-            Plugin.Log.LogDebug("Copy UIOptionWindow.vsyncComp to fullscreenComp");
-        }
-
         public static IEnumerable<CodeInstruction> UIInventory_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -63,7 +52,7 @@ namespace ModFixerOne
             }
             catch (Exception e)
             {
-                Plugin.Log.LogWarning("UIInventory_Transpiler fail!");
+                Plugin.Log.LogWarning("UIInventory_Transpiler fail!\n" + e);
 #if DEBUG
                 Plugin.Log.LogWarning(e);
 #endif

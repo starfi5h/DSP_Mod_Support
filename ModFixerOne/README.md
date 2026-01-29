@@ -1,6 +1,6 @@
 # Mod Fixer One
 
-1. Make some outdated mods to work on the new multithreading system game version. (0.10.33+)  
+1. Make some outdated mods to work on the new multithreading system game version. (0.10.34+)  
 2. Remove process filter of plugins that block Microsoft Store version.  
 This solves `[Warning:BepInEx] Skipping ... because of process filters (DSPGAME.exe)` that prevent the mods from loading.  
 3. Fix for save that has mecha upgrade drone task points exceeding vanilla limit 4, which causes an error in `ConstructionModuleComponent.InsertBuildTarget`.  
@@ -23,13 +23,16 @@ Add property InputField.readOnly so UnityExplorer can work in game v0.10.34.
   
 ## Support Mods
 
+### [LDBTool](https://thunderstore.io/c/dyson-sphere-program/p/xiaoye97/LDBTool/) v3.0.1  
+- (0.10.33) Fix `TypeLoadException: Could not resolve type with token 0100002d from typeref (expected class 'UnityEngine.Input' in assembly 'UnityEngine.CoreModule`  
+- (0.10.34) Fix `KeyNotFoundException: The given key was not present in the dictionary.` at AssemblerComponent.SetRecipe() when setting mod recipes in assembler window.  
+
+### [UnityExplorer](https://thunderstore.io/c/dyson-sphere-program/p/sinai-dev/UnityExplorer/) v4.8.2
+- (0.10.34) Fix `MissingMethodException: Method not found: void UnityEngine.UI.InputField.set_readOnly(bool)` when loading.  
+
 ### [AutoStationConfig](https://dsp.thunderstore.io/package/Pasukaru/AutoStationConfig/) v1.4.0  
 - Fix `MissingMethodExcpetion: void PlanetTransport.Refresh(int)` when loading. ([#19](https://github.com/Pasukaru/DSP-Mods/issues/19))  
 You can also use the [UXAssist](https://thunderstore.io/c/dyson-sphere-program/p/soarqin/UXAssist/) by soarqin for more features.   
-
-### [LDBTool](https://thunderstore.io/c/dyson-sphere-program/p/xiaoye97/LDBTool/) v3.0.1  
-- Fix `TypeLoadException: Could not resolve type with token 0100002d from typeref (expected class 'UnityEngine.Input' in assembly 'UnityEngine.CoreModule`  
-It can now run on the public-test branch version (0.10.33.x).  
   
 Some other mods are fixed too. Check the wiki in this mod page for more detail!
 
@@ -45,6 +48,7 @@ Move `plugins/ModFixerOne.dll` file into `BepInEx/plugins/`folder.
 
 ## Changelog
 
+v2.1.1 - Fix KeyNotFoundException at AssemblerComponent.SetRecipe() by calling InitRecipeItems at the end of loading. (DSP0.10.34.28347)  
 v2.1.0 - Add property InputField.readOnly. (DSP0.10.34.28281)  
 v2.0.0 - Type forward UnityEngine.Input. Compatible to public-test version. (DSP0.10.33.26482)  
 v1.3.2 - Remove PersonalLogistics support. Add construction drones task points fix. (DSP0.10.29.21950)  
