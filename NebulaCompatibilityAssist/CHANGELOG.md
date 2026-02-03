@@ -1,5 +1,14 @@
 # Changelog
 
+## Game version 0.10.34
+
+#### v0.5.1 (Nebula 0.9.20)
+- Update PlanetFinder v1.2.3 compat: Fix client error in lobby  
+- Update Auxilaryfunction v3.0.4 compat
+- Fix station auto config doesn't sync advanced miner collecting speed correctly
+- Tempoaray remove AssemblerVerticalConstruction support
+- Add Weaver to incompatible mod list  
+
 ## Game version 0.10.33
 
 #### v0.5.0 (Nebula 0.9.18)

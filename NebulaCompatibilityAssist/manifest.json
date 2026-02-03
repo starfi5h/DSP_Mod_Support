@@ -1,7 +1,7 @@
 {
     "name": "NebulaCompatibilityAssist",
     "description": "Extension to hotfix Nebula multiplayer mod and improve compatibility with other mods. 联机补丁 - 修复联机mod与其它mod的兼容性与同步",
-    "version_number": "0.5.0",
+    "version_number": "0.5.1",
     "website_url": "https://github.com/starfi5h/DSP_Mod_Support",
-    "dependencies": [ "xiaoye97-BepInEx-5.4.17", "nebula-NebulaMultiplayerMod-0.9.18", "CommonAPI-DSPModSave-1.2.2"]
+    "dependencies": [ "xiaoye97-BepInEx-5.4.17", "nebula-NebulaMultiplayerMod-0.9.20", "CommonAPI-DSPModSave-1.2.2"]
 }

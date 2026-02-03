@@ -13,7 +13,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "Auxilaryfunction";
         public const string GUID = "cn.blacksnipe.dsp.Auxilaryfunction";
-        public const string VERSION = "2.5.3";
+        public const string VERSION = "3.0.4";
 
         private static ConfigEntry<bool> stationcopyItem_bool; // 物流站复制物品配方
         private static ConfigEntry<bool> auto_supply_station; // 自动配置新运输站
@@ -26,9 +26,16 @@ namespace NebulaCompatibilityAssist.Patches
 
             try
             {
-                Type classType = assembly.GetType("Auxilaryfunction.Auxilaryfunction");
+                // -- 配置菜单 --
+                Type classType = assembly.GetType("Auxilaryfunction.AuxConfig");
+                Log.Debug(classType);
                 stationcopyItem_bool = (ConfigEntry<bool>)AccessTools.Field(classType, "stationcopyItem_bool").GetValue(pluginInfo.Instance);
                 auto_supply_station = (ConfigEntry<bool>)AccessTools.Field(classType, "auto_supply_station").GetValue(pluginInfo.Instance);
+
+
+                // -- 物流相关功能服务 --
+                classType = assembly.GetType("Auxilaryfunction.Services.LogisticsService");
+                Log.Debug(classType);
 
                 // 填充當前星球飛機,飛船,翹曲器
                 harmony.Patch(AccessTools.Method(classType, "AddDroneShipToStation"), null,
@@ -46,8 +53,11 @@ namespace NebulaCompatibilityAssist.Patches
                 harmony.Patch(AccessTools.Method(classType, "AddFuelToAllStar"), null,
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("AddfueltoallStar_Postfix")));
 
-                // 自動配置新運輸站
+                // -- Patch --
                 classType = assembly.GetType("Auxilaryfunction.AuxilaryfunctionPatch");
+                Log.Debug(classType);
+
+                // 自動配置新運輸站                
                 harmony.Patch(AccessTools.Method(classType, "NewStationComponentPatch"),
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("NewStationComponent_Prefix")),
                     new HarmonyMethod(typeof(Auxilaryfunction).GetMethod("NewStationComponent_Postfix")));

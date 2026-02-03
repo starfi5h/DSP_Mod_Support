@@ -15,7 +15,7 @@ namespace NebulaCompatibilityAssist.Patches
     {
         public const string NAME = "PlanetFinder";
         public const string GUID = "com.hetima.dsp.PlanetFinder";
-        public const string VERSION = "1.1.3";
+        public const string VERSION = "1.2.3";
         public static bool Enable { get; private set; }
 
 
@@ -53,10 +53,10 @@ namespace NebulaCompatibilityAssist.Patches
                 // Show power network information on client
                 harmony.Patch(classType.GetMethod("RefreshValues"), null, new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("RefreshValues_Postfix")));
 
-                classType = assembly.GetType("PlanetFinderMod.PLFN+Patch");
-                harmony.Patch(classType.GetMethod("UIPlanetDetail_RefreshDynamicProperties"), new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("UIPlanetDetail_RefreshDynamicProperties_Prefix")));
+                classType = assembly.GetType("PlanetFinderMod.PLFN");
+                harmony.Patch(classType.GetMethod("IsFavPlanet"), new HarmonyMethod(typeof(PlanetFinder_Patch).GetMethod("IsFavPlanet_Prefix")));
 
-                Log.Info($"{NAME} - OK");
+                Log.Info($"{NAME} - OK (last support: {VERSION})");
             }
             catch (Exception e)
             {
@@ -145,10 +145,10 @@ namespace NebulaCompatibilityAssist.Patches
             return false;
         }
 
-        public static bool UIPlanetDetail_RefreshDynamicProperties_Prefix()
+        public static bool IsFavPlanet_Prefix(PlanetData planetData, ref bool __result)
         {
-            // Skip when it is in multiplayer lobby
-            return !NebulaModAPI.IsMultiplayerActive || NebulaModAPI.MultiplayerSession.IsGameLoaded;
+            __result = planetData != null;
+            return planetData != null;
         }
     }
 }

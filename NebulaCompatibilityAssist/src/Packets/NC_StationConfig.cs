@@ -39,13 +39,16 @@ namespace NebulaCompatibilityAssist.Packets
 
             for (int i = 0; i < length; i++)
             {
+                // https://github.com/soarqin/DSP_Mods/blob/master/UXAssist/Patches/LogisticsPatch.cs
+                // DoConfigStation
                 if (stations[i] != null)
                 {
                     StationComponent station = stations[i];
                     
                     StationIds[i] = station.id;
-                    if (!station.isCollector && !station.isVeinCollector)
-                        MaxChargePower[i] = factory.powerSystem.consumerPool[station.pcId].workEnergyPerTick;
+                    if (station.isCollector) continue;
+                    
+                    MaxChargePower[i] = factory.powerSystem.consumerPool[station.pcId].workEnergyPerTick;
                     MaxTripDrones[i] = station.tripRangeDrones;
                     MaxTripVessel[i] = station.tripRangeShips;
                     MinDeliverDrone[i] = station.deliveryDrones;
@@ -55,7 +58,12 @@ namespace NebulaCompatibilityAssist.Packets
                     IncludeCollectors[i] = station.includeOrbitCollector;
                     PilerCount[i] = station.pilerCount;
                     if (station.isVeinCollector)
-                        MaxMiningSpeed[i] = factory.factorySystem.minerPool[station.minerId].speed;
+                    {
+                        /* station.minerId is not set at this point, so we need to fetch the minerId from the EntityData */
+                        ref var entity = ref factory.entityPool[station.entityId];
+                        MaxMiningSpeed[i] = factory.factorySystem.minerPool[entity.minerId].speed;
+                        Log.Debug($"Advance Miner [{i}]: minerId:{entity.minerId} mining speed {(MaxMiningSpeed[i] / 100f).ToString("0")}%");
+                    }
                 }
             }
         }
@@ -81,9 +89,9 @@ namespace NebulaCompatibilityAssist.Packets
                     Log.Warn($"Station {i} doesn't exist!");
                     continue;
                 }
+                if (station.isCollector) continue;
 
-                if (!station.isCollector && !station.isVeinCollector)
-                    factory.powerSystem.consumerPool[station.pcId].workEnergyPerTick = packet.MaxChargePower[i];
+                factory.powerSystem.consumerPool[station.pcId].workEnergyPerTick = packet.MaxChargePower[i];
                 station.tripRangeDrones = packet.MaxTripDrones[i];
                 station.tripRangeShips = packet.MaxTripVessel[i];
                 station.deliveryDrones = packet.MinDeliverDrone[i];
@@ -93,7 +101,11 @@ namespace NebulaCompatibilityAssist.Packets
                 station.includeOrbitCollector = packet.IncludeCollectors[i];
                 station.pilerCount = packet.PilerCount[i];
                 if (station.isVeinCollector)
-                    factory.factorySystem.minerPool[station.minerId].speed = packet.MaxMiningSpeed[i];
+                {                    
+                    ref var entity = ref factory.entityPool[station.entityId];
+                    factory.factorySystem.minerPool[entity.minerId].speed = packet.MaxMiningSpeed[i];
+                    Log.Debug($"Advance Miner [{i}]: minerId:{entity.minerId} mining speed {(packet.MaxMiningSpeed[i] / 100f).ToString("0")}%");
+                }
             }
 
             // Refresh station window if it is veiwing the changing factory

@@ -44,7 +44,6 @@ namespace NebulaCompatibilityAssist.Patches
             Auxilaryfunction.Init(harmony);
             UXAssist_Patch.Init(harmony);
             Dustbin.Init(harmony);
-            DSPOptimizations.Init(harmony);
             SphereOpt_Patch.Init(harmony);
             FactoryLocator_Patch.Init(harmony);
             SplitterOverBelt.Init(harmony);
@@ -52,15 +51,12 @@ namespace NebulaCompatibilityAssist.Patches
                 MoreMegaStructure.Init(harmony);
             //BlueprintTweaks.Init(harmony);
             DSPAutoSorter.Init(harmony);
-            if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
-                AssemblerVerticalConstruction.Init(harmony);
+            //if (config.Bind("Sync Patch", "AssemblerVerticalConstruction", true, "Enable patching AssemblerVerticalConstruction").Value)
+            //    AssemblerVerticalConstruction.Init(harmony);
             //if (config.Bind("Sync Patch", "GenesisBook", true, "Enable patching GenesisBook").Value)
             //    GenesisBook_Patch.Init(harmony);
             if (config.Bind("Sync Patch", "DSP_Battle", true, "Enable patching TheyComeFromVoid").Value)
                 DSP_Battle_Patch.Init(harmony);
-            
-
-
             //GalacticScale_Patch.Init(harmony);
             NebulaHotfix.Init(harmony);
 
@@ -135,7 +131,12 @@ namespace NebulaCompatibilityAssist.Patches
             {
                 incompatMessage += "DSP Belt Reverse\n";
                 count++;
-            }            
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Weaver"))
+            {
+                incompatMessage += "Weaver\n";
+                count++;
+            }
             return count > 0;
         }
 

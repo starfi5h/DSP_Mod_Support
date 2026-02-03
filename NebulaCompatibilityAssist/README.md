@@ -1,6 +1,6 @@
 # Nebula Compatibility Assist
 
-Nebula 0.9.18 known issue:  
+Nebula 0.9.20 known issue:  
 - Wireless power chargers don't sync when charging mecha.  
 
 [Spreadsheet for Nebula compatible mods list](https://docs.google.com/spreadsheets/d/16bq5RQfjpNnDt4QGPtPp1U17lmx74EIzCzhuEG7sj6k/edit#gid=373515568)  
@@ -27,8 +27,6 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [DSPFreeMechaCustom](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPFreeMechaCustom/)
 - Free mecha appearance now sync correctly.  
 
-### [DSPOptimizations](https://thunderstore.io/c/dyson-sphere-program/p/Selsion/DSPOptimizations/)
-- Fix client crash when leaving a system.  
 
 ### [DSPStarMapMemo](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPStarMapMemo/)
 - Memo now sync when players add/remove icons, or finish editing text area.  
@@ -111,8 +109,6 @@ DSPAutoSorter.DSPAutoSorter.UIStorageWindow_OnOpen_Postfix (UIStorageWindow __in
 ### [DSPFreeMechaCustom](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPFreeMechaCustom/)
 - 同步免费的机甲外观  
 
-### [DSPOptimizations](https://thunderstore.io/c/dyson-sphere-program/p/Selsion/DSPOptimizations/)
-- 修复客户端离开星系会使游戏崩溃的错误  
 
 ### [DSPStarMapMemo](https://thunderstore.io/c/dyson-sphere-program/p/appuns/DSPStarMapMemo/)
 - 同步星球註記  
