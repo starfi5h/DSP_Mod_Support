@@ -154,10 +154,13 @@ namespace FactoryLocator
                 return;
             }
 #endif
-            if (mainWindow != null && mainWindow.active)
+            if (mainWindow != null)
             {
                 mainWindow._OnUpdate();
-                if (VFInput.escape)
+                var parent = mainWindow.transform.parent;
+                var lastIndex = parent.transform.childCount - 1;
+                var isTopAndActive = mainWindow.transform.parent.GetChild(lastIndex) == mainWindow.transform && mainWindow.active;
+                if (isTopAndActive && VFInput.escape)
                 {
                     // When still in picking, close the picking window first
                     if (!UIentryCount.Active)
