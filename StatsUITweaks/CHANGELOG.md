@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.14 (DSP 0.10.34.28487)
+- 修正勾选框下有多余黄字的问题  
+- Fixed the issue of extra yellow text under the checkbox  
+
 ## v1.6.13 (DSP 0.10.34.28326)
 - Adapt to game version 0.10.34.28326  
 - 适配游戏版本0.10.34.28326  

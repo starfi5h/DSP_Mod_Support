@@ -86,6 +86,7 @@ namespace StatsUITweaks
                     perSecGo.transform.localPosition = new Vector3(20, 10, 0);
                     perSecGo.SetActive(true);
                     GameObject.Destroy(perSecGo.GetComponent<Localizer>());
+                    perSecGo.transform.Find("tips")?.gameObject.SetActive(false);
                     text = perSecGo.GetComponent<Text>();
                     text.fontSize = 12;
                     text.text = "Display /s";
@@ -101,6 +102,7 @@ namespace StatsUITweaks
                     extendGraphGo.transform.localPosition = new Vector3(145, 10, 0);
                     extendGraphGo.SetActive(true);
                     GameObject.Destroy(extendGraphGo.GetComponent<Localizer>());
+                    extendGraphGo.transform.Find("tips")?.gameObject.SetActive(false);
                     text = extendGraphGo.GetComponent<Text>();
                     text.fontSize = 12;
                     text.text = "Extend Graph";
