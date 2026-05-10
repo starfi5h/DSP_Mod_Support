@@ -41,6 +41,7 @@ To reset saved window position, delete the config file.
 `Save Order`: 存档排序的方式  
 
 ## ChangeLogs
+- v1.1.2: Fix ordering by save last edit time. (DSP 0.10.34.28529)  
 - v1.1.1: Add save order function. (DSP 0.10.33.27026)
 - v1.1.0: Add save subfolder function. (DSP 0.10.31.24710)
 - v1.0.0: Initial released. (DSP 0.10.30.23430)  

@@ -57,15 +57,15 @@ namespace SaveTheWindows
             switch (Plugin.SaveOrder.Value)
             {
                 case ESortOrder.NameDesc:
-                    list.Sort((x, y) => string.Compare(x.fileInfo.Name, y.fileInfo.Name));
+                    list.Sort((x, y) => -string.Compare(x.fileInfo.Name, y.fileInfo.Name));
                     break;
 
                 case ESortOrder.DateAsc:
-                    list.Sort((x, y) => DateTime.Compare(x.fileInfo.CreationTime, y.fileInfo.CreationTime));
+                    list.Sort((x, y) => DateTime.Compare(x.fileInfo.LastWriteTime, y.fileInfo.LastWriteTime));
                     break;
 
                 case ESortOrder.DateDesc:
-                    list.Sort((x, y) => -DateTime.Compare(x.fileInfo.CreationTime, y.fileInfo.CreationTime));
+                    list.Sort((x, y) => -DateTime.Compare(x.fileInfo.LastWriteTime, y.fileInfo.LastWriteTime));
                     break;
 
                 case ESortOrder.SizeAsc:

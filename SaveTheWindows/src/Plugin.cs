@@ -24,7 +24,7 @@ namespace SaveTheWindows
     {
         public const string GUID = "starfi5h.plugin.SaveTheWindows";
         public const string NAME = "SaveTheWindows";
-        public const string VERSION = "1.1.1";
+        public const string VERSION = "1.1.2";
 
         public static ManualLogSource Log;
         public static ConfigFile ConfigFile;
