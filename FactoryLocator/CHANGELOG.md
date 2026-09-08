@@ -1,5 +1,10 @@
 ## DSP 0.10.34
 
+### v1.3.13
+
+\- Repair corrupted warning recycle state before creating query warnings.
+\- Use DSP's warning allocation and removal APIs instead of manipulating pool capacity directly.
+
 ### v1.3.12
 \- Adapt to game version 0.10.34.28326. No longer work in 0.10.33 and below  
 

@@ -29,7 +29,7 @@ namespace FactoryLocator
         public const string GUID = "starfi5h.plugin.FactoryLocator";
 #endif
         public const string NAME = "FactoryLocator";
-        public const string VERSION = "1.3.12";
+        public const string VERSION = "1.3.13";
 
         public static UILocatorWindow mainWindow = null;
         public static MainLogic mainLogic = null;
