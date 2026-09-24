@@ -17,8 +17,6 @@ Adds QoL features to the statistics panel.
 - PageUp/PageDown to go to the next item on the list. Ctrl + PageUp/PageDown to go to the next system.  
 - Left-click the navigate button to navigate to the select planet. Right-click to show it in starmap. Show astroId and index of factory in the button tip.  
 
-![controlPanel](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/controlPanel.png)  
-- Support astro list rich text and hotkey in Logistics Control Panel (I) too.  
 - Prevent windows from closing when opening dashboard.
 - Prevent control panel from closing when pressing E key.
 

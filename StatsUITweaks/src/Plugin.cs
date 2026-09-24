@@ -16,7 +16,7 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.14";
+        public const string VERSION = "1.6.15";
 
         public static ManualLogSource Log;
         static Harmony harmony;
@@ -75,7 +75,7 @@ namespace StatsUITweaks
                     harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
                 }
             }
-            harmony.PatchAll(typeof(UIControlPanelPatch));
+            //harmony.PatchAll(typeof(UIControlPanelPatch));
             harmony.PatchAll(typeof(StatsWindowPatch.Entry_Patch));
 
             RefProductSpeedPatch.Init(harmony, RefRateTweak.Value, RefRateMinerLimit.Value);

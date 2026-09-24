@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.15 (DSP 0.10.35.29088)
+- Temporarily remove extensions to control panel
+- 暂时移除在物流总控面板的相关扩展功能
+
+----
+
 ## v1.6.14 (DSP 0.10.34.28487)
 - 修正勾选框下有多余黄字的问题  
 - Fixed the issue of extra yellow text under the checkbox  

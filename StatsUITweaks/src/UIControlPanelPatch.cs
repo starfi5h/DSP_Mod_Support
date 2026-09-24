@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿/*
+using HarmonyLib;
 
 namespace StatsUITweaks
 {
@@ -41,3 +42,4 @@ namespace StatsUITweaks
         }
     }
 }
+*/
