@@ -19,6 +19,7 @@ namespace RateMonitor.Model
         // 電力設施選項
         public static bool IncludeFuelGenerator { get; private set; } = true; // 包含燃料發電機
         public static bool ForceGammaCatalyst { get; private set; } // 是否要強制套用透鏡
+        public static bool UseDarkFogLens { get; private set; } // 是否使用黑霧透鏡
 
         // UI選項
         public static int CountMultiplier { get; set; } // 機器個數倍率
@@ -35,6 +36,7 @@ namespace RateMonitor.Model
             ForceInc = ModSettings.ForceInc.Value;
             IncLevel = ModSettings.IncLevel.Value;
             ForceGammaCatalyst = ModSettings.ForceLens.Value;
+            UseDarkFogLens = ModSettings.UseDarkFogLens.Value;
 
             if (IncLevel < 0 || IncLevel > 10)
             {

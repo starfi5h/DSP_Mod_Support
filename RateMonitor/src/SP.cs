@@ -21,6 +21,7 @@ namespace RateMonitor
         public static string forceIncText;
         public static string forceText;
         public static string forceLens;
+        public static string useDarkFogLens;
 
         public static string uiSettingsText;
         public static string enableQuickBarButtonText;
@@ -82,6 +83,7 @@ namespace RateMonitor
             incLevelText = isZHCN ? "增产等级: " : "ProliferatorLevel: ".Translate();
             forceIncText = isZHCN ? "强制增产" : "ForceProliferator".Translate();
             forceLens = isZHCN ? "强制透镜" : "ForceGravitonLens".Translate();
+            useDarkFogLens = isZHCN ? "黑雾透镜" : "UseDarkFogLens".Translate();
             forceText = isZHCN ? "强制" : "Force".Translate();
 
             uiSettingsText = isZHCN ? "UI设定" : "UI Settings".Translate();

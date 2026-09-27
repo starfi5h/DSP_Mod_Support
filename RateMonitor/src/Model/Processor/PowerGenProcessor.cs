@@ -17,7 +17,7 @@
                     if (useLen)
                     {
                         float accMul = 1f + (float)Cargo.accTableMilli[profile.incLevel];
-                        float refSpeed = 12f * accMul;  //直接用常數計算臨界光子產量
+                        float refSpeed = 12f * accMul * (CalDB.UseDarkFogLens ? 1 : 2);  //直接用常數計算臨界光子產量
                         profile.AddRefSpeed(1208, refSpeed); //臨界光子
                         //AddRefSpeed(1209, -0.1f); // 引力透鏡
                     }
@@ -56,7 +56,7 @@
                     if (incLevel > 0) //使用透鏡
                     {
                         float accMul = 1f + (float)Cargo.accTableMilli[incLevel];
-                        ratio = speed / (12f * accMul);
+                        ratio = speed / (12f * accMul * (CalDB.UseDarkFogLens ? 1 : 2));
                     }
                     else //不使用透鏡
                     {

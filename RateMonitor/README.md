@@ -234,10 +234,16 @@ Proliferator Level = -1
 Force Proliferator = false
 
 ## The theoretical max rate always apply gravity lens.
-## 计算射线接收站时总是套用透镜(false=依照当下决定)
+## 计算射线接收站时套用黑雾透镜
 # Setting type: Boolean
 # Default value: false
 Force Gravity Lens in Ray Receiver = false
+
+## The theoretical max rate applys dark fog lens.
+## 计算射线接收站时总是套用透镜(false=依照当下决定)
+# Setting type: Boolean
+# Default value: false
+Use Dark Fog Lens in Ray Receiver = false
 
 [KeyBinds]
 

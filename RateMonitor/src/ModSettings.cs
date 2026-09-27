@@ -16,6 +16,7 @@ namespace RateMonitor
         public static ConfigEntry<int> IncLevel;
         public static ConfigEntry<bool> ForceInc;
         public static ConfigEntry<bool> ForceLens;
+        public static ConfigEntry<bool> UseDarkFogLens;
         // UI
         public static ConfigEntry<bool> EnableQuickBarButton;
         public static ConfigEntry<bool> EnableSingleBuildingClick;        
@@ -47,6 +48,9 @@ namespace RateMonitor
 
             ForceLens = config.Bind("General", "Force Gravity Lens in Ray Receiver", false,
                 "The theoretical max rate always apply gravity lens.\n计算射线接收站时总是套用透镜(false=依照当下决定)");
+
+            UseDarkFogLens = config.Bind("General", "Use Dark Fog Lens in Ray Receiver", false,
+                "The theoretical max rate applys dark fog lens.\n计算射线接收站时套用黑雾透镜");
 
             EnableQuickBarButton = config.Bind("UI", "Enable Quick Bar Button", true,
                 "Create a button in mecha energy bar\n在机甲能量条创建一个mod开关按钮");

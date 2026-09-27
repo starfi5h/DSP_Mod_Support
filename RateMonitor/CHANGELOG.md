@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.3
+- Adpat to game version 0.10.35.29088. No longer supports 0.10.34 and below versions.  
+- Add config `UseDarkFogLens`  
+
 ## v0.4.2
 - Adpat to game version 0.10.34.28347. No longer supports 0.10.33 and below versions.  
 

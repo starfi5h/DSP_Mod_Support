@@ -134,6 +134,7 @@ namespace RateMonitor.UI
             GUILayout.BeginHorizontal();
             if (ConfigBoolField(SP.forceIncText, ModSettings.ForceInc)) needRecalculate = true;
             if (ConfigBoolField(SP.forceLens, ModSettings.ForceLens)) needRecalculate = true;
+            if (ConfigBoolField(SP.useDarkFogLens, ModSettings.UseDarkFogLens)) needRecalculate = true;
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
