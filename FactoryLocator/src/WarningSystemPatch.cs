@@ -54,6 +54,26 @@ namespace FactoryLocator
 			Plugin.mainLogic.GameTick();
         }
 
+		// --- Game 0.10.35+ focus-line compatibility ---------------------------------
+		// 0.10.35 added a GPU-drawn "focus line" system: WarningSystem keeps a
+		// persistent linked list (warningLineOrderHead/Next/Prev/Linked, sized to
+		// warningCapacity) of the warnings whose lines should be drawn, and
+		// DrawFocusDetail -> BuildWarningLineBuckets walks that list every frame.
+		//
+		// We WANT our synthetic pings in that list (it's what draws the line pointing
+		// at the searched item). The crash came from cleanup: ClearAll frees those
+		// slots and shrinks warningCapacity directly, without going through
+		// WarningSystem.RemoveWarningData, so the freed indices were never unlinked
+		// from the order list. A node then dangled past the shrunk array and every
+		// BuildWarningLineBuckets call threw IndexOutOfRangeException in OnPostRender
+		// (the red "Runtime Error" dialog + disabled autosave).
+		//
+		// Fix: unlink each synthetic warning from the order list before freeing it.
+		// This delegate is bound to WarningSystem.RemoveWarningLineOrder in
+		// Plugin.Awake, and stays null on older builds that lack the focus-line system
+		// (where there is nothing to unlink and nothing to crash).
+		public static System.Action<WarningSystem, int> UnlinkWarningLine;
+
 		[HarmonyPrefix]
 		[HarmonyPatch(typeof(UIWarningWindow), nameof(UIWarningWindow.Determine))]
 		internal static void Determine(ref bool open)
@@ -188,6 +208,20 @@ namespace FactoryLocator
 		{
 			int count = 0;
 			WarningSystem warningSystem = GameMain.data.warningSystem;
+
+			// Game 0.10.35+: unlink our synthetic warnings from the focus-line order
+			// list BEFORE the loop below frees their slots and shrinks warningCapacity.
+			// Done in a separate pass while warningCapacity is still at full size so
+			// every index is in range. Idempotent for slots that aren't linked.
+			if (UnlinkWarningLine != null)
+			{
+				for (int i = warningSystem.warningCursor - 1; i > 0; i--)
+				{
+					if (warningSystem.warningPool[i].factoryId <= INDEXUPPERBOND)
+						UnlinkWarningLine(warningSystem, i);
+				}
+			}
+
 			for (int i = warningSystem.warningCursor - 1; i > 0; i--)
             {
 				ref WarningData warning = ref warningSystem.warningPool[i];

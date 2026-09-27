@@ -49,6 +49,22 @@ namespace FactoryLocator
             harmony.PatchAll(typeof(WarningSystemPatch));
             harmony.PatchAll(typeof(UIentryCount));
 
+            // Game 0.10.35+: bind WarningSystem.RemoveWarningLineOrder so ClearAll can
+            // unlink our synthetic warnings from the new focus-line order list before
+            // freeing their slots. Without this, a dangling index makes
+            // BuildWarningLineBuckets throw IndexOutOfRangeException every frame.
+            // Guarded so the mod still loads on older builds that lack this method.
+            var removeWarningLineOrder = AccessTools.Method(typeof(WarningSystem), "RemoveWarningLineOrder");
+            if (removeWarningLineOrder != null)
+            {
+                WarningSystemPatch.UnlinkWarningLine = (System.Action<WarningSystem, int>)System.Delegate.CreateDelegate(
+                    typeof(System.Action<WarningSystem, int>), removeWarningLineOrder);
+            }
+            else
+            {
+                Log.Warn("WarningSystem.RemoveWarningLineOrder not found; skipping focus-line cleanup (older game build).");
+            }
+
 #if DEBUG
             Init();
 #else
