@@ -1,3 +1,8 @@
+## DSP 0.10.35
+
+### v1.3.13
+\- Adapt to game version 0.10.35.29088 (Thanks to simwhiteside!)
+
 ## DSP 0.10.34
 
 ### v1.3.12

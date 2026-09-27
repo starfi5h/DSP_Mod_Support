@@ -52,7 +52,7 @@ The Factory Locator mod enhances your gameplay by helping you efficiently locate
 ### Warning Icons Extention
 ![iteration entities wtih camera](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)  
 - **Left Click**: Displays the planet locations of the warnings. Click elsewhere to close the details.
-- **Ctrl + Left Click**: Loops the camera through all relevant entities on the local planet.
+- **Ctrl + Left Click**: In planet view, loops the camera through all relevant entities on the local planet.
 - **Right Click**: Removes the selected query group from the list.
 
 ## Installation
@@ -88,7 +88,7 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 打开窗口的默认热键是Ctrl + F。可以在"游戏设置-键位-打开FactoryLocator窗口"更改。  
 打开面板时自动将鼠标的指向物品或配方设为筛选条件。  
 默认情况下，该模组将在本地星球上搜索建筑物。  
-在星图视图中，如果选中的星球上有工厂，该模组将更改搜索星球。选择恒星时，它将搜索星系中的所有星球。  
+在星图视图中，如果选中的星球上有工厂，该模组将更改搜索这个远端星球。选择恒星时，它将搜索该恒星系中的所有星球。  
 
 ![选择窗口](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/subcategory_c.png)  
 在选择窗口中，将显示所有可能的搜索选项。数字显示符合条件的建筑物数量，或者所有物流塔及储物仓中的物品数量。  
@@ -115,10 +115,9 @@ Special thanks for Semar's LongArm mod for inspiration, hetima's mods for UI des
 - 1(信号601): 缺失增产剂输入  
 - 2(信号602): 缺失增产剂输出  
 
-
 ![中键循序镜头](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/FactoryLocator/doc/demo4.gif)
 - 左键单击信标详细信息图标可以显示警报位置。单击其他区域以关闭它。  
-- Ctrl+左键单击信标可以将镜头移动到本地星球上信标的位置。  
+- 在行星视图模式, Ctrl+左键单击信标可以将镜头移动到本地星球上信标的位置。  
 - 右键单击搜索信标可以移除该群组。  
 
 ## 安装
