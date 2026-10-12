@@ -166,7 +166,7 @@ namespace StatsUITweaks
             }
         }
 
-        public static void OnDestory()
+        public static void OnDestroy()
         {
             GameObject.Destroy(perSecGo);
             GameObject.Destroy(extendGraphGo);

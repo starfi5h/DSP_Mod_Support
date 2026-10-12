@@ -54,7 +54,7 @@ namespace StatsUITweaks
             Toggle(folded);
         }
 
-        public static void OnDestory()
+        public static void OnDestroy()
         {
             if (initialized)
             {

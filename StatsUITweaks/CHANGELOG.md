@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.16 (DSP 0.10.35.29105)
+- Remove config `TabSizeSwitch`, `HideLitterNotification`, `HideSoilNotification`  
+- 移除配置 `TabSizeSwitch`, `HideLitterNotification`, `HideSoilNotification`  
+
 ## v1.6.15 (DSP 0.10.35.29088)
 - Temporarily remove extensions to control panel
 - 暂时移除在物流总控面板的相关扩展功能

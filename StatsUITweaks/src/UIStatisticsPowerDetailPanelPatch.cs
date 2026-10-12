@@ -61,7 +61,7 @@ namespace StatsUITweaks
             Toggle(extended);
         }
 
-        public static void OnDestory()
+        public static void OnDestroy()
         {
             Toggle(false);
             GameObject.Destroy(extendBtn?.gameObject);

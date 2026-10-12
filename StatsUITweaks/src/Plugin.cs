@@ -16,94 +16,90 @@ namespace StatsUITweaks
     {
         public const string GUID = "starfi5h.plugin.StatsUITweaks";
         public const string NAME = "StatsUITweaks";
-        public const string VERSION = "1.6.15";
+        public const string VERSION = "1.6.16";
 
         public static ManualLogSource Log;
         static Harmony harmony;
+
+        // 宣告 ConfigEntry 變數以便在事件中參考
+        private ConfigEntry<bool> orderByNameConfig;
+        private ConfigEntry<int> dropDownCountConfig;
+        private ConfigEntry<string> systemPrefixConfig;
+        private ConfigEntry<string> systemPostfixConfig;
+        private ConfigEntry<string> planetPrefixConfig;
+        private ConfigEntry<string> planetPostfixConfig;
+        private ConfigEntry<KeyCode> hotkeyListUpConfig;
+        private ConfigEntry<KeyCode> hotkeyListDownConfig;
+
+        private ConfigEntry<int> timeSliderSliceConfig;
+        private ConfigEntry<int> listWidthOffesetConfig;
+        private ConfigEntry<int> rateFontSizeConfig;
+        private ConfigEntry<bool> excludeTrafficPeakConfig;
 
         public void Awake()
         {
             Log = Logger;
 
-            var OrderByName = Config.Bind("AstroBox", "OrderByName", true, "Order list by system name.\n以星系名称排序列表");
-            var DropDownCount = Config.Bind("AstroBox", "DropDownCount", 15, "Number of items shown in drop-down list.\n下拉列表显示的个数");
-            var SystemPrefix = Config.Bind("AstroBox", "SystemPrefix", "<color=yellow>", "Prefix string of star system in the list\n星系名称前缀");
-            var SystemPostfix = Config.Bind("AstroBox", "SystemPostfix", "</color>", "Postfix string of star system in the list\n星系名称后缀");
-            var PlanetPrefix = Config.Bind("AstroBox", "PlanetPrefix", "ㅤ", "Prefix string of planet in the list\n星球名称前缀"); //U+3164. Normal spaces will not load
-            var PlanetPostfix = Config.Bind("AstroBox", "PlanetPostfix", "", "Postfix string of planet in the list\n星球名称后缀");
-            var HotkeyListUp = Config.Bind("AstroBox", "HotkeyListUp", KeyCode.PageUp, "Move to previous item in list.\n切换至列表中上一个项目");
-            var HotkeyListDown = Config.Bind("AstroBox", "HotkeyListDown", KeyCode.PageDown, "Move to next item in list.\n切换至列表中下一个项目");
+            // 1. 綁定設定檔
+            orderByNameConfig = Config.Bind("AstroBox", "OrderByName", true, "Order list by system name.\n以星系名称排序列表");
+            dropDownCountConfig = Config.Bind("AstroBox", "DropDownCount", 15, "Number of items shown in drop-down list.\n下拉列表显示的个数");
+            systemPrefixConfig = Config.Bind("AstroBox", "SystemPrefix", "<color=yellow>", "Prefix string of star system in the list\n星系名称前缀");
+            systemPostfixConfig = Config.Bind("AstroBox", "SystemPostfix", "</color>", "Postfix string of star system in the list\n星系名称后缀");
+            planetPrefixConfig = Config.Bind("AstroBox", "PlanetPrefix", "ㅤ", "Prefix string of planet in the list\n星球名称前缀"); //U+3164
+            planetPostfixConfig = Config.Bind("AstroBox", "PlanetPostfix", "", "Postfix string of planet in the list\n星球名称后缀");
+            hotkeyListUpConfig = Config.Bind("AstroBox", "HotkeyListUp", KeyCode.PageUp, "Move to previous item in list.\n切换至列表中上一个项目");
+            hotkeyListDownConfig = Config.Bind("AstroBox", "HotkeyListDown", KeyCode.PageDown, "Move to next item in list.\n切换至列表中下一个项目");
 
-            //var SignificantDigits = Config.Bind("StatsUITweaks", "SignificantDigits", 0, new ConfigDescription("Significant figures of production/consumption (Default=0)\n产量有效位数(默认=0)", new AcceptableValueRange<int>(0, 10)));
-            var TimeSliderSlice = Config.Bind("MainWindow", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
-            var ListWidthOffeset = Config.Bind("MainWindow", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
-            var RateFontSize = Config.Bind("MainWindow", "RateFontSize", 26, "Adjust the font size of production rate. (Vanilla=18)\n生产速率和参考速率的字体大小(原版=18)");
-            var RefRateTweak = Config.Bind("MainWindow", "RefRateTweak", false, "The reference rate (maximum theoretical value) is always applied proliferator settings, regardless the material.\n参考速率(最大理论值)一律套用增产剂设定，无论原料是否已喷涂");
-            var RefRateMinerLimit = Config.Bind("MainWindow", "RefRateMinerLimit", 14400, "Set reference rate max limit for pump and oil extractor\n為抽水機和油井的参考速率設定上限");
-            var ExcludeTrafficPeak = Config.Bind("MainWindow", "ExcludeTrafficPeak", false, "When calculating the height of a histogram, exclude peak values ​​from input and output.\n计算柱状图高度时, 排除输入和输出的峰值");
+            timeSliderSliceConfig = Config.Bind("MainWindow", "TimeSliderSlice", 20, "The number of divisions of the time range slider.\n时间范围滑杆的分割数");
+            listWidthOffesetConfig = Config.Bind("MainWindow", "ListWidthOffeset", 70, "Increase width of the list.\n增加列表栏位宽度");
+            rateFontSizeConfig = Config.Bind("MainWindow", "RateFontSize", 26, "Adjust the font size of production rate. (Vanilla=18)\n生产速率和参考速率的字体大小(原版=18)");
+            var refRateTweak = Config.Bind("MainWindow", "RefRateTweak", false, "The reference rate (maximum theoretical value) is always applied proliferator settings, regardless the material.\n参考速率(最大理论值)一律套用增产剂设定，无论原料是否已喷涂");
+            var refRateMinerLimit = Config.Bind("MainWindow", "RefRateMinerLimit", 14400, "Set reference rate max limit for pump and oil extractor\n為抽水機和油井的参考速率設定上限");
+            excludeTrafficPeakConfig = Config.Bind("MainWindow", "ExcludeTrafficPeak", false, "When calculating the height of a histogram, exclude peak values ​​from input and output.\n计算柱状图高度时, 排除输入和输出的峰值");
 
-            
-            var FoldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
-            var HideLitterNotification = Config.Bind("Other", "HideLitterNotification", false, "Don't show trash notification (still visable in Z mode)\n隐藏平常模式的垃圾提示(Z模式仍可见)");
-            var HideSoilNotification = Config.Bind("Other", "HideSoilNotification", false, "Don't show soil notification\n隐藏沙土数量变动的提示");
+            var foldButton = Config.Bind("Other", "FoldButton", true, "Add a button in perforamnce test panel to fold pie chart.\n在性能面板加入一个折叠饼图的按钮");
 
-            var TabSizeSwitch = Config.Bind("Dashboard", "TabSizeSwitch", true, "When hovering on an item, Tab to switch size, Ctrl+Tab to swtich title.\n鼠标悬停在某个统计项上时，Tab键切换尺寸，Ctrl+Tab键切换标题");
+            // 2. 初始化賦值
+            UpdateValues(null, EventArgs.Empty);
 
-            Utils.OrderByName = OrderByName.Value;
-            Utils.DropDownCount = DropDownCount.Value;
-            Utils.HotkeyListUp = HotkeyListUp.Value;
-            Utils.HotkeyListDown = HotkeyListDown.Value;
-            Utils.SystemPrefix = SystemPrefix.Value;
-            Utils.SystemPostfix = SystemPostfix.Value;
-            Utils.PlanetPrefix = PlanetPrefix.Value;
-            Utils.PlanetPostfix = PlanetPostfix.Value;
+            // 3. 註冊 Config 變更事件（實現即時生效）
+            orderByNameConfig.SettingChanged += UpdateValues;
+            dropDownCountConfig.SettingChanged += UpdateValues;
+            systemPrefixConfig.SettingChanged += UpdateValues;
+            systemPostfixConfig.SettingChanged += UpdateValues;
+            planetPrefixConfig.SettingChanged += UpdateValues;
+            planetPostfixConfig.SettingChanged += UpdateValues;
+            hotkeyListUpConfig.SettingChanged += UpdateValues;
+            hotkeyListDownConfig.SettingChanged += UpdateValues;
 
-            //StatsWindowPatch.SignificantDigits = SignificantDigits.Value > 0 ? SignificantDigits.Value : 0;
-            StatsWindowPatch.TimeSliderSlice = TimeSliderSlice.Value;
-            StatsWindowPatch.ListWidthOffeset = ListWidthOffeset.Value;
-            StatsWindowPatch.RateFontSize = RateFontSize.Value;
-            StatsWindowPatch.ExcludeTrafficPeak = ExcludeTrafficPeak.Value;
+            timeSliderSliceConfig.SettingChanged += UpdateValues;
+            listWidthOffesetConfig.SettingChanged += UpdateValues;
+            rateFontSizeConfig.SettingChanged += UpdateValues;
+            excludeTrafficPeakConfig.SettingChanged += UpdateValues;
 
             harmony = new Harmony(GUID);
             harmony.PatchAll(typeof(StatsWindowPatch));
 
-            if (FoldButton.Value)
+            if (foldButton.Value)
             {
-                if (GameConfig.gameVersion > new Version(0, 10, 32))
-                {
-                    harmony.PatchAll(typeof(PerformancePanelPatch));
-                    harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
-                }
+                harmony.PatchAll(typeof(PerformancePanelPatch));
+                harmony.PatchAll(typeof(UIStatisticsPowerDetailPanelPatch));
             }
-            //harmony.PatchAll(typeof(UIControlPanelPatch));
             harmony.PatchAll(typeof(StatsWindowPatch.Entry_Patch));
 
-            RefProductSpeedPatch.Init(harmony, RefRateTweak.Value, RefRateMinerLimit.Value);
+            RefProductSpeedPatch.Init(harmony, refRateTweak.Value, refRateMinerLimit.Value);
             harmony.PatchAll(typeof(UIGamePatch));
 
             harmony.PatchAll(typeof(StatPlanPatch));
-            if (TabSizeSwitch.Value)
-                harmony.PatchAll(typeof(UIChartPatch));
             harmony.PatchAll(typeof(UIChartAstroItemProductionPatch));
-
-            var harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(Block_Prefix)));
-            if (HideLitterNotification.Value)
-                harmony.Patch(AccessTools.Method(typeof(UITrashPanel), nameof(UITrashPanel.DetermineVisible)), harmonyMethod);
-            if (HideSoilNotification.Value)
-                harmony.Patch(AccessTools.Method(typeof(UIGame), nameof(UIGame.OnSandCountChanged)), harmonyMethod);
 
             // Add extra UILayoutHeights
             var originalMethod = AccessTools.Method(typeof(UIOptionWindow), nameof(UIOptionWindow.CollectUILayoutHeights));
             if (originalMethod != null)
             {
-                harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(CollectUILayoutHeights_Postfix)));
+                var harmonyMethod = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(CollectUILayoutHeights_Postfix)));
                 harmony.Patch(originalMethod, null, harmonyMethod);
             }
-        }
-
-        public static bool Block_Prefix()
-        {
-            return false;
         }
 
         public static void CollectUILayoutHeights_Postfix(UIOptionWindow __instance)
@@ -116,12 +112,29 @@ namespace StatsUITweaks
             uiLayoutHeights.Sort();
         }
 
+        private void UpdateValues(object sender, EventArgs e)
+        {
+            Utils.OrderByName = orderByNameConfig.Value;
+            Utils.DropDownCount = dropDownCountConfig.Value;
+            Utils.HotkeyListUp = hotkeyListUpConfig.Value;
+            Utils.HotkeyListDown = hotkeyListDownConfig.Value;
+            Utils.SystemPrefix = systemPrefixConfig.Value;
+            Utils.SystemPostfix = systemPostfixConfig.Value;
+            Utils.PlanetPrefix = planetPrefixConfig.Value;
+            Utils.PlanetPostfix = planetPostfixConfig.Value;
+
+            StatsWindowPatch.TimeSliderSlice = timeSliderSliceConfig.Value;
+            StatsWindowPatch.ListWidthOffeset = listWidthOffesetConfig.Value;
+            StatsWindowPatch.RateFontSize = rateFontSizeConfig.Value;
+            StatsWindowPatch.ExcludeTrafficPeak = excludeTrafficPeakConfig.Value;
+        }
+
 #if DEBUG
         public void OnDestroy()
         {
-            StatsWindowPatch.OnDestory();
-            PerformancePanelPatch.OnDestory();
-            UIStatisticsPowerDetailPanelPatch.OnDestory();
+            StatsWindowPatch.OnDestroy();
+            PerformancePanelPatch.OnDestroy();
+            UIStatisticsPowerDetailPanelPatch.OnDestroy();
             harmony.UnpatchSelf();
             harmony = null;
         }

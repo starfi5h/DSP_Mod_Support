@@ -38,8 +38,6 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `PlanetPostfix`   |                | Postfix string of planet in the list |
 | `HotkeyListUp`    | PageUp   | Move to previous item in astro list |
 | `HotkeyListDown`    | PageDown | Move to next item in astro list |
-| Dashboard | | |
-| `TabSizeSwitch`   | true   | When hovering on an item, Tab to switch size, Ctrl+Tab to swtich title. |
 | MainWindow | | |
 | `TimeSliderSlice` | 20     | The number of divisions of the time range slider |
 | `ListWidthOffeset`| 70     | Increase width of the list |
@@ -49,8 +47,6 @@ Check [Unity - KeyCode](https://docs.unity3d.com/2018.4/Documentation/ScriptRefe
 | `ExcludeTrafficPeak` | false  | When calculating the height of a histogram, exclude peak values ​​from input and output |
 | Other | | |
 | `FoldButton`      | true   | Add a button in perforamnce test panel to fold pie chart |
-| `HideLitterNotification` | false    | Don't show trash notification (still visable in Z mode) |
-| `HideSoilNotification` | false    | Don't show soil notification |
 
 ----
 
@@ -109,8 +105,6 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `PlanetPostfix`   |                | 星球名称后缀 |
 | `HotkeyListUp`    | PageUp   | 切换至列表中上一个项目的热键 |
 | `HotkeyListDown`  | PageDown | 切换至列表中下一个项目的热键 |
-| Dashboard | | |
-| `TabSizeSwitch`   | true     | 鼠标悬停在某个统计项上时，Tab键切换尺寸，Ctrl+Tab键切换标题 |
 | MainWindow | | |
 | `ListWidthOffeset`| 70       | 增加列表栏位的宽度 |
 | `TimeSliderSlice` | 20       | 时间范围滑杆的分割数 |
@@ -120,8 +114,6 @@ PageUp/PageDown可以切换至列表的上/下一个项目。压住Ctrl时, 会�
 | `ExcludeTrafficPeak` | false  | 计算柱状图高度时, 排除输入和输出的峰值 |
 | Other | | |
 | `FoldButton`      | true     | 在性能面板加入一个折叠饼图的按钮 |
-| `HideLitterNotification` | false    | 隐藏平常模式的垃圾提示(Z模式仍可见) |
-| `HideSoilNotification` | false    | 隐藏沙土数量变动的提示 |
 
 ![demo3](https://raw.githubusercontent.com/starfi5h/DSP_Mod_Support/dev/StatsUITweaks/img/demo3.jpg)  
 
